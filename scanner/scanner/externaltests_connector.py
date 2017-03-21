@@ -17,24 +17,24 @@ script_dir = "/home/nico/tests/"
 class ExternalTestsConnector():
 
     def GetException(self):
-	exc_type, exc_obj, tb = sys.exc_info()
-	f = tb.tb_frame
-	lineno = tb.tb_lineno
-	filename = f.f_code.co_filename
-	linecache.checkcache(filename)
-	line = linecache.getline(filename, lineno, f.f_globals)
-	return 'EXCEPTION {} IN ({}, LINE {} "{}"): {}'.format(exc_type, filename, lineno, line.strip(), exc_obj)
+        exc_type, exc_obj, tb = sys.exc_info()
+        f = tb.tb_frame
+        lineno = tb.tb_lineno
+        filename = f.f_code.co_filename
+        linecache.checkcache(filename)
+        line = linecache.getline(filename, lineno, f.f_globals)
+        return 'EXCEPTION {} IN ({}, LINE {} "{}"): {}'.format(exc_type, filename, lineno, line.strip(), exc_obj)
 
     def RunAllScripts(self, cur, list_id, scangroup_id, url, url_number, number_of_urls):
-	for directory, subdirectories, files in os.walk(script_dir):
+        for directory, subdirectories, files in os.walk(script_dir):
             
             i = 0
             num_files = len(files)
 
-	    for f in files:
+            for f in files:
                 i = i + 1
-		fname = os.path.join(directory, f)
-		print "=====> Running script %s" % fname
+                fname = os.path.join(directory, f)
+                print "=====> Running script %s" % fname
 
                 # determine filename without extension and store in f2
                 # or store full filename in f2 if it does not have an extension
@@ -63,7 +63,7 @@ class ExternalTestsConnector():
                 except Exception as ex:
                     print "error calling subprocess %s for %s" % [fname, url]
 
-		print output
+                print output
 
                 query = ("INSERT INTO ext_%s (url, res_json) "
                          "VALUES (?, ?);" % tablename)
