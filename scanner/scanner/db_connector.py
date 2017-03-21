@@ -11,11 +11,11 @@ from pprint import pprint
 import tldextract # "pip install tldextract", to extract hosts and third parties
 import logging
 
-# FIXME Hardcoded path
-logging.basicConfig(filename='/var/log/Pranger/scanner-db-connector.log',level=logging.DEBUG)
+import config
 
-# FIXME Hardcoded MongoDB-Host
-client = MongoClient('mongodb://localhost:27017/')
+logging.basicConfig(filename=config.LOG_DIR + 'scanner-db-connector.log', level=logging.DEBUG)
+
+client = MongoClient(config.MONGODB_URL)
 db = client['PrangerDB']
 
 #TODO SQL-Abfrage
@@ -38,8 +38,7 @@ class DBConnector():
 
     def SaveScan(self, list_id, scangroup_id, url_List):
         try:
-            # FIXME hardcoded path
-            conn = lite.connect("/home/nico/WPM-Scans/%s/crawl-data.sqlite" % str(list_id))
+            conn = lite.connect(config.SCAN_DIR + "%s/crawl-data.sqlite" % str(list_id))
             cur = conn.cursor()
 
             db.ScanGroup.update({'_id': ObjectId(scangroup_id)}, {'$set':{'enddate': datetime.now().isoformat()}}, upsert=False)
@@ -376,6 +375,7 @@ class DBConnector():
 
             #os.remove("/home/nico/WPM-Scans/%s/crawl-data.sqlite", str(list_id))
             # done in cron job now
+            # TODO Well, that's a sobering thought. Maybe it shouldn't be done in a cron job? Race conditions etc.
             return 'success'
 
         except Exception as ex:

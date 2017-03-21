@@ -10,12 +10,13 @@ from scan_connector import ScannerConnector
 from db_connector import DBConnector
 from externaltests_connector import ExternalTestsConnector
 
+import config
+
 DBConnector = DBConnector()
 ScannerConnector = ScannerConnector()
 ExternalTestsConnector = ExternalTestsConnector()
 
-# FIXME Hardcoded MongoDB-Host
-client = MongoClient('mongodb://localhost:27017/')
+client = MongoClient(config.MONGODB_URL)
 db = client['PrangerDB']
 
 readylists = db.ScanGroup.find({'state': 'ready'}).count()
@@ -32,13 +33,11 @@ if scanninglists < 3 and readylists > 0:
 
             # Note: This is a race condition waiting to happen if a scan has not terminated before a rescan is started.
             # But I don't have a better idea right now.
-            # FIXME Hardcoded path
-            fname = "/home/nico/WPM-Scans/%s/crawl-data.sqlite" %  str(list_id)
+            fname = config.SCAN_DIR + "%s/crawl-data.sqlite" %  str(list_id)
             if os.path.isfile(fname):
                 os.remove(fname)
 
-            # FIXME Hardcoded path
-            f = open("/home/nico/WPM-Scans/scans.txt", 'a')
+            f = open(config.SCAN_DIR + "scans.txt", 'a')
             f.write("Listen-ID: " + str(list_id))
             f.write(os.linesep)
             f.close()

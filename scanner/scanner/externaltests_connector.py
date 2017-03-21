@@ -9,12 +9,12 @@ import re
 import subprocess
 import sys
 
-# FIXME Hardcoded MongoDB-Host
-client = MongoClient('mongodb://localhost:27017/')
+import config
+
+client = MongoClient(config.MONGODB_URL)
 db = client['PrangerDB']
 
-# FIXME hardcoded path
-script_dir = "/home/nico/tests/"
+script_dir = config.EXTERNAL_SCRIPTS_DIR
 
 class ExternalTestsConnector():
 
@@ -81,8 +81,7 @@ class ExternalTestsConnector():
 
     def RunExternalTests(self, list_id, scangroup_id, url_list):
         try:
-            # FIXME Hardcoded path
-            self.conn = lite.connect("/home/nico/WPM-Scans/%s/crawl-data.sqlite" % str(list_id))
+            self.conn = lite.connect(config.SCAN_DIR + "%s/crawl-data.sqlite" % str(list_id))
 
             cur = self.conn.cursor()
 

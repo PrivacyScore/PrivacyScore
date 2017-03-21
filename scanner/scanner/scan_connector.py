@@ -6,8 +6,9 @@ from bson.objectid import ObjectId
 from pymongo import MongoClient
 from datetime import datetime
 
-# FIXME Hardcoded MongoDB-Host
-client = MongoClient('mongodb://localhost:27017/')
+import config
+
+client = MongoClient(config.MONGODB_URL)
 db = client['PrangerDB']
 
 def determine_final_url(table_name, original_url, **kwargs):
@@ -45,8 +46,8 @@ class ScannerConnector():
                 browser_params[i]['headless'] = True
                 browser_params[i]['bot_mitigation'] = True # needed to ensure we look more "normal"
 
-            manager_params['data_directory'] = "/home/nico/WPM-Scans/%s/" % str(list_id)
-            manager_params['log_directory'] =  "/home/nico/WPM-Scans/%s/" % str(list_id)
+            manager_params['data_directory'] = config.SCAN_DIR + "%s/" % str(list_id)
+            manager_params['log_directory'] =  config.SCAN_DIR + "%s/" % str(list_id)
             manager_params['database_name'] =  'crawl-data.sqlite'
             manager = TaskManager.TaskManager(manager_params, browser_params)
 
