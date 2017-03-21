@@ -55,7 +55,7 @@ class ExternalTestsConnector():
                     "Analyzing URL %i/%i with test %s (%i/%i)" % (url_number, number_of_urls, tablename, i, num_files)}})
                 db.ScanGroup.update({'_id': ObjectId(scangroup_id)}, {'$set':{'progress_timestamp': datetime.now().isoformat()}}, upsert=False)
                 
-                # FIXME SQL Injection
+                # Safe against SQLi because tablename can only contain alphanumeric characters
                 query = ("CREATE TABLE IF NOT EXISTS ext_%s ("
                           "url TEXT, res_json TEXT);" % tablename)
                 cur.execute(query)
@@ -69,7 +69,7 @@ class ExternalTestsConnector():
 
                 print output
 
-                # FIXME SQL Inection
+                # Still safe against SQLi, for the same reasons as outlined above
                 query = ("INSERT INTO ext_%s (url, res_json) "
                          "VALUES (?, ?);" % tablename)
                 cur.execute(query, (url, output))

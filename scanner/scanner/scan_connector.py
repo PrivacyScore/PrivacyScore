@@ -20,12 +20,14 @@ def determine_final_url(table_name, original_url, **kwargs):
     sock = clientsocket()
     sock.connect(*manager_params['aggregator_address'])
 
-    # FIXME SQL Injection
+    # It is not possible to use sanitised wildcard ("?") replacement here, as this can only be used
+    # for values, not table or column names. However, this is safe in this context, as the value
+    # is hardcoded into the call to be "final_urls", so there is no possibility of SQL injections here
     query = ("CREATE TABLE IF NOT EXISTS %s ("
             "original_url TEXT, final_url TEXT);" % table_name)
     sock.send((query, ()))
 
-    # FIXME SQL Injection
+    # Safe against SQLi, for the same reason as outlined above
     query = ("INSERT INTO %s (original_url, final_url) "
              "VALUES (?, ?)" % table_name)
     sock.send((query, (original_url, current_url)))
