@@ -11,8 +11,10 @@ from pprint import pprint
 import tldextract # "pip install tldextract", to extract hosts and third parties
 import logging
 
+# FIXME Hardcoded path
 logging.basicConfig(filename='/var/log/Pranger/scanner-db-connector.log',level=logging.DEBUG)
 
+# FIXME Hardcoded MongoDB-Host
 client = MongoClient('mongodb://localhost:27017/')
 db = client['PrangerDB']
 
@@ -21,13 +23,13 @@ class DBConnector():
 
 
     def GetException(self):
-	exc_type, exc_obj, tb = sys.exc_info()
-	f = tb.tb_frame
-	lineno = tb.tb_lineno
-	filename = f.f_code.co_filename
-	linecache.checkcache(filename)
-	line = linecache.getline(filename, lineno, f.f_globals)
-	return 'EXCEPTION {} IN ({}, LINE {} "{}"): {}'.format(exc_type, filename, lineno, line.strip(), exc_obj)
+        exc_type, exc_obj, tb = sys.exc_info()
+        f = tb.tb_frame
+        lineno = tb.tb_lineno
+        filename = f.f_code.co_filename
+        linecache.checkcache(filename)
+        line = linecache.getline(filename, lineno, f.f_globals)
+        return 'EXCEPTION {} IN ({}, LINE {} "{}"): {}'.format(exc_type, filename, lineno, line.strip(), exc_obj)
 
 
     def check_testssl(self, arr, search):
@@ -36,6 +38,7 @@ class DBConnector():
 
     def SaveScan(self, list_id, scangroup_id, url_List):
         try:
+            # FIXME hardcoded path
             conn = lite.connect("/home/nico/WPM-Scans/%s/crawl-data.sqlite" % str(list_id))
             cur = conn.cursor()
 
@@ -68,9 +71,11 @@ class DBConnector():
                     'headerchecks': []
                 }
                 sites = db.Seiten.find({'list_id': ObjectId(list_id), '_id': ObjectId(url["_id"])}, {'_id': 1, 'url': 1})
+                # TODO What happens if no result is found for some reason? Crash? Look up documentation for .next()
                 site = sites.next()
 
                 # requests
+                # FIXME SQL Injection
                 for start_time, site_url in cur.execute(
                         "SELECT DISTINCT start_time, site_url " +
                         "FROM crawl as c JOIN site_visits as s " +
@@ -86,6 +91,7 @@ class DBConnector():
                     maindomain_visited_url = "{}.{}".format(extracted_visited_url.domain, extracted_visited_url.suffix)
                     hostname_visited_url = '.'.join(extracted_visited_url)
 
+                    # FIXME SQL Injection
                     for url, method, referrer, headers in cur.execute("SELECT url, method, referrer, headers " +
                             "FROM site_visits as s JOIN http_requests as h ON s.visit_id = h.visit_id " +
                             "WHERE s.site_url LIKE '" + site["url"] + "' ORDER BY h.id;"):
@@ -115,11 +121,12 @@ class DBConnector():
                     scantosave["third_parties_anzahl"] = len(third_parties)
 
                     # responses
+                    # FIXME SQL Injection
                     for url, method, referrer, headers, response_status_text, time_stamp in cur.execute(
                             "SELECT url, method, referrer, headers, response_status_text, " +
                             "time_stamp FROM site_visits as s JOIN http_responses as h " +
                             "ON s.visit_id = h.visit_id WHERE s.site_url LIKE '" + site["url"] + "' ORDER BY h.id;"):
-                        respons = {
+                        response = {
                             'url': url,
                             'method': method,
                             'referrer': referrer,
@@ -127,7 +134,7 @@ class DBConnector():
                             'response_status_text': response_status_text,
                             'time_stamp': time_stamp
                         }
-                        scantosave["responses"].append(respons)
+                        scantosave["responses"].append(response)
 
 
                     # if there are no responses the site failed to load
@@ -218,6 +225,7 @@ class DBConnector():
 
 
                     # Cookies
+                    # FIXME SQL Injection
                     for baseDomain, name, value, host, path, expiry, accessed, creationTime, isSecure, isHttpOnly in cur.execute(
                             "SELECT baseDomain, name, value, host, path, expiry, " +
                             "accessed, creationTime, isSecure, isHttpOnly " +
@@ -238,6 +246,7 @@ class DBConnector():
                         scantosave["profilecookies"].append(profilecookie)
 
                     # Flash-Cookies
+                    # FIXME SQL Injection
                     for domain, filename, local_path, key, content in cur.execute(
                             "SELECT domain, filename, local_path, key, content " +
                             "FROM site_visits as s JOIN flash_cookies as c " +

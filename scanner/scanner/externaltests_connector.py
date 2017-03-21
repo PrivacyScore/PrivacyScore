@@ -9,9 +9,11 @@ import re
 import subprocess
 import sys
 
+# FIXME Hardcoded MongoDB-Host
 client = MongoClient('mongodb://localhost:27017/')
 db = client['PrangerDB']
 
+# FIXME hardcoded path
 script_dir = "/home/nico/tests/"
 
 class ExternalTestsConnector():
@@ -53,18 +55,21 @@ class ExternalTestsConnector():
                     "Analyzing URL %i/%i with test %s (%i/%i)" % (url_number, number_of_urls, tablename, i, num_files)}})
                 db.ScanGroup.update({'_id': ObjectId(scangroup_id)}, {'$set':{'progress_timestamp': datetime.now().isoformat()}}, upsert=False)
                 
+                # FIXME SQL Injection
                 query = ("CREATE TABLE IF NOT EXISTS ext_%s ("
                           "url TEXT, res_json TEXT);" % tablename)
                 cur.execute(query)
 
                 output = "test failed"
                 try:
+                    # TODO Here, the external test is called => Move to celery task
                     output = subprocess.check_output([fname, url])
                 except Exception as ex:
                     print "error calling subprocess %s for %s" % [fname, url]
 
                 print output
 
+                # FIXME SQL Inection
                 query = ("INSERT INTO ext_%s (url, res_json) "
                          "VALUES (?, ?);" % tablename)
                 cur.execute(query, (url, output))
@@ -74,16 +79,17 @@ class ExternalTestsConnector():
                 print "=====> Stored result for script %s" % fname
 
 
-    def RunExternalTests(self, list_id, scangroup_id, url_List):
+    def RunExternalTests(self, list_id, scangroup_id, url_list):
         try:
+            # FIXME Hardcoded path
             self.conn = lite.connect("/home/nico/WPM-Scans/%s/crawl-data.sqlite" % str(list_id))
 
             cur = self.conn.cursor()
 
             i = 0
-            num_urls = len(url_List)
+            num_urls = len(url_list)
 
-            for url in url_List:
+            for url in url_list:
                 i = i + 1
                 sites = db.Seiten.find({'list_id': ObjectId(list_id), '_id': ObjectId(url["_id"])}, {'_id': 1, 'url': 1})
                 site = sites.next()

@@ -6,6 +6,7 @@ from bson.objectid import ObjectId
 from pymongo import MongoClient
 from datetime import datetime
 
+# FIXME Hardcoded MongoDB-Host
 client = MongoClient('mongodb://localhost:27017/')
 db = client['PrangerDB']
 
@@ -18,10 +19,12 @@ def determine_final_url(table_name, original_url, **kwargs):
     sock = clientsocket()
     sock.connect(*manager_params['aggregator_address'])
 
+    # FIXME SQL Injection
     query = ("CREATE TABLE IF NOT EXISTS %s ("
             "original_url TEXT, final_url TEXT);" % table_name)
     sock.send((query, ()))
 
+    # FIXME SQL Injection
     query = ("INSERT INTO %s (original_url, final_url) "
              "VALUES (?, ?)" % table_name)
     sock.send((query, (original_url, current_url)))
