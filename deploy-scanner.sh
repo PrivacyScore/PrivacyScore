@@ -57,12 +57,14 @@ tar -xzf redis-stable.tar.gz
 cd redis-stable
 make
 sudo make install
+cd ..
+rm -rf redis-stable
 screen -d -m redis-server
 
 
 
 ### Install scanner stuff
-# Create and source Virtualenv
+# Go to the correct folder
 cd $DIR/scanner
 
 # Download and set up OpenWPM
@@ -123,7 +125,7 @@ chmod +x download-updated-db.sh
 
 echo ""
 echo "################################################################################"
-echo "##                                 ATTENTION!                                 ##"
+echo "##                !!!              ATTENTION                !!!               ##"
 echo "##                                                                            ##"
 echo "##  This script has just set up a number of new services on your machine      ##"
 echo "##  without any protection mechanisms in place.  Please ensure that you       ##"
