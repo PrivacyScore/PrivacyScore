@@ -1,8 +1,32 @@
 #!/bin/bash
+#### About this script
+# This script will install a fully-featured scanner system + dependencies. It will currently NOT set up the backend API.
+# It also sets up the servers with 
+#      !!!!! NO SECURITY !!!!!
+# whatsoever. You will need to fix this manually if your device is exposed in the network
+
+# Exit in case of error
+set -e
+
 # Get path of script file
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Go there
 cd $DIR
+
+# TODO implement distinction between backend and scanner installs
+# if [ -z $1 ]; then
+#     echo "Please state a role: backend or scanner"
+#     exit
+# fi
+# if [ $1 = 'backend' ]; then
+#     echo "backend"
+#     
+# elif [ $1 = 'scanner' ]; then
+#     echo "scanner"
+# else
+#     echo "Please state a role: backend or scanner"
+#     exit
+# fi
 
 # Create folders
 mkdir data
@@ -10,20 +34,36 @@ mkdir data/scans
 mkdir data/log
 
 # Prepare download of MongoDB
-# TODO remove mongodb for slave installs
+# TODO remove mongodb for "scanner-only" installs
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6
 echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list
+# Prepare download of RabbitMQ Message broker
+echo 'deb http://www.rabbitmq.com/debian/ testing main' | sudo tee /etc/apt/sources.list.d/rabbitmq.list
+wget -O- https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | sudo apt-key add -
+
 
 # Get initial dependencies and MongoDB 
 # TODO remove mongodb for slave installs
 # TODO Add virtualenv
 sudo apt-get update
-sudo apt-get install -y ruby mmdb-bin mongodb-org
+sudo apt-get install -y ruby mmdb-bin mongodb-org rabbitmq-server screen make build-essential
 sudo service mongod start
+
+# Get Redis
+# TODO This is horrible. Also, redis will not be brought up on reboot this way.
+cd /tmp
+wget http://download.redis.io/redis-stable.tar.gz
+tar -xzf redis-stable.tar.gz
+cd redis-stable
+make
+sudo make install
+screen -d -m redis-server
+
+
 
 ### Install scanner stuff
 # Create and source Virtualenv
-cd scanner
+cd $DIR/scanner
 
 # Download and set up OpenWPM
 git clone https://github.com/citp/OpenWPM
@@ -80,3 +120,23 @@ echo "wget http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.m
 echo "gunzip GeoLite2-Country.mmdb.gz" >> download-updated-db.sh
 chmod +x download-updated-db.sh
 ./download-updated-db.sh
+
+echo ""
+echo "################################################################################"
+echo "##                                 ATTENTION!                                 ##"
+echo "##                                                                            ##"
+echo "##  This script has just set up a number of new services on your machine      ##"
+echo "##  without any protection mechanisms in place.  Please ensure that you       ##"
+echo "##  give them a more secure configuration as soon as possible, and limit the  ##"
+echo "##  IPs they are listening on.  The new services are:                         ##"
+echo "##    - MongoDB (docs.mongodb.com/manual/administration/security-checklist)   ##"
+echo "##    - RabbitMQ (www.rabbitmq.com/admin-guide.html)                          ##"
+echo "##    - Redis (redis.io/topics/security)                                      ##"
+echo "##                                                                            ##"
+echo "##  Also note that while MongoDB and RabbitMQ are configured as services and  ##"
+echo "##  started automatically, Redis is currently running in a screen instance,   ##"
+echo "##  and you will have to configure it to run as a service to have it start    ##"
+echo "##  after the system is rebooted.  See the section 'Installing Redis more     ##"
+echo "##  properly' of the Redis QuickStart-Guide: redis.io/topics/quickstart.      ##"
+echo "##                                                                            ##"
+echo "################################################################################"
