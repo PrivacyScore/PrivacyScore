@@ -10,7 +10,8 @@ from datetime import datetime
 from bson.objectid import ObjectId
 from bson.json_util import dumps
 
-logging.basicConfig(filename='/var/log/Pranger/connector.log',level=logging.DEBUG)
+# FIXME Hardcoded path - uncomment and change
+# logging.basicConfig(filename='/var/log/Pranger/connector.log',level=logging.DEBUG)
 client = MongoClient('mongodb://localhost:27017/')
 db = client['PrangerDB']
 
