@@ -23,6 +23,9 @@ readylists = db.ScanGroup.find({'state': 'ready'}).count()
 scanninglists = db.ScanGroup.find({'state': 'scanning'}).count()
 
 if scanninglists < 3 and readylists > 0:
+    # TODO Why limit to one? Probably an artifact of the cron job system that can be removed once everything is run
+    #      via Celery and therefore rate limited automatically
+    #      But since this will be refactored anyway (the API backend will directly schedule everything), this isn't too bad
     scannablelist = db.ScanGroup.aggregate([{'$match': {'state': 'ready'}},{'$sort': {'startdate': -1}}, {'$limit': 1}])
     x = list(scannablelist)
     if len(x) > 0:
