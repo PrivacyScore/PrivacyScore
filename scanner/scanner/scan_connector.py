@@ -48,6 +48,7 @@ class ScannerConnector():
                 browser_params[i]['disable_flash'] = False
                 browser_params[i]['headless'] = True
                 browser_params[i]['bot_mitigation'] = True # needed to ensure we look more "normal"
+                browser_params[i]['http_instrument'] = True
 
             manager_params['data_directory'] = config.SCAN_DIR + "%s/" % str(list_id)
             manager_params['log_directory'] =  config.SCAN_DIR + "%s/" % str(list_id)
