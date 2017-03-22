@@ -9,8 +9,8 @@ result = {}
 # http://stackoverflow.com/questions/8539258/after-symlinking-a-file-how-do-i-get-the-path-of-the-original-file-in-ruby
 curdir = __dir__
 
-LOOKUP_CMD_1="mmdblookup -f #{curdir}/GeoLite2-Country.mmdb --ip #IP# country names en | grep -o '\".*\"' | tr -d '\"'"
-LOOKUP_CMD_2="mmdblookup -f #{curdir}/GeoLite2-Country.mmdb --ip #IP# continent names en | grep -o '\".*\"' | tr -d '\"'"
+LOOKUP_CMD_1="mmdblookup -f #{curdir}/vendor/geoip/GeoLite2-Country.mmdb --ip #IP# country names en | grep -o '\".*\"' | tr -d '\"'"
+LOOKUP_CMD_2="mmdblookup -f #{curdir}/vendor/geoip/GeoLite2-Country.mmdb --ip #IP# continent names en | grep -o '\".*\"' | tr -d '\"'"
 
 def getloc(ip_array)
   locations = []
