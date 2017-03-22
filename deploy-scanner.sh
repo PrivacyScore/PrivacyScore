@@ -36,7 +36,6 @@ yes | ./install.sh
 sudo pip install -r scanner/requirements.txt
 
 # Create config file for scanner
-user=$(whoami)
 echo "# -*- coding: utf-8 -*-"                                                           > scanner/config.py
 echo "# Configuration file for the scanner. Still using hard-coded paths, but at least" >> scanner/config.py
 echo "# here, the terribleness is centralized and can be easily changed in one place."  >> scanner/config.py
