@@ -28,6 +28,7 @@ class ExternalTestsConnector():
         return 'EXCEPTION {} IN ({}, LINE {} "{}"): {}'.format(exc_type, filename, lineno, line.strip(), exc_obj)
 
     def RunAllScripts(self, cur, list_id, scangroup_id, url, url_number, number_of_urls):
+        # TODO Do we need the _async and _callback system or can we do without it?
         for directory, subdirectories, files in os.walk(script_dir):
             
             i = 0
@@ -77,6 +78,10 @@ class ExternalTestsConnector():
                 self.conn.commit()
 
                 print "=====> Stored result for script %s" % fname
+
+            # We break here to avoid recursing into subdirectories
+            # See http://stackoverflow.com/a/3207973/1232833
+            break
 
 
     def RunExternalTests(self, list_id, scangroup_id, url_list):
