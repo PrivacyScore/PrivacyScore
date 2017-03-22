@@ -10,6 +10,8 @@
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ### Database connection strings
+# MongoDB
+# TODO Add option for username and password?
 MONGODB_URL = 'mongodb://localhost:27017/'
 
 ### Directories
