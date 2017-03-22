@@ -17,6 +17,7 @@ fi
 pushd $DIR/vendor/testssl.sh > /dev/null
 timeout -k 30 180 ./testssl.sh --jsonfile-pretty $JSONFILE --logfile $HTMLFILE --warnings=batch --openssl-timeout 10 --fast --ip one $HOST >/dev/null
 
-cat $JSONFILE | grep -v '"at"          : "PrivacyScore:/usr/bin/timeout' | grep -v './bin/openssl.Linux.x86_64",'
+hostname=$(hostname)
+cat $JSONFILE | grep -v "\"at\"          : \"$hostname:/usr/bin/timeout" | grep -v './bin/openssl.Linux.x86_64",'
 popd >/dev/null
 
