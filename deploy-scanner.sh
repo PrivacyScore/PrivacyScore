@@ -49,6 +49,14 @@ sudo apt-get update
 sudo apt-get install -y ruby mmdb-bin mongodb-org rabbitmq-server screen make build-essential
 sudo service mongod start
 
+# RabbitMQ config
+# Create user celery with password celery
+sudo rabbitmqctl add_user celery celery
+# Add privacyscore vhost
+sudo rabbitmqctl add_vhost privacyscore
+# Give permissions on vhost to new user
+sudo rabbitmqctl set_permissions -p privacyscore celery ".*" ".*" ".*"
+
 # Get Redis
 # TODO This is horrible. Also, redis will not be brought up on reboot this way.
 cd /tmp
@@ -91,6 +99,9 @@ echo "# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 echo ""                                                                                 >> scanner/config.py
 echo "### Database connection strings"                                                  >> scanner/config.py
 echo "MONGODB_URL = 'mongodb://localhost:27017/'"                                       >> scanner/config.py
+echo "# Celery broker and backend"                                                      >> scanner/config.py
+echo "CELERY_BROKER = 'pyamqp://celery:celery@localhost/privacyscore'"                  >> scanner/config.py
+echo "CELERY_BACKEND = 'redis://localhost/0'"                                           >> scanner/config.py
 echo ""                                                                                 >> scanner/config.py
 echo "### Directories"                                                                  >> scanner/config.py
 echo "# Base directory, used by other paths (not used directly in the code)"            >> scanner/config.py
@@ -140,5 +151,10 @@ echo "##  started automatically, Redis is currently running in a screen instance
 echo "##  and you will have to configure it to run as a service to have it start    ##"
 echo "##  after the system is rebooted.  See the section 'Installing Redis more     ##"
 echo "##  properly' of the Redis QuickStart-Guide: redis.io/topics/quickstart.      ##"
+echo "##                                                                            ##"
+echo "##  The setup has also created a user 'test' with password 'test' on the      ##"
+echo "##  RabbitMQ server.  This is obviously easily guessed, so fix that, too.     ##"
+echo "##  Afterwards, change the CELERY_BROKER line in scanner/scanner/config.py    ##"
+echo "##  to reflect the changed credentials so that it keeps working.              ##"
 echo "##                                                                            ##"
 echo "################################################################################"

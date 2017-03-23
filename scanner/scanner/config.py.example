@@ -13,6 +13,9 @@
 # MongoDB
 # TODO Add option for username and password?
 MONGODB_URL = 'mongodb://localhost:27017/'
+# Celery broker and backend
+CELERY_BROKER = 'pyamqp://guest:guest@localhost/privacyscore'  # Make sure this does NOT have a trailing slash!
+CELERY_BACKEND = 'redis://localhost/0'
 
 ### Directories
 # Base directory, used by other paths (not used directly in the code)
