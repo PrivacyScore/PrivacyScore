@@ -134,6 +134,10 @@ echo "gunzip GeoLite2-Country.mmdb.gz" >> download-updated-db.sh
 chmod +x download-updated-db.sh
 ./download-updated-db.sh
 
+# Start workers
+cd $DIR
+./start-workers.sh
+
 echo ""
 echo "################################################################################"
 echo "##                !!!              ATTENTION                !!!               ##"
