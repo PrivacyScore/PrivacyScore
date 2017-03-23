@@ -12,7 +12,7 @@ import broker
 import config
 
 # Celery
-app = broker.getbroker('scan_connector')
+app = broker.getBroker('scan_connector')
 
 # Mongo
 client = MongoClient(config.MONGODB_URL)

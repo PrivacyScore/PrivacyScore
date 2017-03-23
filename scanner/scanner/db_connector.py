@@ -16,7 +16,7 @@ import config
 
 logging.basicConfig(filename=config.LOG_DIR + 'scanner-db-connector.log', level=logging.DEBUG)
 
-app = broker.getbroker('db_connector')
+app = broker.getBroker('db_connector')
 client = MongoClient(config.MONGODB_URL)
 db = client['PrangerDB']
 
@@ -24,7 +24,7 @@ db = client['PrangerDB']
 def saveSingleUrl(url_id, list_id, scangroup_id):
     client = MongoClient(config.MONGODB_URL)
     db = client['PrangerDB']
-    
+
     conn = lite.connect(config.SCAN_DIR + "%s/crawl-data.sqlite" % str(list_id))
     cur = conn.cursor()
 
