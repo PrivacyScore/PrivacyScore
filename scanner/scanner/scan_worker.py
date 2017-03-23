@@ -7,7 +7,7 @@ from pymongo import MongoClient
 import os 
 import sys
 from scan_connector import ScannerConnector
-from db_connector import DBConnector
+import db_connector
 from externaltests_connector import ExternalTestsConnector
 
 import config
@@ -37,7 +37,7 @@ def scan_external(urls, list_id, scangroup_id):
         # TODO Handle this better
 
 def save_to_database(urls, list_id, scangroup_id):
-    state = DBConnector.SaveScan(list_id, scangroup_id, urls)
+    state = db_connector.SaveScan(list_id, scangroup_id, urls)
     # TODO The following is just error handling for the insert - will probably also have to be moved (statekeeping in MongoDB)
     client = MongoClient(config.MONGODB_URL)
     db = client['PrangerDB']
@@ -55,7 +55,6 @@ def save_to_database(urls, list_id, scangroup_id):
         print "unknown error during SaveScan: no status returned"
 
 
-DBConnector = DBConnector()
 ScannerConnector = ScannerConnector()
 ExternalTestsConnector = ExternalTestsConnector()
 

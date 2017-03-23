@@ -1,14 +1,20 @@
 #-*- coding: utf-8 -*-
 from automation import TaskManager, CommandSequence
 from automation.SocketInterface import clientsocket
-import re
 from bson.objectid import ObjectId
-from pymongo import MongoClient
+from celery import Celery
 from datetime import datetime
+from pymongo import MongoClient
+import re
 import sys
 
+import broker
 import config
 
+# Celery
+app = broker.getbroker('scan_connector')
+
+# Mongo
 client = MongoClient(config.MONGODB_URL)
 db = client['PrangerDB']
 
@@ -37,49 +43,64 @@ def determine_final_url(table_name, original_url, **kwargs):
 
 class ScannerConnector():
 
-    def startscan(self, url_List, list_id, scangroup_id):
-        try:
-            NUM_BROWSERS = 1
-            sites = url_List
+    def startscan(self, url_list, list_id, scangroup_id):
+        for site in url_list:
+            x = scan_site.delay(site["url"], list_id, scangroup_id)
+            # scan_site(site["url"], list_id, scangroup_id)
+        x.get(timeout=300)
+        return 'success'
 
-            manager_params, browser_params = TaskManager.load_default_params(NUM_BROWSERS)
 
-            for i in range(NUM_BROWSERS):
-                browser_params[i]['disable_flash'] = False
-                browser_params[i]['headless'] = True
-                browser_params[i]['bot_mitigation'] = True # needed to ensure we look more "normal"
-                browser_params[i]['http_instrument'] = True
+# TODO If this is running on multiple VMs, how will the data be merged afterwards? Need to retrieve it from the
+#      SQLite database and pass it on as a return value, or what?
+@app.task()
+def scan_site(site, list_id, scangroup_id):
+    try:
+        # Scan with only one browser
+        NUM_BROWSERS = 1
 
-            manager_params['data_directory'] = config.SCAN_DIR + "%s/" % str(list_id)
-            manager_params['log_directory'] =  config.SCAN_DIR + "%s/" % str(list_id)
-            manager_params['database_name'] =  'crawl-data.sqlite'
-            manager = TaskManager.TaskManager(manager_params, browser_params)
+        # Retrieve default parameters
+        manager_params, browser_params = TaskManager.load_default_params(NUM_BROWSERS)
 
-            i=0
-            num_sites = len(sites)
+        # Personalize browser parameters
+        for i in range(NUM_BROWSERS):
+            browser_params[i]['disable_flash'] = False
+            browser_params[i]['headless'] = True
+            browser_params[i]['bot_mitigation'] = True # needed to ensure we look more "normal"
+            browser_params[i]['http_instrument'] = True
 
-            for site in sites:
-                i = i + 1
-                db.ScanGroup.update({'_id': ObjectId(scangroup_id)}, {'$set': {'progress': "Retrieving URL %i/%i" % (i, num_sites)}})
-                db.ScanGroup.update({'_id': ObjectId(scangroup_id)}, {'$set':{'progress_timestamp': datetime.now().isoformat()}}, upsert=False)
+        # Personalize manager parameters
+        manager_params['data_directory'] = config.SCAN_DIR + "%s/" % str(list_id)
+        manager_params['log_directory'] =  config.SCAN_DIR + "%s/" % str(list_id)
+        manager_params['database_name'] =  'crawl-data.sqlite'
+        manager = TaskManager.TaskManager(manager_params, browser_params)
 
-                if not(site["url"].startswith("http")):
-                    site["url"] = "http://" + str(site["url"])
+        # TODO Commented out status reporting
+        # i = i + 1
+        # db.ScanGroup.update({'_id': ObjectId(scangroup_id)}, {'$set': {'progress': "Retrieving URL %i/%i" % (i, num_url_list)}})
+        # db.ScanGroup.update({'_id': ObjectId(scangroup_id)}, {'$set':{'progress_timestamp': datetime.now().isoformat()}}, upsert=False)
 
-                # append trailing / if url does not contain a path part
-                if re.search(r"^(https?:\/\/)?[^\/]*$", site["url"], re.IGNORECASE):
-                    site["url"] = site["url"] + "/"
+        # Ensure URL is valid
+        if not(site.startswith("http")):
+            site = "http://" + str(site)
 
-                command_sequence = CommandSequence.CommandSequence(site["url"])
-                command_sequence.get(sleep=10, timeout=60) # 10 sec sleep so everything settles down
-                command_sequence.run_custom_function(determine_final_url, ('final_urls', site['url'])) # needed to determine whether site redirects to https
-                command_sequence.dump_profile_cookies(120)
-                manager.execute_command_sequence(command_sequence, index='**') # ** for synchronized Browsers
-            
-            manager.close()
-            return 'success'
+        # append trailing / if url does not contain a path part
+        if re.search(r"^(https?:\/\/)?[^\/]*$", site, re.IGNORECASE):
+            site = site + "/"
 
-        except Exception as ex:
-            print ex
-            e = sys.exc_info()[0]
-            return 'error: ' + str(e) 
+        # Assemble command sequence for browser
+        command_sequence = CommandSequence.CommandSequence(site)
+        command_sequence.get(sleep=10, timeout=60) # 10 sec sleep so everything settles down
+        command_sequence.run_custom_function(determine_final_url, ('final_urls', site)) # needed to determine whether site redirects to https
+        command_sequence.dump_profile_cookies(120)
+        # Execute command sequence
+        manager.execute_command_sequence(command_sequence, index='**') # ** for synchronized Browsers
+
+        # Close browser
+        manager.close()
+
+        return True
+    except Exception as ex:
+        print ex
+        e = sys.exc_info()[0]
+        return 'error: ' + str(e)
