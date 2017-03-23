@@ -3,11 +3,9 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 from datetime import datetime
 import sqlite3 as lite
-import os
 import sys
 import linecache
 import json
-from pprint import pprint
 import tldextract # "pip install tldextract", to extract hosts and third parties
 import logging
 
@@ -365,9 +363,6 @@ def check_testssl(arr, search):
 
 def SaveScan(list_id, scangroup_id, url_List):
     try:
-        conn = lite.connect(config.SCAN_DIR + "%s/crawl-data.sqlite" % str(list_id))
-        cur = conn.cursor()
-
         db.ScanGroup.update({'_id': ObjectId(scangroup_id)}, {'$set':{'enddate': datetime.now().isoformat()}}, upsert=False)
         db.ScanGroup.update({'_id': ObjectId(scangroup_id)}, {'$set': {'progress': "Saving results" }})
         db.ScanGroup.update({'_id': ObjectId(scangroup_id)}, {'$set':{'progress_timestamp': datetime.now().isoformat()}}, upsert=False)

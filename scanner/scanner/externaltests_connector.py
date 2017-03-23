@@ -1,7 +1,6 @@
 #-*- coding: utf-8 -*-
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from datetime import datetime
 import sqlite3 as lite
 import os
 import linecache
@@ -89,8 +88,6 @@ class ExternalTestsConnector():
 
     def RunExternalTests(self, list_id, scangroup_id, url_list):
         try:
-            num_urls = len(url_list)
-
             for url in url_list:
                 sites = db.Seiten.find({'list_id': ObjectId(list_id), '_id': ObjectId(url["_id"])}, {'_id': 1, 'url': 1})
                 site = sites.next()

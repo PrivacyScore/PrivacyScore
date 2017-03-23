@@ -1,11 +1,8 @@
 #-*- coding: utf-8 -*-
-import string
-import json
 from datetime import datetime
 from bson.objectid import ObjectId
 from pymongo import MongoClient
-import os 
-import sys
+import os
 from scan_connector import ScannerConnector
 import db_connector
 from externaltests_connector import ExternalTestsConnector

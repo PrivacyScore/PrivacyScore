@@ -1,9 +1,6 @@
 #-*- coding: utf-8 -*-
 from automation import TaskManager, CommandSequence
 from automation.SocketInterface import clientsocket
-from bson.objectid import ObjectId
-from celery import Celery
-from datetime import datetime
 from pymongo import MongoClient
 import re
 import sys
