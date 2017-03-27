@@ -28,6 +28,7 @@ def saveSingleUrl(results, list_id, scangroup_id):
 
     # Save Scan to DB
     db.Scans.insert_one(scantosave)
+    print "Inserted one record"
 
 
 def GetException():
