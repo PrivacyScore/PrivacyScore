@@ -21,7 +21,7 @@ then
 fi
 
 pushd $DIR/vendor/testssl.sh > /dev/null
-timeout -k 30 180 ./testssl.sh --jsonfile-pretty $JSONFILE --logfile $HTMLFILE --warnings=batch --openssl-timeout 10 --fast --ip one --mx $HOST >/dev/null
+timeout -k 30 180 ./testssl.sh --jsonfile-pretty $JSONFILE --warnings=batch --openssl-timeout 10 --fast --ip one --mx $HOST >/dev/null
 
 hostname=$(hostname)
 cat $JSONFILE | grep -v "\"at\"          : \"$hostname:/usr/bin/timeout" | grep -v './bin/openssl.Linux.x86_64",'
