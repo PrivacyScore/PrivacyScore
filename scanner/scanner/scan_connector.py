@@ -1,13 +1,12 @@
 #-*- coding: utf-8 -*-
 from automation import TaskManager, CommandSequence
 from automation.SocketInterface import clientsocket
-from pymongo import MongoClient
 import re
 import json
 import sys
+import shutil
 import tldextract # "pip install tldextract", to extract hosts and third parties
 import sqlite3 as lite
-from bson.objectid import ObjectId
 import uuid
 
 import broker
@@ -16,9 +15,6 @@ import config
 # Celery
 app = broker.getBroker('scan_connector')
 
-# Mongo
-client = MongoClient(config.MONGODB_URL)
-db = client['PrangerDB']
 
 def determine_final_url(table_name, original_url, **kwargs):
     """ Determine (potentially HTTPS) URL that has been redirected to and store in `table_name` """
@@ -326,5 +322,11 @@ def create_result_json(site, list_id, scangroup_id, url_id, scan_uuid):
 
         scantosave["flashcookies_anzahl"] = len(scantosave["flashcookies"])
         scantosave["cookies_anzahl"] = len(scantosave["profilecookies"])
+
+        # Close SQLite connection
+        conn.close()
+
+        # Delete scan folder
+        shutil.rmtree(config.SCAN_DIR + "%s" % scan_uuid)
 
         return scantosave
