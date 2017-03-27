@@ -67,7 +67,7 @@ make
 sudo make install
 cd ..
 rm -rf redis-stable
-screen -d -m redis-server
+screen -S redis -d -m redis-server --protected-mode no
 
 
 
