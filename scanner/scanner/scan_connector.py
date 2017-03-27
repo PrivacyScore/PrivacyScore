@@ -8,6 +8,7 @@ import sys
 import tldextract # "pip install tldextract", to extract hosts and third parties
 import sqlite3 as lite
 from bson.objectid import ObjectId
+import uuid
 
 import broker
 import config
@@ -57,6 +58,8 @@ class ScannerConnector():
 @app.task()
 def scan_site(site, list_id, scangroup_id, url_id):
     try:
+        # Generate scan UUID
+        scan_uuid = str(uuid.uuid4())
         # Scan with only one browser
         NUM_BROWSERS = 1
 
@@ -71,8 +74,8 @@ def scan_site(site, list_id, scangroup_id, url_id):
             browser_params[i]['http_instrument'] = True
 
         # Personalize manager parameters
-        manager_params['data_directory'] = config.SCAN_DIR + "%s/" % str(list_id)
-        manager_params['log_directory'] =  config.SCAN_DIR + "%s/" % str(list_id)
+        manager_params['data_directory'] = config.SCAN_DIR + "%s/" % scan_uuid
+        manager_params['log_directory'] =  config.SCAN_DIR + "%s/" % scan_uuid
         manager_params['database_name'] =  'crawl-data.sqlite'
         manager = TaskManager.TaskManager(manager_params, browser_params)
 
@@ -100,18 +103,18 @@ def scan_site(site, list_id, scangroup_id, url_id):
         # Close browser
         manager.close()
 
-        return create_result_json(site, list_id, scangroup_id, url_id)
+        return create_result_json(site, list_id, scangroup_id, url_id, scan_uuid)
     except Exception as ex:
         print ex
         e = sys.exc_info()[0]
         return 'error: ' + str(e)
 
 
-def create_result_json(site, list_id, scangroup_id, url_id):
+def create_result_json(site, list_id, scangroup_id, url_id, scan_uuid):
     client = MongoClient(config.MONGODB_URL)
     db = client['PrangerDB']
 
-    conn = lite.connect(config.SCAN_DIR + "%s/crawl-data.sqlite" % str(list_id))
+    conn = lite.connect(config.SCAN_DIR + "%s/crawl-data.sqlite" % scan_uuid)
     cur = conn.cursor()
 
     scantosave = {
