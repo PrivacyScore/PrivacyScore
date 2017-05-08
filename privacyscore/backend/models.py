@@ -3,7 +3,7 @@ import string
 
 from django.contrib.auth import get_user_model
 from django.contrib.postgres import fields as postgres_fields
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 
 
@@ -18,12 +18,17 @@ class List(models.Model):
     """A list of sites for scans."""
     name = models.CharField(max_length=150)
     description = models.TextField()
-    token = models.CharField(max_length=50, default=generate_random_token)
+    token = models.CharField(
+        max_length=50, default=generate_random_token, unique=True)
 
     private = models.BooleanField(default=False)
 
     user = models.ForeignKey(
-        get_user_model(), on_delete=models.CASCADE, related_name='tags')
+        get_user_model(), on_delete=models.CASCADE, related_name='tags',
+        null=True, blank=True)
+
+    def __str__(self) -> str:
+        return self.name
 
     @property
     def single_site(self) -> bool:
@@ -34,6 +39,35 @@ class List(models.Model):
     def editable(self) -> bool:
         """Return whether the list has been scanned."""
         return Scan.objects.filter(site__list=self).count() == 0
+
+    def save_columns(self, columns: list):
+        """Save columns for current list."""
+        with transaction.atomic():
+            # delete current columns
+            self.columns.all().delete()
+
+            sort_key = 0
+            for column in columns:
+                if not column['name']:
+                    continue
+
+                column_object = ListColumn.objects.create(
+                    name=column['name'], list=self, sort_key=sort_key,
+                    visible=column['visible'])
+                sort_key += 1
+
+    def save_tags(self, tags: list):
+        """Save tags for current list."""
+        with transaction.atomic():
+            # delete current tags
+            ListTag.lists.through.objects.filter(list=self).delete()
+
+            for tag in tags:
+                if not tag:
+                    continue
+
+                tag_object = ListTag.objects.get_or_create(name=tag)[0]
+                tag_object.lists.add(self)
 
 
 class Site(models.Model):
@@ -53,11 +87,14 @@ class ListColumn(models.Model):
     """Columns of a list."""
     class Meta:
         unique_together = (
-            ('name', 'list'),)
+            ('name', 'list'),
+            ('list', 'sort_key')
+        )
 
     name = models.CharField(max_length=100)
     list = models.ForeignKey(
         List, on_delete=models.CASCADE, related_name='columns')
+    sort_key = models.PositiveSmallIntegerField()
     visible = models.BooleanField(default=True)
 
 
@@ -72,6 +109,9 @@ class ListColumnValue(models.Model):
 
 class ScanGroup(models.Model):
     """A scan group."""
+    list = models.ForeignKey(
+        List, on_delete=models.CASCADE, related_name='scan_groups')
+
     start = models.DateTimeField(default=timezone.now)
     end = models.DateTimeField(null=True, blank=True)
 
