@@ -1,7 +1,8 @@
 import re
 
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, Q
+from django.utils.translation import ugettext_lazy as _
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.request import Request
@@ -19,30 +20,18 @@ def get_lists(request: Request) -> Response:
         sites__count__gte=2  # not single site
     )
 
-    return Response([
-        {
-            'id': l.pk,
-            'name': l.name,
-            'description': l.description,
-            'editable': l.editable,
-            'singlesite': l.single_site,
-            'isprivate': l.private,
-            'tags': [tag.name for tag in l.tags.all()],
-            'columns': [{
-                'name': column.name,
-                'visible': column.visible
-            } for column in l.columns.order_by('sort_key')],
-            'scangroups': [{
-                'id': scan_group.pk,
-                'startdate': scan_group.start,
-                'enddate': scan_group.end,
-                'progress': scan_group.get_status_display(),
-                'state': scan_group.get_status_display(),
-                 # TODO: return a correct timestamp
-                'progress_timestamp': 0,
-            } for scan_group in l.scan_groups.order_by('start')],
-        }
-        for l in lists])
+    return Response([l.as_dict() for l in lists])
+
+
+@api_view(['GET'])
+def get_list(request: Request, token: str) -> Response:
+    """Get a list by its token."""
+    try:
+        l = List.objects.get(token=token)
+
+        return Response(l.as_dict())
+    except List.DoesNotExist:
+        raise NotFound
 
 
 @api_view(['POST'])
@@ -93,10 +82,95 @@ def update_list(request: Request) -> Response:
             'type': 'success',
             'message': 'ok',
         })
-    except KeyError:
+    except KeyError as e:
         raise ParseError
     except List.DoesNotExist:
         raise NotFound
+
+
+# TODO: Use http DELETE?
+@api_view(['POST'])
+def delete_list(request: Request, token: str) -> Response:
+    """Update an existing list."""
+    # TODO: Access control (Or is token sufficient)?
+    try:
+        list = List.objects.get(token=token)
+
+        # all related objects CASCADE automatically.
+        list.delete()
+
+        return Response({
+            'type': 'success',
+            'message': 'ok',
+        })
+    except KeyError as e:
+        raise ParseError
+    except List.DoesNotExist:
+        raise NotFound
+
+
+@api_view(['GET'])
+def get_list_id(request: Request, token: str) -> Response:
+    """Get the token of a list."""
+    try:
+        list = List.objects.get(token=token)
+
+        return Response({
+            'id': list.pk,
+        }, status=201)
+    except (List.DoesNotExist, ValueError):
+        raise NotFound
+
+
+@api_view(['GET'])
+def get_token(request: Request, list_id: int) -> Response:
+    """Get the token of a list."""
+    # TODO: Access control
+    try:
+        list = List.objects.get(pk=list_id)
+
+        return Response({
+            'token': list.token,
+        }, status=201)
+    except (List.DoesNotExist, ValueError):
+        raise NotFound
+
+
+# TODO: Why POST?
+@api_view(['POST'])
+def search_lists(request: Request) -> Response:
+    """Search for lists."""
+    # TODO: Access control
+    try:
+        search_text = request.data['searchtext']
+
+        lists = List.objects.filter(
+            Q(name__icontains=search_text) |
+            Q(description__icontains=search_text) |
+            Q(tags__name__icontains=search_text)).distinct()
+
+        return Response([l.as_dict() for l in lists])
+    except KeyError:
+        raise ParseError
+
+
+@api_view(['POST'])
+def scan_list(request: Request) -> Response:
+    """Schedule a scan for the list."""
+    try:
+        l = List.objects.get(pk=request.data['listid'])
+
+        if not l.scan():
+            return Response({
+                'type': 'error',
+                'message': _('list was scanned recently.'),
+            })
+        return Response({
+            'type': 'success',
+            'message': 'ok',
+        })
+    except KeyError:
+        raise ParseError
 
 
 @api_view(['POST'])
