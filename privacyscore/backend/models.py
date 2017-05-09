@@ -115,9 +115,11 @@ class List(models.Model):
                 return False
 
         # create ScanGroup
-        ScanGroup.objects.create(list=self)
+        scan_group = ScanGroup.objects.create(list=self)
 
-        # TODO: Create scans of scangroup here?
+        # schedule scheduling of actual scans
+        from privacyscore.scanner.tasks import schedule_scan
+        schedule_scan.delay(scan_group.pk)
 
         return True
 
@@ -223,7 +225,7 @@ class RawScanResult(models.Model):
     scan = models.ForeignKey(
         Scan, on_delete=models.CASCADE, related_name='raw_results')
 
-    test = models.CharField(max_length=30)
+    test = models.CharField(max_length=80)
     result = postgres_fields.JSONField()
 
     def __str__(self) -> str:
@@ -235,11 +237,11 @@ class ScanResult(models.Model):
     scan = models.ForeignKey(
         Scan, on_delete=models.CASCADE, related_name='results')
 
-    test = models.CharField(max_length=30)
+    test = models.CharField(max_length=80)
     key = models.CharField(max_length=100)
     result = models.CharField(max_length=1000)
     result_description = models.CharField(max_length=500)
-    additional_data = postgres_fields.JSONField()
+    additional_data = postgres_fields.JSONField(null=True, blank=True)
 
     def __str__(self) -> str:
         return '{}: {}.{} = {}'.format(str(self.scan), self.test, self.key, self.result)
