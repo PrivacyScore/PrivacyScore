@@ -239,7 +239,7 @@ class ScanResult(models.Model):
 
     test = models.CharField(max_length=80)
     key = models.CharField(max_length=100)
-    result = models.CharField(max_length=1000)
+    result = postgres_fields.JSONField()
     result_description = models.CharField(max_length=500)
     additional_data = postgres_fields.JSONField(null=True, blank=True)
 

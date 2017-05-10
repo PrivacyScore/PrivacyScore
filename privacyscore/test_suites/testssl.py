@@ -17,7 +17,7 @@ TESTSSL_PATH = os.path.join(
 
 def test(scan: Scan):
     """Test the specified url with testssl."""
-    json_file = tempfile.mktemp()
+    result_file = tempfile.mktemp()
 
     # determine hostname
     pattern = re.compile(r'^(https|http)?(://)?([^/]*)/?.*?')
@@ -25,7 +25,7 @@ def test(scan: Scan):
 
     call([
         TESTSSL_PATH,
-        '--jsonfile-pretty', json_file,
+        '--jsonfile-pretty', result_file,
         '--warnings=batch',
         '--openssl-timeout', '10',
         '--fast',
@@ -33,16 +33,16 @@ def test(scan: Scan):
         hostname,
     ], timeout=60, stdout=DEVNULL, stderr=DEVNULL)
 
-    _process_result(scan, json_file)
+    _process_result(scan, result_file)
 
 
-def _process_result(scan: Scan, json_file: str):
+def _process_result(scan: Scan, result_file: str):
     """Process the result of the test and save it to the database."""
-    if not os.path.isfile(json_file):
+    if not os.path.isfile(result_file):
         # something went wrong with this test.
         return
 
-    with open(json_file, 'r') as f:
+    with open(result_file, 'r') as f:
         data = json.load(f)
 
     rv = {
@@ -128,7 +128,7 @@ def _process_result(scan: Scan, json_file: str):
     RawScanResult.objects.create(scan=scan, test=__name__, result=rv)
 
     # delete json file.
-    os.remove(json_file)
+    os.remove(result_file)
 
 
 def _find_in_list_by_id(l: list, search: str) -> object:

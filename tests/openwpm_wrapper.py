@@ -1,19 +1,32 @@
+#!/usr/bin/env python
 #-*- coding: utf-8 -*-
-from automation import TaskManager, CommandSequence
-from automation.SocketInterface import clientsocket
-import re
+"""
+Use external callable module as openwpm does not support python 3.
+
+Thus, this needs to run in a different virtualenv than the backend.
+(Set env accordingly)
+
+Syntax: ./openwpm_wrapper.py url scan_basedir result_file
+"""
+
 import json
-import sys
+import os
+import re
 import shutil
+import sqlite3
+import sys
 import tldextract # "pip install tldextract", to extract hosts and third parties
-import sqlite3 as lite
 import uuid
 
-import broker
-import config
+from vendor.OpenWPM.automation import TaskManager, CommandSequence
+from vendor.OpenWPM.automation.SocketInterface import clientsocket
 
-# Celery
-app = broker.getBroker('scan_connector')
+
+# TODO: Clean up this script
+
+
+SCAN_DIR = sys.argv[2]
+RESULT_FILE = sys.argv[3]
 
 
 def determine_final_url(table_name, original_url, **kwargs):
@@ -39,20 +52,9 @@ def determine_final_url(table_name, original_url, **kwargs):
     sock.close()
 
 
-class ScannerConnector():
-
-    def startscan(self, url_list, list_id, scangroup_id):
-        for site in url_list:
-            x = scan_site.delay(site["url"], list_id, scangroup_id, site["_id"])
-            # scan_site(site["url"], list_id, scangroup_id)
-        x.get(timeout=300)
-        return 'success'
-
-
 # TODO If this is running on multiple VMs, how will the data be merged afterwards? Need to retrieve it from the
 #      SQLite database and pass it on as a return value, or what?
-@app.task()
-def scan_site(site, list_id, scangroup_id, url_id):
+def scan_site(site):
     try:
         # Generate scan UUID
         scan_uuid = str(uuid.uuid4())
@@ -70,9 +72,9 @@ def scan_site(site, list_id, scangroup_id, url_id):
             browser_params[i]['http_instrument'] = True
 
         # Personalize manager parameters
-        manager_params['data_directory'] = config.SCAN_DIR + "%s/" % scan_uuid
-        manager_params['log_directory'] =  config.SCAN_DIR + "%s/" % scan_uuid
-        manager_params['database_name'] =  'crawl-data.sqlite'
+        manager_params['data_directory'] = os.path.join(SCAN_DIR, scan_uuid)
+        manager_params['log_directory'] =  os.path.join(SCAN_DIR, scan_uuid)
+        manager_params['database_name'] =  'crawl-data.sqsqlite3'
         manager = TaskManager.TaskManager(manager_params, browser_params)
 
         # TODO Commented out status reporting
@@ -99,18 +101,18 @@ def scan_site(site, list_id, scangroup_id, url_id):
         # Close browser
         manager.close()
 
-        return create_result_json(site, list_id, scangroup_id, url_id, scan_uuid)
+        return create_result_dict(site, scan_uuid)
     except Exception as ex:
         print ex
         e = sys.exc_info()[0]
         return 'error: ' + str(e)
 
 
-def create_result_json(site, list_id, scangroup_id, url_id, scan_uuid):
+def create_result_dict(site, scan_uuid):
     # client = MongoClient(config.MONGODB_URL)
     # db = client['PrangerDB']
 
-    conn = lite.connect(config.SCAN_DIR + "%s/crawl-data.sqlite" % scan_uuid)
+    conn = sqlite3.connect(os.path.join(SCAN_DIR, scan_uuid, 'crawl-data.sqsqlite3'))
     cur = conn.cursor()
 
     scantosave = {
@@ -123,21 +125,14 @@ def create_result_json(site, list_id, scangroup_id, url_id, scan_uuid):
         'redirected_to_https': False,
         'final_url': '',
         'referrer': '',
-        'cookies_anzahl': '',
-        'flashcookies_anzahl': '',
+        'cookies_count': '',
+        'flashcookies_count': '',
         'requests': [],
         'responses': [],
         'profilecookies': [],
         'flashcookies': [],
-        'geoip': {},
-        'geoip_all_webservers_in_germany': '',
-        'geoip_all_mailservers_in_germany': '',
-        'testssl': {},
-        'testsslmx': {},
         'headerchecks': []
     }
-    # sites = db.Seiten.find({'list_id': ObjectId(list_id), '_id': ObjectId(url_id)}, {'_id': 1, 'url': 1})
-    # site = sites.next()
 
     # requests
     for start_time, site_url in cur.execute(
@@ -145,8 +140,7 @@ def create_result_json(site, list_id, scangroup_id, url_id, scan_uuid):
             "FROM crawl as c JOIN site_visits as s " +
             "ON c.crawl_id = s.crawl_id WHERE site_url LIKE ?;", (site,)): # (site["url"],)):
         scantosave["starttime"] = start_time
-        scantosave["scan_group_id"] = scangroup_id  # ObjectId(scangroup_id)
-        scantosave["site_id"] = url_id  # ObjectId(site["_id"])
+        #scantosave["scan_group_id"] = scangroup_id  # ObjectId(scangroup_id)
     
         # collect third parties (i.e. domains that differ in their second and third level domain
         third_parties = []
@@ -175,13 +169,13 @@ def create_result_json(site, list_id, scangroup_id, url_id, scan_uuid):
                 third_party_requests.append(url) # add full domain to list
 
 
-        scantosave["requests_anzahl"] = len(scantosave["requests"])
+        scantosave["requests_count"] = len(scantosave["requests"])
         scantosave["third_party_requests"] = third_party_requests
-        scantosave["third_party_requests_anzahl"] = len(third_parties)
+        scantosave["third_party_requests_count"] = len(third_parties)
 
         third_parties = list(set(third_parties))
         scantosave["third_parties"] = third_parties
-        scantosave["third_parties_anzahl"] = len(third_parties)
+        scantosave["third_parties_count"] = len(third_parties)
 
         # responses
         for url, method, referrer, headers, response_status_text, time_stamp in cur.execute(
@@ -320,13 +314,17 @@ def create_result_json(site, list_id, scangroup_id, url_id, scan_uuid):
             }
             scantosave["flashcookies"].append(flashcookie)
 
-        scantosave["flashcookies_anzahl"] = len(scantosave["flashcookies"])
-        scantosave["cookies_anzahl"] = len(scantosave["profilecookies"])
+        scantosave["flashcookies_count"] = len(scantosave["flashcookies"])
+        scantosave["cookies_count"] = len(scantosave["profilecookies"])
 
         # Close SQLite connection
         conn.close()
 
         # Delete scan folder
-        shutil.rmtree(config.SCAN_DIR + "%s" % scan_uuid)
+        shutil.rmtree(os.path.join(SCAN_DIR, scan_uuid))
 
         return scantosave
+
+if __name__ == '__main__':
+    with open(RESULT_FILE, 'w') as f:
+        json.dump(scan_site(sys.argv[1]), f)

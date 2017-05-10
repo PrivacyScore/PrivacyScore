@@ -133,10 +133,14 @@ CELERY_RESULT_BACKEND = 'django-db'
 
 from datetime import timedelta
 SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN = timedelta(minutes=28)
+SCAN_TOTAL_TIMEOUT = timedelta(minutes=10)
 
 SCAN_TEST_SUITES = [
-    #'privacyscore.test_suites.openwpm',
-    'privacyscore.test_suites.testssl',
+    ('privacyscore.test_suites.openwpm', {
+        'scan_basedir': '/tmp/openwpm-scans',
+        'virtualenv_path': os.path.join(BASE_DIR, 'tests/vendor/OpenWPM/.pyenv'),
+    }),
+    ('privacyscore.test_suites.testssl', {}),
 ]
 
 SCAN_TEST_BASEPATH = os.path.join(BASE_DIR, 'tests')

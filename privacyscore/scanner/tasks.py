@@ -25,8 +25,8 @@ def schedule_scan(scan_group_pk: int):
         # Maybe run openwpm first an schedule the other tasks
         # after it has finished?
 
-        for test_suite in settings.SCAN_TEST_SUITES:
-            tasks.append(run_test.s(test_suite, scan.pk))
+        for test_suite, test_parameters in settings.SCAN_TEST_SUITES:
+            tasks.append(run_test.s(test_suite, test_parameters, scan.pk))
 
     scan_group.status = ScanGroup.SCANNING
     scan_group.save()
@@ -43,8 +43,23 @@ def handle_finished_scan(scan_group_pk: int):
 
 
 @shared_task
-def run_test(test_suite: str, scan_pk: int) -> bool:
+def run_test(test_suite: str, test_parameters: dict, scan_pk: int) -> bool:
     """Run a single test against a single url."""
+    # TODO: General timeout for task; catch all exceptions that might occur
+
     scan = Scan.objects.get(pk=scan_pk)
     test_suite = importlib.import_module(test_suite)
-    return test_suite.test(scan)
+    return test_suite.test(scan, **test_parameters)
+
+
+# TODO: configure beat or similar to run this task frequently.
+@shared_task
+def handle_aborted_scans():
+    """
+    Set status of scans to error when they are running longer than configured
+    timeout.
+    """
+    now = timezone.now()
+    ScanGroup.objects.filter(
+        start__lt=now - settings.SCAN_TOTAL_TIMEOUT,
+        end__isnull=True).update(end=now, status=ScanGroup.ERROR)
