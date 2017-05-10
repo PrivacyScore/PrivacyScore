@@ -46,6 +46,7 @@ def _process_result(scan: Scan, result_file: str, test_type):
     """Process the result of the test and save it to the database."""
     if not os.path.isfile(result_file):
         # something went wrong with this test.
+        # TODO: raise exception?
         return
 
     with open(result_file, 'r') as f:

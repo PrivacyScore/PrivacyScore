@@ -126,6 +126,8 @@ class List(models.Model):
 
 class Site(models.Model):
     """A site."""
+    # TODO: make url unique and list ManyToMany?
+
     url = models.CharField(max_length=500)
     list = models.ForeignKey(
         List, on_delete=models.CASCADE, related_name='sites')
@@ -239,8 +241,8 @@ class ScanResult(models.Model):
 
     test = models.CharField(max_length=80)
     key = models.CharField(max_length=100)
-    result = postgres_fields.JSONField()
-    result_description = models.CharField(max_length=500)
+    result = postgres_fields.JSONField(null=True, blank=True)
+    result_description = models.CharField(max_length=500, null=True, blank=True)
     additional_data = postgres_fields.JSONField(null=True, blank=True)
 
     def __str__(self) -> str:

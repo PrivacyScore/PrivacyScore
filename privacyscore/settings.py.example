@@ -133,6 +133,7 @@ CELERY_RESULT_BACKEND = 'django-db'
 
 from datetime import timedelta
 SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN = timedelta(minutes=28)
+SCAN_SUITE_TIMEOUT_SECONDS = 100
 SCAN_TOTAL_TIMEOUT = timedelta(minutes=10)
 
 SCAN_TEST_SUITES = [
@@ -143,6 +144,7 @@ SCAN_TEST_SUITES = [
     ('privacyscore.test_suites.testssl', {}),
     ('privacyscore.test_suites.testssl', {
         'test_type': 'mx'}),
+    ('privacyscore.test_suites.geoip', {}),
 ]
 
 SCAN_TEST_BASEPATH = os.path.join(BASE_DIR, 'tests')

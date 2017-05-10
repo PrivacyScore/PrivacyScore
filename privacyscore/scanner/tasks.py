@@ -1,10 +1,29 @@
 import importlib
+import os
+import signal
+import traceback
+from multiprocessing import Process
 
 from celery import chord, shared_task
 from django.conf import settings
 from django.utils import timezone
 
 from privacyscore.backend.models import Scan, ScanGroup, Site
+
+
+class Timeout:
+    def __init__(self, seconds=1):
+        self.seconds = seconds
+
+    def __enter__(self):
+        def handle_timeout(self, signum, frame):
+            raise TimeoutError
+
+        signal.signal(signal.SIGALRM, handle_timeout)
+        signal.alarm(self.seconds)
+
+    def __exit__(self, type, value, traceback):
+        signal.alarm(0)
 
 
 @shared_task
@@ -45,11 +64,16 @@ def handle_finished_scan(scan_group_pk: int):
 @shared_task
 def run_test(test_suite: str, test_parameters: dict, scan_pk: int) -> bool:
     """Run a single test against a single url."""
-    # TODO: General timeout for task; catch all exceptions that might occur
-
     scan = Scan.objects.get(pk=scan_pk)
     test_suite = importlib.import_module(test_suite)
-    return test_suite.test(scan, **test_parameters)
+    try:
+        with Timeout(settings.SCAN_SUITE_TIMEOUT_SECONDS):
+            test_suite.test(scan, **test_parameters)
+        return True
+    except:
+        # TODO: some kind of logging (other than stdout)?
+        print(traceback.format_exc())
+        return False
 
 
 # TODO: configure beat or similar to run this task frequently.
