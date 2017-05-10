@@ -141,6 +141,8 @@ SCAN_TEST_SUITES = [
         'virtualenv_path': os.path.join(BASE_DIR, 'tests/vendor/OpenWPM/.pyenv'),
     }),
     ('privacyscore.test_suites.testssl', {}),
+    ('privacyscore.test_suites.testssl', {
+        'test_type': 'mx'}),
 ]
 
 SCAN_TEST_BASEPATH = os.path.join(BASE_DIR, 'tests')

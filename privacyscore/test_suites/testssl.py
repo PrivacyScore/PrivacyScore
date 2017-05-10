@@ -15,7 +15,7 @@ TESTSSL_PATH = os.path.join(
     settings.SCAN_TEST_BASEPATH, 'vendor/testssl.sh', 'testssl.sh')
 
 
-def test(scan: Scan):
+def test(scan: Scan, test_type: str=''):
     """Test the specified url with testssl."""
     result_file = tempfile.mktemp()
 
@@ -23,20 +23,26 @@ def test(scan: Scan):
     pattern = re.compile(r'^(https|http)?(://)?([^/]*)/?.*?')
     hostname = pattern.match(scan.final_url).group(3)
 
-    call([
+    args = [
         TESTSSL_PATH,
         '--jsonfile-pretty', result_file,
         '--warnings=batch',
         '--openssl-timeout', '10',
         '--fast',
         '--ip', 'one',
-        hostname,
-    ], timeout=60, stdout=DEVNULL, stderr=DEVNULL)
+    ]
+    if test_type == 'mx':
+        args.append('--mx')
 
-    _process_result(scan, result_file)
+        # add underscore for result
+        test_type = '_mx'
+    args.append(hostname)
+    call(args, timeout=60, stdout=DEVNULL, stderr=DEVNULL)
+
+    _process_result(scan, result_file, test_type)
 
 
-def _process_result(scan: Scan, result_file: str):
+def _process_result(scan: Scan, result_file: str, test_type):
     """Process the result of the test and save it to the database."""
     if not os.path.isfile(result_file):
         # something went wrong with this test.
@@ -89,7 +95,7 @@ def _process_result(scan: Scan, result_file: str):
         rv['headerchecks'].append(result_time)
         ScanResult.objects.create(
             scan=scan,
-            test=__name__,
+            test=__name__ + test_type,
             key='hsts_time',
             result=result_time['status'],
             result_description=result_time['value'])
@@ -110,14 +116,14 @@ def _process_result(scan: Scan, result_file: str):
         rv['headerchecks'].append(result_preload)
         ScanResult.objects.create(
             scan=scan,
-            test=__name__,
+            test=__name__ + test_type,
             key='hsts_preload',
             result=result_preload['status'],
             result_description=result_preload['value'])
 
     ScanResult.objects.create(
         scan=scan,
-        test=__name__,
+        test=__name__ + test_type,
         key='hsts',
         result=result['status'],
         result_description=result['value'])
@@ -125,7 +131,7 @@ def _process_result(scan: Scan, result_file: str):
     rv['headerchecks'].append(result)
 
     # store raw scan result
-    RawScanResult.objects.create(scan=scan, test=__name__, result=rv)
+    RawScanResult.objects.create(scan=scan, test=__name__ + test_type, result=rv)
 
     # delete json file.
     os.remove(result_file)
