@@ -1,5 +1,4 @@
 celery
 Django<1.12
-django-celery-results
 djangorestframework
 psycopg2
