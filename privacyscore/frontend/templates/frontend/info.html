@@ -1,0 +1,55 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block title %}PrivacyScore{% endblock title %}
+
+{% block content %}
+	<content>
+	
+		<div class="row" style="margin-top: 20px; font-size: 120%;">
+		<div class="col-md-6">
+      <img src="{% static 'frontend/img/banner.png' %}" alt="PrivacyScore" style="width:100%;"></img>
+		</div>
+		</div>
+		
+		
+		<div class="row" style="margin-top: 20px; font-size: 120%;">
+		<div class="col-md-6">
+		<li class="well well-lg" style="display:block;list-style-type: none">
+		
+			<div style="margin-bottom:10px;">
+			Verschiedene Online-Tools bieten die Möglichkeit zu prüfen, wie datenschutzfreundlich eine Website ist.
+			</div>
+			<div style="margin-bottom:10px;">
+			Mit PrivacyScore können Sie Listen von Websites anlegen, die zum Thema Datenschutz gescannt werden sollen.
+			Diese Listen können Sie regelmäßig scannen und so die Ergebnisse im zeitlichen Verlauf vergleichen.
+			</div>
+			<div style="margin-bottom:10px;">
+			Zusätzlich zur URL können zu jeder Website weitere Attribute angegeben werden, wie Land, Sprache oder Branche der Website.
+			</div>
+			<div style="margin-bottom:10px;">
+			Die angelegten Listen können in der Übersicht angezeigt oder einzelne Seiten im Detail betrachtet werden.
+			</div>
+      <a href="{% url 'frontend:browse' %}" class="btn btn-default" role="button">Listen durchsuchen</a>
+			<a href="{% url 'frontend:lists' %}" class="btn btn-default" role="button">Eigene Liste erstellen</a>
+		</li>
+		</div>
+		<div class="col-md-6">
+		<li class="well well-lg" style="display:block;list-style-type: none">
+			Momentan werden die Websites auf eine sichere HTTPS-Verbindung und auf Cookies untersucht.
+			<br>
+			Weitere Test-Kriterien folgen.
+		</li>
+		<li class="well well-lg" style="display:block;list-style-type: none">
+			<label>Beispiele</label>
+			<br>
+			<a href="{% url 'frontend:scanned_list' %}?list=58a3788d137ed6690a146d80&group=58a37890137ed6690a146d87" class="btn btn-default" role="button">Liste von Universitäten in Deutschland</a>
+			<a href="{% url 'frontend:scan' %}?site=58a3788f137ed6690a146d81&scan=58a378e9137ed67da804d62d" class="btn btn-default" role="button">Detailansicht Uni-Siegen.de</a>
+		</li>
+		</div>
+		</div>
+		
+		
+		
+	</content>
+{% endblock content %}

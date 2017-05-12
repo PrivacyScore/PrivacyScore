@@ -1,0 +1,207 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block title %}PrivacyScore{% endblock title %}
+
+{% block additional_js %}
+  <script src="{% static 'frontend/js/buttons.colVis.js' %}"></script>
+  <script src="{% static 'frontend/js/buttons.html5.js' %}"></script>
+  <script src="{% static 'frontend/js/pdfmake.min.js' %}"></script>
+  <script src="{% static 'frontend/js/jszip.min.js' %}"></script>
+  <script src="{% static 'frontend/js/vfs_fonts.js' %}"></script>
+  <script src="{% static 'frontend/js/d3.v4.min.js' %}" type="text/javascript"></script>
+  <script src="{% static 'frontend/js/diagram.js' %}" type="text/javascript"></script>
+  <script src="{% static 'frontend/js/scannedList.js' %}" type="text/javascript"></script>
+
+  <script>
+    $(function() {
+      init("scannedList");
+      loadData(true);
+    });
+  </script>
+{% endblock additional_js %}
+
+{% block additional_css %}
+  <style>
+  table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc,
+table.dataTable thead .sorting_asc_disabled,
+table.dataTable thead .sorting_desc_disabled
+ {
+    //background-position: left center;
+    //padding-left: 20px;
+}​
+    a {
+      color: black;
+      text-decoration: none;
+    }
+    a:hover {
+      color: black;
+    }
+  </style>
+{% endblock additional_css %}
+
+
+{% block content %}
+  <content style="display:none;">
+
+
+    <h1 id="header1"></h1>
+
+
+    <div class="row">
+    <div class="col-md-9">
+    <div class="box">
+      <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" title="Beschreibung" id="tooltipDescription"></span>
+      <span id="description"></span>
+    </div>
+    <div class="box">
+      <span class="glyphicon glyphicon-tags" data-toggle="tooltip" title="Tags" id="tooltipTags"></span>
+      <span id="tags"></span>
+    </div>
+    <div class="box">
+      <span class="glyphicon glyphicon-time" data-toggle="tooltip" title="Zeit" id="tooltipTime"></span>
+      <span id="startdate"></span> <i class="fa fa-long-arrow-right"></i>
+      <span id="enddate"></span>
+    </div>
+    <div class="box">
+    <i class="fa fa-hand-o-right" data-toggle="tooltip" id="popularThirdParties"></i>
+    <a id="popularThirdPartiesButton" href="#" style="color:black;">
+
+      <span id="popularThirdPartiesDiv">Häufige Third Parties</span>
+    </a>
+    </div>
+    <div class="well-sm result">
+       <div class="row result-body" id="dashboard" style="display:none; padding-top:15px;">
+        <div class="col-md-3">
+          <div class="result-value"></div>
+          <div id="dashboardScore">Durchschnittliche Bewertung</div>
+          </div>
+          <div class="col-md-3">
+          <div class="result-value"></div>
+          <div id="dashboardHTTPS">der Seiten bieten HTTPS als Standard an</div>
+          </div>
+          <div class="col-md-3">
+          <div class="result-value"></div>
+          <div id="dashboardCookies">Durchschnittliche Anzahl an Cookies</div>
+          </div>
+          <div class="col-md-3">
+          <div class="result-value"></div>
+          <div id="dashboardThirdParties">Durchschnittliche Anzahl an Third Parties</div>
+
+          </div>
+      </div>
+    </div>
+    </div>
+
+    <div class="col-md-3">
+
+
+      <a class="btn btn-default" onclick="deleteList()" role="button" id="delete_list" style="width:100%; display:none;">Liste löschen</a>
+      <a class="btn btn-default" onclick="scanAgain()" role="button" id="scan_again" style="width:100%;">Nochmal scannen</a>
+      <a href="{% url 'frontend:list' %}" class="btn btn-default" role="button" id="new_list" style="width:100%;">Neue Liste aus dieser erstellen</a>
+
+       <div class="form-group">
+        <label id="labelShowScan">Scan anzeigen</label>
+        <select onchange="location = this.options[this.selectedIndex].value;" class="form-control" id="oldNewScans">
+        </select>
+
+      <div id="compareDiv">
+      <input type="checkbox" id="compareCheckbox" value="" onclick="toggleCompare();">
+        <label id="labelCompareScan">Vergleichs-Scan</label>
+        <select onchange="dropdownAction()" class="form-control" id="compareScans">
+        </select>
+      </div>
+      </div>
+
+      <a onclick="openDiagram();" class="btn btn-default" role="button" id="showDiagramBox" style="width:100%; display:none;">Diagramm anzeigen</a>
+
+    </div>
+    </div>
+
+
+    <h3 id="listScanning" style="display:none;"></h3>
+
+    <div id="comparedDates" style="display:none;"  class="form-text text-muted"></div>
+
+    <!--<div style="overflow-x:scroll;" id="tableContainer">-->
+      <table id="list_table" class="table dataTable display table-responsive">
+      <thead>
+
+      </thead>
+
+      <tbody>
+
+      </tbody>
+
+      </table>
+      <!--</div>-->
+
+  </content>
+
+  <!--DIAGRAM-->
+  <div class="well diagram-box" id="diagram-box">
+  <button class="btn btn-default button-close-diagram-box" onclick="closeDiagram();">X</button>
+  <button class="btn btn-default" data-toggle="collapse" data-target="#diagram_settings" id="diagramSettingsButton" style="display:none;">Diagrammeinstellungen</button>
+  <button class="btn btn-default" onclick="submitDiagram()" id="diagramSubmitButton">Diagramm erstellen</button>
+    <div class="row" id="diagram_settings">
+    <!--KRITERIEN-->
+      <div class="col-md-3">
+        <label id="criteria"></label>
+        <div class="form-group">
+          <div class="radio">
+            <label><input type="radio" name="optradio" id="httpsDiagram"><span id="httpsLabel">HTTPS</span></label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" id="cookiesDiagram" checked><span id="cookiesLabel">Anzahl Cookies</span></label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" id="thirdDiagram" checked><span id="thirdLabel">Anzahl Third Parties</span></label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio" id="thirdReqDiagram" checked><span id="thirdReqLabel">Anzahl Third Party Requests</span></label>
+          </div>
+        </div>
+      </div>
+      <!--SCAN DATE-->
+      <div class="col-md-6"  id="diagram">
+
+
+      </div>
+    </div>
+
+    <!--DIAGRAM-->
+    <div class="row">
+    <div class="col-md-6">
+        <p>
+        <label for="amount" id="timescale"></label>
+        <input type="text" id="amount" readonly style="border:0; color:black; display:block; width:100%;">
+        <input type="text" id="indizes" readonly style="border:0; color:black; font-weight:bold; display:none;">
+      </p>
+      <div id="slider-range"></div>
+        <label style="display:none;">Scan-Datum</label>
+        <div style="display:none;" class="form-group" id="diagram-box-settings-scandate">
+
+        </div>
+    </div>
+    </div>
+
+    <!--DIAGRAM KEY-->
+    <div class="row" id="diagram_keys" style="margin-bottom: 25px;">
+    </div>
+
+  </div>
+
+
+  <!--LOADING-->
+  <div id="loader" style="display:block;">
+    <div class="overlay" id="overlay"></div>
+    <div class="well box-loading" >
+    <div class="row"><div class="loader"></div></div>
+    <div class="row" style="margin-top:5px;" id="loadingProgress"></div>
+
+    </div>
+
+  </div>
+{% endblock content %}

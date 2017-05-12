@@ -1,0 +1,17 @@
+{
+    "Name": "Universitaeten Deutschland",
+    "Description": "Das sind alle Universitäten in Deutschland.",
+    "Tags": "de, academia, Universitäten, Hochschulen",
+    "columns": ["Link", "Bundesland"],
+    "Data": [{
+        "values": ["www.uni-siegen.de", "nrw"],
+        "score": "A",
+        "https": false,
+        "cookie_anzahl": 5
+    }, {
+        "values": ["www.uni-hamburg.de", "hh"],
+        "score": "B",
+        "https": true,
+        "cookie_anzahl": 151
+    }]
+}

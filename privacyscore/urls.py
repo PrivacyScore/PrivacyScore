@@ -19,4 +19,5 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include('privacyscore.api.urls')),
+    url(r'^', include('privacyscore.frontend.urls')),
 ]
