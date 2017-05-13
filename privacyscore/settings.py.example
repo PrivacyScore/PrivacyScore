@@ -131,7 +131,17 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
+from kombu import Exchange, Queue
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_SERIALIZER = 'msgpack'
+CELERY_RESULT_SERIALIZER = 'msgpack'
+CELERY_ACCEPT_CONTENT = ['msgpack']
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_DEFAULT_QUEUE = 'master'
+CELERY_QUEUES = (
+    Queue('master', Exchange('master'), routing_key='master'),
+    Queue('slave', Exchange('slave'), routing_key='slave'),
+)
 
 
 from datetime import timedelta
@@ -139,15 +149,29 @@ SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN = timedelta(minutes=28)
 SCAN_SUITE_TIMEOUT_SECONDS = 100
 SCAN_TOTAL_TIMEOUT = timedelta(minutes=10)
 
+# a list of the stages where each test in a stage receives the scan dictionary
+# of the previous stages.
+# each test suite is a python module. It needs to have a function called test.
+# The test is expected to return a tuple: The first element of this tuple
+# is a list containing all raw data elements, the second a dictionary
+# containing evaluated test results.
 SCAN_TEST_SUITES = [
-    ('privacyscore.test_suites.openwpm', {
-        'scan_basedir': '/tmp/openwpm-scans',
-        'virtualenv_path': os.path.join(BASE_DIR, 'tests/vendor/OpenWPM/.pyenv'),
-    }),
-    ('privacyscore.test_suites.testssl', {}),
-    ('privacyscore.test_suites.testssl', {
-        'test_type': 'mx'}),
-    ('privacyscore.test_suites.geoip', {}),
+    [ # stage 0
+        ('privacyscore.test_suites.openwpm', {
+            'scan_basedir': '/tmp/openwpm-scans',
+            'virtualenv_path': os.path.join(BASE_DIR, 'tests/vendor/OpenWPM/.pyenv'),
+        }),
+        ('privacyscore.test_suites.testssl', {}),
+        ('privacyscore.test_suites.testssl', {
+            'test_type': 'mx'}),
+        ('privacyscore.test_suites.geoip', {}),
+    ],
+    #[ # stage 1
+    #    ('privacyscore.test_suites.geoip', {}),
+    #],
 ]
 
 SCAN_TEST_BASEPATH = os.path.join(BASE_DIR, 'tests')
+
+RAW_DATA_DB_MAX_SIZE = 4000
+RAW_DATA_DIR = os.path.join(BASE_DIR, 'raw_data')

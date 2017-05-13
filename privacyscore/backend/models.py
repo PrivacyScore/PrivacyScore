@@ -1,5 +1,7 @@
+import os
 import random
 import string
+from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -215,7 +217,7 @@ class Scan(models.Model):
     group = models.ForeignKey(
         ScanGroup, on_delete=models.CASCADE, related_name='scans')
 
-    final_url = models.CharField(max_length=500)
+    # TODO: rename field? success does not imply all tests succeeded
     success = models.BooleanField()
 
     def __str__(self) -> str:
@@ -228,22 +230,52 @@ class RawScanResult(models.Model):
         Scan, on_delete=models.CASCADE, related_name='raw_results')
 
     test = models.CharField(max_length=80)
-    result = postgres_fields.JSONField()
+    identifier = models.CharField(max_length=80)
+
+    data_type = models.CharField(max_length=80)
+    file_name = models.CharField(max_length=80, null=True, blank=True)
+    data = models.BinaryField(null=True, blank=True)
 
     def __str__(self) -> str:
         return '{}: {}'.format(str(self.scan), self.test)
 
+    @property
+    def in_db(self) -> bool:
+        return self.file_name is None
+
+    @staticmethod
+    def store_raw_data(data, data_type: str, test: str, identifier: str, scan_pk: int):
+        """Store data in db or filesystem."""
+        if len(data) > settings.RAW_DATA_DB_MAX_SIZE:
+            # store in filesystem
+
+            # TODO: ensure uniqueness
+            file_name = str(uuid4())
+            path = os.path.join(settings.RAW_DATA_DIR, file_name)
+            with open(path, 'wb') as f:
+                f.write(data)
+
+            RawScanResult.objects.create(
+                scan_id=scan_pk,
+                test=test,
+                identifier=identifier,
+                data_type=data_type,
+                file_name=file_name)
+        else:
+            RawScanResult.objects.create(
+                scan_id=scan_pk,
+                test=test,
+                identifier=identifier,
+                data_type=data_type,
+                data=data)
+
 
 class ScanResult(models.Model):
     """A single scan result key-value pair."""
-    scan = models.ForeignKey(
-        Scan, on_delete=models.CASCADE, related_name='results')
+    scan = models.OneToOneField(
+        Scan, on_delete=models.CASCADE, related_name='result')
 
-    test = models.CharField(max_length=80)
-    key = models.CharField(max_length=100)
     result = postgres_fields.JSONField(null=True, blank=True)
-    result_description = models.CharField(max_length=500, null=True, blank=True)
-    additional_data = postgres_fields.JSONField(null=True, blank=True)
 
     def __str__(self) -> str:
-        return '{}: {}.{} = {}'.format(str(self.scan), self.test, self.key, self.result)
+        return '{}'.format(str(self.scan))

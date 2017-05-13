@@ -8,20 +8,18 @@ from typing import Callable
 
 from django.conf import settings
 
-from privacyscore.backend.models import Scan, ScanResult, RawScanResult
-
 
 TESTSSL_PATH = os.path.join(
     settings.SCAN_TEST_BASEPATH, 'vendor/testssl.sh', 'testssl.sh')
 
 
-def test(scan: Scan, test_type: str=''):
+def test(scan_pk: int, url: str, previous_results: dict, test_type: str=''):
     """Test the specified url with testssl."""
     result_file = tempfile.mktemp()
 
     # determine hostname
     pattern = re.compile(r'^(https|http)?(://)?([^/]*)/?.*?')
-    hostname = pattern.match(scan.final_url).group(3)
+    hostname = pattern.match(url).group(3)
 
     args = [
         TESTSSL_PATH,
@@ -39,18 +37,15 @@ def test(scan: Scan, test_type: str=''):
     args.append(hostname)
     call(args, timeout=60, stdout=DEVNULL, stderr=DEVNULL)
 
-    _process_result(scan, result_file, test_type)
+    return _process_result(scan_pk, result_file, test_type)
 
 
-def _process_result(scan: Scan, result_file: str, test_type):
+def _process_result(scan_pk: int, result_file: str, test_type):
     """Process the result of the test and save it to the database."""
-    if not os.path.isfile(result_file):
-        # something went wrong with this test.
-        # TODO: raise exception?
-        return
-
+    # exception when file does not exist.
     with open(result_file, 'r') as f:
-        data = json.load(f)
+        raw_data = f.read()
+    data = json.loads(raw_data)
 
     rv = {
         'headerchecks': [],
@@ -60,7 +55,7 @@ def _process_result(scan: Scan, result_file: str, test_type):
     # HTTP Header Checks that rely on testssl go here
     if not data['scanResult'] or not data['scanResult'][0]:
         # something went wrong with this test.
-        return
+        raise Exception('no scan result in raw data')
     sslres = data['scanResult'][0]
 
     # HSTS
@@ -94,12 +89,6 @@ def _process_result(scan: Scan, result_file: str, test_type):
             result_time['status'] = severity
             result_time['value'] = "%s %s" % (severity, finding)
         rv['headerchecks'].append(result_time)
-        ScanResult.objects.create(
-            scan=scan,
-            test=__name__ + test_type,
-            key='hsts_time',
-            result=result_time['status'],
-            result_description=result_time['value'])
 
     if result['status'] != 'FAIL':
         result_preload = {
@@ -115,27 +104,19 @@ def _process_result(scan: Scan, result_file: str, test_type):
             result_preload['status'] = severity
             result_preload['value']  = "%s %s" % (severity, finding)
         rv['headerchecks'].append(result_preload)
-        ScanResult.objects.create(
-            scan=scan,
-            test=__name__ + test_type,
-            key='hsts_preload',
-            result=result_preload['status'],
-            result_description=result_preload['value'])
-
-    ScanResult.objects.create(
-        scan=scan,
-        test=__name__ + test_type,
-        key='hsts',
-        result=result['status'],
-        result_description=result['value'])
 
     rv['headerchecks'].append(result)
 
-    # store raw scan result
-    RawScanResult.objects.create(scan=scan, test=__name__ + test_type, result=rv)
-
     # delete json file.
     os.remove(result_file)
+
+    # store raw scan result
+    return [({
+        'data_type': 'application/json',
+        'test': __name__,
+        'identifier': 'jsonresult',
+        'scan_pk': scan_pk,
+    }, raw_data.encode())], rv
 
 
 def _find_in_list_by_id(l: list, search: str) -> object:

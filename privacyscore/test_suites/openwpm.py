@@ -1,19 +1,19 @@
 import json
 import os
+import shutil
 import tempfile
 
 from subprocess import call, DEVNULL
+from uuid import uuid4
 
 from django.conf import settings
-
-from privacyscore.backend.models import Scan, ScanResult, RawScanResult
 
 
 OPENWPM_WRAPPER_PATH = os.path.join(
     settings.SCAN_TEST_BASEPATH, 'openwpm_wrapper.py')
 
 
-def test(scan: Scan, scan_basedir: str, virtualenv_path: str):
+def test(scan_pk: int, url: str, previous_results: dict, scan_basedir: str, virtualenv_path: str):
     """Test a site using openwpm and related tests."""
     result_file = tempfile.mktemp()
 
@@ -21,10 +21,14 @@ def test(scan: Scan, scan_basedir: str, virtualenv_path: str):
     if not os.path.isdir(scan_basedir):
         os.mkdir(scan_basedir)
 
+    # create scan dir
+    scan_dir = os.path.join(scan_basedir, str(uuid4()))
+    os.mkdir(scan_dir)
+
     call([
         OPENWPM_WRAPPER_PATH,
-        scan.final_url,
-        scan_basedir,
+        url,
+        scan_dir,
         result_file,
     ], timeout=60, stdout=DEVNULL, stderr=DEVNULL,
     cwd=settings.SCAN_TEST_BASEPATH, env={
@@ -34,98 +38,56 @@ def test(scan: Scan, scan_basedir: str, virtualenv_path: str):
             os.environ.get('PATH')),
     })
 
-    _process_result(scan, result_file)
+    return _process_result(scan_pk, scan_dir, result_file)
 
 
-def _process_result(scan: Scan, result_file: str):
+def _process_result(scan_pk: int, scan_dir: str, result_file: str):
     """Process the result of the test and save it to the database."""
     if not os.path.isfile(result_file):
         # something went wrong with this test.
         return
 
     with open(result_file, 'r') as f:
-        data = json.load(f)
+        raw_result = f.read()
+    result = json.loads(raw_result)
 
-    # save final url
-    scan.final_url = data['final_url']
-    scan.save()
+    # collect raw output
+    # log file
+    with open(os.path.join(scan_dir, 'openwpm.log'), 'rb') as f:
+        raw_log = f.read()
 
-    # TODO: work out result_description Does it make sense to store that in
-    # the database at all? How to change it later.
+    # sqlite db
+    with open(os.path.join(scan_dir, 'crawl-data.sqlite3'), 'rb') as f:
+        sqlite_db = f.read()
 
-    # cookies count
-    ScanResult.objects.create(
-        scan=scan,
-        test=__name__,
-        key='cookies_count',
-        result=data['cookies_count'],
-        result_description=data['cookies_count'])
-
-    # flash cookies count
-    ScanResult.objects.create(
-        scan=scan,
-        test=__name__,
-        key='flashcookies_count',
-        result=data['flashcookies_count'],
-        result_description=data['flashcookies_count'])
-
-    # https
-    ScanResult.objects.create(
-        scan=scan,
-        test=__name__,
-        key='https',
-        result=data['https'],
-        result_description=data['https'])
-
-    # redirected_to_https
-    ScanResult.objects.create(
-        scan=scan,
-        test=__name__,
-        key='redirected_to_https',
-        result=data['redirected_to_https'],
-        result_description=data['redirected_to_https'])
-
-    # referrer
-    ScanResult.objects.create(
-        scan=scan,
-        test=__name__,
-        key='referrer',
-        result=data['referrer'],
-        result_description=data['referrer'])
-
-    # third parties
-    ScanResult.objects.create(
-        scan=scan,
-        test=__name__,
-        key='third_parties',
-        result=data['third_parties'],
-        result_description='')
-
-    # third_parties_count
-    ScanResult.objects.create(
-        scan=scan,
-        test=__name__,
-        key='third_parties_count',
-        result=data['third_parties_count'],
-        result_description=data['third_parties_count'])
-
-    # third party requests
-    ScanResult.objects.create(
-        scan=scan,
-        test=__name__,
-        key='third_party_requests',
-        result=data['third_party_requests'],
-        result_description='')
-
-    # third_party_requests_count
-    ScanResult.objects.create(
-        scan=scan,
-        test=__name__,
-        key='third_party_requests_count',
-        result=data['third_party_requests_count'],
-        result_description=data['third_party_requests_count'])
-    # store raw scan result
-    RawScanResult.objects.create(scan=scan, test=__name__, result=data)
+    # screenshot
+    with open(os.path.join(scan_dir, 'screenshots/screenshot.png'), 'rb') as f:
+        screenshot = f.read()
 
     # delete result file.
     os.remove(result_file)
+
+    # recursively delete scan folder
+    shutil.rmtree(scan_dir)
+
+    return [({
+        'data_type': 'application/x-sqlite3',
+        'test': __name__,
+        'identifier': 'crawldata',
+        'scan_pk': scan_pk,
+    }, sqlite_db), ({
+        'data_type': 'image/png',
+        'test': __name__,
+        'identifier': 'screenshot',
+        'scan_pk': scan_pk,
+    }, screenshot), ({
+        'data_type': 'text/plain',
+        'test': __name__,
+        'identifier': 'log',
+        'scan_pk': scan_pk,
+    }, raw_log), ({
+        'data_type': 'application/json',
+        'test': __name__,
+        'identifier': 'jsonresult',
+        'scan_pk': scan_pk,
+    }, raw_result.encode())], result

@@ -2,3 +2,4 @@
 privacyscore/settings.py
 venv/
 tests/vendor
+raw_data

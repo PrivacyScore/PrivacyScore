@@ -6,17 +6,15 @@ Use external callable module as openwpm does not support python 3.
 Thus, this needs to run in a different virtualenv than the backend.
 (Set env accordingly)
 
-Syntax: ./openwpm_wrapper.py url scan_basedir result_file
+Syntax: ./openwpm_wrapper.py url scan_dir result_file
 """
 
 import json
 import os
 import re
-import shutil
 import sqlite3
 import sys
 import tldextract # "pip install tldextract", to extract hosts and third parties
-import uuid
 
 from vendor.OpenWPM.automation import TaskManager, CommandSequence
 from vendor.OpenWPM.automation.SocketInterface import clientsocket
@@ -56,8 +54,6 @@ def determine_final_url(table_name, original_url, **kwargs):
 #      SQLite database and pass it on as a return value, or what?
 def scan_site(site):
     try:
-        # Generate scan UUID
-        scan_uuid = str(uuid.uuid4())
         # Scan with only one browser
         NUM_BROWSERS = 1
 
@@ -72,9 +68,9 @@ def scan_site(site):
             browser_params[i]['http_instrument'] = True
 
         # Personalize manager parameters
-        manager_params['data_directory'] = os.path.join(SCAN_DIR, scan_uuid)
-        manager_params['log_directory'] =  os.path.join(SCAN_DIR, scan_uuid)
-        manager_params['database_name'] =  'crawl-data.sqsqlite3'
+        manager_params['data_directory'] = SCAN_DIR
+        manager_params['log_directory'] = SCAN_DIR
+        manager_params['database_name'] = 'crawl-data.sqlite3'
         manager = TaskManager.TaskManager(manager_params, browser_params)
 
         # TODO Commented out status reporting
@@ -93,6 +89,10 @@ def scan_site(site):
         # Assemble command sequence for browser
         command_sequence = CommandSequence.CommandSequence(site)
         command_sequence.get(sleep=10, timeout=60) # 10 sec sleep so everything settles down
+
+        # save a screenshot
+        command_sequence.save_screenshot('screenshot')
+
         command_sequence.run_custom_function(determine_final_url, ('final_urls', site)) # needed to determine whether site redirects to https
         command_sequence.dump_profile_cookies(120)
         # Execute command sequence
@@ -101,18 +101,18 @@ def scan_site(site):
         # Close browser
         manager.close()
 
-        return create_result_dict(site, scan_uuid)
+        return create_result_dict(site)
     except Exception as ex:
         print ex
         e = sys.exc_info()[0]
         return 'error: ' + str(e)
 
 
-def create_result_dict(site, scan_uuid):
+def create_result_dict(site):
     # client = MongoClient(config.MONGODB_URL)
     # db = client['PrangerDB']
 
-    conn = sqlite3.connect(os.path.join(SCAN_DIR, scan_uuid, 'crawl-data.sqsqlite3'))
+    conn = sqlite3.connect(os.path.join(SCAN_DIR, 'crawl-data.sqlite3'))
     cur = conn.cursor()
 
     scantosave = {
@@ -319,9 +319,6 @@ def create_result_dict(site, scan_uuid):
 
         # Close SQLite connection
         conn.close()
-
-        # Delete scan folder
-        shutil.rmtree(os.path.join(SCAN_DIR, scan_uuid))
 
         return scantosave
 
