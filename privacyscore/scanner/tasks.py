@@ -121,12 +121,17 @@ def handle_aborted_scans():
 def _parse_previous_results(previous_results: List[Tuple[list, dict]]) -> tuple:
     """Parse previous results and split into raw data and results."""
     if isinstance(previous_results, list):
-        # Multiple result.
-        raw = previous_results[0][0]
-        result = previous_results[0][1].copy()
+        # Multiple results.
+        raw = []
+        result = {}
+        if isinstance(previous_results[0], Iterable):
+            raw = previous_results[0][0]
+            result = previous_results[0][1].copy()
         for r, d in (e for e in previous_results[1:] if isinstance(e, Iterable)):
-            raw.extend(r)
-            result.update(d)
+            if isinstance(r, Iterable):
+                raw.extend(r)
+            if isinstance(d, dict):
+                result.update(d)
         return raw, result
 
     # Only a single result which already has the desired format.
