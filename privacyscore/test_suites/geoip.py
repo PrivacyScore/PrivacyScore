@@ -34,6 +34,6 @@ def test(scan_pk: int, url: str, previous_results: dict):
 
 def _process_result(result: str):
     """Process the result of the test and save it to the database."""
-    result = json.loads(result)
+    result = json.loads(result.decode())
 
     return result
