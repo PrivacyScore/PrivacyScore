@@ -1,0 +1,23 @@
+*filter
+:INPUT ACCEPT [169:22683]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [109:31662]
+
+# allow ssh incoming
+-A INPUT -i eth0 -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -o eth0 -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
+
+# allow web incoming
+-A INPUT -i eth0 -p tcp --dport 80 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -o eth0 -p tcp --sport 80 -m state --state ESTABLISHED -j ACCEPT
+-A INPUT -i eth0 -p tcp --dport 443 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -o eth0 -p tcp --sport 443 -m state --state ESTABLISHED -j ACCEPT
+
+# allow workers to access redis and rabbitmq
+-A INPUT -p tcp --source 134.100.14.112 -m multiport --dports 6379,5672 -j ACCEPT
+-A INPUT -p tcp --source 134.100.14.113 -m multiport --dports 6379,5672 -j ACCEPT
+
+# drop everything else on eth0
+-A INPUT -i eth0 -j DROP
+
+COMMIT

@@ -1,0 +1,18 @@
+[Unit]
+Description=Privacyscore uwsgi
+After=network.target postgresql.service redis-server.service rabbitmq-server.service
+
+[Service]
+User=privacyscore
+Group=privacyscore
+ExecStart=/opt/privacyscore/.pyenv/bin/uwsgi --ini /opt/privacyscore/configs/uwsgi.ini
+WorkingDirectory=/opt/privacyscore
+Environment=VIRTUAL_ENV="/opt/privacyscore/.pyenv"
+Environment=PATH="/opt/privacyscore/.pyenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"
+KillSignal=SIGQUIT
+PrivateTmp=true
+Restart=always
+MemoryLimit=200M
+
+[Install]
+WantedBy=multi-user.target
