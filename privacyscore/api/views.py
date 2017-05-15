@@ -188,7 +188,10 @@ def save_site(request: Request) -> Response:
 
         with transaction.atomic():
             # delete all sites which previously existed.
-            list.sites.all().delete()
+            list.sites.through.objects.filter(list=list).delete()
+
+            # delete all column values for this list
+            ListColumnValue.objects.filter(column__list=list).delete()
 
             for site in request.data['sites']:
                 if not site['url']:
@@ -206,7 +209,8 @@ def save_site(request: Request) -> Response:
                 if re.search(r"^(https?:\/\/)?[^\/]*$", site["url"], re.IGNORECASE):
                     site["url"] += '/'
 
-                site_object = Site.objects.create(url=site['url'], list=list)
+                site_object = Site.objects.get_or_create(url=site['url'])[0]
+                site_object.lists.add(list)
 
                 # TODO: Remove empty columns in frontend to prevent count
                 # mismatch (as empty columns are filtered before so it is not

@@ -32,7 +32,7 @@ def schedule_scan(scan_group_pk: int):
     """Prepare and schedule all scans of a scan group."""
     # Schedule next stage
     scan_group = ScanGroup.objects.get(pk=scan_group_pk)
-    sites = Site.objects.filter(list_id=scan_group.list_id)
+    sites = Site.objects.filter(lists__pk=scan_group.list_id)
     for site in sites:
         # create Scan object
         scan = Scan.objects.create(

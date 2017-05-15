@@ -41,7 +41,7 @@ class List(models.Model):
     @property
     def editable(self) -> bool:
         """Return whether the list has been scanned."""
-        return Scan.objects.filter(site__list=self).count() == 0
+        return ScanGroup.objects.filter(list=self).count() == 0
 
     def as_dict(self) -> dict:
         """Return the current list as dict."""
@@ -128,11 +128,8 @@ class List(models.Model):
 
 class Site(models.Model):
     """A site."""
-    # TODO: make url unique and list ManyToMany?
-
-    url = models.CharField(max_length=500)
-    list = models.ForeignKey(
-        List, on_delete=models.CASCADE, related_name='sites')
+    url = models.CharField(max_length=500, unique=True)
+    lists = models.ManyToManyField(List, related_name='sites')
 
     def __str__(self) -> str:
         return self.url
