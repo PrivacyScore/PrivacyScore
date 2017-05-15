@@ -3,3 +3,15 @@ privacyscore/settings.py
 venv/
 tests/vendor
 raw_data
+
+# home dir
+.bash_history
+.bash_profile
+.bashrc
+.cache/
+.mozilla/
+.pip/
+.pyenv/
+.ssh/
+.viminfo
+.ipython
