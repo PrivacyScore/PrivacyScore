@@ -8,12 +8,14 @@ from uuid import uuid4
 
 from django.conf import settings
 
+from privacyscore.utils import get_raw_data_by_identifier
+
 
 OPENWPM_WRAPPER_PATH = os.path.join(
     settings.SCAN_TEST_BASEPATH, 'openwpm_wrapper.py')
 
 
-def test(scan_pk: int, url: str, previous_results: dict, scan_basedir: str, virtualenv_path: str):
+def test(scan_pk: int, url: str, previous_results: dict, scan_basedir: str, virtualenv_path: str) -> list:
     """Test a site using openwpm and related tests."""
     result_file = tempfile.mktemp()
 
@@ -31,25 +33,18 @@ def test(scan_pk: int, url: str, previous_results: dict, scan_basedir: str, virt
         scan_dir,
         result_file,
     ], timeout=60, stdout=DEVNULL, stderr=DEVNULL,
-    cwd=settings.SCAN_TEST_BASEPATH, env={
-        'VIRTUAL_ENV': virtualenv_path,
-        'PATH': '{}:{}'.format(
-            os.path.join(virtualenv_path, 'bin'),
-            os.environ.get('PATH')),
+         cwd=settings.SCAN_TEST_BASEPATH, env={
+             'VIRTUAL_ENV': virtualenv_path,
+             'PATH': '{}:{}'.format(
+                 os.path.join(virtualenv_path, 'bin'), os.environ.get('PATH')),
     })
 
-    return _process_result(scan_pk, scan_dir, result_file)
-
-
-def _process_result(scan_pk: int, scan_dir: str, result_file: str):
-    """Process the result of the test and save it to the database."""
     if not os.path.isfile(result_file):
         # something went wrong with this test.
-        return
+        return []
 
-    with open(result_file, 'r') as f:
+    with open(result_file, 'rb') as f:
         raw_result = f.read()
-    result = json.loads(raw_result)
 
     # collect raw output
     # log file
@@ -90,4 +85,12 @@ def _process_result(scan_pk: int, scan_dir: str, result_file: str):
         'test': __name__,
         'identifier': 'jsonresult',
         'scan_pk': scan_pk,
-    }, raw_result.encode())], result
+    }, raw_result)]
+
+
+def process(raw_data: list, previous_results: dict):
+    """Process the raw data of the test."""
+    result = json.loads(
+        get_raw_data_by_identifier(raw_data, 'jsonresult').decode())
+
+    return result

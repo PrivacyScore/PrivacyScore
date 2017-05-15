@@ -95,8 +95,10 @@ def run_test(test_suite: str, test_parameters: dict, scan_pk: int, url: str, pre
     test_suite = importlib.import_module(test_suite)
     try:
         with Timeout(settings.SCAN_SUITE_TIMEOUT_SECONDS):
-            return test_suite.test(
+            raw_data = test_suite.test(
                 scan_pk, url, previous_results, **test_parameters)
+            processed = test_suite.process(raw_data, previous_results)
+            return raw_data, processed
     except:
         # TODO: Use chord error handling and do not catch here
 

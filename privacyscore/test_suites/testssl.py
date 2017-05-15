@@ -8,6 +8,8 @@ from typing import Callable
 
 from django.conf import settings
 
+from privacyscore.utils import get_raw_data_by_identifier
+
 
 TESTSSL_PATH = os.path.join(
     settings.SCAN_TEST_BASEPATH, 'vendor/testssl.sh', 'testssl.sh')
@@ -37,15 +39,25 @@ def test(scan_pk: int, url: str, previous_results: dict, test_type: str=''):
     args.append(hostname)
     call(args, timeout=60, stdout=DEVNULL, stderr=DEVNULL)
 
-    return _process_result(scan_pk, result_file, test_type)
-
-
-def _process_result(scan_pk: int, result_file: str, test_type):
-    """Process the result of the test and save it to the database."""
     # exception when file does not exist.
-    with open(result_file, 'r') as f:
+    with open(result_file, 'rb') as f:
         raw_data = f.read()
-    data = json.loads(raw_data)
+    # delete json file.
+    os.remove(result_file)
+
+    # store raw scan result
+    return [({
+        'data_type': 'application/json',
+        'test': __name__,
+        'identifier': 'jsonresult',
+        'scan_pk': scan_pk,
+    }, raw_data)]
+
+
+def process(raw_data: list, previous_results: dict):
+    """Process the raw data of the test."""
+    data = json.loads(
+        get_raw_data_by_identifier(raw_data, 'jsonresult').decode())
 
     rv = {
         'headerchecks': [],
@@ -106,17 +118,8 @@ def _process_result(scan_pk: int, result_file: str, test_type):
         rv['headerchecks'].append(result_preload)
 
     rv['headerchecks'].append(result)
-
-    # delete json file.
-    os.remove(result_file)
-
-    # store raw scan result
-    return [({
-        'data_type': 'application/json',
-        'test': __name__,
-        'identifier': 'jsonresult',
-        'scan_pk': scan_pk,
-    }, raw_data.encode())], rv
+    
+    return rv
 
 
 def _find_in_list_by_id(l: list, search: str) -> object:
