@@ -8,7 +8,7 @@ from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from privacyscore.backend.models import List, ListColumnValue, Site
+from privacyscore.backend.models import List, ListColumnValue, Site, ScanGroup
 
 
 @api_view(['GET'])
@@ -236,5 +236,27 @@ def save_site(request: Request) -> Response:
         })
     except KeyError:
         raise ParseError
+    except List.DoesNotExist:
+        raise NotFound
+
+
+@api_view(['GET'])
+def scan_groups_by_site(request: Request, site_id: int) -> Response:
+    """Get all scan groups for a site."""
+    try:
+        site = Site.objects.get(pk=site_id)
+
+        return Response([sg.as_dict() for sg in ScanGroup.objects.filter(list__sites=site)])
+    except Site.DoesNotExist:
+        raise NotFound
+
+
+@api_view(['GET'])
+def scan_groups_by_list(request: Request, list_id: int) -> Response:
+    """Get all scan groups for a list."""
+    try:
+        list = List.objects.get(pk=list_id)
+
+        return Response([sg.as_dict() for sg in ScanGroup.objects.filter(list=list)])
     except List.DoesNotExist:
         raise NotFound

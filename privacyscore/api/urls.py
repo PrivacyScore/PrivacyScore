@@ -14,4 +14,8 @@ urlpatterns = [
     url(r'^Search/$', views.search_lists, name='search_lists'),
     url(r'^ScanList/$', views.scan_list, name='scan_list'),
     url(r'^SaveSite/$', views.save_site, name='save_site'),
+    url(r'^site/(?P<site_id>\d+)/scan_groups/$', views.scan_groups_by_site,
+        name='scan_groups_by_site'),
+    url(r'^list/(?P<list_id>\d+)/scan_groups/$', views.scan_groups_by_list,
+        name='scan_groups_by_list'),
 ]

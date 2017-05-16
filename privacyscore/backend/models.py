@@ -137,6 +137,7 @@ class Site(models.Model):
     def as_dict(self) -> dict:
         """Return the current list as dict."""
         return {
+            'id': self.pk,
             'url': self.url,
             'column_values': [
                 v.value for v in self.column_values.order_by('column__sort_key')],
@@ -205,6 +206,16 @@ class ScanGroup(models.Model):
 
     def __str__(self) -> str:
         return '{}: {} ({})'.format(str(self.list), self.start, self.get_status_display())
+
+    def as_dict(self) -> dict:
+        """Return the current list as dict."""
+        return {
+            'id': self.pk,
+            'start': self.start,
+            'end': self.end,
+            'status': self.get_status_display(),
+            'error': self.error,
+        }
 
 
 class Scan(models.Model):
