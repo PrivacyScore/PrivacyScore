@@ -17,7 +17,7 @@ def generate_random_token() -> str:
                   for _ in range(50))
 
 
-class List(models.Model):
+class ScanList(models.Model):
     """A list of sites for scans."""
     name = models.CharField(max_length=150)
     description = models.TextField()
@@ -41,7 +41,7 @@ class List(models.Model):
     @property
     def editable(self) -> bool:
         """Return whether the list has been scanned."""
-        return ScanGroup.objects.filter(list=self).count() == 0
+        return ScanGroup.objects.filter(scan_list=self).count() == 0
 
     def as_dict(self) -> dict:
         """Return the current list as dict."""
@@ -82,7 +82,7 @@ class List(models.Model):
                     continue
 
                 column_object = ListColumn.objects.create(
-                    name=column['name'], list=self, sort_key=sort_key,
+                    name=column['name'], scan_list=self, sort_key=sort_key,
                     visible=column['visible'])
                 sort_key += 1
 
@@ -90,14 +90,14 @@ class List(models.Model):
         """Save tags for current list."""
         with transaction.atomic():
             # delete current tags
-            ListTag.lists.through.objects.filter(list=self).delete()
+            ListTag.scan_lists.through.objects.filter(scanlist=self).delete()
 
             for tag in tags:
                 if not tag:
                     continue
 
                 tag_object = ListTag.objects.get_or_create(name=tag)[0]
-                tag_object.lists.add(self)
+                tag_object.scan_lists.add(self)
 
     def scan(self) -> bool:
         """
@@ -117,7 +117,7 @@ class List(models.Model):
                 return False
 
         # create ScanGroup
-        scan_group = ScanGroup.objects.create(list=self)
+        scan_group = ScanGroup.objects.create(scan_list=self)
 
         # schedule scheduling of actual scans
         from privacyscore.scanner.tasks import schedule_scan
@@ -129,7 +129,7 @@ class List(models.Model):
 class Site(models.Model):
     """A site."""
     url = models.CharField(max_length=500, unique=True)
-    lists = models.ManyToManyField(List, related_name='sites')
+    scan_lists = models.ManyToManyField(ScanList, related_name='sites')
 
     def __str__(self) -> str:
         return self.url
@@ -146,7 +146,7 @@ class Site(models.Model):
 
 class ListTag(models.Model):
     """Tags for a list."""
-    lists = models.ManyToManyField(List, related_name='tags')
+    scan_lists = models.ManyToManyField(ScanList, related_name='tags')
     name = models.CharField(max_length=50, unique=True)
 
     def __str__(self) -> str:
@@ -157,18 +157,18 @@ class ListColumn(models.Model):
     """Columns of a list."""
     class Meta:
         unique_together = (
-            ('name', 'list'),
-            ('list', 'sort_key')
+            ('name', 'scan_list'),
+            ('scan_list', 'sort_key')
         )
 
     name = models.CharField(max_length=100)
-    list = models.ForeignKey(
-        List, on_delete=models.CASCADE, related_name='columns')
+    scan_list = models.ForeignKey(
+        ScanList, on_delete=models.CASCADE, related_name='columns')
     sort_key = models.PositiveSmallIntegerField()
     visible = models.BooleanField(default=True)
 
     def __str__(self) -> str:
-        return '{}: {}'.format(self.list, self.name)
+        return '{}: {}'.format(self.scan_list, self.name)
 
 
 class ListColumnValue(models.Model):
@@ -185,8 +185,8 @@ class ListColumnValue(models.Model):
 
 class ScanGroup(models.Model):
     """A scan group."""
-    list = models.ForeignKey(
-        List, on_delete=models.CASCADE, related_name='scan_groups')
+    scan_list = models.ForeignKey(
+        ScanList, on_delete=models.CASCADE, related_name='scan_groups')
 
     start = models.DateTimeField(default=timezone.now)
     end = models.DateTimeField(null=True, blank=True)
@@ -205,7 +205,7 @@ class ScanGroup(models.Model):
     error = models.CharField(max_length=300, null=True, blank=True)
 
     def __str__(self) -> str:
-        return '{}: {} ({})'.format(str(self.list), self.start, self.get_status_display())
+        return '{}: {} ({})'.format(str(self.scan_list), self.start, self.get_status_display())
 
     def as_dict(self) -> dict:
         """Return the current list as dict."""

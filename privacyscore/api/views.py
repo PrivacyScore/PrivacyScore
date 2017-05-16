@@ -8,75 +8,75 @@ from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from privacyscore.backend.models import List, ListColumnValue, Site, ScanGroup
+from privacyscore.backend.models import ScanList, ListColumnValue, Site, ScanGroup
 
 
 @api_view(['GET'])
-def get_lists(request: Request) -> Response:
+def get_scan_lists(request: Request) -> Response:
     """Get lists."""
-    lists = List.objects.annotate(sites__count=Count('sites')).filter(
+    scan_lists = ScanList.objects.annotate(sites__count=Count('sites')).filter(
         # scan_groups__scan__isnull=False,  # not editable
         private=False,
         sites__count__gte=2  # not single site
     )
 
-    return Response([l.as_dict() for l in lists])
+    return Response([l.as_dict() for l in scan_lists])
 
 
 @api_view(['GET'])
-def get_list(request: Request, token: str) -> Response:
+def get_scan_list(request: Request, token: str) -> Response:
     """Get a list by its token."""
     try:
-        l = List.objects.get(token=token)
+        l = ScanList.objects.get(token=token)
 
         return Response(l.as_dict())
-    except List.DoesNotExist:
+    except ScanList.DoesNotExist:
         raise NotFound
 
 
 @api_view(['POST'])
-def save_list(request: Request) -> Response:
+def save_scan_list(request: Request) -> Response:
     """Save a new list."""
     try:
         with transaction.atomic():
-            list = List.objects.create(
+            scan_list = ScanList.objects.create(
                 name=request.data['listname'],
                 description=request.data['description'],
                 private=bool(request.data['isprivate']),
                 user=request.user if request.user.is_authenticated else None)
 
-            list.save_tags(request.data['tags'])
+            scan_list.save_tags(request.data['tags'])
 
             # save columns
-            list.save_columns(request.data['columns'])
+            scan_list.save_columns(request.data['columns'])
 
             return Response({
-                'list_id': list.pk,
-                'token': list.token
+                'list_id': scan_list.pk,
+                'token': scan_list.token
             }, status=201)
     except KeyError:
         raise ParseError
 
 
 @api_view(['POST'])
-def update_list(request: Request) -> Response:
+def update_scan_list(request: Request) -> Response:
     """Update an existing list."""
     try:
         # TODO: Check if list is editable (and by current user)
 
-        list = List.objects.get(token=request.data['token'])
+        scan_list = ScanList.objects.get(token=request.data['token'])
 
-        list.name = request.data['listname']
-        list.description = request.data['description']
-        list.private = request.data['isprivate']
+        scan_list.name = request.data['listname']
+        scan_list.description = request.data['description']
+        scan_list.private = request.data['isprivate']
 
         # save tags
-        list.save_tags(request.data['tags'])
+        scan_list.save_tags(request.data['tags'])
 
         # save columns
-        list.save_columns(request.data['columns'])
+        scan_list.save_columns(request.data['columns'])
 
-        list.save()
+        scan_list.save()
 
         return Response({
             'type': 'success',
@@ -84,20 +84,20 @@ def update_list(request: Request) -> Response:
         })
     except KeyError as e:
         raise ParseError
-    except List.DoesNotExist:
+    except ScanList.DoesNotExist:
         raise NotFound
 
 
 # TODO: Use http DELETE?
 @api_view(['POST'])
-def delete_list(request: Request, token: str) -> Response:
+def delete_scan_list(request: Request, token: str) -> Response:
     """Update an existing list."""
     # TODO: Access control (Or is token sufficient)?
     try:
-        list = List.objects.get(token=token)
+        scan_list = ScanList.objects.get(token=token)
 
         # all related objects CASCADE automatically.
-        list.delete()
+        scan_list.delete()
 
         return Response({
             'type': 'success',
@@ -105,60 +105,60 @@ def delete_list(request: Request, token: str) -> Response:
         })
     except KeyError as e:
         raise ParseError
-    except List.DoesNotExist:
+    except ScanList.DoesNotExist:
         raise NotFound
 
 
 @api_view(['GET'])
-def get_list_id(request: Request, token: str) -> Response:
+def get_scan_list_id(request: Request, token: str) -> Response:
     """Get the token of a list."""
     try:
-        list = List.objects.get(token=token)
+        scan_list = ScanList.objects.get(token=token)
 
         return Response({
-            'id': list.pk,
+            'id': scan_list.pk,
         }, status=201)
-    except (List.DoesNotExist, ValueError):
+    except (ScanList.DoesNotExist, ValueError):
         raise NotFound
 
 
 @api_view(['GET'])
-def get_token(request: Request, list_id: int) -> Response:
+def get_token(request: Request, scan_list_id: int) -> Response:
     """Get the token of a list."""
     # TODO: Access control
     try:
-        list = List.objects.get(pk=list_id)
+        scan_list = ScanList.objects.get(pk=scan_list_id)
 
         return Response({
-            'token': list.token,
+            'token': scan_list.token,
         }, status=201)
-    except (List.DoesNotExist, ValueError):
+    except (ScanList.DoesNotExist, ValueError):
         raise NotFound
 
 
 # TODO: Why POST?
 @api_view(['POST'])
-def search_lists(request: Request) -> Response:
+def search_scan_lists(request: Request) -> Response:
     """Search for lists."""
     # TODO: Access control
     try:
         search_text = request.data['searchtext']
 
-        lists = List.objects.filter(
+        scan_lists = ScanList.objects.filter(
             Q(name__icontains=search_text) |
             Q(description__icontains=search_text) |
             Q(tags__name__icontains=search_text)).distinct()
 
-        return Response([l.as_dict() for l in lists])
+        return Response([l.as_dict() for l in scan_lists])
     except KeyError:
         raise ParseError
 
 
 @api_view(['POST'])
-def scan_list(request: Request) -> Response:
+def scan_scan_list(request: Request) -> Response:
     """Schedule a scan for the list."""
     try:
-        l = List.objects.get(pk=request.data['listid'])
+        l = ScanList.objects.get(pk=request.data['listid'])
 
         if not l.scan():
             return Response({
@@ -180,18 +180,18 @@ def save_site(request: Request) -> Response:
         # TODO: Check if user is allowed to add this site to the list and if
         # the list is editable at all
 
-        list = List.objects.get(pk=request.data['listid'])
+        scan_list = ScanList.objects.get(pk=request.data['listid'])
 
         # get columns
-        columns = list.columns.order_by('sort_key')
+        columns = scan_list.columns.order_by('sort_key')
         columns_count = len(columns)
 
         with transaction.atomic():
             # delete all sites which previously existed.
-            list.sites.through.objects.filter(list=list).delete()
+            scan_list.sites.through.objects.filter(scanlist=scan_list).delete()
 
             # delete all column values for this list
-            ListColumnValue.objects.filter(column__list=list).delete()
+            ListColumnValue.objects.filter(column__scan_list=scan_list).delete()
 
             for site in request.data['sites']:
                 if not site['url']:
@@ -210,7 +210,7 @@ def save_site(request: Request) -> Response:
                     site["url"] += '/'
 
                 site_object = Site.objects.get_or_create(url=site['url'])[0]
-                site_object.lists.add(list)
+                site_object.scan_lists.add(scan_list)
 
                 # TODO: Remove empty columns in frontend to prevent count
                 # mismatch (as empty columns are filtered before so it is not
@@ -227,7 +227,7 @@ def save_site(request: Request) -> Response:
                         'columns in list.')
 
                 for i, column in enumerate(site['column_values']):
-                    ListColumnValue.objects.create(
+                    ScanListColumnValue.objects.create(
                         column=columns[i], site=site_object, value=column)
 
         return Response({
@@ -236,7 +236,7 @@ def save_site(request: Request) -> Response:
         })
     except KeyError:
         raise ParseError
-    except List.DoesNotExist:
+    except ScanList.DoesNotExist:
         raise NotFound
 
 
@@ -246,17 +246,18 @@ def scan_groups_by_site(request: Request, site_id: int) -> Response:
     try:
         site = Site.objects.get(pk=site_id)
 
-        return Response([sg.as_dict() for sg in ScanGroup.objects.filter(list__sites=site)])
+        return Response([sg.as_dict() for sg in ScanGroup.objects.filter(
+            scan_list__sites=site)])
     except Site.DoesNotExist:
         raise NotFound
 
 
 @api_view(['GET'])
-def scan_groups_by_list(request: Request, list_id: int) -> Response:
+def scan_groups_by_scan_list(request: Request, scan_list_id: int) -> Response:
     """Get all scan groups for a list."""
     try:
-        list = List.objects.get(pk=list_id)
+        scan_list = ScanList.objects.get(pk=scan_list_id)
 
-        return Response([sg.as_dict() for sg in ScanGroup.objects.filter(list=list)])
-    except List.DoesNotExist:
+        return Response([sg.as_dict() for sg in ScanGroup.objects.filter(scan_list=scan_list)])
+    except ScanList.DoesNotExist:
         raise NotFound
