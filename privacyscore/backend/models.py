@@ -1,12 +1,14 @@
 import os
 import random
 import string
+from typing import Union
 from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres import fields as postgres_fields
 from django.db import models, transaction
+from django.db.models import QuerySet
 from django.utils import timezone
 
 
@@ -42,6 +44,22 @@ class ScanList(models.Model):
     def editable(self) -> bool:
         """Return whether the list has been scanned."""
         return ScanGroup.objects.filter(scan_list=self).count() == 0
+
+    @property
+    def ordered_columns(self) -> QuerySet:
+        """Get the ordered column values of this site."""
+        return self.columns.order_by('sort_key')
+
+    def last_scan(self) -> Union['ScanGroup', None]:
+        """Get most recent scan group."""
+        scans = ScanGroup.objects.filter(scan_list=self).order_by('start')
+        if len(scans) == 0:
+            return None
+        return scans.last()
+
+    def tags_as_str(self) -> str:
+        """Get a comma separated list of the tags."""
+        return ', '.join(t.name for t in self.tags.order_by('name'))
 
     def as_dict(self) -> dict:
         """Return the current list as dict."""
@@ -133,6 +151,11 @@ class Site(models.Model):
 
     def __str__(self) -> str:
         return self.url
+
+    @property
+    def ordered_column_values(self) -> QuerySet:
+        """Get the ordered column values of this site."""
+        return self.column_values.order_by('column__sort_key')
 
     def as_dict(self) -> dict:
         """Return the current list as dict."""

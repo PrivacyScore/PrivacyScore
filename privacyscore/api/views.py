@@ -227,7 +227,7 @@ def save_site(request: Request) -> Response:
                         'columns in list.')
 
                 for i, column in enumerate(site['column_values']):
-                    ScanListColumnValue.objects.create(
+                    ListColumnValue.objects.create(
                         column=columns[i], site=site_object, value=column)
 
         return Response({

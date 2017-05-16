@@ -1,12 +1,8 @@
 {% extends 'frontend/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}PrivacyScore{% endblock title %}
-
-{% block additional_js %}
-  <script src="{% static 'frontend/js/browse.js' %}" type="text/javascript"></script>
-  <script>$(function() {init("list");});</script>
-{% endblock additional_js %}
 
 {% block additional_css %}
 	<style>
@@ -24,66 +20,62 @@
 {% endblock additional_css %}
 
 {% block content %}
-	<content>
-		<div style="margin-bottom: 500px;">
-		
-			<!--MAIN CONTENT-->
-			<div class="col-md-9" style="padding-right: 50px;">
-			
+  <form method="get" action="{{ request.path }}" class="form">
+    <div class="form-group">
+      <label for="search">{% trans 'Search list' %}</label>
+        <div class="row">
+          <div class="col-md-8">
+            <input style="margin-top:5px;" type="text" id="search" name="search" class="form-control" placeholder="{% trans 'Search' %}" {% if search %}value="{{ search }}"{% endif %} />
+        </div>
+        <div class="col-md-4">
+          <button type="submit" class="btn btn-default" role="button">{% trans 'Search' %}</button>
+        </div>
+      </div>
+    </div>
+  </form>
+  
+    
+    
+    {% for scan_list in scan_lists %}
+      <div class="well well-lg" style="display:block;list-style-type: none">
+        <h4>
+          <a href="{% url 'frontend:view_scan_list' scan_list.pk %}">
+            {{ scan_list.name }}
+            <i class="fa fa-arrow-circle-o-right"></i>
+          </a>
+          <span style="float:right;">
+            <span class="glyphicon glyphicon-time" data-toggle="tooltip" title="{% trans 'Scan Date' %}"></span>
+            {{ scan_list.last_scan.start|date:"j.n.Y H:i" }}
+          </span>
+        </h4>
+        <div style="margin-top:10px;">
+          <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" title="{% trans 'Description' %}"></span>
+          {{ scan_list.description }}
+        </div>
+        <div style="margin-top:10px;">
+          <span class="glyphicon glyphicon-tags" data-toggle="tooltip" title="{% trans 'Tags' %}"></span>
+          {{ scan_list.tags_as_str }}
+        </div>
+      </div>
+    {% endfor %}
 
-			
-			<div class="row">
-			<div class="col-md-12">
-				<label id="label">Liste suchen</label>
-			</div>
-			</div>
-			<div class="row">
-			<div class="col-md-10">
-				<input style="margin-top:5px;" type="text" class="form-control" id="searchForm" value="" placeholder="" onkeydown="if (event.keyCode == 13) document.getElementById('searchButton').click()" />
-			</div>
-			<div class="col-md-2">
-				<a style="margin-top:5px;" class="btn btn-default" id="searchButton" role="button" onclick="searchButton();">Suchen</a>
-			</div>
-			</div>
-			
-			
-			
-			<div class="row">
-				<h3 id="search"></h3>
-				<h3 id="privateSearch" style="display:none;"></h3>
-				
-				<ul id="searchResults"></ul>
-			</div>
-			
-			</div>
-			
-			
-			<!--RIGHT CONTENT BAR-->
-			<div class="col-md-3" style="margin-top:25px;">
-			
-			<div class="row" style="display:block;">
-			<label id="privateListLabel" style="display:none;">Private Listen anzeigen</label>
-			<div>
-			<a style="margin-top:5px; display:none;" class="btn btn-default" id="privateSearchButton" role="button" onclick="privateSearchButton();">Anzeigen</a>
-			<a style="margin-top:5px; display:none;" class="btn btn-default" id="privateSearchButtonBack" role="button" onclick="privateSearchButtonBack();">X</a>
-			</div>
-			</div>
-			
-			
-			<div class="row" style="display:none">
-			<label>Beliebte Listen</label>
-			<span id="popularLists"></span>
-			</div>
-			
-			<div class="row" style="display:none">
-			<label>Neue Listen</label>
-			<span id="newLists"></span>
-			</div>
-			
-			</div>
-		
-		
-		</div>
-		
-	</content>
+    <div class="pagination">
+      <span class="step-links">
+        {% if scan_lists.has_previous %}
+          <a href="?page={{ scan_lists.previous_page_number }}{% if search %}&amp;search={{ search }}{% endif %}">{% trans 'previous' %}</a>
+        {% endif %}
+
+        <span class="current">
+          {% blocktrans with page=scan_lists.number pages=scan_lists.paginator.num_pages %}
+            Page {{ page }} of {{ pages }}.
+            {% endblocktrans %}
+        </span>
+
+        {% if scan_lists.has_next %}
+        <a href="?page={{ scan_lists.next_page_number }}{% if search %}&amp;search={{ search }}{% endif %}">{% trans 'next' %}</a>
+        {% endif %}
+      </span>
+    </div>
+
+    </div>
 {% endblock content %}

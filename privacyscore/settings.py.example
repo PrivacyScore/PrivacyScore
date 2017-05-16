@@ -175,3 +175,5 @@ SCAN_TEST_BASEPATH = os.path.join(BASE_DIR, 'tests')
 
 RAW_DATA_DB_MAX_SIZE = 4000
 RAW_DATA_DIR = os.path.join(BASE_DIR, 'raw_data')
+
+SCAN_LISTS_PER_PAGE = 30

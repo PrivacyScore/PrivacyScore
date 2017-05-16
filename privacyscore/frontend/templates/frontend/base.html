@@ -28,8 +28,8 @@
 		<ul class="nav navbar-nav" id="navbar">
 			<li style="display:none;"><a href="/">Start <span class="sr-only">(current)</span></a></li>
       <li><a href="{% url 'frontend:browse' %}">Liste suchen</a></li>
-      <li><a href="{% url 'frontend:list' %}">Liste erstellen</a></li>
-      <li><a href="{% url 'frontend:list' %}?edit=true">Liste bearbeiten</a></li>
+      <li><a href="{% url 'frontend:scan_list' %}">Liste erstellen</a></li>
+      <li><a href="{% url 'frontend:scan_list' %}?edit=true">Liste bearbeiten</a></li>
       <li style="display:none;"><a href="{% url 'frontend:info' %}">Info</a></li>
       <li style="display:none;"><a href={% url 'frontend:contact' %}">Kontakt</a></li>
 		</ul>
@@ -37,8 +37,10 @@
 	</nav>
     {% endblock header %}
 
-    {% block content %}
-    {% endblock content %}
+    <div class="container" style="margin-top: 7em; margin-bottom: 4em;">
+      {% block content %}
+      {% endblock content %}
+    </div>
 
     {% block footer %}
       <footer style="display:block;" id="footer">
