@@ -16,7 +16,7 @@ from privacyscore.backend.models import ScanList, ListColumnValue, Site, \
 def get_scan_lists(request: Request) -> Response:
     """Get lists."""
     scan_lists = ScanList.objects.annotate(sites__count=Count('sites')).filter(
-        # scan_groups__scan__isnull=False,  # not editable
+        scan_groups__scans__isnull=False,  # not editable
         private=False,
         sites__count__gte=2  # not single site
     )

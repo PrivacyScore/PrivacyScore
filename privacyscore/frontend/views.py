@@ -14,7 +14,7 @@ def index(request: HttpRequest) -> HttpResponse:
 
 def browse(request: HttpRequest) -> HttpResponse:
     scan_lists = ScanList.objects.annotate(sites__count=Count('sites')).filter(
-        # scan_groups__scan__isnull=False,  # not editable
+        scan_groups__scans__isnull=False,
         private=False,
         sites__count__gte=2  # not single site
     ) .order_by('name')
