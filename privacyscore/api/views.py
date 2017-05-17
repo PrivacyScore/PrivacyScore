@@ -176,7 +176,7 @@ def scan_scan_list(request: Request) -> Response:
 
 @api_view(['POST'])
 def save_site(request: Request) -> Response:
-    """Save a new site."""
+    """Save all sites for a list."""
     try:
         # TODO: Check if user is allowed to add this site to the list and if
         # the list is editable at all
@@ -211,6 +211,9 @@ def save_site(request: Request) -> Response:
                     site["url"] += '/'
 
                 site_object = Site.objects.get_or_create(url=site['url'])[0]
+                if site_object in scan_list.sites.all():
+                    # redundant site, already added to list
+                    continue
                 site_object.scan_lists.add(scan_list)
 
                 # TODO: Remove empty columns in frontend to prevent count
