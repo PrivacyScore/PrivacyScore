@@ -330,3 +330,14 @@ class ScanResult(models.Model):
 
     def __str__(self) -> str:
         return '{}'.format(str(self.scan))
+
+
+class ScanError(models.Model):
+    """A single scan result key-value pair."""
+    scan = models.ForeignKey(
+        Scan, on_delete=models.CASCADE, related_name='errors')
+    test = models.CharField(max_length=80, null=True, blank=True)
+    error = models.TextField()
+
+    def __str__(self) -> str:
+        return '{}, {}: {}'.format(str(self.scan), self.test, self.error)

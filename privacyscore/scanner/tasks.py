@@ -9,7 +9,8 @@ from celery import chord, shared_task
 from django.conf import settings
 from django.utils import timezone
 
-from privacyscore.backend.models import RawScanResult, Scan, ScanResult, ScanGroup, Site
+from privacyscore.backend.models import RawScanResult, Scan, ScanResult, \
+    ScanError, ScanGroup, Site
 
 
 class Timeout:
@@ -53,9 +54,18 @@ def schedule_scan_stage(previous_results: Tuple[list, dict], scan_pk: int,
 
     if previous_task_count <= 1:
         previous_results = [previous_results]
-    raw_data, previous_results = _parse_previous_results(previous_results)
+    raw_data, previous_results, errors = _parse_previous_results(previous_results)
     for params, data in raw_data:
         RawScanResult.store_raw_data(data, **params)
+
+    # store errors in database
+    for error in errors:
+        test = None
+        if ':' in error:
+            test, error = error.split(':', maxsplit=1)
+        print(error)
+        ScanError.objects.create(
+            scan=scan, test=test, error=error)
 
     if stage >= len(settings.SCAN_TEST_SUITES):
         # all stages finished.
@@ -99,12 +109,10 @@ def run_test(test_suite: str, test_parameters: dict, scan_pk: int, url: str, pre
                 scan_pk, url, previous_results, **test_parameters)
             processed = test_suite.process(raw_data, previous_results)
             return raw_data, processed
-    except:
-        # TODO: Use chord error handling and do not catch here
-
-        # TODO: some kind of logging (other than stdout)?
+    except Exception as e:
         print(traceback.format_exc())
-        return [], {}
+
+        return ':'.join([test_suite.__name__, str(e)])
 
 
 # TODO: configure beat or similar to run this task frequently.
@@ -121,20 +129,16 @@ def handle_aborted_scans():
 
 
 def _parse_previous_results(previous_results: List[Tuple[list, dict]]) -> tuple:
-    """Parse previous results and split into raw data and results."""
-    if isinstance(previous_results, list):
-        # Multiple results.
-        raw = []
-        result = {}
-        if isinstance(previous_results[0], Iterable):
-            raw = previous_results[0][0]
-            result = previous_results[0][1].copy()
-        for r, d in (e for e in previous_results[1:] if isinstance(e, Iterable)):
-            if isinstance(r, Iterable):
-                raw.extend(r)
-            if isinstance(d, dict):
-                result.update(d)
-        return raw, result
-
-    # Only a single result which already has the desired format.
-    return previous_results
+    """Parse previous results and split into raw data, results and errors."""
+    raw = []
+    result = {}
+    errors = []
+    for e in previous_results:
+        if isinstance(e, (list, tuple)):
+            if isinstance(e[0], (list, tuple)):
+                raw.extend(e[0])
+            if isinstance(e[1], dict):
+                result.update(e[1])
+        else:
+            errors.append(e)
+    return raw, result, errors
