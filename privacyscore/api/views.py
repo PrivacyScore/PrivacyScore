@@ -8,7 +8,8 @@ from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from privacyscore.backend.models import ScanList, ListColumnValue, Site, ScanGroup
+from privacyscore.backend.models import ScanList, ListColumnValue, Site, \
+    Scan, ScanGroup, ScanResult
 
 
 @api_view(['GET'])
@@ -260,4 +261,29 @@ def scan_groups_by_scan_list(request: Request, scan_list_id: int) -> Response:
 
         return Response([sg.as_dict() for sg in ScanGroup.objects.filter(scan_list=scan_list)])
     except ScanList.DoesNotExist:
+        raise NotFound
+
+
+@api_view(['GET'])
+def scan_result(request: Request, scan_id: int) -> Response:
+    """Get a scan result by its id."""
+    try:
+        scan = Scan.objects.get(pk=scan_id)
+
+        return Response(scan.result.result)
+    except Scan.DoesNotExist:
+        raise NotFound
+    except ScanResult.DoesNotExist:
+        raise NotFound('scan not finished')
+
+
+@api_view(['GET'])
+def scan_group_results(request: Request, scan_group_id: int) -> Response:
+    """Get a scan result by its id."""
+    try:
+        scan_group = ScanGroup.objects.get(pk=scan_group_id)
+        results = ScanResult.objects.filter(scan__group=scan_group)
+
+        return Response([r.result for r in results])
+    except ScanGroup.DoesNotExist:
         raise NotFound

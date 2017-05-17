@@ -18,4 +18,6 @@ urlpatterns = [
         name='scan_groups_by_site'),
     url(r'^list/(?P<list_id>\d+)/scan_groups/$', views.scan_groups_by_scan_list,
         name='scan_groups_by_scan_list'),
+    url(r'^scan/(?P<scan_id>\d+)/result/$', views.scan_result, name='scan_result'),
+    url(r'^scan_group/(?P<scan_group_id>\d+)/results/$', views.scan_group_results, name='scan_group_results'),
 ]
