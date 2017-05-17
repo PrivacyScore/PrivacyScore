@@ -3,10 +3,12 @@ import os
 import shutil
 import tempfile
 
+from io import BytesIO
 from subprocess import call, DEVNULL
 from uuid import uuid4
 
 from django.conf import settings
+from PIL import Image
 
 from privacyscore.utils import get_raw_data_by_identifier
 
@@ -59,6 +61,13 @@ def test(scan_pk: int, url: str, previous_results: dict, scan_basedir: str, virt
     with open(os.path.join(scan_dir, 'screenshots/screenshot.png'), 'rb') as f:
         screenshot = f.read()
 
+    # cropped screenshot
+    img = Image.open(BytesIO(screenshot))
+    out = BytesIO()
+    img = img.crop((0, 0, 1200, 600))
+    img.save(out, format='png')
+    cropped_screenshot = out.getvalue()
+
     # delete result file.
     os.remove(result_file)
 
@@ -76,6 +85,11 @@ def test(scan_pk: int, url: str, previous_results: dict, scan_basedir: str, virt
         'identifier': 'screenshot',
         'scan_pk': scan_pk,
     }, screenshot), ({
+        'data_type': 'image/png',
+        'test': __name__,
+        'identifier': 'cropped_screenshot',
+        'scan_pk': scan_pk,
+    }, cropped_screenshot), ({
         'data_type': 'text/plain',
         'test': __name__,
         'identifier': 'log',

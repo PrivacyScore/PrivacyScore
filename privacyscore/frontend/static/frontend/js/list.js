@@ -197,7 +197,7 @@ function loadList(getdata, newListFromOld) {
 		console.log(data);
 		document.getElementsByTagName("content").item(0).style.display = "none";
 		panel.style.display = "block";
-		panel.getElementsByTagName("a").item(0).href = "./scannedList.html?list=" + data.id;
+		panel.getElementsByTagName("a").item(0).href = "/list/" + data.id + "/";
 	} else {
 		document.getElementById("afterLoad").style.display = "inline";
 		document.getElementById("deleteButton").style.display = "inline";
@@ -357,7 +357,7 @@ function scanList() {
 				success: function (data) {
 					console.log(data);
 					//if (confirm("Die gescannte Liste finden Sie unter der ID " + global_unique_id) || true) {
-						window.location.href = "scannedList.html?list=" + global_unique_id;
+						window.location.href = "/list/" + global_unique_id + "/";
 					//}
 				}
 			});

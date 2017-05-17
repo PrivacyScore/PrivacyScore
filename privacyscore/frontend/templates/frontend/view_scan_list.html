@@ -1,5 +1,6 @@
 {% extends 'frontend/base.html' %}
 {% load static %}
+{% load scan_list %}
 {% load i18n %}
 
 {% block title %}PrivacyScore{% endblock title %}
@@ -119,8 +120,12 @@ table.dataTable thead .sorting_desc_disabled
 
     {% for site in sites %}
       <tr>
-        <td>{{ site.url }}</td>
-        {% for column_value in site.ordered_column_values %}
+        <td>
+          <a href="{% url 'frontend:view_site' site.pk %}">
+            {{ site.url }}
+          </a>
+        </td>
+        {% for column_value in site|ordered_site_columns:scan_list %}
           <th>{{ column_value.value }}</th>
         {% endfor %}
       </tr>

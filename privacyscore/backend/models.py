@@ -152,10 +152,10 @@ class Site(models.Model):
     def __str__(self) -> str:
         return self.url
 
-    @property
-    def ordered_column_values(self) -> QuerySet:
-        """Get the ordered column values of this site."""
-        return self.column_values.order_by('column__sort_key')
+    def ordered_column_values(self, scan_list: ScanList) -> QuerySet:
+        """Get the ordered column values of this site in specified list."""
+        return self.column_values.filter(
+            column__scan_list=scan_list).order_by('column__sort_key')
 
     def as_dict(self) -> dict:
         """Return the current list as dict."""
@@ -165,6 +165,18 @@ class Site(models.Model):
             'column_values': [
                 v.value for v in self.column_values.order_by('column__sort_key')],
         }
+
+    def get_screenshot(self) -> Union[bytes, None]:
+        """Get the most recent screenshot of this site."""
+        screenshots = RawScanResult.objects.filter(
+            scan__site=self, identifier='cropped_screenshot').order_by(
+            'scan__group__end')
+        if screenshots.count() > 0:
+            return screenshots.last().retrieve()
+
+    def has_screenshot(self) -> bool:
+        """Check whether a screenshot for this site exists."""
+        return self.get_screenshot() is not None
 
 
 class ListTag(models.Model):
@@ -299,6 +311,14 @@ class RawScanResult(models.Model):
                 identifier=identifier,
                 data_type=data_type,
                 data=data)
+
+    def retrieve(self) -> bytes:
+        """Retrieve the raw data."""
+        if self.in_db:
+            return self.data
+        path = os.path.join(settings.RAW_DATA_DIR, self.file_name)
+        with open(path, 'rb') as f:
+            return f.read()
 
 
 class ScanResult(models.Model):

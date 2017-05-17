@@ -1,10 +1,11 @@
 from django.conf import settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, Q
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, render
+from django.utils.translation import ugettext_lazy as _
 
-from privacyscore.backend.models import ScanList
+from privacyscore.backend.models import Scan, ScanList, ScanGroup, Site
 
 
 def index(request: HttpRequest) -> HttpResponse:
@@ -71,6 +72,33 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     return render(request, 'frontend/view_scan_list.html', {
         'scan_list': scan_list,
         'sites': scan_list.sites.order_by('url'),
+    })
+
+
+def site_screenshot(request: HttpRequest, site_id: int) -> HttpResponse:
+    """View a site and its most recent scan result (if any)."""
+    site = get_object_or_404(Site, pk=site_id)
+
+    screenshot = site.get_screenshot()
+    if not screenshot:
+        return HttpResponseNotFound(_('screenshot does not exist'))
+    return HttpResponse(screenshot, content_type='image/png')
+
+
+def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
+    """View a site and its most recent scan result (if any)."""
+    site = get_object_or_404(Site, pk=site_id)
+
+    # get most recent scan
+    scans = site.scans.filter(
+        group__status=ScanGroup.FINISH).order_by('group__end')
+    most_recent_scan = None
+    if scans.count() > 0:
+        most_recent_scan = scans.last()
+
+    return render(request, 'frontend/view_site.html', {
+        'site': site,
+        'most_recent_scan': most_recent_scan,
     })
 
 

@@ -2,5 +2,6 @@ celery
 Django<1.12
 djangorestframework
 msgpack-python
+Pillow
 psycopg2 # required on slaves without db access as well due to django.contrib.postgres imports in models
 redis
