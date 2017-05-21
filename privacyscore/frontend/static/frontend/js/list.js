@@ -227,7 +227,7 @@ function createNewList(scan) {
         }
 		
         $.ajax({
-            url: apiUrl + '/SaveList/',
+            url: apiUrl + '/list/save/',
             type: 'POST',
             data: JSON.stringify(req),
             headers: {
@@ -282,7 +282,7 @@ function updateList(scan) {
     }
 	console.log(req);
         $.ajax({
-            url: apiUrl + '/UpdateList/',
+            url: apiUrl + '/list/' + global_unique_id + '/update/',
             type: 'POST',
             data: JSON.stringify(req),
             headers: {
@@ -327,7 +327,7 @@ function updateSites(list_id, scan) {
 	console.log(req);
 
         $.ajax({
-            url: apiUrl + '/SaveSite/',
+            url: apiUrl + '/site/save/',
             type: 'POST',
             data: JSON.stringify(req),
             headers: {
@@ -346,11 +346,9 @@ function scanList() {
 			//alert("Bitte geben Sie einen Namen für Ihre Liste ein.");
 			alert(langData.list.alerts.noNameError);
 		} else {
-			var req = {"listid": global_unique_id};
 			$.ajax({
-				url: apiUrl + '/ScanList/',
+				url: apiUrl + '/list/' + global_unique_id + '/scan/',
 				type: 'POST',
-				data: JSON.stringify(req),
 				headers: {
 					'Content-Type': 'application/json; charset=utf-8;'
 				},

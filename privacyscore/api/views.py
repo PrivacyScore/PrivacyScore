@@ -25,7 +25,7 @@ def get_scan_lists(request: Request) -> Response:
 
 
 @api_view(['GET'])
-def get_scan_list(request: Request, token: str) -> Response:
+def get_scan_list_by_token(request: Request, token: str) -> Response:
     """Get a list by its token."""
     try:
         l = ScanList.objects.get(token=token)
@@ -60,12 +60,13 @@ def save_scan_list(request: Request) -> Response:
 
 
 @api_view(['POST'])
-def update_scan_list(request: Request) -> Response:
+def update_scan_list(request: Request, scan_list_id: int) -> Response:
     """Update an existing list."""
     try:
         # TODO: Check if list is editable (and by current user)
 
-        scan_list = ScanList.objects.get(token=request.data['token'])
+        scan_list = ScanList.objects.get(pk=scan_list_id,
+            token=request.data['token'])
 
         scan_list.name = request.data['listname']
         scan_list.description = request.data['description']
@@ -89,8 +90,7 @@ def update_scan_list(request: Request) -> Response:
         raise NotFound
 
 
-# TODO: Use http DELETE?
-@api_view(['POST'])
+@api_view(['DELETE'])
 def delete_scan_list(request: Request, token: str) -> Response:
     """Update an existing list."""
     # TODO: Access control (Or is token sufficient)?
@@ -110,34 +110,8 @@ def delete_scan_list(request: Request, token: str) -> Response:
         raise NotFound
 
 
-@api_view(['GET'])
-def get_scan_list_id(request: Request, token: str) -> Response:
-    """Get the token of a list."""
-    try:
-        scan_list = ScanList.objects.get(token=token)
-
-        return Response({
-            'id': scan_list.pk,
-        }, status=201)
-    except (ScanList.DoesNotExist, ValueError):
-        raise NotFound
-
-
-@api_view(['GET'])
-def get_token(request: Request, scan_list_id: int) -> Response:
-    """Get the token of a list."""
-    # TODO: Access control
-    try:
-        scan_list = ScanList.objects.get(pk=scan_list_id)
-
-        return Response({
-            'token': scan_list.token,
-        }, status=201)
-    except (ScanList.DoesNotExist, ValueError):
-        raise NotFound
-
-
 # TODO: Why POST?
+# TODO: Add a filter option to get_lists and get rid of this search method
 @api_view(['POST'])
 def search_scan_lists(request: Request) -> Response:
     """Search for lists."""
@@ -156,22 +130,19 @@ def search_scan_lists(request: Request) -> Response:
 
 
 @api_view(['POST'])
-def scan_scan_list(request: Request) -> Response:
+def scan_scan_list(request: Request, scan_list_id: int) -> Response:
     """Schedule a scan for the list."""
     try:
-        l = ScanList.objects.get(pk=request.data['listid'])
+        scan_list = ScanList.objects.get(pk=scan_list_id)
 
-        if not l.scan():
-            return Response({
-                'type': 'error',
-                'message': _('list was scanned recently.'),
-            })
+        # This always succeeds as rate limit check is done per-site
+        scan_list.scan()
         return Response({
             'type': 'success',
             'message': 'ok',
         })
-    except KeyError:
-        raise ParseError
+    except ScanList.DoesNotExist:
+        raise NotFound
 
 
 @api_view(['POST'])

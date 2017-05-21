@@ -64,7 +64,7 @@ def test(scan_pk: int, url: str, previous_results: dict, scan_basedir: str, virt
     # cropped screenshot
     img = Image.open(BytesIO(screenshot))
     out = BytesIO()
-    img = img.crop((0, 0, 1200, 600)).resize((480, 240))
+    img = img.crop((0, 0, 1200, 600)).resize((120, 60))
     img.save(out, format='png')
     cropped_screenshot = out.getvalue()
 
