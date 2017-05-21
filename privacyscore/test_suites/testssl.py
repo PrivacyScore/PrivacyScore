@@ -4,18 +4,18 @@ import re
 import tempfile
 
 from subprocess import call, DEVNULL
-from typing import Callable
 
 from django.conf import settings
 
-from privacyscore.utils import get_raw_data_by_identifier
+from privacyscore.utils import get_list_item_by_dict_entry, \
+        get_raw_data_by_identifier
 
 
 TESTSSL_PATH = os.path.join(
     settings.SCAN_TEST_BASEPATH, 'vendor/testssl.sh', 'testssl.sh')
 
 
-def test(scan_pk: int, url: str, previous_results: dict, test_type: str=''):
+def test(scan_pk: int, url: str, previous_results: dict, test_type: str = ''):
     """Test the specified url with testssl."""
     result_file = tempfile.mktemp()
 
@@ -59,74 +59,48 @@ def process(raw_data: list, previous_results: dict):
     data = json.loads(
         get_raw_data_by_identifier(raw_data, 'jsonresult').decode())
 
-    rv = {
-        'headerchecks': [],
-        'testssl': data,
-    }
-
-    # HTTP Header Checks that rely on testssl go here
     if not data['scanResult'] or not data['scanResult'][0]:
         # something went wrong with this test.
         raise Exception('no scan result in raw data')
-    sslres = data['scanResult'][0]
 
-    # HSTS
-    result = {
-        'key': 'hsts',
-        'status': 'UNKNOWN',
-        'value': '',
+    # detect protocols
+    protocols = {}
+    pattern = re.compile(r'is (not )?offered')
+    for p in data['scanResult'][0]['protocols']:
+        match = pattern.search(p['finding'])
+        if not match:
+            continue
+        protocols[p['id']] = match.group(2) is None
+
+    # detect headers
+    hsts_item = get_list_item_by_dict_entry(
+        data['scanResult'][0]['headerResponse'],
+        'id', 'hsts')
+    has_hsts_header = False
+    if hsts_item is not None:
+        has_hsts_header = hsts_item['severity'] != 'HIGH'
+
+    hsts_preload_item = get_list_item_by_dict_entry(
+        data['scanResult'][0]['headerResponse'],
+        'id', 'hsts_preload')
+    has_hsts_preload_header = False
+    if hsts_preload_item is not None:
+        has_hsts_preload_header = hsts_preload_item['severity'] != 'HIGH'
+
+    hpkp_item = get_list_item_by_dict_entry(
+        data['scanResult'][0]['headerResponse'],
+        'id', 'hpkp')
+    has_hpkp_header = False
+    if hpkp_item is not None:
+        has_hpkp_header = hpkp_item['severity'] != 'HIGH'
+
+    return {
+        'ssl': {
+            'pfs': data['scanResult'][0]['pfs'][0][
+                'severity'] == 'OK',
+            'has_protocols': protocols,
+            'has_hsts_header': has_hsts_header,
+            'has_hsts_preload_header': has_hsts_preload_header,
+            'has_hpkp_header': has_hpkp_header,
+        }
     }
-
-    header_res = sslres['headerResponse']
-
-    # search for all hsts fields
-    match = _find_in_list_by_id(header_res, 'hsts')
-    if match:
-        severity = match['severity']
-        finding =  match['finding']
-        result['status'] = 'OK' if severity == 'OK' else 'FAIL'
-        result['value'] = "%s %s" % (severity, finding)
-
-    if result['status'] != 'FAIL':
-        result_time = {
-            'key': 'hsts_time',
-            'status': 'UNKNOWN',
-            'value': '',
-        }
-        match = _find_in_list_by_id(header_res, 'hsts_time')
-        if match:
-            severity = match['severity']
-            finding  = match['finding']
-            result['status'] = 'OK' # hsts header is present!
-            result_time['status'] = severity
-            result_time['value'] = "%s %s" % (severity, finding)
-        rv['headerchecks'].append(result_time)
-
-    if result['status'] != 'FAIL':
-        result_preload = {
-            'key': 'hsts_preload',
-            'status': 'UNKNOWN',
-            'value': '',
-        }
-        match = _find_in_list_by_id(header_res, 'hsts_preload')
-        if match:
-            severity = match['severity']
-            finding  = match['finding']
-            result['status'] = 'OK' # hsts header is present!
-            result_preload['status'] = severity
-            result_preload['value']  = "%s %s" % (severity, finding)
-        rv['headerchecks'].append(result_preload)
-
-    rv['headerchecks'].append(result)
-    
-    return rv
-
-
-def _find_in_list_by_id(l: list, search: str) -> object:
-    """Find the first item in l for which the id attribute is search."""
-    return _find_in_list(l, lambda i: i['id'] == search)
-
-
-def _find_in_list(l: list, search: Callable) -> object:
-    """Find the first item in l for which search returns true."""
-    return next((i for i in l if search(i)), None)

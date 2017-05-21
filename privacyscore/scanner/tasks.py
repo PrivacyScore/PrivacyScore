@@ -56,7 +56,6 @@ def schedule_scan_stage(previous_results: Tuple[list, dict], scan_pk: int,
         test = None
         if ':' in error:
             test, error = error.split(':', maxsplit=1)
-        print(error)
         ScanError.objects.create(
             scan=scan, test=test, error=error)
 
@@ -95,8 +94,6 @@ def run_test(test_suite: str, test_parameters: dict, scan_pk: int, url: str, pre
             processed = test_suite.process(raw_data, previous_results)
             return raw_data, processed
     except Exception as e:
-        print(traceback.format_exc())
-
         return ':'.join([test_suite.__name__, str(e)])
 
 
@@ -114,7 +111,10 @@ def handle_aborted_scans():
 
 
 def _parse_previous_results(previous_results: List[Tuple[list, dict]]) -> tuple:
-    """Parse previous results and split into raw data, results and errors."""
+    """
+    Parse previous results, split into raw data, results and errors and merge
+    data from multiple test suites.
+    """
     raw = []
     result = {}
     errors = []
@@ -123,7 +123,11 @@ def _parse_previous_results(previous_results: List[Tuple[list, dict]]) -> tuple:
             if isinstance(e[0], (list, tuple)):
                 raw.extend(e[0])
             if isinstance(e[1], dict):
-                result.update(e[1])
+                for group, content in e[1].items():
+                    if group not in result:
+                        result[group] = content
+                    else:
+                        result[group].update(content)
         else:
             errors.append(e)
     return raw, result, errors

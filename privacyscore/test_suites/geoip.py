@@ -34,7 +34,12 @@ def test(scan_pk: int, url: str, previous_results: dict) -> list:
 
 def process(raw_data: list, previous_results: dict):
     """Process the raw data of the test."""
-    result = json.loads(
+    raw_result = json.loads(
         get_raw_data_by_identifier(raw_data, 'jsonresult').decode())
 
-    return result
+    return {
+        'privacy': {
+            'a_locations': raw_result['A_LOCATIONS'].split(', '),
+            'mx_locations': raw_result['MX_LOCATIONS'].split(', '),
+        }
+    }
