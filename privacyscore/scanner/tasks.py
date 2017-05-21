@@ -10,7 +10,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from privacyscore.backend.models import RawScanResult, Scan, ScanResult, \
-    ScanError, ScanGroup, Site
+    ScanError, Site
 
 
 class Timeout:
@@ -29,21 +29,14 @@ class Timeout:
 
 
 @shared_task(queue='master')
-def schedule_scan(scan_group_pk: int):
-    """Prepare and schedule all scans of a scan group."""
-    # Schedule next stage
-    scan_group = ScanGroup.objects.get(pk=scan_group_pk)
-    sites = Site.objects.filter(scan_lists__pk=scan_group.scan_list_id)
-    for site in sites:
-        # create Scan object
-        scan = Scan.objects.create(
-            site=site,
-            group=scan_group,
-            success=False)
-        schedule_scan_stage(([], {}), scan.pk)
+def schedule_scan(scan_pk: int):
+    """Prepare and schedule a scan."""
+    scan = Scan.objects.get(pk=scan_pk)
+    scan.start = timezone.now()
+    scan.save()
 
-    scan_group.status = ScanGroup.SCANNING
-    scan_group.save()
+    # Schedule next stage
+    schedule_scan_stage(([], {}), scan_pk)
 
 
 @shared_task(queue='master')
@@ -85,18 +78,10 @@ def schedule_scan_stage(previous_results: Tuple[list, dict], scan_pk: int,
 
 def handle_finished_scan(scan: Scan):
     """
-    Callback when all stages of tasks for a scan group are completed.
-
-    Mark single scan as finished and determine whether complete group is finished.
+    Callback when all stages of tasks for a scan are completed.
     """
-    scan.success = True
+    scan.end = timezone.now()
     scan.save()
-
-    # TODO: concurrency? What happens when two last tests finish at the same time?
-    if scan.group.scans.filter(success=False).count() == 0:
-        # was last scan to succeed.
-        scan.group.status = ScanGroup.FINISH
-        scan.group.save()
 
 
 @shared_task(queue='slave')
@@ -123,9 +108,9 @@ def handle_aborted_scans():
     timeout.
     """
     now = timezone.now()
-    ScanGroup.objects.filter(
+    Scan.objects.filter(
         start__lt=now - settings.SCAN_TOTAL_TIMEOUT,
-        end__isnull=True).update(end=now, status=ScanGroup.ERROR)
+        end__isnull=True).update(end=now)
 
 
 def _parse_previous_results(previous_results: List[Tuple[list, dict]]) -> tuple:

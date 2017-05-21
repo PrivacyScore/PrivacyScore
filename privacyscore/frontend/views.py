@@ -5,7 +5,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _
 
-from privacyscore.backend.models import Scan, ScanList, ScanGroup, Site
+from privacyscore.backend.models import Scan, ScanList, Site
 
 
 def index(request: HttpRequest) -> HttpResponse:
@@ -14,7 +14,7 @@ def index(request: HttpRequest) -> HttpResponse:
 
 def browse(request: HttpRequest) -> HttpResponse:
     scan_lists = ScanList.objects.annotate(sites__count=Count('sites')).filter(
-        scan_groups__scans__isnull=False,
+        editable=False,
         private=False,
         sites__count__gte=2  # not single site
     ) .order_by('name')
@@ -89,12 +89,8 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     """View a site and its most recent scan result (if any)."""
     site = get_object_or_404(Site, pk=site_id)
 
-    # get most recent scan
-    scans = site.scans.filter(
-        group__status=ScanGroup.FINISH).order_by('group__end')
+    # TODO: get most recent scan (probably in backend/models, not here)
     most_recent_scan = None
-    if scans.count() > 0:
-        most_recent_scan = scans.last()
 
     return render(request, 'frontend/view_site.html', {
         'site': site,

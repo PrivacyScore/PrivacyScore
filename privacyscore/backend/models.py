@@ -1,6 +1,7 @@
 import os
 import random
 import string
+from datetime import datetime
 from typing import Union
 from uuid import uuid4
 
@@ -26,6 +27,7 @@ class ScanList(models.Model):
     token = models.CharField(
         max_length=50, default=generate_random_token, unique=True)
 
+    editable = models.BooleanField(default=True)
     private = models.BooleanField(default=False)
 
     user = models.ForeignKey(
@@ -41,21 +43,19 @@ class ScanList(models.Model):
         return self.sites.count() == 1
 
     @property
-    def editable(self) -> bool:
-        """Return whether the list has been scanned."""
-        return ScanGroup.objects.filter(scan_list=self).count() == 0
-
-    @property
     def ordered_columns(self) -> QuerySet:
         """Get the ordered column values of this site."""
         return self.columns.order_by('sort_key')
 
-    def last_scan(self) -> Union['ScanGroup', None]:
-        """Get most recent scan group."""
-        scans = ScanGroup.objects.filter(scan_list=self).order_by('start')
-        if len(scans) == 0:
-            return None
-        return scans.last()
+    def last_scan(self) -> Union[datetime, None]:
+        """
+        Get date and time of most recent scan.
+
+        The most recent date from all sites is returned.
+        """
+        scans = Scan.objects.filter(site__scan_lists=self).order_by('end')
+        if scans.count() > 0:
+            return scans.last().end
 
     def tags_as_str(self) -> str:
         """Get a comma separated list of the tags."""
@@ -77,15 +77,6 @@ class ScanList(models.Model):
                 'name': column.name,
                 'visible': column.visible
             } for column in self.columns.order_by('sort_key')],
-            'scangroups': [{
-                'id': scan_group.pk,
-                'startdate': scan_group.start,
-                'enddate': scan_group.end,
-                'progress': scan_group.get_status_display(),
-                'state': scan_group.get_status_display(),
-                # TODO: return a correct timestamp
-                'progress_timestamp': 0,
-            } for scan_group in self.scan_groups.order_by('start')],
         }
 
     def save_columns(self, columns: list):
@@ -117,31 +108,12 @@ class ScanList(models.Model):
                 tag_object = ListTag.objects.get_or_create(name=tag)[0]
                 tag_object.scan_lists.add(self)
 
-    def scan(self) -> bool:
-        """
-        Schedule a scan of the list if requirements are fulfilled.
-
-        Returns whether the scan has been scheduled or the last scan is not
-        long enough ago.
-        """
-        now = timezone.now()
-
-        previous_scans = self.scan_groups.order_by('-end')
-        if len(previous_scans) > 0:
-            # at least one scan has been scheduled previously.
-            most_recent_scan = previous_scans[0]
-            if (not most_recent_scan.end or
-                    now - most_recent_scan.end < settings.SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN):
-                return False
-
-        # create ScanGroup
-        scan_group = ScanGroup.objects.create(scan_list=self)
-
-        # schedule scheduling of actual scans
-        from privacyscore.scanner.tasks import schedule_scan
-        schedule_scan.delay(scan_group.pk)
-
-        return True
+    def scan(self):
+        """Schedule a scan of the list if requirements are fulfilled."""
+        for site in self.sites.all():
+            site.scan()
+        self.editable = False
+        self.save()
 
 
 class Site(models.Model):
@@ -170,13 +142,38 @@ class Site(models.Model):
         """Get the most recent screenshot of this site."""
         screenshots = RawScanResult.objects.filter(
             scan__site=self, identifier='cropped_screenshot').order_by(
-            'scan__group__end')
+            'scan__end')
         if screenshots.count() > 0:
             return screenshots.last().retrieve()
 
     def has_screenshot(self) -> bool:
         """Check whether a screenshot for this site exists."""
         return self.get_screenshot() is not None
+
+    def scan(self) -> bool:
+        """
+        Schedule a scan of this site if requirements are fulfilled.
+
+        Returns whether the scan has been scheduled or the last scan is not
+        long enough ago.
+        """
+        now = timezone.now()
+
+        previous_scans = self.scans.order_by('-end')
+        if len(previous_scans) > 0:
+            # at least one scan has been scheduled previously.
+            most_recent_scan = previous_scans[0]
+            if (not most_recent_scan.end or
+                    now - most_recent_scan.end < settings.SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN):
+                return False
+
+        # create Scan
+        scan = Scan.objects.create(site=self)
+
+        from privacyscore.scanner.tasks import schedule_scan
+        schedule_scan.delay(scan.pk)
+
+        return True
 
 
 class ListTag(models.Model):
@@ -218,53 +215,28 @@ class ListColumnValue(models.Model):
         return '{}: {} = {}'.format(str(self.column), str(self.site), self.value)
 
 
-class ScanGroup(models.Model):
-    """A scan group."""
-    scan_list = models.ForeignKey(
-        ScanList, on_delete=models.CASCADE, related_name='scan_groups')
+class Scan(models.Model):
+    """
+    A scan of a site belonging.
+
+    The state is implicitly stored using start, end, ScanResult and ScanError:
+    * If start is set, end is null and no ScanResult exists, the scan is
+      **running**
+    * If start is set, end is set, a ScanResult exists and no ScanError
+      exists, the scan has been **successful**
+    * If start is set, end is set, and at least on related
+      ScanError exists, the scan has (partially) **failed**
+    * If start is set, end is set and no ScanResult exists, the scan has
+      been **aborted**
+    """
+    site = models.ForeignKey(
+        Site, on_delete=models.CASCADE, related_name='scans')
 
     start = models.DateTimeField(default=timezone.now)
     end = models.DateTimeField(null=True, blank=True)
 
-    READY = 0
-    SCANNING = 1
-    FINISH = 2
-    ERROR = 3
-    STATUS_CHOICES = (
-        (0, 'ready'),
-        (1, 'scanning'),
-        (2, 'finish'),
-        (3, 'error'),
-    )
-    status = models.PositiveSmallIntegerField(choices=STATUS_CHOICES, default=READY)
-    error = models.CharField(max_length=300, null=True, blank=True)
-
     def __str__(self) -> str:
-        return '{}: {} ({})'.format(str(self.scan_list), self.start, self.get_status_display())
-
-    def as_dict(self) -> dict:
-        """Return the current list as dict."""
-        return {
-            'id': self.pk,
-            'start': self.start,
-            'end': self.end,
-            'status': self.get_status_display(),
-            'error': self.error,
-        }
-
-
-class Scan(models.Model):
-    """A scan of a site belonging to a scan group."""
-    site = models.ForeignKey(
-        Site, on_delete=models.CASCADE, related_name='scans')
-    group = models.ForeignKey(
-        ScanGroup, on_delete=models.CASCADE, related_name='scans')
-
-    # TODO: rename field? success does not imply all tests succeeded
-    success = models.BooleanField()
-
-    def __str__(self) -> str:
-        return '{}: {}'.format(str(self.group), str(self.site))
+        return '{}: {}'.format(str(self.site), self.start)
 
 
 class RawScanResult(models.Model):
