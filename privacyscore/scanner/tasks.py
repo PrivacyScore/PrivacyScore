@@ -91,7 +91,8 @@ def run_test(test_suite: str, test_parameters: dict, scan_pk: int, url: str, pre
         with Timeout(settings.SCAN_SUITE_TIMEOUT_SECONDS):
             raw_data = test_suite.test(
                 url, previous_results, **test_parameters)
-            processed = test_suite.process(raw_data, previous_results)
+            processed = test_suite.process(
+                raw_data, previous_results, **test_parameters)
             return raw_data, processed
     except Exception as e:
         return ':'.join([test_suite.__name__, str(e)])

@@ -87,7 +87,7 @@ def test(url: str, previous_results: dict, scan_basedir: str, virtualenv_path: s
     }, raw_log)]
 
 
-def process(raw_data: list, previous_results: dict):
+def process(raw_data: list, previous_results: dict, scan_basedir: str, virtualenv_path: str):
     """Process the raw data of the test."""
     # store sqlite database in a temporary file
     url = get_raw_data_by_identifier(raw_data, 'raw_url').decode()

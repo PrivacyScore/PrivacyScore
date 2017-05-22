@@ -53,7 +53,7 @@ def test(url: str, previous_results: dict, test_type: str = ''):
     }, raw_data)]
 
 
-def process(raw_data: list, previous_results: dict):
+def process(raw_data: list, previous_results: dict, test_type: str = ''):
     """Process the raw data of the test."""
     data = json.loads(
         get_raw_data_by_identifier(raw_data, 'jsonresult').decode())
