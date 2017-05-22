@@ -66,23 +66,18 @@ def test(url: str, previous_results: dict, scan_basedir: str, virtualenv_path: s
 
     return [({
         'data_type': 'application/x-sqlite3',
-        'test': __name__,
         'identifier': 'crawldata',
     }, sqlite_db), ({
         'data_type': 'text/plain',
-        'test': __name__,
         'identifier': 'raw_url',
     }, url.encode()), ({
         'data_type': 'image/png',
-        'test': __name__,
         'identifier': 'screenshot',
     }, screenshot), ({
         'data_type': 'image/png',
-        'test': __name__,
         'identifier': 'cropped_screenshot',
     }, cropped_screenshot), ({
         'data_type': 'text/plain',
-        'test': __name__,
         'identifier': 'log',
     }, raw_log)]
 

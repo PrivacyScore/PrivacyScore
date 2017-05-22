@@ -1,16 +1,13 @@
 import importlib
-import os
 import signal
-import traceback
-from multiprocessing import Process
-from typing import Iterable, List, Tuple, Union
+from typing import List, Tuple
 
 from celery import chord, shared_task
 from django.conf import settings
 from django.utils import timezone
 
 from privacyscore.backend.models import RawScanResult, Scan, ScanResult, \
-    ScanError, Site
+    ScanError
 
 
 class Timeout:
@@ -36,7 +33,8 @@ def schedule_scan(scan_pk: int):
     scan.save()
 
     # Schedule next stage
-    schedule_scan_stage(([], {}), scan_pk)
+    schedule_scan_stage(
+        ('privacyscore.scanner.tasks.schedule_scan', [], {}), scan_pk)
 
 
 @shared_task(queue='master')
@@ -93,7 +91,7 @@ def run_test(test_suite: str, test_parameters: dict, scan_pk: int, url: str, pre
                 url, previous_results, **test_parameters)
             processed = test_suite.process(
                 raw_data, previous_results, **test_parameters)
-            return raw_data, processed
+            return test_suite.__name__, raw_data, processed
     except Exception as e:
         return ':'.join([test_suite.__name__, str(e)])
 
@@ -121,10 +119,14 @@ def _parse_previous_results(previous_results: List[Tuple[list, dict]]) -> tuple:
     errors = []
     for e in previous_results:
         if isinstance(e, (list, tuple)):
-            if isinstance(e[0], (list, tuple)):
-                raw.extend(e[0])
-            if isinstance(e[1], dict):
-                for group, content in e[1].items():
+            test = e[0]
+            if isinstance(e[1], (list, tuple)):
+                # add test specifier to each raw data element
+                for raw_elem in e[1]:
+                    raw_elem[0]['test'] = test
+                raw.extend(e[1])
+            if isinstance(e[2], dict):
+                for group, content in e[2].items():
                     if group not in result:
                         result[group] = content
                     else:

@@ -26,7 +26,6 @@ def test(url: str, previous_results: dict) -> list:
 
     return [({
         'data_type': 'application/json',
-        'test': __name__,
         'identifier': 'jsonresult',
     }, raw)]
 
