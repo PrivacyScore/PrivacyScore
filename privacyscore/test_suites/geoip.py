@@ -13,7 +13,7 @@ GEOIP_PATH = os.path.join(
     settings.SCAN_TEST_BASEPATH, 'geoip.rb')
 
 
-def test(scan_pk: int, url: str, previous_results: dict) -> list:
+def test(url: str, previous_results: dict) -> list:
     """Test the specified url with geoip."""
     # determine hostname
     pattern = re.compile(r'^(https|http)?(://)?([^/]*)/?.*?')
@@ -28,7 +28,6 @@ def test(scan_pk: int, url: str, previous_results: dict) -> list:
         'data_type': 'application/json',
         'test': __name__,
         'identifier': 'jsonresult',
-        'scan_pk': scan_pk,
     }, raw)]
 
 

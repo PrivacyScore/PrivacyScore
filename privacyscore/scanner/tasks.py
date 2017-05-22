@@ -49,7 +49,7 @@ def schedule_scan_stage(previous_results: Tuple[list, dict], scan_pk: int,
         previous_results = [previous_results]
     raw_data, previous_results, errors = _parse_previous_results(previous_results)
     for params, data in raw_data:
-        RawScanResult.store_raw_data(data, **params)
+        RawScanResult.store_raw_data(data, scan_pk=scan_pk, **params)
 
     # store errors in database
     for error in errors:
@@ -90,7 +90,7 @@ def run_test(test_suite: str, test_parameters: dict, scan_pk: int, url: str, pre
     try:
         with Timeout(settings.SCAN_SUITE_TIMEOUT_SECONDS):
             raw_data = test_suite.test(
-                scan_pk, url, previous_results, **test_parameters)
+                url, previous_results, **test_parameters)
             processed = test_suite.process(raw_data, previous_results)
             return raw_data, processed
     except Exception as e:

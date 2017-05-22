@@ -20,7 +20,7 @@ OPENWPM_WRAPPER_PATH = os.path.join(
     settings.SCAN_TEST_BASEPATH, 'openwpm_wrapper.py')
 
 
-def test(scan_pk: int, url: str, previous_results: dict, scan_basedir: str, virtualenv_path: str) -> list:
+def test(url: str, previous_results: dict, scan_basedir: str, virtualenv_path: str) -> list:
     """Test a site using openwpm and related tests."""
     # ensure basedir exists
     if not os.path.isdir(scan_basedir):
@@ -68,27 +68,22 @@ def test(scan_pk: int, url: str, previous_results: dict, scan_basedir: str, virt
         'data_type': 'application/x-sqlite3',
         'test': __name__,
         'identifier': 'crawldata',
-        'scan_pk': scan_pk,
     }, sqlite_db), ({
         'data_type': 'text/plain',
         'test': __name__,
         'identifier': 'raw_url',
-        'scan_pk': scan_pk,
     }, url.encode()), ({
         'data_type': 'image/png',
         'test': __name__,
         'identifier': 'screenshot',
-        'scan_pk': scan_pk,
     }, screenshot), ({
         'data_type': 'image/png',
         'test': __name__,
         'identifier': 'cropped_screenshot',
-        'scan_pk': scan_pk,
     }, cropped_screenshot), ({
         'data_type': 'text/plain',
         'test': __name__,
         'identifier': 'log',
-        'scan_pk': scan_pk,
     }, raw_log)]
 
 

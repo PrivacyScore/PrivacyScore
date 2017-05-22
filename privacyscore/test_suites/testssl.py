@@ -15,7 +15,7 @@ TESTSSL_PATH = os.path.join(
     settings.SCAN_TEST_BASEPATH, 'vendor/testssl.sh', 'testssl.sh')
 
 
-def test(scan_pk: int, url: str, previous_results: dict, test_type: str = ''):
+def test(url: str, previous_results: dict, test_type: str = ''):
     """Test the specified url with testssl."""
     result_file = tempfile.mktemp()
 
@@ -50,7 +50,6 @@ def test(scan_pk: int, url: str, previous_results: dict, test_type: str = ''):
         'data_type': 'application/json',
         'test': __name__,
         'identifier': 'jsonresult',
-        'scan_pk': scan_pk,
     }, raw_data)]
 
 
