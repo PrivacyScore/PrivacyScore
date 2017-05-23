@@ -1,4 +1,3 @@
-import importlib
 import signal
 from typing import List, Tuple
 
@@ -8,6 +7,8 @@ from django.utils import timezone
 
 from privacyscore.backend.models import RawScanResult, Scan, ScanResult, \
     ScanError
+from privacyscore.scanner.test_suites import AVAILABLE_TEST_SUITES, \
+    SCAN_TEST_SUITE_STAGES
 
 
 class Timeout:
@@ -57,7 +58,7 @@ def schedule_scan_stage(previous_results: Tuple[list, dict], scan_pk: int,
         ScanError.objects.create(
             scan=scan, test=test, error=error)
 
-    if stage >= len(settings.SCAN_TEST_SUITES):
+    if stage >= len(SCAN_TEST_SUITE_STAGES):
         # all stages finished.
         handle_finished_scan(scan)
 
@@ -68,7 +69,7 @@ def schedule_scan_stage(previous_results: Tuple[list, dict], scan_pk: int,
         return True
 
     tasks = []
-    for test_suite, test_parameters in settings.SCAN_TEST_SUITES[stage]:
+    for test_suite, test_parameters in SCAN_TEST_SUITE_STAGES[stage]:
         tasks.append(run_test.s(test_suite, test_parameters, scan_pk, scan.site.url, previous_results))
     chord(tasks, schedule_scan_stage.s(scan_pk, stage + 1, len(tasks))).apply_async()
 
@@ -84,7 +85,7 @@ def handle_finished_scan(scan: Scan):
 @shared_task(queue='slave')
 def run_test(test_suite: str, test_parameters: dict, scan_pk: int, url: str, previous_results: dict) -> bool:
     """Run a single test against a single url."""
-    test_suite = importlib.import_module(test_suite)
+    test_suite = AVAILABLE_TEST_SUITES[test_suite]
     try:
         with Timeout(settings.SCAN_SUITE_TIMEOUT_SECONDS):
             raw_data = test_suite.test_site(

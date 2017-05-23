@@ -149,27 +149,23 @@ SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN = timedelta(minutes=28)
 SCAN_SUITE_TIMEOUT_SECONDS = 100
 SCAN_TOTAL_TIMEOUT = timedelta(minutes=10)
 
-# a list of the stages where each test in a stage receives the scan dictionary
-# of the previous stages.
-# each test suite is a python module. It needs to have a function called test.
-# The test is expected to return a tuple: The first element of this tuple
-# is a list containing all raw data elements, the second a dictionary
-# containing evaluated test results.
+# The base modules containing the test suites. You usually do not want to
+# change this.
+TEST_SUITES_BASEMODULES = [
+    'privacyscore.test_suites',
+]
+
+# The list of the test names to use. Test names may not be used multiple times.
+# See the example test suite for documentation of the test module interface.
 SCAN_TEST_SUITES = [
-    [ # stage 0
-        ('privacyscore.test_suites.openwpm', {
-            'scan_basedir': '/tmp/openwpm-scans',
-            'virtualenv_path': os.path.join(BASE_DIR, 'tests/vendor/OpenWPM/.pyenv'),
-        }),
-        # TODO: Split into seperate modules
-        ('privacyscore.test_suites.testssl', {}),
-        ('privacyscore.test_suites.testssl', {
-            'test_type': 'mx'}),
-        ('privacyscore.test_suites.geoip', {}),
-    ],
-    #[ # stage 1
-    #    ('privacyscore.test_suites.geoip', {}),
-    #],
+    ('openwpm', {
+        'scan_basedir': '/tmp/openwpm-scans',
+        'virtualenv_path': os.path.join(BASE_DIR, 'tests/vendor/OpenWPM/.pyenv'),
+    }),
+    ('testssl', {}),
+#    ('testssl_https', {}),
+#    ('testssl_mx', {}),
+    ('geoip', {}),
 ]
 
 SCAN_TEST_BASEPATH = os.path.join(BASE_DIR, 'tests')

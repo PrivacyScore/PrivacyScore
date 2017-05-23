@@ -6,3 +6,4 @@ Pillow
 psycopg2 # required on slaves without db access as well due to django.contrib.postgres imports in models
 redis
 tldextract
+toposort
