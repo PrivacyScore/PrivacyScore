@@ -162,9 +162,8 @@ SCAN_TEST_SUITES = [
         'scan_basedir': '/tmp/openwpm-scans',
         'virtualenv_path': os.path.join(BASE_DIR, 'tests/vendor/OpenWPM/.pyenv'),
     }),
-    ('testssl', {}),
-#    ('testssl_https', {}),
-#    ('testssl_mx', {}),
+    ('testssl_https', {}),
+    ('testssl_mx', {}),
     ('geoip', {}),
 ]
 

@@ -1,62 +1,16 @@
 import json
-import os
 import re
-import tempfile
-
-from subprocess import call, DEVNULL
 from typing import Dict, Union
 
-from django.conf import settings
-
+from .testssl import common
 from privacyscore.utils import get_list_item_by_dict_entry
 
-# TODO: Split in _https and _mx
-test_name = 'testssl'
+test_name = 'testssl_mx'
 test_dependencies = []
 
 
-TESTSSL_PATH = os.path.join(
-    settings.SCAN_TEST_BASEPATH, 'vendor/testssl.sh', 'testssl.sh')
-
-
-def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str, bytes]]]:
-    """Test the specified url with testssl."""
-    result_file = tempfile.mktemp()
-
-    # determine hostname
-    pattern = re.compile(r'^(https|http)?(://)?([^/]*)/?.*?')
-    hostname = pattern.match(url).group(3)
-
-    args = [
-        TESTSSL_PATH,
-        '--jsonfile-pretty', result_file,
-        '--warnings=batch',
-        '--openssl-timeout', '10',
-        '--fast',
-        '--ip', 'one',
-    ]
-    # TODO: Split to seperate test modules
-    #if test_type == 'mx':
-    #    args.append('--mx')
-    #
-    # # add underscore for result
-    # test_type = '_mx'
-    args.append(hostname)
-    call(args, timeout=60, stdout=DEVNULL, stderr=DEVNULL)
-
-    # exception when file does not exist.
-    with open(result_file, 'rb') as f:
-        raw_data = f.read()
-    # delete json file.
-    os.remove(result_file)
-
-    # store raw scan result
-    return {
-        'jsonresult': {
-            'mime_type': 'application/json',
-            'data': raw_data,
-        },
-    }
+def test_site(*args, **kwargs) -> Dict[str, Dict[str, Union[str, bytes]]]:
+    return common.test_site(*args, test_type='mx', **kwargs)
 
 
 def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[str, object]]:
@@ -67,6 +21,8 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
     if not data['scanResult'] or not data['scanResult'][0]:
         # something went wrong with this test.
         raise Exception('no scan result in raw data')
+
+    # TODO: Parse mx result -- there are no http headers to analyze here ...
 
     # detect protocols
     protocols = {}
@@ -109,3 +65,4 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
             'has_hpkp_header': has_hpkp_header,
         }
     }
+
