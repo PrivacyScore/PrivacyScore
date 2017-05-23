@@ -10,6 +10,18 @@
 .align-right {
   text-align: right;
 }
+
+.rating-good {
+  background: #00C022;
+}
+
+.rating-warning {
+  background: #FFC517;
+}
+
+.rating-bad {
+  background: #FF2C17;
+}
 </style>
 {% endblock additional_css %}
 
@@ -109,7 +121,7 @@
         {% endfor %}
         {# TODO: sorting? Probably do not do this in template at all #}
         {% for rating in site.last_scan.result.evaluate_sorted %}
-          <td>
+          <td class="rating-{{ rating.group_rating }}">
             {{ rating.group_rating }}
             {%  blocktrans with good=rating.good total=rating.good|add:rating.bad %}
               ({{ good }}/{{ total }} good)
