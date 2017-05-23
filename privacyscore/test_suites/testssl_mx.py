@@ -31,7 +31,7 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
         match = pattern.search(p['finding'])
         if not match:
             continue
-        protocols[p['id']] = match.group(2) is None
+        protocols[p['id']] = match.group(1) is None
 
     # detect headers
     hsts_item = get_list_item_by_dict_entry(
