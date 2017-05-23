@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'privacyscore.api',
     'privacyscore.backend',
+    'privacyscore.evaluation',
     'privacyscore.frontend',
     'privacyscore.scanner',
     'django.contrib.admin',

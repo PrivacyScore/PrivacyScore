@@ -303,6 +303,11 @@ class ScanResult(models.Model):
     def __str__(self) -> str:
         return '{}'.format(str(self.scan))
 
+    def evaluate(self) -> dict:
+        """Evaluate the result."""
+        from privacyscore.evaluation.evaluation import evaluate_result
+        return evaluate_result(self.result)
+
 
 class ScanError(models.Model):
     """A single scan result key-value pair."""
