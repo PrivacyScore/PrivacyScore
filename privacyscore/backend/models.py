@@ -53,7 +53,8 @@ class ScanList(models.Model):
 
         The most recent date from all sites is returned.
         """
-        scans = Scan.objects.filter(site__scan_lists=self).order_by('end')
+        scans = Scan.objects.filter(
+            site__scan_lists=self, end__isnull=False).order_by('end')
         if scans.count() > 0:
             return scans.last().end
 
@@ -178,14 +179,14 @@ class Site(models.Model):
     def last_scan_datetime(self) -> Union[datetime, None]:
         """Get most recent scan end time. """
         # TODO: Annotate in initial query to prevent additional queries for all sites
-        scans = self.scans.order_by('end')
-        if scans.count() > 0:
-            return scans.last().end
+        last_scan = self.last_scan()
+        if last_scan:
+            return last_scan.end
 
     def last_scan(self) -> Union['Scan', None]:
         """Get most recent scan. """
         # TODO: Annotate in initial query to prevent additional queries for all sites
-        scans = self.scans.order_by('end')
+        scans = self.scans.filter(end__isnull=False).order_by('end')
         if scans.count() > 0:
             return scans.last()
 
