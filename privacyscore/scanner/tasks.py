@@ -46,8 +46,8 @@ def schedule_scan_stage(previous_results: Tuple[list, dict], scan_pk: int,
     if previous_task_count <= 1:
         previous_results = [previous_results]
     raw_data, previous_results, errors = _parse_previous_results(previous_results)
-    for params, data in raw_data:
-        RawScanResult.store_raw_data(data, scan_pk=scan_pk, **params)
+    for params in raw_data:
+        RawScanResult.store_raw_data(scan_pk=scan_pk, **params)
 
     # store errors in database
     for error in errors:
@@ -87,13 +87,13 @@ def run_test(test_suite: str, test_parameters: dict, scan_pk: int, url: str, pre
     test_suite = importlib.import_module(test_suite)
     try:
         with Timeout(settings.SCAN_SUITE_TIMEOUT_SECONDS):
-            raw_data = test_suite.test(
+            raw_data = test_suite.test_site(
                 url, previous_results, **test_parameters)
-            processed = test_suite.process(
+            processed = test_suite.process_test_data(
                 raw_data, previous_results, **test_parameters)
-            return test_suite.__name__, raw_data, processed
+            return test_suite.test_name, raw_data, processed
     except Exception as e:
-        return ':'.join([test_suite.__name__, str(e)])
+        return ':'.join([test_suite.test_name, str(e)])
 
 
 # TODO: configure beat or similar to run this task frequently.
@@ -120,11 +120,13 @@ def _parse_previous_results(previous_results: List[Tuple[list, dict]]) -> tuple:
     for e in previous_results:
         if isinstance(e, (list, tuple)):
             test = e[0]
-            if isinstance(e[1], (list, tuple)):
+            if isinstance(e[1], dict):
                 # add test specifier to each raw data element
-                for raw_elem in e[1]:
-                    raw_elem[0]['test'] = test
-                raw.extend(e[1])
+                for identifier, raw_elem in e[1].items():
+                    raw.append(dict(
+                        identifier=identifier,
+                        test=test,
+                        **raw_elem))
             if isinstance(e[2], dict):
                 for group, content in e[2].items():
                     if group not in result:

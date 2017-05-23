@@ -2,16 +2,24 @@
 This is an example test module. Its purpose is to document the interface
 which is used for all tests.
 
-Each test module has to define a test function and as process function. The
-docstrings below explain their purpose.
+Each test module has to define a test_site function and a process_test_data
+function. The docstrings below explain their purpose.
+
+The name of a test has to be supplied as test_name.
+A test must declare a test_dependencies list containing the test_name of all
+tests that need to be run before the test itself (and thus the results of that
+tests are provided within the previous_results dictionary).
+If a test does not have dependencies, an empty list should be supplied.
 """
 import json
-from typing import Dict, List, Tuple
-
-from privacyscore.utils import get_raw_data_by_identifier
+from typing import Dict, Union
 
 
-def test(url: str, previous_results: dict) -> List[Tuple[Dict[str, str], bytes]]:
+test_name = 'example'
+test_dependencies = ['another_example', 'foobar']
+
+
+def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str, bytes]]]:
     """
     The task of the test function is to scan the site and collect the raw
     data required in order produce a test result. It is **not** its task to
@@ -27,32 +35,31 @@ def test(url: str, previous_results: dict) -> List[Tuple[Dict[str, str], bytes]]
 
     In addition, a test function can get arbitrary parameters. The values
     for those parameters can then be specified in the settings where the test
-    module is configured. Those parameters are static for all sites; the common
-    use case is to run a test multiple times in different modes, i.e. testssl
-    for web and for email ports, or to supply additional information like a
-    path to an external script or a basedir for temporary data.
+    module is configured. Those parameters are static for all sites; they can
+    be used to supply additional information like a path to an external script
+    or a basedir for temporary data.
 
-    The data collected by the test function should be returned as a list of
-    tuples where the first element of the tuple is a dictionary containing the
-    following information:
-    * The data_type specifying the mime type of the supplied raw data object.
-    * An identifier for the data object. It can be an arbitrary string.
-      The only designated use of it is for the process function of the same
-      test module to identify raw data.
-    The second element of the tuple is the bytes-encoded raw data object.
+    The data collected by the test function should be returned as a dictionary
+    where the keys are the identifiers of the raw data objects and the values
+    are a dictionary containing the following information:
+    * The mime_type specifying the mime type of the supplied raw data object.
+    * The data object itself. It must be encoded as bytes.
     """
 
     # An example for a return value of the test function.
-    return [({
-        'data_type': 'application/json',
-        'identifier': 'jsonresult',
-    }, b'{"foo":42}'), ({
-        'data_type': 'text/plain',
-        'identifier': 'example',
-    }, b'an example raw data')]
+    return {
+        'jsonresult': {
+            'mime_type': 'application/json',
+            'data': b'{"foo":42}',
+        },
+        'example': {
+            'mime_type': 'text/plain',
+            'data': b'an example raw data',
+        },
+    }
 
 
-def process(raw_data: list, previous_results: dict):
+def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[str, object]]:
     """
     The task of the process function is to evaluate the raw data collected
     by the test function.
@@ -73,10 +80,9 @@ def process(raw_data: list, previous_results: dict):
     """
 
     # Examples to retrieve raw data objects.
-    json_data = json.loads(
-        get_raw_data_by_identifier(raw_data, 'jsonresult').decode())
-    image = get_raw_data_by_identifier(raw_data, 'screenshot')
-    database = get_raw_data_by_identifier(raw_data, 'database')
+    json_data = json.loads(raw_data['jsonresult']['data'].decode())
+    image = raw_data['screenshot']['data']
+    database = raw_data['database']['data']
 
     # An example for a return value of the process function.
     return {

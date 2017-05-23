@@ -161,6 +161,7 @@ SCAN_TEST_SUITES = [
             'scan_basedir': '/tmp/openwpm-scans',
             'virtualenv_path': os.path.join(BASE_DIR, 'tests/vendor/OpenWPM/.pyenv'),
         }),
+        # TODO: Split into seperate modules
         ('privacyscore.test_suites.testssl', {}),
         ('privacyscore.test_suites.testssl', {
             'test_type': 'mx'}),

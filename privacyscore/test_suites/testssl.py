@@ -4,18 +4,22 @@ import re
 import tempfile
 
 from subprocess import call, DEVNULL
+from typing import Dict, Union
 
 from django.conf import settings
 
-from privacyscore.utils import get_list_item_by_dict_entry, \
-        get_raw_data_by_identifier
+from privacyscore.utils import get_list_item_by_dict_entry
+
+# TODO: Split in _https and _mx
+test_name = 'testssl'
+test_dependencies = []
 
 
 TESTSSL_PATH = os.path.join(
     settings.SCAN_TEST_BASEPATH, 'vendor/testssl.sh', 'testssl.sh')
 
 
-def test(url: str, previous_results: dict, test_type: str = ''):
+def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str, bytes]]]:
     """Test the specified url with testssl."""
     result_file = tempfile.mktemp()
 
@@ -31,11 +35,12 @@ def test(url: str, previous_results: dict, test_type: str = ''):
         '--fast',
         '--ip', 'one',
     ]
-    if test_type == 'mx':
-        args.append('--mx')
-
-        # add underscore for result
-        test_type = '_mx'
+    # TODO: Split to seperate test modules
+    #if test_type == 'mx':
+    #    args.append('--mx')
+    #
+    # # add underscore for result
+    # test_type = '_mx'
     args.append(hostname)
     call(args, timeout=60, stdout=DEVNULL, stderr=DEVNULL)
 
@@ -46,16 +51,18 @@ def test(url: str, previous_results: dict, test_type: str = ''):
     os.remove(result_file)
 
     # store raw scan result
-    return [({
-        'data_type': 'application/json',
-        'identifier': 'jsonresult',
-    }, raw_data)]
+    return {
+        'jsonresult': {
+            'mime_type': 'application/json',
+            'data': raw_data,
+        },
+    }
 
 
-def process(raw_data: list, previous_results: dict, test_type: str = ''):
+def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[str, object]]:
     """Process the raw data of the test."""
     data = json.loads(
-        get_raw_data_by_identifier(raw_data, 'jsonresult').decode())
+        raw_data['jsonresult']['data'].decode())
 
     if not data['scanResult'] or not data['scanResult'][0]:
         # something went wrong with this test.

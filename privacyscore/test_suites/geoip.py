@@ -3,17 +3,19 @@ import os
 import re
 
 from subprocess import check_output
+from typing import Dict, Union
 
 from django.conf import settings
 
-from privacyscore.utils import get_raw_data_by_identifier
 
+test_name = 'geoip'
+test_dependencies = []
 
 GEOIP_PATH = os.path.join(
     settings.SCAN_TEST_BASEPATH, 'geoip.rb')
 
 
-def test(url: str, previous_results: dict) -> list:
+def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str, bytes]]]:
     """Test the specified url with geoip."""
     # determine hostname
     pattern = re.compile(r'^(https|http)?(://)?([^/]*)/?.*?')
@@ -24,16 +26,17 @@ def test(url: str, previous_results: dict) -> list:
         hostname
     ], timeout=20)
 
-    return [({
-        'data_type': 'application/json',
-        'identifier': 'jsonresult',
-    }, raw)]
+    return {
+        'jsonresult': {
+            'mime_type': 'application/json',
+            'data': raw,
+        }
+    }
 
 
-def process(raw_data: list, previous_results: dict):
+def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[str, object]]:
     """Process the raw data of the test."""
-    raw_result = json.loads(
-        get_raw_data_by_identifier(raw_data, 'jsonresult').decode())
+    raw_result = json.loads(raw_data['jsonresult']['data'].decode())
 
     return {
         'privacy': {

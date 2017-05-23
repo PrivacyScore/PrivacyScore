@@ -6,6 +6,7 @@ import tempfile
 
 from io import BytesIO
 from subprocess import call, DEVNULL
+from typing import Dict, Union
 from uuid import uuid4
 
 import tldextract
@@ -13,14 +14,16 @@ import tldextract
 from django.conf import settings
 from PIL import Image
 
-from privacyscore.utils import get_raw_data_by_identifier
+
+test_name = 'openwpm'
+test_dependencies = []
 
 
 OPENWPM_WRAPPER_PATH = os.path.join(
     settings.SCAN_TEST_BASEPATH, 'openwpm_wrapper.py')
 
 
-def test(url: str, previous_results: dict, scan_basedir: str, virtualenv_path: str) -> list:
+def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_path: str) -> Dict[str, Dict[str, Union[str, bytes]]]:
     """Test a site using openwpm and related tests."""
     # ensure basedir exists
     if not os.path.isdir(scan_basedir):
@@ -64,32 +67,38 @@ def test(url: str, previous_results: dict, scan_basedir: str, virtualenv_path: s
     # recursively delete scan folder
     shutil.rmtree(scan_dir)
 
-    return [({
-        'data_type': 'application/x-sqlite3',
-        'identifier': 'crawldata',
-    }, sqlite_db), ({
-        'data_type': 'text/plain',
-        'identifier': 'raw_url',
-    }, url.encode()), ({
-        'data_type': 'image/png',
-        'identifier': 'screenshot',
-    }, screenshot), ({
-        'data_type': 'image/png',
-        'identifier': 'cropped_screenshot',
-    }, cropped_screenshot), ({
-        'data_type': 'text/plain',
-        'identifier': 'log',
-    }, raw_log)]
+    return {
+        'crawldata': {
+            'mime_type': 'application/x-sqlite3',
+            'data': sqlite_db,
+        },
+        'raw_url': {
+            'mime_type': 'text/plain',
+            'data': url.encode(),
+        },
+        'screenshot': {
+            'mime_type': 'image/png',
+            'data': screenshot,
+        },
+        'cropped_screenshot': {
+            'mime_type': 'image/png',
+            'data': cropped_screenshot,
+        },
+        'log': {
+            'mime_type': 'text/plain',
+            'data': raw_log,
+        },
+    }
 
 
-def process(raw_data: list, previous_results: dict, scan_basedir: str, virtualenv_path: str):
+def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str, virtualenv_path: str) -> Dict[str, Dict[str, object]]:
     """Process the raw data of the test."""
     # store sqlite database in a temporary file
-    url = get_raw_data_by_identifier(raw_data, 'raw_url').decode()
+    url = raw_data['raw_url']['data'].decode()
 
     temp_db_file = tempfile.mktemp()
     with open(temp_db_file, 'wb') as f:
-        f.write(get_raw_data_by_identifier(raw_data, 'crawldata'))
+        f.write(raw_data['crawldata']['data'])
 
     conn = sqlite3.connect(temp_db_file)
     cur = conn.cursor()

@@ -247,7 +247,7 @@ class RawScanResult(models.Model):
     test = models.CharField(max_length=80)
     identifier = models.CharField(max_length=80)
 
-    data_type = models.CharField(max_length=80)
+    mime_type = models.CharField(max_length=80)
     file_name = models.CharField(max_length=80, null=True, blank=True)
     data = models.BinaryField(null=True, blank=True)
 
@@ -259,7 +259,7 @@ class RawScanResult(models.Model):
         return self.file_name is None
 
     @staticmethod
-    def store_raw_data(data, data_type: str, test: str, identifier: str, scan_pk: int):
+    def store_raw_data(data: bytes, mime_type: str, test: str, identifier: str, scan_pk: int):
         """Store data in db or filesystem."""
         if len(data) > settings.RAW_DATA_DB_MAX_SIZE:
             # store in filesystem
@@ -274,14 +274,14 @@ class RawScanResult(models.Model):
                 scan_id=scan_pk,
                 test=test,
                 identifier=identifier,
-                data_type=data_type,
+                mime_type=mime_type,
                 file_name=file_name)
         else:
             RawScanResult.objects.create(
                 scan_id=scan_pk,
                 test=test,
                 identifier=identifier,
-                data_type=data_type,
+                mime_type=mime_type,
                 data=data)
 
     def retrieve(self) -> bytes:
