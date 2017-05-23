@@ -128,7 +128,7 @@
             {% endblocktrans %}
           </td>
         {% endfor %}
-        <td class="align-right">{{ site.last_scan_datetime }}</td>
+        <td class="align-right">{% if site.last_scan_datetime is not None %}{{ site.last_scan_datetime }}{% else %}--{% endif %}</td>
       </tr>
     {% endfor %}
   </table>
