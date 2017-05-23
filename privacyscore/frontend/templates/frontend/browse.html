@@ -45,7 +45,7 @@
           </a>
           <span style="float:right;">
             <span class="glyphicon glyphicon-time" data-toggle="tooltip" title="{% trans 'Scan Date' %}"></span>
-            {{ scan_list.last_scan.start|date:"j.n.Y H:i" }}
+            {{ scan_list.last_scan_datetime|date:"j.n.Y H:i" }}
           </span>
         </h4>
         <div style="margin-top:10px;">

@@ -47,7 +47,7 @@ def evaluate_result(result: dict) -> dict:
     evaluation = {}
     for group, results in result.items():
         good, bad, neutral = evaluate_group(group, results)
-        if bad == neutral == 0:
+        if bad == 0:
             group_rating = 'good'
         elif good > 0 < bad:
             group_rating = 'warning'

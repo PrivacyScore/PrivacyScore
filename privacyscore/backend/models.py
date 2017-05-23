@@ -2,7 +2,7 @@ import os
 import random
 import string
 from datetime import datetime
-from typing import Union
+from typing import Iterable, Union
 from uuid import uuid4
 
 from django.conf import settings
@@ -47,7 +47,7 @@ class ScanList(models.Model):
         """Get the ordered column values of this site."""
         return self.columns.order_by('sort_key')
 
-    def last_scan(self) -> Union[datetime, None]:
+    def last_scan_datetime(self) -> Union[datetime, None]:
         """
         Get date and time of most recent scan.
 
@@ -174,6 +174,20 @@ class Site(models.Model):
         schedule_scan.delay(scan.pk)
 
         return True
+
+    def last_scan_datetime(self) -> Union[datetime, None]:
+        """Get most recent scan end time. """
+        # TODO: Annotate in initial query to prevent additional queries for all sites
+        scans = self.scans.order_by('end')
+        if scans.count() > 0:
+            return scans.last().end
+
+    def last_scan(self) -> Union['Scan', None]:
+        """Get most recent scan. """
+        # TODO: Annotate in initial query to prevent additional queries for all sites
+        scans = self.scans.order_by('end')
+        if scans.count() > 0:
+            return scans.last()
 
 
 class ListTag(models.Model):
@@ -307,6 +321,14 @@ class ScanResult(models.Model):
         """Evaluate the result."""
         from privacyscore.evaluation.evaluation import evaluate_result
         return evaluate_result(self.result)
+
+    def evaluate_sorted(self) -> Iterable:
+        """
+        Evaluate the result and return each group result ordered by the group.
+        """
+        for result in (i[1] for i in sorted(
+                self.evaluate().items(), key=lambda k: k[0])):
+            yield result
 
 
 class ScanError(models.Model):
