@@ -36,28 +36,44 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
         ssl_result['has_protocol_{}'.format(p['id'])] = match.group(1) is None
 
     # detect headers
-    hsts_item = get_list_item_by_dict_entry(
-        data['scanResult'][0]['headerResponse'],
-        'id', 'hsts')
-    ssl_result['has_hsts_header'] = False
-    if hsts_item is not None:
-        ssl_result['has_hsts_header'] = hsts_item['severity'] != 'HIGH'
+    # TODO: Are headers really ssl group?
+    ssl_result.update(_detect_hsts(data))
 
-    hsts_preload_item = get_list_item_by_dict_entry(
-        data['scanResult'][0]['headerResponse'],
-        'id', 'hsts_preload')
-    ssl_result['has_hsts_preload_header'] = False
-    if hsts_preload_item is not None:
-        ssl_result['has_hsts_preload_header'] = hsts_preload_item['severity'] != 'HIGH'
-
-    hpkp_item = get_list_item_by_dict_entry(
-        data['scanResult'][0]['headerResponse'],
-        'id', 'hpkp')
-    ssl_result['has_hpkp_header'] = False
-    if hpkp_item is not None:
-        ssl_result['has_hpkp_header'] = hpkp_item['severity'] != 'HIGH'
 
     return {
         'ssl': ssl_result,
     }
 
+
+def _detect_hsts(data: dict) -> dict:
+    ssl_result = {}
+
+    hsts_item = get_list_item_by_dict_entry(
+        data['scanResult'][0]['headerResponse'],
+        'id', 'hsts')
+    hsts_preload_item = get_list_item_by_dict_entry(
+        data['scanResult'][0]['headerResponse'],
+        'id', 'hsts_preload')
+
+    ssl_result['has_hsts_preload_header'] = False
+    if hsts_preload_item is not None:
+        ssl_result['has_hsts_preload_header'] = hsts_preload_item['severity'] != 'HIGH'
+
+    ssl_result['has_hsts_header'] = False
+    if ssl_result['has_hsts_preload_header']:
+        ssl_result['has_hsts_header'] = True
+    elif hsts_item is not None:
+        ssl_result['has_hsts_header'] = hsts_item['severity'] != 'HIGH'
+
+    return ssl_result
+
+
+
+def _detect_hpkp(data: dict) -> dict:
+    hpkp_item = get_list_item_by_dict_entry(
+        data['scanResult'][0]['headerResponse'],
+        'id', 'hpkp')
+    if hpkp_item is not None:
+        return {'has_hpkp_header': hpkp_item['severity'] != 'HIGH'}
+
+    return {'has_hpkp_header': False}
