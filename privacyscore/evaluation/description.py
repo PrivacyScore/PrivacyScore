@@ -41,6 +41,8 @@ MAPPING = {
             lambda v: _('The site does not use any third parties.') if v[0] == 0 \
                 else _('The site is using %(count)d different third parties.') % {
                     'count': v[0]}),
+        (('leaks',),
+            lambda v: _('The site discloses internal system information that should not be available.') if v[0] == 0 else None),
     ],
     'privacy': [
         (('a_locations',), lambda v: describe_locations(_('web servers'), v[0])),
@@ -86,4 +88,7 @@ def describe_group(group: str, results: dict) -> Iterable[str]:
             values.append(results[key])
         if not values:
             continue
-        yield desc(values)
+        description = desc(values)
+        if not description:
+            continue
+        yield description

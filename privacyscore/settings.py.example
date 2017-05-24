@@ -159,13 +159,14 @@ TEST_SUITES_BASEMODULES = [
 # The list of the test names to use. Test names may not be used multiple times.
 # See the example test suite for documentation of the test module interface.
 SCAN_TEST_SUITES = [
+    ('geoip', {}),
     ('openwpm', {
         'scan_basedir': '/tmp/openwpm-scans',
         'virtualenv_path': os.path.join(BASE_DIR, 'tests/vendor/OpenWPM/.pyenv'),
     }),
+    ('serverleak', {}),
     ('testssl_https', {}),
     ('testssl_mx', {}),
-    ('geoip', {}),
 ]
 
 SCAN_TEST_BASEPATH = os.path.join(BASE_DIR, 'tests')

@@ -18,6 +18,7 @@ MAPPING = {
         'cookies_count': lambda value: value == 0,
         'flashcookies_count': lambda value: value == 0,
         'third_parties_count': lambda value: value == 0,
+        'leaks': lambda value: value == [],
     },
     'privacy': {
         'a_locations': lambda value: value == ['Germany'],
