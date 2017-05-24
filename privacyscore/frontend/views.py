@@ -107,6 +107,18 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     })
 
 
+def scan_site(request: HttpRequest, site_id: int) -> HttpResponse:
+    """Schedule the scan of a scan list."""
+    scan_list = get_object_or_404(Site, pk=site_id)
+    if scan_list.scan():
+        messages.success(request,
+            _('Scan of the site habeen scheduled.'))
+    else:
+        messages.warning(request,
+            _('The site has been scanned recently. No scan was scheduled.'))
+    return redirect(reverse('frontend:view_site', args=(site_id,)))
+
+
 def third_parties(request: HttpRequest) -> HttpResponse:
     return render(request, 'frontend/third_parties.html')
 
