@@ -41,6 +41,10 @@ table.dataTable thead .sorting_desc_disabled
     {{ site.url }}
   </h1>
 
+  <p>
+    {% trans 'Last scan:' %} {{ site.last_scan_datetime }}
+  </p>
+
   {% if site.has_screenshot %}
     <img src="{% url 'frontend:site_screenshot' site.pk %}" class="screenshot" style="width: 20em; max-height: 15em;" />
   {% endif %}
