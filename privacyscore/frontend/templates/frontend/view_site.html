@@ -42,7 +42,12 @@ table.dataTable thead .sorting_desc_disabled
   </h1>
 
   <p>
-    {% trans 'Last scan:' %} {{ site.last_scan_datetime }}
+    {% trans 'Last scan:' %}
+    {% if site.last_scan_datetime %}
+      {{ site.last_scan_datetime }}
+    {% else %}
+      {% trans 'never' %}
+    {% endif %}
       <form method="POST" action="{% url 'frontend:scan_site' site.pk %}">
         {% csrf_token %}
         <button type="submit" class="btn btn-default" role="button" id="scan_again" style="width:100%;">
