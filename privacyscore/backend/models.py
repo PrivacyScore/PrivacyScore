@@ -12,6 +12,8 @@ from django.db import models, transaction
 from django.db.models import QuerySet
 from django.utils import timezone
 
+from privacyscore.evaluation.result_groups import RESULT_GROUPS
+
 
 def generate_random_token() -> str:
     """Generate a random token."""
@@ -323,13 +325,17 @@ class ScanResult(models.Model):
         from privacyscore.evaluation.evaluation import evaluate_result
         return evaluate_result(self.result)
 
-    def evaluate_sorted(self) -> Iterable:
+    def evaluate_by_groups(self) -> Iterable:
         """
-        Evaluate the result and return each group result ordered by the group.
+        Evaluate the result and yield a result for each configured group in the
+        order they are configured.
         """
-        for result in (i[1] for i in sorted(
-                self.evaluate().items(), key=lambda k: k[0])):
-            yield result
+        evaluated = self.evaluate()
+        for group in RESULT_GROUPS.keys():
+            if group not in evaluated.keys():
+                yield None
+                continue
+            yield evaluated[group]
 
 
 class ScanError(models.Model):

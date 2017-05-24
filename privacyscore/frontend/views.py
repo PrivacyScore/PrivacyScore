@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _
 
 from privacyscore.backend.models import Scan, ScanList, Site, ScanResult
+from privacyscore.evaluation.result_groups import RESULT_GROUPS
 
 
 def index(request: HttpRequest) -> HttpResponse:
@@ -70,14 +71,10 @@ def scan(request: HttpRequest) -> HttpResponse:
 def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     scan_list = get_object_or_404(ScanList, pk=scan_list_id)
 
-    # TODO: Improve group recognition (not all scan results necessarily have the same groups)
-    # TODO: human-friendly group names?
-    result_groups = sorted(ScanResult.objects.last().result.keys())
-
     return render(request, 'frontend/view_scan_list.html', {
         'scan_list': scan_list,
         'sites': scan_list.sites.order_by('url'),
-        'result_groups': result_groups,
+        'result_groups': RESULT_GROUPS.values(),
     })
 
 

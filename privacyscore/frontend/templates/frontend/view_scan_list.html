@@ -119,14 +119,19 @@
         {% for column_value in site|ordered_site_columns:scan_list %}
           <th>{{ column_value.value }}</th>
         {% endfor %}
-        {# TODO: sorting? Probably do not do this in template at all #}
-        {% for rating in site.last_scan.result.evaluate_sorted %}
-          <td class="rating-{{ rating.group_rating }}">
-            {{ rating.group_rating }}
-            {%  blocktrans with good=rating.good total=rating.good|add:rating.bad %}
-              ({{ good }}/{{ total }} good)
-            {% endblocktrans %}
-          </td>
+        {% for rating in site.last_scan.result.evaluate_by_groups %}
+          {% if rating %}
+            <td class="rating-{{ rating.group_rating }}">
+              {{ rating.group_rating }}
+              {%  blocktrans with good=rating.good total=rating.good|add:rating.bad %}
+                ({{ good }}/{{ total }} good)
+              {% endblocktrans %}
+            </td>
+          {% else %}
+            <td>
+              {% trans 'n/a' %}
+            </td>
+          {% endif %}
         {% endfor %}
         <td class="align-right">{% if site.last_scan_datetime is not None %}{{ site.last_scan_datetime }}{% else %}--{% endif %}</td>
       </tr>
