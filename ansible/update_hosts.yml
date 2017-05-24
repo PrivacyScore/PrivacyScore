@@ -1,0 +1,52 @@
+- hosts: all
+  become: true
+  become_user: root
+  tasks:
+    - name: Refresh git repository
+      become: True
+      become_user: privacyscore
+      git:
+        repo: gogs@svs.informatik.uni-hamburg.de:svs/privacyscore.git
+        dest: /opt/privacyscore
+        version: feature/postgresql-django
+    - name: Migrate database
+      when: is_master
+      become: True
+      become_user: privacyscore
+      command: /opt/privacyscore/manage.py migrate
+      environment:
+        PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        VIRTUAL_ENV: /opt/privacyscore/.pyenv
+    - name: Collect static files
+      when: is_master
+      become: True
+      become_user: privacyscore
+      command: /opt/privacyscore/manage.py collectstatic --no-input
+      environment:
+        PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        VIRTUAL_ENV: /opt/privacyscore/.pyenv
+    - name: Restart privacyscore.service
+      when: is_master
+      service: name=privacyscore state=restarted
+    - name: Restart privacyscore-celery-master.service
+      when: is_master
+      service: name=privacyscore-celery-master state=restarted
+    - name: Restart privacyscore-celery-slave.service
+      when: is_slave
+      service: name=privacyscore-celery-slave state=restarted
+    - name: Refresh vendor/testssl
+      when: is_slave
+      become: True
+      become_user: privacyscore
+      git:
+        repo: https://github.com/drwetter/testssl.sh.git
+        dest: /opt/privacyscore/tests/vendor/testssl.sh
+        version: HEAD
+    - name: Refresh vendor/OpenWPM
+      when: is_slave
+      become: True
+      become_user: privacyscore
+      git:
+        repo: https://github.com/citp/OpenWPM
+        dest: /opt/privacyscore/tests/vendor/OpenWPM
+        version: HEAD

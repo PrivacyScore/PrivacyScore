@@ -1,0 +1,3 @@
+ps01 is_master=True is_slave=False
+ps02 is_master=False is_slave=True
+ps03 is_master=False is_slave=True
