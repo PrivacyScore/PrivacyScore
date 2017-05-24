@@ -2,7 +2,7 @@ import os
 import random
 import string
 from datetime import datetime
-from typing import Iterable, Union
+from typing import Iterable, Tuple, Union
 from uuid import uuid4
 
 from django.conf import settings
@@ -320,6 +320,12 @@ class ScanResult(models.Model):
     def __str__(self) -> str:
         return '{}'.format(str(self.scan))
 
+    def describe(self) -> Iterable[Tuple[str, Iterable[str]]]:
+        """Generate descriptions for all groups."""
+        from privacyscore.evaluation.description import describe_result
+        return describe_result(self.result)
+
+
     def evaluate(self) -> dict:
         """Evaluate the result."""
         from privacyscore.evaluation.evaluation import evaluate_result
@@ -331,11 +337,11 @@ class ScanResult(models.Model):
         order they are configured.
         """
         evaluated = self.evaluate()
-        for group in RESULT_GROUPS.keys():
+        for group, group_name in RESULT_GROUPS.items():
             if group not in evaluated.keys():
-                yield None
+                yield group_name, None
                 continue
-            yield evaluated[group]
+            yield group_name, evaluated[group]
 
 
 class ScanError(models.Model):

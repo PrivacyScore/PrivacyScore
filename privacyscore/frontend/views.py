@@ -102,12 +102,8 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     """View a site and its most recent scan result (if any)."""
     site = get_object_or_404(Site, pk=site_id)
 
-    # TODO: get most recent scan (probably in backend/models, not here)
-    most_recent_scan = None
-
     return render(request, 'frontend/view_site.html', {
         'site': site,
-        'most_recent_scan': most_recent_scan,
     })
 
 

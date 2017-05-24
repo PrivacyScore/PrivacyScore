@@ -128,7 +128,7 @@
         {% for column_value in site|ordered_site_columns:scan_list %}
           <th>{{ column_value.value }}</th>
         {% endfor %}
-        {% for rating in site.last_scan.result.evaluate_by_groups %}
+        {% for group, rating in site.last_scan.result.evaluate_by_groups %}
           {% if rating %}
             <td class="rating-{{ rating.group_rating }}">
               {{ rating.group_rating }}

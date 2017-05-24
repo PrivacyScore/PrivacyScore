@@ -45,4 +45,12 @@ table.dataTable thead .sorting_desc_disabled
     <img src="{% url 'frontend:site_screenshot' site.pk %}" class="screenshot" style="width: 20em; max-height: 15em;" />
   {% endif %}
 
+  {% for group, descriptions in site.last_scan.result.describe %}
+    <h2>{{ group }}</h2>
+
+    {% for description in descriptions %}
+      <p>{{ description }}</p>
+    {% endfor %}
+  {% endfor %}
+
 {% endblock content %}
