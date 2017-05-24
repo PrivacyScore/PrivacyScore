@@ -79,7 +79,12 @@
 
 
         <a class="btn btn-default" onclick="deleteList()" role="button" id="delete_list" style="width:100%; display:none;">Liste löschen</a>
-        <a class="btn btn-default" onclick="scanAgain()" role="button" id="scan_again" style="width:100%;">Nochmal scannen</a>
+        <form method="POST" action="{% url 'frontend:scan_scan_list' scan_list.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-default" role="button" id="scan_again" style="width:100%;">
+            {% trans 'Rescan' %}
+          </button>
+        </form>
         <a href="{% url 'frontend:scan_list' %}" class="btn btn-default" role="button" id="new_list" style="width:100%;">Neue Liste aus dieser erstellen</a>
 
          <div class="form-group">

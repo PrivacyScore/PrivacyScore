@@ -31,13 +31,19 @@
       <li><a href="{% url 'frontend:scan_list' %}">Liste erstellen</a></li>
       <li><a href="{% url 'frontend:scan_list' %}?edit=true">Liste bearbeiten</a></li>
       <li style="display:none;"><a href="{% url 'frontend:info' %}">Info</a></li>
-      <li style="display:none;"><a href={% url 'frontend:contact' %}">Kontakt</a></li>
+      <li style="display:none;"><a href="{% url 'frontend:contact' %}">Kontakt</a></li>
 		</ul>
 	</div>
 	</nav>
     {% endblock header %}
 
     <div class="container" style="margin-top: 7em; margin-bottom: 4em;">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+
       {% block content %}
       {% endblock content %}
     </div>

@@ -1,8 +1,9 @@
 from django.conf import settings
+from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, Q
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.translation import ugettext_lazy as _
 
 from privacyscore.backend.models import Scan, ScanList, Site, ScanResult
@@ -54,6 +55,15 @@ def legal(request: HttpRequest) -> HttpResponse:
 
 def scan_list(request: HttpRequest) -> HttpResponse:
     return render(request, 'frontend/list.html')
+
+
+def scan_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
+    """Schedule the scan of a scan list."""
+    scan_list = get_object_or_404(ScanList, pk=scan_list_id)
+    scan_list.scan()
+    messages.success(request,
+        _('Scans for the sites on this list have been scheduled.'))
+    return redirect(reverse('frontend:view_scan_list', args=(scan_list_id,)))
 
 
 def login(request: HttpRequest) -> HttpResponse:
