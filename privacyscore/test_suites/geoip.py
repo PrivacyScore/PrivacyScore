@@ -18,8 +18,8 @@ GEOIP_PATH = os.path.join(
 def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str, bytes]]]:
     """Test the specified url with geoip."""
     # determine hostname
-    pattern = re.compile(r'^(https|http)?(://)?([^/]*)/?.*?')
-    hostname = pattern.match(url).group(3)
+    pattern = re.compile(r'^(https?://)?([^/:]*)(:\d+)?/?.*?')
+    hostname = pattern.match(url).group(2)
 
     raw = check_output([
         GEOIP_PATH,
