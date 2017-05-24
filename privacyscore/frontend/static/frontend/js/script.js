@@ -1,4 +1,4 @@
-var apiUrl = "http://127.0.0.1:8000/api";
+var apiUrl = "https://privacyscore.org/api";
 
 function getUrlVars() {
 	var vars = {};
