@@ -15,6 +15,7 @@ from typing import Union, Tuple
 # if the value is classified as bad.
 MAPPING = {
     'general': {
+        'cookies_count': lambda value: value == 0,
         'flashcookies_count': lambda value: value == 0,
         'third_parties_count': lambda value: value == 0,
     },
@@ -29,6 +30,7 @@ MAPPING = {
         'has_hsts_preload_header': lambda value: value,
         'has_protocol_sslv2': lambda value: not value,
         'has_protocol_sslv3': lambda value: not value,
+        'has_protocol_tls1': lambda value: not value,
         'has_protocol_tls1_1': lambda value: not value,
         'has_protocol_tls1_2': lambda value: value,
     },

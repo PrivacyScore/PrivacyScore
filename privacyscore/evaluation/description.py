@@ -29,6 +29,14 @@ def describe_locations(server_type: str, locations: list) -> str:
 # TODO: Cleaner solution? Inline lambdas are ugly and not flexible at all.
 MAPPING = {
     'general': [
+        (('cookies_count',),
+            lambda v: _('The site is not using cookie.') if v[0] == 0 \
+                else _('The site is using %(count)d cookies.') % {
+                    'count': v[0]}),
+        (('flashcookies_count',),
+            lambda v: _('The site is not using flash cookie.') if v[0] == 0 \
+                else _('The site is using %(count)d flash cookies.') % {
+                    'count': v[0]}),
         (('third_parties_count',),
             lambda v: _('The site does not use any third parties.') if v[0] == 0 \
                 else _('The site is using %(count)d different third parties.') % {
@@ -43,11 +51,18 @@ MAPPING = {
             lambda v: _('The server is supporting perfect forward secrecy.') if v[0]\
                 else _('The site is not supporting perfect forward secrecy.'),),
         (('has_hsts_header',),
+        # TODO: header validity, inclusion in upstream preload list etc.
             lambda v: _('The server uses HSTS to prevent insecure requests.') if v[0] \
                 else _('The site is not using HSTS to prevent insecure requests.'),),
+        (('has_hpkp_header',),
+            lambda v: _('The server uses Public Key Pinning to prevent attackers to use invalid certificates.') if v[0] \
+                else _('The site is not using Public Key Pinning to prevent attackers to use invalid certificates.'),),
         (('has_protocol_sslv2', 'has_protocol_sslv3'),
             lambda v: _('The server supports insecure protocols.') if any(v) \
                 else _('The server does not support insecure protocols.'),),
+        (('has_protocol_tls1', 'has_protocol_tls1_1', 'has_protocol_tls1_2'),
+            lambda v: _('The server supports secure protocols.') if any(v) \
+                else _('The server does not support secure protocols.'),),
     ],
 }
 
@@ -66,6 +81,9 @@ def describe_group(group: str, results: dict) -> Iterable[str]:
         values = []
         for key in keys:
             if key not in results:
-                continue
+                values = None
+                break
             values.append(results[key])
+        if not values:
+            continue
         yield desc(values)
