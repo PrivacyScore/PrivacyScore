@@ -57,6 +57,14 @@
           RAW_DATA_DIR = os.path.join(BASE_DIR, 'raw_data')
 
           SCAN_LISTS_PER_PAGE = 30
+    - name: Install pip requirements
+      become: True
+      become_user: privacyscore
+      pip:
+        requirements: /opt/privacyscore/requirements.txt
+      environment:
+        PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        VIRTUAL_ENV: /opt/privacyscore/.pyenv
     - name: Migrate database
       when: is_master
       become: True
