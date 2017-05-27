@@ -31,7 +31,7 @@
 			Die angelegten Listen können in der Übersicht angezeigt oder einzelne Seiten im Detail betrachtet werden.
 			</div>
       <a href="{% url 'frontend:browse' %}" class="btn btn-default" role="button">Listen durchsuchen</a>
-			<a href="{% url 'frontend:lists' %}" class="btn btn-default" role="button">Eigene Liste erstellen</a>
+			<a href="{% url 'frontend:scan_list' %}" class="btn btn-default" role="button">Eigene Liste erstellen</a>
 		</li>
 		</div>
 		<div class="col-md-6">
@@ -43,7 +43,7 @@
 		<li class="well well-lg" style="display:block;list-style-type: none">
 			<label>Beispiele</label>
 			<br>
-			<a href="{% url 'frontend:scanned_list' %}?list=58a3788d137ed6690a146d80&group=58a37890137ed6690a146d87" class="btn btn-default" role="button">Liste von Universitäten in Deutschland</a>
+			{#<a href="{% url 'frontend:view_scan_list' %}?list=58a3788d137ed6690a146d80&group=58a37890137ed6690a146d87" class="btn btn-default" role="button">Liste von Universitäten in Deutschland</a>#}
 			<a href="{% url 'frontend:scan' %}?site=58a3788f137ed6690a146d81&scan=58a378e9137ed67da804d62d" class="btn btn-default" role="button">Detailansicht Uni-Siegen.de</a>
 		</li>
 		</div>
