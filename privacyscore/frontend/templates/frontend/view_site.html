@@ -32,6 +32,14 @@ table.dataTable thead .sorting_desc_disabled
     a:hover {
       color: black;
     }
+
+    .description-good {
+      color: green;
+    }
+
+    .description-bad {
+      color: red;
+    }
   </style>
 {% endblock additional_css %}
 
@@ -63,8 +71,8 @@ table.dataTable thead .sorting_desc_disabled
   {% for group, descriptions in site.last_scan.result.describe %}
     <h2>{{ group }}</h2>
 
-    {% for description in descriptions %}
-      <p>{{ description }}</p>
+    {% for description, classification in descriptions %}
+      <p class="description-{{ classification }}">{{ description }}</p>
     {% endfor %}
   {% endfor %}
 
