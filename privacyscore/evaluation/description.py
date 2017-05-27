@@ -4,6 +4,7 @@ This module defines textual representations/explanations for results of keys.
 from typing import Iterable, Tuple
 
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ungettext_lazy
 
 from privacyscore.evaluation.result_groups import RESULT_GROUPS
 
@@ -34,15 +35,15 @@ MAPPING = {
     'general': [
         (('cookies_count',),
             lambda v: (_('The site is not using cookies.'), 'good') if v[0] == 0 \
-                else (_('The site is using %(count)d cookies.') % {
+                else (ungettext_lazy('The site is using one cookie.', 'The site is using %(count)d cookies.', v[0]) % {
                     'count': v[0]}, 'bad')),
         (('flashcookies_count',),
             lambda v: (_('The site is not using flash cookies.'), 'good') if v[0] == 0 \
-                else (_('The site is using %(count)d flash cookies.') % {
+                else (ungettext_lazy('The site is using one flash cookie.', 'The site is using %(count)d flash cookies.', v[0]) % {
                     'count': v[0]}, 'bad')),
         (('third_parties_count',),
             lambda v: (_('The site does not use any third parties.'), 'good') if v[0] == 0 \
-                else (_('The site is using %(count)d different third parties.') % {
+                else (ungettext_lazy('The site is using one third party.', 'The site is using %(count)d different third parties.', v[0]) % {
                     'count': v[0]}, 'bad')),
         (('leaks',),
             lambda v: (_('The site discloses internal system information that should not be available.'), 'bad') if v[0] == 0 else None),
