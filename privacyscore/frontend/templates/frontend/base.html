@@ -1,4 +1,4 @@
-{% load static %}<!doctype html>
+{% load static %}{% load i18n %}<!doctype html>
 <html>
   <head>
     <meta charset="utf-8">
@@ -27,9 +27,14 @@
 	<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 		<ul class="nav navbar-nav" id="navbar">
 			<li style="display:none;"><a href="/">Start <span class="sr-only">(current)</span></a></li>
-      <li><a href="{% url 'frontend:browse' %}">Liste suchen</a></li>
-      <li><a href="{% url 'frontend:scan_list' %}">Liste erstellen</a></li>
-      <li><a href="{% url 'frontend:scan_list' %}?edit=true">Liste bearbeiten</a></li>
+      <li><a href="{% url 'frontend:browse' %}">{% trans 'Browse' %}</a></li>
+      <li><a href="{% url 'frontend:scan_list' %}">{% trans 'Create list' %}</a></li>
+      <li><a href="{% url 'frontend:scan_list' %}?edit=true">{% trans 'Edit list' %}</a></li>
+      {% if request.user.is_authenticated %}
+        <li><a href="{% url 'frontend:logout' %}?next={{ request.get_full_path }}">{% trans 'Logout' %}</a></li>
+      {% else %}
+        <li><a href="{% url 'frontend:login' %}?next={{ request.get_full_path }}">{% trans 'Login' %}</a></li>
+      {% endif %}
       <li style="display:none;"><a href="{% url 'frontend:info' %}">Info</a></li>
       <li style="display:none;"><a href="{% url 'frontend:contact' %}">Kontakt</a></li>
 		</ul>

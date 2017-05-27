@@ -1,3 +1,4 @@
+from django.contrib.auth import views as auth_views
 from django.conf.urls import url
 
 from privacyscore.frontend import views
@@ -17,9 +18,10 @@ urlpatterns = [
     url(r'^site/(?P<site_id>\d+)/$', views.view_site, name='view_site'),
     url(r'^site/(?P<site_id>\d+)/screenshot$', views.site_screenshot, name='site_screenshot'),
     url(r'^site/(?P<site_id>\d+)/scan/$', views.scan_site, name='scan_site'),
-    url(r'^login/$', views.login, name='login'),
     url(r'^lookup/$', views.lookup, name='lookup'),
     url(r'^scan/$', views.scan, name='scan'),
     url(r'^third_parties/$', views.third_parties, name='third_parties'),
+    url(r'^login/$', auth_views.LoginView.as_view(template_name='frontend/login.html'), name='login'),
+    url(r'^logout/$', auth_views.logout, name='logout'),
     url(r'^user/$', views.user, name='user'),
 ]

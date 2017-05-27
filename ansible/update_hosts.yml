@@ -13,6 +13,9 @@
       blockinfile:
         path: /opt/privacyscore/privacyscore/settings.py
         block: |
+          LOGIN_REDIRECT_URL = '/'
+          LOGOUT_REDIRECT_URL = '/'
+
           from kombu import Exchange, Queue
           CELERY_TIMEZONE = TIME_ZONE
           CELERY_TASK_SERIALIZER = 'msgpack'

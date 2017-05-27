@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -131,6 +132,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 from kombu import Exchange, Queue
 CELERY_TIMEZONE = TIME_ZONE
