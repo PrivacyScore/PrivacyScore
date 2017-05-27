@@ -83,6 +83,7 @@ def describe_result(result: dict) -> Iterable[Tuple[str, Iterable[str]]]:
 
 def describe_group(group: str, results: dict) -> Iterable[str]:
     """Describe result of a single group."""
+    good_values = []
     for keys, desc in MAPPING[group]:
         values = []
         for key in keys:
@@ -95,4 +96,10 @@ def describe_group(group: str, results: dict) -> Iterable[str]:
         description = desc(values)
         if not description:
             continue
+        if description[1] == 'good':
+            # display good values after all other values
+            good_values.append(description)
+            continue
         yield description
+    for value in good_values:
+        yield value
