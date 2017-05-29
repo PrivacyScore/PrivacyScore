@@ -1,9 +1,11 @@
 - hosts: all
   become: true
   become_user: root
+  vars:
+    ansible_ssh_pipelining: yes
   tasks:
     - name: Refresh git repository
-      become: True
+      become: yes
       become_user: privacyscore
       git:
         repo: gogs@svs.informatik.uni-hamburg.de:svs/privacyscore.git
@@ -72,7 +74,7 @@
               'release': raven.fetch_git_sha('/opt/privacyscore'),
           }
     - name: Install pip requirements
-      become: True
+      become: yes
       become_user: privacyscore
       pip:
         requirements: /opt/privacyscore/requirements.txt
@@ -80,7 +82,7 @@
         PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
     - name: Install raven
-      become: True
+      become: yes
       become_user: privacyscore
       pip:
         name: raven
@@ -89,7 +91,7 @@
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
     - name: Migrate database
       when: is_master
-      become: True
+      become: yes
       become_user: privacyscore
       command: /opt/privacyscore/manage.py migrate
       environment:
@@ -97,7 +99,7 @@
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
     - name: Collect static files
       when: is_master
-      become: True
+      become: yes
       become_user: privacyscore
       command: /opt/privacyscore/manage.py collectstatic --no-input
       environment:
@@ -114,7 +116,7 @@
       service: name=privacyscore-celery-slave state=restarted
     - name: Refresh vendor/testssl
       when: is_slave
-      become: True
+      become: yes
       become_user: privacyscore
       git:
         repo: https://github.com/drwetter/testssl.sh.git
@@ -122,7 +124,7 @@
         version: HEAD
     - name: Refresh vendor/OpenWPM
       when: is_slave
-      become: True
+      become: yes
       become_user: privacyscore
       git:
         repo: https://github.com/citp/OpenWPM

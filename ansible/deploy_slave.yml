@@ -1,0 +1,118 @@
+- hosts: all
+  become: true
+  become_user: root
+    vars:
+      ansible_ssh_pipelining: yes
+  tasks:
+    - name: Install apt packages
+      apt: name={{ item }}
+      with_items:
+        - build-essential
+        - firefox-esr
+        - flashplugin-nonfree
+        - git
+        - libboost-python-dev
+        - libffi-dev
+        - libjpeg-dev
+        - libleveldb1v5  # without v5 on jessie
+        - libleveldb-dev
+        - libpq-dev
+        - libssl-dev
+        - libxml2-dev
+        - libxslt-dev
+        - python3
+        - python3-dev
+        - python-dev
+        - virtualenv
+        - xvfb
+    - name: Create root .ssh directory
+      file:
+        path: /root/.ssh
+        owner: root
+        group: root
+        mode: 0500
+        state: directory
+    - name: Store ssh key for root
+      copy:
+        src: id_rsa
+        dest: /root/.ssh/id_rsa
+        owner: root
+        group: root
+        mode: 0400
+    - name: Clone git repository
+      git:
+        repo: gogs@svs.informatik.uni-hamburg.de:svs/privacyscore.git
+        dest: /opt/privacyscore
+        version: master
+        accept_hostkey: yes
+    - name: Create privacyscore user
+      user:
+        name: privacyscore
+        home: /opt/privacyscore
+        system: yes
+    - name: Set owner of privacyscore directory
+      file:
+        path: /opt/privacyscore
+        owner: privacyscore
+        group: privacyscore
+        recurse: yes
+    - name: Prepare privacyscore user
+      become: yes
+      become_user: privacyscore
+      args:
+        creates: /opt/privacyscore/.bashrc
+      shell: |
+        set -e
+
+        cd /opt/privacyscore
+
+        virtualenv --python $(which python3) .pyenv
+
+        cp /etc/skel/.bashrc .
+        echo ". /opt/privacyscore/.pyenv/bin/activate" >> .bashrc
+        ln -sf .bashrc .bash_profile
+
+        . /opt/privacyscore/.pyenv/bin/activate
+
+        pip install -r requirements.txt
+        pip install typing
+
+        ./install-tests.sh
+    - name: Place settings
+      template:
+        src: settings.py
+        dest: /opt/privacyscore/privacyscore/settings.py
+        owner: privacyscore
+        group: privacyscore
+        mode: 0500
+    - name: Place systemd unit file for privacyscore-celery-slave
+      template:
+        src: privacyscore-celery-slave.service
+        dest: /etc/systemd/system/privacyscore-celery-slave.service
+    - name: Enable and start celery slave service
+      service:
+        name: privacyscore-celery-slave
+        state: started
+        enabled: yes
+    - name: Create privacyscore .ssh directory
+      file:
+        path: /opt/privacyscore/.ssh
+        owner: privacyscore
+        group: privacyscore
+        mode: 0500
+        state: directory
+    - name: Store ssh key for privacyscore
+      copy:
+        src: id_rsa
+        dest: /opt/privacyscore/.ssh/id_rsa
+        owner: privacyscore
+        group: privacyscore
+        mode: 0400
+    - name: Pull git repository as privacyscore user to accept hostkey initially
+      become: yes
+      become_user: privacyscore
+      git:
+        repo: gogs@svs.informatik.uni-hamburg.de:svs/privacyscore.git
+        dest: /opt/privacyscore
+        version: master
+        accept_hostkey: yes
