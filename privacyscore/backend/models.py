@@ -11,6 +11,7 @@ from django.contrib.postgres import fields as postgres_fields
 from django.db import models, transaction
 from django.db.models import QuerySet
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 from privacyscore.evaluation.result_groups import RESULT_GROUPS, group_result
 
@@ -51,6 +52,7 @@ class ScanList(models.Model):
         """Get the ordered column values of this site."""
         return self.columns.order_by('sort_key')
 
+    @cached_property
     def last_scan_datetime(self) -> Union[datetime, None]:
         """
         Get date and time of most recent scan.
@@ -182,13 +184,13 @@ class Site(models.Model):
 
         return True
 
+    @cached_property
     def last_scan_datetime(self) -> Union[datetime, None]:
         """Get most recent scan end time. """
-        # TODO: Annotate in initial query to prevent additional queries for all sites
-        last_scan = self.last_scan()
-        if last_scan:
-            return last_scan.end
+        if self.last_scan:
+            return self.last_scan.end
 
+    @cached_property
     def last_scan(self) -> Union['Scan', None]:
         """Get most recent scan. """
         # TODO: Annotate in initial query to prevent additional queries for all sites
@@ -330,7 +332,7 @@ class ScanResult(models.Model):
         result = group_result(self.result, RESULT_GROUPS)
         return describe_result(result)
 
-
+    @cached_property
     def evaluate(self) -> dict:
         """Evaluate the result."""
         from privacyscore.evaluation.evaluation import evaluate_result
@@ -342,7 +344,7 @@ class ScanResult(models.Model):
         Evaluate the result and yield a result for each configured group in the
         order they are configured.
         """
-        evaluated = self.evaluate()
+        evaluated = self.evaluate
         for group, data in RESULT_GROUPS.items():
             if group not in evaluated.keys():
                 yield data['name'], None
