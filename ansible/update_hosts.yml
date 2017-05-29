@@ -60,11 +60,30 @@
           RAW_DATA_DIR = os.path.join(BASE_DIR, 'raw_data')
 
           SCAN_LISTS_PER_PAGE = 30
+
+          INSTALLED_APPS.append('raven.contrib.django.raven_compat')
+
+          import raven
+
+          RAVEN_CONFIG = {
+              'dsn': 'https://{{ lookup('passwordstore', 'privacyscore.org/sentry') }}@sentry.mafiasi.de/16',
+              # If you are using git, you can also automatically configure the
+              # release based on the git info.
+              'release': raven.fetch_git_sha('/opt/privacyscore'),
+          }
     - name: Install pip requirements
       become: True
       become_user: privacyscore
       pip:
         requirements: /opt/privacyscore/requirements.txt
+      environment:
+        PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        VIRTUAL_ENV: /opt/privacyscore/.pyenv
+    - name: Install raven
+      become: True
+      become_user: privacyscore
+      pip:
+        name: raven
       environment:
         PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
