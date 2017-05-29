@@ -59,7 +59,7 @@ def evaluate_result(result: dict) -> dict:
 
         evaluation[group] = {
             'group_rating': group_rating,
-            'good_ratio': good / (good + bad),
+            'good_ratio': good / (good + bad) if good + bad > 0 else None,
             'good': good,
             'neutral': neutral,
             'bad': bad,
