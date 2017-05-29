@@ -21,3 +21,10 @@ urlpatterns = [
     url(r'^api/', include('privacyscore.api.urls')),
     url(r'^', include('privacyscore.frontend.urls')),
 ]
+
+from django.conf import settings
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
