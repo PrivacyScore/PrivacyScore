@@ -1,0 +1,41 @@
+server {
+  listen 80;
+  listen [::]:80;
+
+  server_name privacyscore.org;
+
+  #include acme.conf;
+
+  return 301 https://$server_name$request_uri;
+
+  access_log /var/log/nginx/privacyscore.org.access.log;
+  error_log /var/log/nginx/privacyscore.org.error.log;
+}
+
+server {
+  listen 443;
+  listen [::]:443;
+
+  server_name privacyscore.org;
+
+  include ssl.conf;
+  ssl_certificate /etc/letsencrypt/certs/privacyscore.org/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/certs/privacyscore.org/privkey.pem;
+
+  #include acme.conf;
+  #include security.conf;
+
+  location /static {
+    alias /var/www/privacyscore.org;
+  }
+
+  location / {
+    uwsgi_pass 127.0.0.1:3829;
+    include uwsgi_params;
+    #proxy_pass http://127.0.0.1:3829;
+    #include proxy_params;
+  }
+
+  access_log /var/log/nginx/privacyscore.org.access.log;
+  error_log /var/log/nginx/privacyscore.org.error.log;
+}

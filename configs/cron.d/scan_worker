@@ -1,5 +1,0 @@
-SHELL=/bin/sh
-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-
-* * * * * nico cd /home/nico/workspace/Scanner; python -m scanner.scan_worker >> /tmp/pranger_scanworker.log 2>&1
-
