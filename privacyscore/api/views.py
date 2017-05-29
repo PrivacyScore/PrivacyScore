@@ -12,6 +12,10 @@ from privacyscore.backend.models import ScanList, ListColumnValue, Site, \
     Scan, ScanResult
 
 
+# TODO: Improve, add missing functionality
+# TODO: Count views of sites and scan lists
+
+
 @api_view(['GET'])
 def get_scan_lists(request: Request) -> Response:
     """Get lists."""

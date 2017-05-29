@@ -36,6 +36,8 @@ class ScanList(models.Model):
         get_user_model(), on_delete=models.CASCADE, related_name='tags',
         null=True, blank=True)
 
+    views = models.IntegerField(default=0)
+
     def __str__(self) -> str:
         return self.name
 
@@ -123,6 +125,8 @@ class Site(models.Model):
     """A site."""
     url = models.CharField(max_length=500, unique=True)
     scan_lists = models.ManyToManyField(ScanList, related_name='sites')
+
+    views = models.IntegerField(default=0)
 
     def __str__(self) -> str:
         return self.url

@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Count, Q
+from django.db.models import Count, F, Q
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.translation import ugettext_lazy as _
@@ -19,7 +19,7 @@ def browse(request: HttpRequest) -> HttpResponse:
         editable=False,
         private=False,
         sites__count__gte=2  # not single site
-    ) .order_by('name')
+    ) .order_by('-views', 'name')
 
     search = request.GET.get('search')
     if search:
@@ -80,6 +80,8 @@ def scan(request: HttpRequest) -> HttpResponse:
 
 def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     scan_list = get_object_or_404(ScanList, pk=scan_list_id)
+    scan_list.views = F('views') + 1
+    scan_list.save(update_fields=('views',))
 
     return render(request, 'frontend/view_scan_list.html', {
         'scan_list': scan_list,
@@ -101,6 +103,8 @@ def site_screenshot(request: HttpRequest, site_id: int) -> HttpResponse:
 def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     """View a site and its most recent scan result (if any)."""
     site = get_object_or_404(Site, pk=site_id)
+    site.views = F('views') + 1
+    site.save(update_fields=('views',))
 
     return render(request, 'frontend/view_site.html', {
         'site': site,
