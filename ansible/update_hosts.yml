@@ -8,7 +8,7 @@
       git:
         repo: gogs@svs.informatik.uni-hamburg.de:svs/privacyscore.git
         dest: /opt/privacyscore
-        version: feature/postgresql-django
+        version: master
     - name: Update settings
       blockinfile:
         path: /opt/privacyscore/privacyscore/settings.py
