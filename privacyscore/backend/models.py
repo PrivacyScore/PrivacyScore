@@ -12,7 +12,7 @@ from django.db import models, transaction
 from django.db.models import QuerySet
 from django.utils import timezone
 
-from privacyscore.evaluation.result_groups import RESULT_GROUPS
+from privacyscore.evaluation.result_groups import RESULT_GROUPS, group_result
 
 
 def generate_random_token() -> str:
@@ -323,13 +323,15 @@ class ScanResult(models.Model):
     def describe(self) -> Iterable[Tuple[str, Iterable[str]]]:
         """Generate descriptions for all groups."""
         from privacyscore.evaluation.description import describe_result
-        return describe_result(self.result)
+        result = group_result(self.result, RESULT_GROUPS)
+        return describe_result(result)
 
 
     def evaluate(self) -> dict:
         """Evaluate the result."""
         from privacyscore.evaluation.evaluation import evaluate_result
-        return evaluate_result(self.result)
+        result = group_result(self.result, RESULT_GROUPS)
+        return evaluate_result(result)
 
     def evaluate_by_groups(self) -> Iterable:
         """
@@ -337,11 +339,11 @@ class ScanResult(models.Model):
         order they are configured.
         """
         evaluated = self.evaluate()
-        for group, group_name in RESULT_GROUPS.items():
+        for group, data in RESULT_GROUPS.items():
             if group not in evaluated.keys():
-                yield group_name, None
+                yield data['name'], None
                 continue
-            yield group_name, evaluated[group]
+            yield data['name'], evaluated[group]
 
 
 class ScanError(models.Model):

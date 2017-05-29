@@ -25,9 +25,7 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
     # TODO: Parse mx result -- there are no http headers to analyze here ...
 
     return {
-        'mx_ssl': {
-            'pfs': data['scanResult'][0]['pfs'][0][
-                'severity'] == 'OK',
-        }
+        'mx_pfs': data['scanResult'][0]['pfs'][0][
+            'severity'] == 'OK',
     }
 

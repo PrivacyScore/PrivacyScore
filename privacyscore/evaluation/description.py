@@ -75,10 +75,11 @@ MAPPING = {
 
 def describe_result(result: dict) -> Iterable[Tuple[str, Iterable[str]]]:
     """Describe each group of a result."""
-    for group, group_name in RESULT_GROUPS.items():
+    # TODO: Do not use RESULT_GROUPS here but use dynamic group passing
+    for group, data in RESULT_GROUPS.items():
         if group not in MAPPING or group not in result:
             continue
-        yield group_name, describe_group(group, result[group])
+        yield data['name'], describe_group(group, result[group])
 
 
 def describe_group(group: str, results: dict) -> Iterable[str]:

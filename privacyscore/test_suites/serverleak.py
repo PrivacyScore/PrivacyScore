@@ -31,16 +31,14 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
             if pattern in response.text:
                 leaks.append(trial)
     return {
-        'jsonresult': {
+        'leaks': {
             'mime_type': 'application/json',
-            'data': json.dumps({
-                'general': {
-                    'leaks': leaks,
-                }
-            }).encode(),
+            'data': json.dumps(leaks).encode(),
         }
     }
 
 
 def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[str, object]]:
-    return json.loads(raw_data['jsonresult']['data'])
+    return {
+        'leaks': json.loads(raw_data['leaks']['data']),
+    }

@@ -40,9 +40,7 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
     ssl_result.update(_detect_hsts(data))
 
 
-    return {
-        'ssl': ssl_result,
-    }
+    return ssl_result
 
 
 def _detect_hsts(data: dict) -> dict:
@@ -66,7 +64,6 @@ def _detect_hsts(data: dict) -> dict:
         ssl_result['has_hsts_header'] = hsts_item['severity'] != 'HIGH'
 
     return ssl_result
-
 
 
 def _detect_hpkp(data: dict) -> dict:

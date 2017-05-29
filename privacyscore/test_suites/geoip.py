@@ -39,8 +39,6 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
     raw_result = json.loads(raw_data['jsonresult']['data'].decode())
 
     return {
-        'privacy': {
-            'a_locations': raw_result['A_LOCATIONS'].split(', '),
-            'mx_locations': raw_result['MX_LOCATIONS'].split(', '),
-        }
+        'a_locations': raw_result['A_LOCATIONS'].split(', '),
+        'mx_locations': raw_result['MX_LOCATIONS'].split(', '),
     }

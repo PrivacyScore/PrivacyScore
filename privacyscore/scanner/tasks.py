@@ -129,11 +129,7 @@ def _parse_previous_results(previous_results: List[Tuple[list, dict]]) -> tuple:
                         test=test,
                         **raw_elem))
             if isinstance(e[2], dict):
-                for group, content in e[2].items():
-                    if group not in result:
-                        result[group] = content
-                    else:
-                        result[group].update(content)
+                result.update(e[2])
         else:
             errors.append(e)
     return raw, result, errors

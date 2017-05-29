@@ -298,7 +298,4 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
     # Delete temporary sqlite db file
     os.remove(temp_db_file)
 
-    return {
-        # TODO: better grouping
-        'general': scantosave,
-    }
+    return scantosave

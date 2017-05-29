@@ -70,13 +70,12 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
     supplied to the process function as well.
 
     It should return a dictionary containing the relevant test results. The
-    result dictionary is structured in groups (each of them being another
-    dictionary) which contain key-value entries. The value of those keys may
-    be any json-serializable content.
-    The result dictionary is merged group-wise with the result dictionaries of
-    all other tests. Therefore, keys should be globally unique; especially a
+    result dictionary contains result names as keys and their values as any
+    json-serializable python object.
+    The result dictionary is merged with the result dictionaries of all other
+    tests. Therefore, keys should be globally unique; especially a
     test which runs in multiple modes should make sure to use different keys
-    in different modes, for example a prefix based on the time (i.e. mx or a).
+    in different modes, for example a prefix based on the type (i.e. mx or a).
     """
 
     # Examples to retrieve raw data objects.
@@ -86,16 +85,10 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
 
     # An example for a return value of the process function.
     return {
-        'general': {
-            'is_interesting': False,
-        },
-        'privacy': {
-            'respects_privacy': True,
-        },
-        'ssl': {
-            'pfs': False,
-            'has_hsts_header': True,
-            'has_hsts_preload_header': False,
-            'has_hpkp_header': False,
-        },
+        'is_interesting': False,
+        'respects_privacy': True,
+        'pfs': False,
+        'has_hsts_header': True,
+        'has_hsts_preload_header': False,
+        'has_hpkp_header': False,
     }
