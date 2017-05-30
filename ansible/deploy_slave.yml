@@ -4,8 +4,14 @@
   vars:
     ansible_ssh_pipelining: yes
   tasks:
+    - name: Add contrib to sources.list
+      blockinfile:
+        path: /etc/apt/sources.list
+        block: |
+          deb http://ftp.de.debian.org/debian/ jessie main contrib
+          deb-src http://ftp.de.debian.org/debian/ jessie main contrib
     - name: Install apt packages
-      apt: name={{ item }}
+      apt: name={{ item }} update_cache=yes
       with_items:
         - build-essential
         - firefox-esr
