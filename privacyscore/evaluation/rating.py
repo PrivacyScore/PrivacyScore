@@ -26,5 +26,8 @@ class Rating:
     def __le__(self, other) -> bool:
         return self.ORDERING.index(self.rating) <= self.ORDERING.index(other.rating)
 
+    def __gt__(self, other) -> bool:
+        return self.ORDERING.index(self.rating) > self.ORDERING.index(other.rating)
+
     def __ge__(self, other) -> bool:
         return self.ORDERING.index(self.rating) >= self.ORDERING.index(other.rating)

@@ -54,6 +54,14 @@ class GroupEvaluation:
         # Rating is identical, compare good count
         return self.good < other.good
 
+    def __le__(self, other) -> bool:
+        if self.group_rating < other.group_rating:
+            return True
+        if self.group_rating > other.group_rating:
+            return False
+        # Rating is identical, compare good count
+        return self.good <= other.good
+
     def __gt__(self, other) -> bool:
         if self.group_rating > other.group_rating:
             return True
@@ -61,3 +69,11 @@ class GroupEvaluation:
             return False
         # Rating is identical, compare good count
         return self.good > other.good
+
+    def __ge__(self, other) -> bool:
+        if self.group_rating > other.group_rating:
+            return True
+        if self.group_rating < other.group_rating:
+            return False
+        # Rating is identical, compare good count
+        return self.good >= other.good
