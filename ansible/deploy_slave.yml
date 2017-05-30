@@ -26,11 +26,17 @@
         - libssl-dev
         - libxml2-dev
         - libxslt-dev
+        - ntp
         - python3
         - python3-dev
         - python-dev
         - virtualenv
         - xvfb
+    - name: Enable NTP service
+      service:
+        name: ntp
+        state: started
+        enabled: yes
     - name: Create root .ssh directory
       file:
         path: /root/.ssh
