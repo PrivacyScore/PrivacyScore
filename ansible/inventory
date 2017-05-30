@@ -1,3 +1,11 @@
 ps01 is_master=True is_slave=False
 ps02 is_master=False is_slave=True
 ps03 is_master=False is_slave=True
+ps04 is_master=False is_slave=True
+ps05 is_master=False is_slave=True
+ps06 is_master=False is_slave=True
+ps07 is_master=False is_slave=True
+ps08 is_master=False is_slave=True
+ps09 is_master=False is_slave=True
+ps10 is_master=False is_slave=True
+ps11 is_master=False is_slave=True
