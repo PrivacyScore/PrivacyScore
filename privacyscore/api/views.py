@@ -10,6 +10,7 @@ from rest_framework.response import Response
 
 from privacyscore.backend.models import ScanList, ListColumnValue, Site, \
     Scan, ScanResult
+from privacyscore.utils import normalize_url
 
 
 # TODO: Improve, add missing functionality
@@ -173,19 +174,13 @@ def save_site(request: Request) -> Response:
                 if not site['url']:
                     continue
 
-                # ensure that URLs are well formed (otherwise the scanner
-                # will fail to store the results, because OpenWPM needs the
-                # well- formed URLs, but these wouldn't be found in the MongoDB)
+                url = normalize_url(site['url'])
 
-                # TODO: why are urls like httpexample.org allowed without protocol?
-                if not site["url"].startswith("http"):
-                    site["url"] = "http://" + str(site["url"])
+                if not url.startswith("http"):
+                    # non-http url supplied; not supported
+                    continue
 
-                # append trailing / if url does not contain a path part
-                if re.search(r"^(https?:\/\/)?[^\/]*$", site["url"], re.IGNORECASE):
-                    site["url"] += '/'
-
-                site_object = Site.objects.get_or_create(url=site['url'])[0]
+                site_object = Site.objects.get_or_create(url=url)[0]
                 if site_object in scan_list.sites.all():
                     # redundant site, already added to list
                     continue

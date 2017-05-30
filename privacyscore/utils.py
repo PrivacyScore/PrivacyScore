@@ -1,3 +1,12 @@
+from url_normalize import url_normalize
+
+
+def normalize_url(url: str) -> str:
+    """Normalize an url and remove GET query."""
+    normalized = url_normalize(url)
+    return normalized.split('?')[0]
+
+
 def get_raw_data_by_identifier(raw_data: list, identifier: str):
     """Get the first raw data element with the specified identifier."""
     return next((

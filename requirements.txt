@@ -8,3 +8,4 @@ psycopg2 # required on slaves without db access as well due to django.contrib.po
 redis
 tldextract
 toposort
+url_normalize
