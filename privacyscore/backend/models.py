@@ -270,6 +270,7 @@ class Site(models.Model):
         """
         now = timezone.now()
 
+        last_end = None
         if hasattr(self, 'last_scan__end_or_null'):
             last_end = self.last_scan__end_or_null
         else:
