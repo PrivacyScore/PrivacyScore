@@ -36,7 +36,7 @@
         path: /root/.ssh
         owner: root
         group: root
-        mode: 0500
+        mode: 0700
         state: directory
     - name: Store ssh key for root
       copy:
@@ -105,7 +105,7 @@
         path: /opt/privacyscore/.ssh
         owner: privacyscore
         group: privacyscore
-        mode: 0500
+        mode: 0700
         state: directory
     - name: Store ssh key for privacyscore
       copy:
