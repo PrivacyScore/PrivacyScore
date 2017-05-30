@@ -1,12 +1,12 @@
 from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Count, F, Q
+from django.db.models import Count, F, Prefetch, Q
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.translation import ugettext_lazy as _
 
-from privacyscore.backend.models import Scan, ScanList, Site, ScanResult
+from privacyscore.backend.models import ListColumn, ListColumnValue, Scan, ScanList, Site, ScanResult
 from privacyscore.evaluation.result_groups import RESULT_GROUPS
 
 
@@ -19,7 +19,7 @@ def browse(request: HttpRequest) -> HttpResponse:
         editable=False,
         private=False,
         sites__count__gte=2  # not single site
-    ) .order_by('-views', 'name')
+    ) .order_by('-views', 'name').prefetch_tags().annotate_most_recent_scan_end()
 
     search = request.GET.get('search')
     if search:
@@ -59,7 +59,12 @@ def scan_list(request: HttpRequest) -> HttpResponse:
 
 def scan_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     """Schedule the scan of a scan list."""
-    scan_list = get_object_or_404(ScanList, pk=scan_list_id)
+    scan_list = get_object_or_404(
+        ScanList.objects.prefetch_related(
+            Prefetch(
+                'sites',
+                 queryset=Site.objects.annotate_most_recent_scan_end_or_null())),
+        pk=scan_list_id)
     scan_list.scan()
     messages.success(request,
         _('Scans for the sites on this list have been scheduled.'))
@@ -79,13 +84,15 @@ def scan(request: HttpRequest) -> HttpResponse:
 
 
 def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
-    scan_list = get_object_or_404(ScanList, pk=scan_list_id)
+    scan_list = get_object_or_404(
+        ScanList.objects.prefetch_columns(), pk=scan_list_id)
     scan_list.views = F('views') + 1
     scan_list.save(update_fields=('views',))
 
     return render(request, 'frontend/view_scan_list.html', {
         'scan_list': scan_list,
-        'sites': scan_list.sites.order_by('url'),
+        'sites': scan_list.sites.annotate_most_recent_scan_end(
+            ).prefetch_last_scan().prefetch_column_values(scan_list),
         'result_groups': [group['name'] for group in RESULT_GROUPS.values()],
     })
 
@@ -102,7 +109,7 @@ def site_screenshot(request: HttpRequest, site_id: int) -> HttpResponse:
 
 def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     """View a site and its most recent scan result (if any)."""
-    site = get_object_or_404(Site, pk=site_id)
+    site = get_object_or_404(Site.objects.annotate_most_recent_scan_end().prefetch_last_scan(), pk=site_id)
     site.views = F('views') + 1
     site.save(update_fields=('views',))
 

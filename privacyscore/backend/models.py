@@ -9,7 +9,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres import fields as postgres_fields
 from django.db import models, transaction
-from django.db.models import QuerySet
+from django.db.models import Prefetch, QuerySet
+from django.db.models.expressions import RawSQL
 from django.utils import timezone
 from django.utils.functional import cached_property
 
@@ -21,6 +22,50 @@ def generate_random_token() -> str:
     return''.join(random.SystemRandom().choice(
         string.ascii_uppercase + string.ascii_lowercase + string.digits)
                   for _ in range(50))
+
+
+class ScanListQuerySet(models.QuerySet):
+    def annotate_most_recent_scan_end(self) -> 'ScanListQuerySet':
+        return self.annotate(
+            last_scan__end=RawSQL('''
+                SELECT "{Scan}"."end"
+                FROM "{Scan}"
+                WHERE
+                    "{Scan}"."end" IS NOT NULL AND
+                    "{Scan}"."site_id" IN
+                        (SELECT "{Site_ScanLists}"."site_id"
+                         FROM "{Site_ScanLists}"
+                         WHERE "{Site_ScanLists}"."scanlist_id" = "{ScanList}"."id"
+                         GROUP BY "{Site_ScanLists}"."site_id")
+                ORDER BY "{Scan}"."end" DESC
+                LIMIT 1
+                '''.format(
+                    Scan=Scan._meta.db_table,
+                    Site_ScanLists=Site.scan_lists.through._meta.db_table,
+                    ScanList=ScanList._meta.db_table), ()))
+
+    def prefetch_columns(self) -> 'ScanListQuerySet':
+        return self.prefetch_related(
+            Prefetch(
+                'columns',
+                queryset=ListColumn.objects.order_by('sort_key'),
+                to_attr='sorted_columns'))
+
+    def prefetch_last_scan(self) -> 'ScanListQuerySet':
+        return self.prefetch_related(
+            # TODO: Prefetching **all** scans gets a huge overhead, limit to one each
+            Prefetch(
+                'scans',
+                queryset=Scan.objects.filter(
+                    end__isnull=False).order_by('end').select_related('result'),
+                to_attr='prefetched_scans'))
+
+    def prefetch_tags(self) -> 'ScanListQuerySet':
+        return self.prefetch_related(
+            Prefetch(
+                'tags',
+                queryset=ListTag.objects.order_by('name'),
+                to_attr='ordered_tags'))
 
 
 class ScanList(models.Model):
@@ -39,6 +84,8 @@ class ScanList(models.Model):
 
     views = models.IntegerField(default=0)
 
+    objects = models.Manager.from_queryset(ScanListQuerySet)()
+
     def __str__(self) -> str:
         return self.name
 
@@ -50,7 +97,7 @@ class ScanList(models.Model):
     @property
     def ordered_columns(self) -> QuerySet:
         """Get the ordered column values of this site."""
-        return self.columns.order_by('sort_key')
+        return self.sorted_columns
 
     @cached_property
     def last_scan_datetime(self) -> Union[datetime, None]:
@@ -59,13 +106,19 @@ class ScanList(models.Model):
 
         The most recent date from all sites is returned.
         """
+        if hasattr(self, 'last_scan__end'):
+            return self.last_scan__end
         scans = Scan.objects.filter(
-            site__scan_lists=self, end__isnull=False).order_by('end')
-        if scans.count() > 0:
-            return scans.last().end
+            site__scan_lists=self, end__isnull=False).order_by(
+                'end').select_related('result')
+        last_scan = scans.last()
+        if last_scan:
+            return last_scan.end
 
     def tags_as_str(self) -> str:
         """Get a comma separated list of the tags."""
+        if hasattr(self, 'ordered_tags'):
+            return ', '.join(t.name for t in self.ordered_tags)
         return ', '.join(t.name for t in self.tags.order_by('name'))
 
     def as_dict(self) -> dict:
@@ -123,6 +176,57 @@ class ScanList(models.Model):
         self.save()
 
 
+class SiteQuerySet(models.QuerySet):
+    def annotate_most_recent_scan_end_or_null(self) -> 'SiteQuerySet':
+        return self.annotate(
+            last_scan__end_or_null=RawSQL('''
+                SELECT "{Scan}"."end"
+                FROM "{Scan}"
+                WHERE
+                    "{Scan}"."site_id" IN
+                        (SELECT "{Site_ScanLists}"."site_id"
+                         FROM "{Site_ScanLists}"
+                         WHERE "{Site_ScanLists}"."scanlist_id" = "{Scan}"."id"
+                         GROUP BY "{Site_ScanLists}"."site_id")
+                ORDER BY "{Scan}"."end" DESC
+                LIMIT 1
+                '''.format(
+                    Scan=Scan._meta.db_table,
+                    Site_ScanLists=Site.scan_lists.through._meta.db_table), ()))
+
+    def annotate_most_recent_scan_end(self) -> 'SiteQuerySet':
+        return self.annotate(
+            last_scan__end=RawSQL('''
+                SELECT "{Scan}"."end"
+                FROM "{Scan}"
+                WHERE
+                    "{Scan}"."end" IS NOT NULL AND
+                    "{Scan}"."site_id" = "{Site}"."id"
+                ORDER BY "{Scan}"."end" DESC
+                LIMIT 1
+                '''.format(
+                    Scan=Scan._meta.db_table,
+                    Site=Site._meta.db_table), ()))
+
+    def prefetch_last_scan(self) -> 'SiteQuerySet':
+        return self.prefetch_related(
+            # TODO: Prefetching **all** scans gets a huge overhead, limit to one each
+            Prefetch(
+                'scans',
+                queryset=Scan.objects.filter(
+                    end__isnull=False).order_by('end').select_related('result'),
+                to_attr='prefetched_scans'))
+
+    def prefetch_column_values(self, scan_list: ScanList) -> 'SiteQuerySet':
+        return self.prefetch_related(Prefetch(
+                'column_values',
+                queryset=ListColumnValue.objects.filter(
+                    column__scan_list=scan_list).order_by(
+                    'column__sort_key'),
+                to_attr='ordered_column_values')
+        )
+
+
 class Site(models.Model):
     """A site."""
     url = models.CharField(max_length=500, unique=True)
@@ -130,13 +234,10 @@ class Site(models.Model):
 
     views = models.IntegerField(default=0)
 
+    objects = models.Manager.from_queryset(SiteQuerySet)()
+
     def __str__(self) -> str:
         return self.url
-
-    def ordered_column_values(self, scan_list: ScanList) -> QuerySet:
-        """Get the ordered column values of this site in specified list."""
-        return self.column_values.filter(
-            column__scan_list=scan_list).order_by('column__sort_key')
 
     def as_dict(self) -> dict:
         """Return the current list as dict."""
@@ -152,8 +253,9 @@ class Site(models.Model):
         screenshots = RawScanResult.objects.filter(
             scan__site=self, identifier='cropped_screenshot').order_by(
             'scan__end')
-        if screenshots.count() > 0:
-            return screenshots.last().retrieve()
+        screenshot = screenshots.last()
+        if screenshot:
+            return screenshot.retrieve()
 
     def has_screenshot(self) -> bool:
         """Check whether a screenshot for this site exists."""
@@ -168,13 +270,17 @@ class Site(models.Model):
         """
         now = timezone.now()
 
-        previous_scans = self.scans.order_by('-end')
-        if len(previous_scans) > 0:
-            # at least one scan has been scheduled previously.
-            most_recent_scan = previous_scans[0]
-            if (not most_recent_scan.end or
-                    now - most_recent_scan.end < settings.SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN):
-                return False
+        if hasattr(self, 'last_scan__end_or_null'):
+            last_end = self.last_scan__end_or_null
+        else:
+            previous_scans = self.scans.order_by('-end')
+            if len(previous_scans) > 0:
+                # at least one scan has been scheduled previously.
+                most_recent_scan = previous_scans[0]
+                last_end = most_recent_scan.end
+        if (not last_end or
+                now - last_end < settings.SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN):
+            return False
 
         # create Scan
         scan = Scan.objects.create(site=self)
@@ -187,16 +293,22 @@ class Site(models.Model):
     @cached_property
     def last_scan_datetime(self) -> Union[datetime, None]:
         """Get most recent scan end time. """
-        if self.last_scan:
-            return self.last_scan.end
+        if hasattr(self, 'last_scan__end'):
+            return self.last_scan__end
+        scans = Scan.objects.filter(
+            site__scan_lists=self, end__isnull=False).order_by(
+                'end').select_related('result')
+        last_scan = scans.last()
+        if last_scan:
+            return last_scan.end
 
     @cached_property
     def last_scan(self) -> Union['Scan', None]:
         """Get most recent scan. """
-        # TODO: Annotate in initial query to prevent additional queries for all sites
-        scans = self.scans.filter(end__isnull=False).order_by('end')
-        if scans.count() > 0:
-            return scans.last()
+        # TODO: Fallback when not prefetched
+        if not self.prefetched_scans:
+            return None
+        return self.prefetched_scans[len(self.prefetched_scans) - 1]
 
 
 class ListTag(models.Model):
