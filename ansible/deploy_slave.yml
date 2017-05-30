@@ -1,8 +1,8 @@
 - hosts: all
   become: true
   become_user: root
-    vars:
-      ansible_ssh_pipelining: yes
+  vars:
+    ansible_ssh_pipelining: yes
   tasks:
     - name: Install apt packages
       apt: name={{ item }}
@@ -14,7 +14,7 @@
         - libboost-python-dev
         - libffi-dev
         - libjpeg-dev
-        - libleveldb1v5  # without v5 on jessie
+        - libleveldb1  # v5 on stretch
         - libleveldb-dev
         - libpq-dev
         - libssl-dev
