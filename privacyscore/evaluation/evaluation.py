@@ -7,7 +7,9 @@ bad if all keys are rated bad.
 
 This is only a draft and will most likely be changed essentially later.
 """
-from typing import Union, Tuple
+from typing import Union
+
+from privacyscore.evaluation.group_evaluation import GroupEvaluation
 
 
 # The mapping specifies a function for each key to rate its value.
@@ -47,27 +49,13 @@ def evaluate_result(result: dict) -> dict:
     of neutral results as well as the overall group rating and the ratio of
     good results.
     """
-    evaluation = {}
-    for group, results in result.items():
-        good, bad, neutral = evaluate_group(group, results)
-        if bad == 0:
-            group_rating = 'good'
-        elif good > 0 < bad:
-            group_rating = 'warning'
-        else:
-            group_rating = 'bad'
-
-        evaluation[group] = {
-            'group_rating': group_rating,
-            'good_ratio': good / (good + bad) if good + bad > 0 else None,
-            'good': good,
-            'neutral': neutral,
-            'bad': bad,
-        }
-    return evaluation
+    return {
+        group: evaluate_group(group, results)
+        for group, results in result.items()
+    }
 
 
-def evaluate_group(group: str, results: dict) -> Tuple[int, int, int]:
+def evaluate_group(group: str, results: dict) -> GroupEvaluation:
     """
     Evaluate all entries of a group. Returns the number of good results, bad
     results and the number of neutral/not rateable results.
@@ -83,7 +71,7 @@ def evaluate_group(group: str, results: dict) -> Tuple[int, int, int]:
             bad += 1
         else:
             neutral += 1
-    return good, bad, neutral
+    return GroupEvaluation(good, bad, neutral)
 
 
 def evaluate_key(group: str, key: str, value: object) -> Union[bool, None]:

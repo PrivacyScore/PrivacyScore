@@ -449,6 +449,7 @@ class ScanResult(models.Model):
     def evaluate(self) -> dict:
         """Evaluate the result."""
         from privacyscore.evaluation.evaluation import evaluate_result
+
         result = group_result(self.result, RESULT_GROUPS)
         return evaluate_result(result)
 
