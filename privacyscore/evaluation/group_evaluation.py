@@ -1,23 +1,28 @@
-from typing import Union
+from typing import List, Union
 
 from privacyscore.evaluation.rating import Rating
-
-
-# TODO: critical is not used yet.
 
 
 class GroupEvaluation:
     """
     This class represents the evaluation of a group.
     """
-    good: int
-    bad: int
-    neutral: int
+    classifications: List[Rating]
 
-    def __init__(self, good: int, bad: int, neutral: int):
-        self.good = good
-        self.bad = bad
-        self.neutral = neutral
+    def __init__(self, classifications: List[Rating]):
+        self.classifications = classifications
+
+    @property
+    def good(self):
+        return sum(1 for c in self.classifications if c == Rating('good'))
+
+    @property
+    def bad(self):
+        return sum(1 for c in self.classifications if c == Rating('bad'))
+
+    @property
+    def neutral(self):
+        return sum(1 for c in self.classifications if c == Rating('neutral'))
 
     @property
     def group_rating(self) -> Rating:

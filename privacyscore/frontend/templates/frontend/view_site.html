@@ -68,7 +68,7 @@ table.dataTable thead .sorting_desc_disabled
     <img src="{% url 'frontend:site_screenshot' site.pk %}" class="screenshot" style="width:320px" />
   {% endif %}
 
-  {% for group, descriptions in site.last_scan.result.describe %}
+  {% for group, descriptions in groups_descriptions %}
     <h2>{{ group }}</h2>
 
     {% for description, classification in descriptions %}

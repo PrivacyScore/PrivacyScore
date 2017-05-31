@@ -441,12 +441,6 @@ class ScanResult(models.Model):
     def __str__(self) -> str:
         return '{}'.format(str(self.scan))
 
-    def describe(self) -> Iterable[Tuple[str, Iterable[str]]]:
-        """Generate descriptions for all groups."""
-        from privacyscore.evaluation.description import describe_result
-        result = group_result(self.result, RESULT_GROUPS)
-        return describe_result(result)
-
     def evaluate(self, groups: OrderedDict, group_order: list) -> SiteEvaluation:
         """Evaluate the result."""
         from privacyscore.evaluation.evaluation import evaluate_result

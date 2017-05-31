@@ -94,7 +94,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         .prefetch_last_scan().prefetch_column_values(scan_list)
     # add evaluations to sites
     for site in sites:
-        site.evaluated = site.last_scan.result.evaluate(RESULT_GROUPS, ['general', 'ssl', 'privacy'])
+        site.evaluated = site.last_scan.result.evaluate(RESULT_GROUPS, ['general', 'ssl', 'privacy'])[0]
 
     sites = sorted(sites, key=lambda v: v.evaluated, reverse=True)
 
@@ -123,6 +123,10 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
 
     return render(request, 'frontend/view_site.html', {
         'site': site,
+        # TODO: groups not statically
+        'groups_descriptions': (
+            (RESULT_GROUPS[group]['name'], val) for group, val in
+        site.last_scan.result.evaluate(RESULT_GROUPS, ['general', 'privacy', 'ssl'])[1].items()),
     })
 
 
