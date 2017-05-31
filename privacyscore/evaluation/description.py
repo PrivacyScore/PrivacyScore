@@ -14,7 +14,7 @@ def describe_locations(server_type: str, locations: list) -> str:
     """Describe a list of locations."""
     if not locations or locations == ['']:
         return _('The locations of the %(server_type)s could not '
-                 'be detected.') % {'server_type': server_type}, Rating('bad')
+                 'be detected.') % {'server_type': server_type}, Rating('bad', influences_ranking=False)
     if len(locations) == 1:
         return _('All %(server_type)s are located in %(country)s.') % {
             'server_type': server_type,

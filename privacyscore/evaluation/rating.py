@@ -5,11 +5,13 @@ class Rating:
     It can be critical, bad, warning or good.
     """
     rating: str
+    influences_ranking: bool
 
     ORDERING = ['critical', 'bad', 'warning', 'good']
 
-    def __init__(self, rating: str):
+    def __init__(self, rating: str, influences_ranking: bool = True):
         self.rating = rating
+        self.influences_ranking = influences_ranking
 
     def __str__(self) -> str:
         return self.rating

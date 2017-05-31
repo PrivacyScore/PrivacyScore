@@ -39,7 +39,7 @@ MAPPING = {
                 else (_('The site is not using HSTS to prevent insecure requests.'), Rating('bad'))),
         (('has_hpkp_header',),
             lambda v: (_('The server uses Public Key Pinning to prevent attackers to use invalid certificates.'), Rating('good')) if v[0] \
-                else (_('The site is not using Public Key Pinning to prevent attackers to use invalid certificates.'), Rating('bad'))),
+                else (_('The site is not using Public Key Pinning to prevent attackers to use invalid certificates.'), Rating('bad', influences_ranking=False))),
         (('has_protocol_sslv2', 'has_protocol_sslv3'),
             lambda v: (_('The server supports insecure protocols.'), Rating('bad')) if any(v) \
                 else (_('The server does not support insecure protocols.'), Rating('good'))),

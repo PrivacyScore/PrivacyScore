@@ -14,15 +14,18 @@ class GroupEvaluation:
 
     @property
     def good(self):
-        return sum(1 for c in self.classifications if c == Rating('good'))
+        return sum(1 for c in self.classifications
+                   if c == Rating('good') and c.influences_ranking)
 
     @property
     def bad(self):
-        return sum(1 for c in self.classifications if c == Rating('bad'))
+        return sum(1 for c in self.classifications
+                   if c == Rating('bad') and c.influences_ranking)
 
     @property
     def neutral(self):
-        return sum(1 for c in self.classifications if c == Rating('neutral'))
+        return sum(1 for c in self.classifications if c == Rating('neutral')
+                   if c == Rating('neutral') and c.influences_ranking)
 
     @property
     def group_rating(self) -> Rating:
