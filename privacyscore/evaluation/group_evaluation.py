@@ -55,6 +55,8 @@ class GroupEvaluation:
     @property
     def group_rating(self) -> Rating:
         """The rating of the group."""
+        if self.overall_good == self.overall_total > self.good:
+            return Rating('doubleplusgood')
         if self.bad == 0:
             return Rating('good')
         elif self.good > 0 < self.bad:

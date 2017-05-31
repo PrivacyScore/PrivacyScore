@@ -2,12 +2,12 @@ class Rating:
     """
     A rating.
 
-    It can be critical, bad, warning or good.
+    It can be critical, bad, warning, good or doubleplusgood.
     """
     rating: str
     influences_ranking: bool
 
-    ORDERING = ['critical', 'bad', 'warning', 'good']
+    ORDERING = ['critical', 'bad', 'warning', 'good', 'doubleplusgood']
 
     def __init__(self, rating: str, influences_ranking: bool = True):
         self.rating = rating

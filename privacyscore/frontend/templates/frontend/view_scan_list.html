@@ -14,16 +14,16 @@
   text-align: right;
 }
 
-.rating-good {
-  background: #00C022;
+.rating-doubleplusgood, .rating-good {
+  background: #27FB6B;
 }
 
 .rating-warning {
-  background: #FFC517;
+  background: #FCAB10;
 }
 
 .rating-bad {
-  background: #FF2C17;
+  background: #E02C2C;
 }
 </style>
 {% endblock additional_css %}
@@ -134,6 +134,9 @@
               {%  blocktrans with overall_good=rating.overall_good good=rating.good overall_total=rating.overall_total total=rating.total %}
                 ({{ good }}/{{ total }} [{{ overall_good }}/{{ overall_total }}] good)
               {% endblocktrans %}
+              {% if rating.group_rating.rating == 'doubleplusgood' %}
+                <i class="fa fa-star-o" aria-hidden="true"></i>
+              {% endif %}
             </td>
           {% else %}
             <td>
