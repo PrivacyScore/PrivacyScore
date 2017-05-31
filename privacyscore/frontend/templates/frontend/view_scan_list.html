@@ -131,8 +131,8 @@
           {% if rating %}
             <td class="rating-{{ rating.group_rating }}">
               {{ rating.group_rating }}
-              {%  blocktrans with good=rating.good total=rating.good|add:rating.bad %}
-                ({{ good }}/{{ total }} good)
+              {%  blocktrans with overall_good=rating.overall_good good=rating.good overall_total=rating.overall_total total=rating.total %}
+                ({{ good }}/{{ total }} [{{ overall_good }}/{{ overall_total }}] good)
               {% endblocktrans %}
             </td>
           {% else %}

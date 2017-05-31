@@ -13,14 +13,39 @@ class GroupEvaluation:
         self.classifications = classifications
 
     @property
+    def overall_total(self):
+        """Total plus attributes not influencing rating."""
+        return sum(1 for c in self.classifications)
+
+    @property
+    def total(self):
+        return sum(1 for c in self.classifications
+                   if c.influences_ranking)
+
+    @property
+    def overall_good(self):
+        return sum(1 for c in self.classifications
+                   if c == Rating('good'))
+
+    @property
     def good(self):
         return sum(1 for c in self.classifications
                    if c == Rating('good') and c.influences_ranking)
 
     @property
+    def overall_bad(self):
+        return sum(1 for c in self.classifications
+                   if c == Rating('bad'))
+
+    @property
     def bad(self):
         return sum(1 for c in self.classifications
                    if c == Rating('bad') and c.influences_ranking)
+
+    @property
+    def overall_neutral(self):
+        return sum(1 for c in self.classifications if c == Rating('neutral')
+                   if c == Rating('neutral'))
 
     @property
     def neutral(self):
