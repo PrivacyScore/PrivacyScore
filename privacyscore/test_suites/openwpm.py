@@ -57,11 +57,9 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
     with open(os.path.join(scan_dir, 'screenshots/screenshot.png'), 'rb') as f:
         screenshot = f.read()
 
-    # cropped screenshot
-    img = Image.open(BytesIO(screenshot))
+    # cropped and pixelized screenshot
     out = BytesIO()
-    img = img.crop((0, 0, 1200, 600)).resize((120, 60))
-    img.save(out, format='png')
+    pixelize_screenshot(BytesIO(screenshot), out)
     cropped_screenshot = out.getvalue()
 
     # recursively delete scan folder
@@ -299,3 +297,29 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
     os.remove(temp_db_file)
 
     return scantosave
+
+
+def pixelize_screenshot(screenshot, screenshot_pixelized, target_width=320, pixelsize=5):
+    """
+    Thumbnail a screenshot to `target_width` and pixelize it.
+    
+    :param screenshot: Screenshot to be thumbnailed in pixelized
+    :param screenshot_pixelized: File to which the result should be written
+    :param target_width: Width of the final thumbnail
+    :param pixelsize: Size of the final pixels
+    :return: None
+    """
+    if target_width % pixelsize != 0:
+        raise ValueError("pixelsize must divide target_width")
+
+    img = Image.open(screenshot)
+    width, height = img.size
+    if height > width:
+        img = img.crop((0, 0, width, width))
+        height = width
+    undersampling_width = target_width // pixelsize
+    ratio = width / height
+    new_height = int(undersampling_width / ratio)
+    img = img.resize((undersampling_width, new_height), Image.BICUBIC)
+    img = img.resize((target_width, new_height * pixelsize), Image.NEAREST)
+    img.save(screenshot_pixelized, format='png')
