@@ -174,8 +174,9 @@ class ScanList(models.Model):
         """Schedule a scan of the list if requirements are fulfilled."""
         for site in self.sites.all():
             site.scan()
-        self.editable = False
-        self.save()
+        if self.editable:
+            self.editable = False
+            self.save(update_fields=('editable',))
 
 
 class SiteQuerySet(models.QuerySet):
@@ -185,15 +186,12 @@ class SiteQuerySet(models.QuerySet):
                 SELECT "{Scan}"."end"
                 FROM "{Scan}"
                 WHERE
-                    "{Scan}"."site_id" IN
-                        (SELECT "{Site_ScanLists}"."site_id"
-                         FROM "{Site_ScanLists}"
-                         WHERE "{Site_ScanLists}"."scanlist_id" = "{Scan}"."id"
-                         GROUP BY "{Site_ScanLists}"."site_id")
+                    "{Scan}"."site_id" = "{Site}"."id"
                 ORDER BY "{Scan}"."end" DESC
                 LIMIT 1
                 '''.format(
                     Scan=Scan._meta.db_table,
+                    Site=Site._meta.db_table,
                     Site_ScanLists=Site.scan_lists.through._meta.db_table), ()))
 
     def annotate_most_recent_scan_end(self) -> 'SiteQuerySet':
