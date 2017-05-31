@@ -1,6 +1,7 @@
 import os
 import random
 import string
+from collections import OrderedDict
 from datetime import datetime
 from typing import Iterable, Tuple, Union
 from uuid import uuid4
@@ -15,6 +16,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 
 from privacyscore.evaluation.result_groups import RESULT_GROUPS, group_result
+from privacyscore.evaluation.site_evaluation import SiteEvaluation
 
 
 def generate_random_token() -> str:
@@ -445,25 +447,12 @@ class ScanResult(models.Model):
         result = group_result(self.result, RESULT_GROUPS)
         return describe_result(result)
 
-    @cached_property
-    def evaluate(self) -> dict:
+    def evaluate(self, groups: OrderedDict, group_order: list) -> SiteEvaluation:
         """Evaluate the result."""
         from privacyscore.evaluation.evaluation import evaluate_result
 
-        result = group_result(self.result, RESULT_GROUPS)
-        return evaluate_result(result)
-
-    def evaluate_by_groups(self) -> Iterable:
-        """
-        Evaluate the result and yield a result for each configured group in the
-        order they are configured.
-        """
-        evaluated = self.evaluate
-        for group, data in RESULT_GROUPS.items():
-            if group not in evaluated.keys():
-                yield data['name'], None
-                continue
-            yield data['name'], evaluated[group]
+        result = group_result(self.result, groups)
+        return evaluate_result(result, groups, group_order)
 
 
 class ScanError(models.Model):

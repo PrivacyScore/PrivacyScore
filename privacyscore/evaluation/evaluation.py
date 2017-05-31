@@ -7,9 +7,11 @@ bad if all keys are rated bad.
 
 This is only a draft and will most likely be changed essentially later.
 """
+from collections import OrderedDict
 from typing import Union
 
 from privacyscore.evaluation.group_evaluation import GroupEvaluation
+from privacyscore.evaluation.site_evaluation import SiteEvaluation
 
 
 # The mapping specifies a function for each key to rate its value.
@@ -40,7 +42,7 @@ MAPPING = {
 }
 
 
-def evaluate_result(result: dict) -> dict:
+def evaluate_result(result: dict, groups: OrderedDict, group_order: list) -> dict:
     """
     Evaluate a complete result dictionary.
 
@@ -49,10 +51,11 @@ def evaluate_result(result: dict) -> dict:
     of neutral results as well as the overall group rating and the ratio of
     good results.
     """
-    return {
+    evaluated_groups = {
         group: evaluate_group(group, results)
         for group, results in result.items()
     }
+    return SiteEvaluation(evaluated_groups, group_order)
 
 
 def evaluate_group(group: str, results: dict) -> GroupEvaluation:

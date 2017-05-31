@@ -53,6 +53,7 @@ def legal(request: HttpRequest) -> HttpResponse:
     return render(request, 'frontend/legal.html')
 
 
+# TODO: Rename function (i.e. create_scan_list)
 def scan_list(request: HttpRequest) -> HttpResponse:
     return render(request, 'frontend/list.html')
 
@@ -89,10 +90,17 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     scan_list.views = F('views') + 1
     scan_list.save(update_fields=('views',))
 
+    sites = scan_list.sites.annotate_most_recent_scan_end() \
+        .prefetch_last_scan().prefetch_column_values(scan_list)
+    # add evaluations to sites
+    for site in sites:
+        site.evaluated = site.last_scan.result.evaluate(RESULT_GROUPS, ['general', 'ssl', 'privacy'])
+
+    sites = sorted(sites, key=lambda v: v.evaluated, reverse=True)
+
     return render(request, 'frontend/view_scan_list.html', {
         'scan_list': scan_list,
-        'sites': scan_list.sites.annotate_most_recent_scan_end(
-            ).prefetch_last_scan().prefetch_column_values(scan_list),
+        'sites': sites,
         'result_groups': [group['name'] for group in RESULT_GROUPS.values()],
     })
 
