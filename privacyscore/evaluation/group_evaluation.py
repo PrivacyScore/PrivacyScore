@@ -34,6 +34,7 @@ class GroupEvaluation:
         total_rated = self.good + self.bad
         if total_rated:
             return self.good / total_rated
+        return 1
 
     def __str__(self) -> str:
         return '{}: {} good, {} neutral, {} bad'.format(
@@ -43,37 +44,16 @@ class GroupEvaluation:
         return '<GroupEvaluation {}>'.format(str(self))
 
     def __eq__(self, other) -> bool:
-        return (self.good == other.good and
-                self.group_rating == other.group_rating)
+        return self.group_rating == other.group_rating
 
     def __lt__(self, other) -> bool:
-        if self.group_rating < other.group_rating:
-            return True
-        if self.group_rating > other.group_rating:
-            return False
-        # Rating is identical, compare good count
-        return self.good < other.good
+        return self.group_rating < other.group_rating
 
     def __le__(self, other) -> bool:
-        if self.group_rating < other.group_rating:
-            return True
-        if self.group_rating > other.group_rating:
-            return False
-        # Rating is identical, compare good count
-        return self.good <= other.good
+        return self.group_rating <= other.group_rating
 
     def __gt__(self, other) -> bool:
-        if self.group_rating > other.group_rating:
-            return True
-        if self.group_rating < other.group_rating:
-            return False
-        # Rating is identical, compare good count
-        return self.good > other.good
+        return self.group_rating > other.group_rating
 
     def __ge__(self, other) -> bool:
-        if self.group_rating > other.group_rating:
-            return True
-        if self.group_rating < other.group_rating:
-            return False
-        # Rating is identical, compare good count
-        return self.good >= other.good
+        return self.group_rating >= other.group_rating

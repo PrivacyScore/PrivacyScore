@@ -13,7 +13,12 @@ class RatingTestCase(TestCase):
         d = Rating('good')
         e = Rating('good')
 
+        self.assertTrue(a == a)
+        self.assertTrue(a <= a)
+        self.assertTrue(a >= a)
+        self.assertFalse(a != a)
         self.assertTrue(a < b)
+        self.assertTrue(a <= b)
         self.assertTrue(a < d)
         self.assertTrue(d <= e)
         self.assertTrue(d >= e)
@@ -27,6 +32,8 @@ class RatingTestCase(TestCase):
         c = GroupEvaluation(0, 0, 1)
         d = GroupEvaluation(3, 1, 0)
         e = GroupEvaluation(0, 0, 0)
+        f = GroupEvaluation(2, 5, 0)
+        g = GroupEvaluation(2, 20, 0)
 
         self.assertFalse(a > a)
         self.assertFalse(a < a)
@@ -44,33 +51,37 @@ class RatingTestCase(TestCase):
         self.assertFalse(b == a)
         self.assertFalse(a == b)
 
-        self.assertTrue(a != c)
+        self.assertTrue(a == c)
 
         self.assertTrue(e > d)
         self.assertFalse(e < d)
         self.assertTrue(d < e)
 
+        self.assertTrue(f == g)
+        self.assertTrue(f >= g)
+        self.assertTrue(f <= g)
+        self.assertFalse(f < g)
+        self.assertFalse(g < f)
+        self.assertTrue(g <= f)
+        self.assertTrue(g >= f)
+        self.assertFalse(g > f)
+
     def test_site_evaluation_comparison(self):
         a = SiteEvaluation({
-            'foo': GroupEvaluation(1, 0, 0),
-            'bar': GroupEvaluation(0, 1, 0),
-        }, ['foo', 'bar'])
+            'eav': GroupEvaluation(5, 0, 0),
+            'third': GroupEvaluation(7, 0, 0),
+            'prov': GroupEvaluation(2, 8, 0),
+        }, ['eav', 'third', 'prov'])
         b = SiteEvaluation({
-            'foo': GroupEvaluation(2, 0, 0),
-            'bar': GroupEvaluation(0, 1, 0),
-        }, ['foo', 'bar'])
+            'eav': GroupEvaluation(1, 4, 0),
+            'third': GroupEvaluation(7, 0, 0),
+            'prov': GroupEvaluation(10, 0, 0),
+        }, ['eav', 'third', 'prov'])
         c = SiteEvaluation({
-            'foo': GroupEvaluation(2, 2, 0),
-            'bar': GroupEvaluation(0, 1, 0),
-        }, ['foo', 'bar'])
-        d = SiteEvaluation({
-            'foo': GroupEvaluation(3, 1, 0),
-            'bar': GroupEvaluation(4, 4, 0),
-        }, ['foo', 'bar'])
-        e = SiteEvaluation({'general': GroupEvaluation(3, 1, 0), 'privacy': GroupEvaluation(4, 4, 0), 'ssl': GroupEvaluation(2, 0, 0)}, ['general', 'privacy', 'ssl'])
-        f = SiteEvaluation({'general': GroupEvaluation(4, 0, 0), 'privacy': GroupEvaluation(0, 0, 0), 'ssl': GroupEvaluation(1, 1, 0)}, ['general', 'privacy', 'ssl'])
-        g = SiteEvaluation({'general': GroupEvaluation(3, 0, 0), 'privacy': GroupEvaluation(0, 0, 0), 'ssl': GroupEvaluation(1, 1, 0)}, ['general', 'privacy', 'ssl'])
-        h = SiteEvaluation({'general': GroupEvaluation(2, 1, 0), 'privacy': GroupEvaluation(0, 0, 0), 'ssl': GroupEvaluation(2, 0, 0)}, ['general', 'privacy', 'ssl'])
+            'eav': GroupEvaluation(4, 1, 0),
+            'third': GroupEvaluation(2, 7, 0),
+            'prov': GroupEvaluation(8, 2, 0),
+        }, ['eav', 'third', 'prov'])
 
 
         self.assertTrue(a >= a)
@@ -78,28 +89,17 @@ class RatingTestCase(TestCase):
         self.assertFalse(a != a)
         self.assertFalse(a < a)
         self.assertFalse(a > a)
-        self.assertTrue(b > a)
-        self.assertFalse(b < a)
-        self.assertTrue(b >= a)
-        self.assertFalse(b <= a)
-        self.assertTrue(a < b)
-        self.assertFalse(a > b)
-        self.assertTrue(a <= b)
-        self.assertTrue(c < a < b)
+        self.assertTrue(b < a)
+        self.assertFalse(b > a)
+        self.assertTrue(b <= a)
+        self.assertFalse(b >= a)
+        self.assertTrue(a > b)
+        self.assertFalse(a < b)
+        self.assertTrue(a >= b)
         self.assertTrue(a != b)
 
-        self.assertTrue(e != f)
-        self.assertTrue(f > e)
-        self.assertTrue(f >= e)
-        self.assertFalse(f < e)
-        self.assertFalse(f <= e)
-
-        self.assertFalse(g == h)
-        self.assertTrue(g != h)
-        self.assertTrue(g >= h)
-        self.assertFalse(g <= h)
-        self.assertFalse(h > g)
-        self.assertTrue(g > h)
-        self.assertFalse(h >= g)
-        self.assertTrue(h < g)
-        self.assertTrue(h <= g)
+        self.assertTrue(a > c)
+        self.assertTrue(b > c)
+        self.assertTrue(b >= c)
+        self.assertFalse(b < c)
+        self.assertFalse(b <= c)

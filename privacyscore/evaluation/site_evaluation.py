@@ -28,51 +28,53 @@ class SiteEvaluation:
 
     def __eq__(self, other) -> bool:
         for group in self.group_order:
-            if self.evaluations[group] != other.evaluations[group]:
+            if (self.evaluations[group] != other.evaluations[group] or
+                    self.evaluations[group].good_ratio != other.evaluations[group].good_ratio):
                 return False
         return True
 
     def __lt__(self, other):
         for group in self.group_order:
-            if self.evaluations[group] != other.evaluations[group]:
-                return self.evaluations[group] < other.evaluations[group]
-            # group evaluations are identical, next group needs to be compared
+            if self.evaluations[group] < other.evaluations[group]:
+                return True
+            elif self.evaluations[group] > other.evaluations[group]:
+                return False
 
-        # All groups were completely identical -- not truly less
-        return False
+        # All group ratings were equal -- compare good ratios
+        for group in self.group_order:
+            if self.evaluations[group].good_ratio >= other.evaluations[group].good_ratio:
+                # not truly less
+                return False
+
+        # all good ratios were truly less
+        return True
 
     def __le__(self, other):
-        for group in self.group_order:
-            if self.evaluations[group] != other.evaluations[group]:
-                return self.evaluations[group] < other.evaluations[group]
-            # group evaluations are identical, next group needs to be compared
-
-        # All groups were completely identical -- equal
-        return True
+        return self < other or self == other
 
     def __gt__(self, other):
         """
-        The groups are compared group-wise ordered by the given priority.
+        The groups are compared group-wise ordered by the given group priority.
+        If all groups are identical, the good ratios of the groups are compared.
         If a compared group is exactly identical, the next group is checked.
-        If they are not exactly identical, the current object is greater if and
-        only if the group evaluation is greater.
         """
         for group in self.group_order:
-            if self.evaluations[group] != other.evaluations[group]:
-                return self.evaluations[group] > other.evaluations[group]
-            # group evaluations are identical, next group needs to be compared
+            if self.evaluations[group] > other.evaluations[group]:
+                return True
+            elif self.evaluations[group] < other.evaluations[group]:
+                return False
 
-        # All groups were completely identical -- not truly greater
-        return False
+        # All group ratings were equal -- compare good ratios
+        for group in self.group_order:
+            if self.evaluations[group].good_ratio <= other.evaluations[group].good_ratio:
+                # not truly greater
+                return False
+
+        # all good ratios were truly greater
+        return True
 
     def __ge__(self, other):
-        for group in self.group_order:
-            if self.evaluations[group] != other.evaluations[group]:
-                return self.evaluations[group] > other.evaluations[group]
-            # group evaluations are identical, next group needs to be compared
-
-        # All groups were completely identical -- equal
-        return True
+        return self > other or self == other
 
     def __iter__(self):
         for group in self.group_order:
