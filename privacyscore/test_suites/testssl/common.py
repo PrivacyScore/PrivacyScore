@@ -22,18 +22,25 @@ def test_site(url: str, previous_results: dict, test_type: str) -> Dict[str, Dic
 
     args = [
         TESTSSL_PATH,
-        '-p', '-h', '-s', '-f', '-U', '-S', '-P',
+        '-p', # enable all checks for presence of SSLx.x and TLSx.x protocols
+        '-h', # enable all checks for security-relevant HTTP headers
+        '-s', # tests certain lists of cipher suites by strength
+        '-f', # checks (perfect) forward secrecy settings
+        '-U', # tests all (of the following) vulnerabilities (if applicable)
+        '-S', # displays the server's default picks and certificate info, e.g. used CA, trust chain, Sig Alg, DNS CAA, OCSP Stapling
+        '-P', # displays the server's picks: protocol+cipher, e.g., cipher order, security of negotiated protocol and cipher
         '--jsonfile-pretty', result_file,
         '--warnings=batch',
         '--openssl-timeout', '10',
-        '--fast',
-        '--ip', 'one',
+        '--sneaky', # use a harmless user agent instead of "SSL TESTER"
+        '--fast', # skip some time-consuming checks
+        '--ip', 'one', # do not scan all IPs returned by the DNS A query, but only the first one
     ]
     if test_type == 'mx':
         args.append('--mx')
     
     args.append(hostname)
-    call(args, timeout=60, stdout=DEVNULL, stderr=DEVNULL)
+    call(args, stdout=DEVNULL, stderr=DEVNULL)
 
     # exception when file does not exist.
     with open(result_file, 'rb') as f:
