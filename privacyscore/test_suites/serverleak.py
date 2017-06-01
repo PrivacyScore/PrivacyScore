@@ -3,6 +3,7 @@ Test for common server leaks.
 """
 import json
 import requests
+from requests.models import Response
 from typing import Dict, Union
 from urllib.parse import urlparse
 
@@ -19,7 +20,7 @@ TRIALS = [
 
 
 def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str, bytes]]]:
-    leaks = []
+    raw_requests = {}
 
     # determine hostname
     parsed_url = urlparse(url)
@@ -27,18 +28,34 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
     for trial, pattern in TRIALS:
         response = requests.get('{}://{}/{}'.format(
             parsed_url.scheme, parsed_url.netloc, trial))
-        if response.status_code == 200:
-            if pattern in response.text:
-                leaks.append(trial)
-    return {
-        'leaks': {
+        raw_requests[trial] = {
             'mime_type': 'application/json',
-            'data': json.dumps(leaks).encode(),
+            'data': _response_to_json(response),
         }
-    }
+
+    return raw_requests
 
 
 def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[str, object]]:
-    return {
-        'leaks': json.loads(raw_data['leaks']['data'].decode()),
-    }
+    leaks = []
+
+    for trial, pattern in TRIALS:
+        if trial not in raw_data:
+            # Test raw data too old or particular request failed.
+            continue
+        response = json.loads(raw_data[trial]['data'].decode())
+        if response['status_code'] == 200:
+            if pattern in response['text']:
+                leaks.append(trial)
+
+    return leaks
+
+
+def _response_to_json(resp: Response) -> bytes:
+    """Generate a json byte string from a response received through requests."""
+    return json.dumps({
+        'text': resp.text,
+        'status_code': resp.status_code,
+        'headers': dict(resp.headers),
+        'url': resp.url,
+    }).encode()
