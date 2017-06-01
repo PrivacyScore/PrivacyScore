@@ -22,6 +22,7 @@ def test_site(url: str, previous_results: dict, test_type: str) -> Dict[str, Dic
 
     args = [
         TESTSSL_PATH,
+        '-p', '-h', '-s', '-f', '-U', '-S', '-P',
         '--jsonfile-pretty', result_file,
         '--warnings=batch',
         '--openssl-timeout', '10',
