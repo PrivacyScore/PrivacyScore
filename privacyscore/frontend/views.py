@@ -100,9 +100,13 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         .prefetch_last_scan().prefetch_column_values(scan_list)
     # add evaluations to sites
     for site in sites:
+        site.evaluated = None
         if not site.last_scan:
             continue
-        site.evaluated = site.last_scan.result.evaluate(RESULT_GROUPS, ['general', 'ssl', 'privacy'])[0]
+        result = site.last_scan.result_or_none
+        if not result:
+            continue
+        site.evaluated = result.evaluate(RESULT_GROUPS, ['general', 'ssl', 'privacy'])[0]
 
     sites = sorted(sites, key=lambda v: v.evaluated, reverse=True)
 
@@ -134,8 +138,8 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
         # TODO: groups not statically
         'groups_descriptions': (
             (RESULT_GROUPS[group]['name'], val) for group, val in
-            site.last_scan.result.evaluate(RESULT_GROUPS, ['general', 'privacy', 'ssl'])[1].items()
-        ) if site.last_scan else None,
+            site.last_scan.result_or_none.evaluate(RESULT_GROUPS, ['general', 'privacy', 'ssl'])[1].items()
+        ) if site.last_scan and site.last_scan.result_or_none else None,
     })
 
 

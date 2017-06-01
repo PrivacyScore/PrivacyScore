@@ -374,6 +374,13 @@ class Scan(models.Model):
     def __str__(self) -> str:
         return '{}: {}'.format(str(self.site), self.start)
 
+    @cached_property
+    def result_or_none(self):
+        try:
+            return self.result
+        except ScanResult.DoesNotExist:
+            return None
+
 
 class RawScanResult(models.Model):
     """Raw scan result of a test."""
