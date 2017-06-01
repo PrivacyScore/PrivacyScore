@@ -16,7 +16,7 @@ class Timeout:
         self.seconds = seconds
 
     def __enter__(self):
-        def handle_timeout(self, signum, frame):
+        def handle_timeout(signum, frame):
             raise TimeoutError
 
         signal.signal(signal.SIGALRM, handle_timeout)
