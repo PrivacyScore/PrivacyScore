@@ -13,6 +13,7 @@ class SiteEvaluation:
     """
     # evaluations  : Dict[str, GroupEvaluation]  # GroupEvaluation for each group
     # group_order  : list  # The priority order of the groups
+    rateable = True
 
     def __init__(self, evaluations: Dict[str, GroupEvaluation], group_order: list):
         self.evaluations = evaluations
@@ -27,7 +28,8 @@ class SiteEvaluation:
         return '<SiteEvaluation {}>'.format(str(self))
 
     def __eq__(self, other) -> bool:
-        if not isinstance(other, self.__class__):
+        if (self.rateable and not other.rateable or
+                other.rateable and not self.rateable):
             return False
         for group in self.group_order:
             if (self.evaluations[group] != other.evaluations[group] or
@@ -36,8 +38,10 @@ class SiteEvaluation:
         return True
 
     def __lt__(self, other):
-        if not isinstance(other, self.__class__):
+        if self.rateable and not other.rateable:
             return False
+        if not self.rateable and other.rateable:
+            return True
         for group in self.group_order:
             if self.evaluations[group] < other.evaluations[group]:
                 return True
@@ -54,8 +58,6 @@ class SiteEvaluation:
         return True
 
     def __le__(self, other):
-        if not isinstance(other, self.__class__):
-            return False
         return self < other or self == other
 
     def __gt__(self, other):
@@ -64,8 +66,10 @@ class SiteEvaluation:
         If all groups are identical, the good ratios of the groups are compared.
         If a compared group is exactly identical, the next group is checked.
         """
-        if not isinstance(other, self.__class__):
+        if self.rateable and not other.rateable:
             return True
+        if not self.rateable and other.rateable:
+            return False
         for group in self.group_order:
             if self.evaluations[group] > other.evaluations[group]:
                 return True
@@ -82,10 +86,17 @@ class SiteEvaluation:
         return True
 
     def __ge__(self, other):
-        if not isinstance(other, self.__class__):
-            return True
         return self > other or self == other
 
     def __iter__(self):
         for group in self.group_order:
             yield group, self.evaluations[group]
+
+
+class UnrateableSiteEvaluation(SiteEvaluation):
+    """A site evaluation which is not rateable."""
+    rateable = False
+
+
+    def __init__(self):
+        super().__init__({}, [])

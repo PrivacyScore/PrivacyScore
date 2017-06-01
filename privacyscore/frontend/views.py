@@ -11,6 +11,7 @@ from django.views.decorators.http import require_POST
 
 from privacyscore.backend.models import ListColumn, ListColumnValue, Scan, ScanList, Site, ScanResult
 from privacyscore.evaluation.result_groups import RESULT_GROUPS
+from privacyscore.evaluation.site_evaluation import UnrateableSiteEvaluation
 from privacyscore.frontend.forms import SingleSiteForm
 
 
@@ -100,7 +101,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         .prefetch_last_scan().prefetch_column_values(scan_list)
     # add evaluations to sites
     for site in sites:
-        site.evaluated = None
+        site.evaluated = UnrateableSiteEvaluation()
         if not site.last_scan:
             continue
         result = site.last_scan.result_or_none
