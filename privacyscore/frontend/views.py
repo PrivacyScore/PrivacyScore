@@ -7,6 +7,7 @@ from django.db.models import Count, F, Prefetch, Q
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_POST
 
 from privacyscore.backend.models import ListColumn, ListColumnValue, Scan, ScanList, Site, ScanResult
 from privacyscore.evaluation.result_groups import RESULT_GROUPS
@@ -100,6 +101,8 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         .prefetch_last_scan().prefetch_column_values(scan_list)
     # add evaluations to sites
     for site in sites:
+        if not site.last_scan:
+            continue
         site.evaluated = site.last_scan.result.evaluate(RESULT_GROUPS, ['general', 'ssl', 'privacy'])[0]
 
     sites = sorted(sites, key=lambda v: v.evaluated, reverse=True)
@@ -132,16 +135,18 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
         # TODO: groups not statically
         'groups_descriptions': (
             (RESULT_GROUPS[group]['name'], val) for group, val in
-        site.last_scan.result.evaluate(RESULT_GROUPS, ['general', 'privacy', 'ssl'])[1].items()),
+            site.last_scan.result.evaluate(RESULT_GROUPS, ['general', 'privacy', 'ssl'])[1].items()
+        ) if site.last_scan else None,
     })
 
 
+@require_POST
 def scan_site(request: HttpRequest, site_id: Union[int, None] = None) -> HttpResponse:
     """Schedule the scan of a site."""
     if site_id:
         site = get_object_or_404(Site, pk=site_id)
-    if request.method == 'POST':
-        # no site_id supplied, used post
+    else:
+        # no site_id supplied
         form = SingleSiteForm(request.POST)
         if form.is_valid():
             site = Site.objects.get_or_create(url=form.cleaned_data.get('url'))[0]
