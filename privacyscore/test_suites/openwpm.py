@@ -37,7 +37,7 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
         OPENWPM_WRAPPER_PATH,
         url,
         scan_dir,
-    ], timeout=60, stdout=DEVNULL, stderr=DEVNULL,
+    ], timeout=120, stdout=DEVNULL, stderr=DEVNULL,
          cwd=settings.SCAN_TEST_BASEPATH, env={
              'VIRTUAL_ENV': virtualenv_path,
              'PATH': '{}:{}'.format(
@@ -56,7 +56,11 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
     # screenshot
     with open(os.path.join(scan_dir, 'screenshots/screenshot.png'), 'rb') as f:
         screenshot = f.read()
-
+    
+    # html source
+    with open(os.path.join(scan_dir, 'sources/source.html'), 'rb') as f:
+        html_source = f.read()
+    
     # cropped and pixelized screenshot
     out = BytesIO()
     pixelize_screenshot(BytesIO(screenshot), out)
@@ -81,6 +85,10 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
         'cropped_screenshot': {
             'mime_type': 'image/png',
             'data': cropped_screenshot,
+        },
+        'html_source': {
+            'mime_type': 'text/html',
+            'data': html_source,
         },
         'log': {
             'mime_type': 'text/plain',
@@ -299,7 +307,7 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
     return scantosave
 
 
-def pixelize_screenshot(screenshot, screenshot_pixelized, target_width=320, pixelsize=5):
+def pixelize_screenshot(screenshot, screenshot_pixelized, target_width=320, pixelsize=3):
     """
     Thumbnail a screenshot to `target_width` and pixelize it.
     
