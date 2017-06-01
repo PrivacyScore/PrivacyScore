@@ -40,5 +40,5 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
 
 def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[str, object]]:
     return {
-        'leaks': json.loads(raw_data['leaks']['data']),
+        'leaks': json.loads(raw_data['leaks']['data'].decode()),
     }
