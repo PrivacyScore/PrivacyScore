@@ -274,13 +274,13 @@ class Site(models.Model):
         if hasattr(self, 'last_scan__end_or_null'):
             last_end = self.last_scan__end_or_null
         else:
-            previous_scans = self.scans.order_by('-end')
-            if len(previous_scans) > 0:
+            most_recent_scan = self.scans.order_by('end').last()
+            if most_recent_scan:
                 # at least one scan has been scheduled previously.
-                most_recent_scan = previous_scans[0]
                 last_end = most_recent_scan.end
-        if (not last_end or
+        if (last_end and
                 now - last_end < settings.SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN):
+            # rate limit scan
             return False
 
         # create Scan
