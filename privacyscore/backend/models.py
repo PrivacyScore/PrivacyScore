@@ -208,6 +208,25 @@ class SiteQuerySet(models.QuerySet):
                     Scan=Scan._meta.db_table,
                     Site=Site._meta.db_table), ()))
 
+    def annotate_most_recent_scan_error_count(self) -> 'ScanListQuerySet':
+        return self.annotate(
+            last_scan__error_count=RawSQL('''
+                SELECT COUNT("id")
+                FROM "{ScanError}"
+                WHERE
+                    "{ScanError}"."scan_id" = (
+                        SELECT "{Scan}"."id"
+                        FROM "{Scan}"
+                        WHERE
+                            "{Scan}"."end" IS NOT NULL AND
+                            "{Scan}"."site_id" = "{Site}"."id"
+                        ORDER BY "{Scan}"."end" DESC
+                        LIMIT 1)
+                '''.format(
+                    Scan=Scan._meta.db_table,
+                    Site=Site._meta.db_table,
+                    ScanError=ScanError._meta.db_table), ()))
+
     def prefetch_last_scan(self) -> 'SiteQuerySet':
         return self.prefetch_related(
             # TODO: Prefetching **all** scans gets a huge overhead, limit to one each

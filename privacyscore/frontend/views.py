@@ -98,7 +98,8 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     scan_list.save(update_fields=('views',))
 
     sites = scan_list.sites.annotate_most_recent_scan_end() \
-        .prefetch_last_scan().prefetch_column_values(scan_list)
+        .annotate_most_recent_scan_error_count().prefetch_last_scan() \
+        .prefetch_column_values(scan_list)
     # add evaluations to sites
     for site in sites:
         site.evaluated = UnrateableSiteEvaluation()

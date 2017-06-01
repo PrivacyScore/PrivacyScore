@@ -115,6 +115,7 @@
         <th>{{ group }}</th>
       {% endfor %}
       <th class="align-right">{% trans 'Scan time' %}</th>
+      <th class="align-right">{% trans 'Failures' %}</th>
     </tr>
 
     {% for site in sites %}
@@ -147,6 +148,7 @@
           <td class="align-center" colspan="{{ result_groups|length }}">{% trans 'n/a' %}</td>
         {% endfor %}
         <td class="align-right">{% if site.last_scan_datetime is not None %}{{ site.last_scan_datetime }}{% else %}--{% endif %}</td>
+        <td class="align-right">{{ site.last_scan__error_count }}</td>
       </tr>
     {% endfor %}
   </table>
