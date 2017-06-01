@@ -307,7 +307,7 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
     return scantosave
 
 
-def pixelize_screenshot(screenshot, screenshot_pixelized, target_width=320, pixelsize=3):
+def pixelize_screenshot(screenshot, screenshot_pixelized, target_width=390, pixelsize=3):
     """
     Thumbnail a screenshot to `target_width` and pixelize it.
     
