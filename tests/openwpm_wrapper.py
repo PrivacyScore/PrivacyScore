@@ -63,6 +63,7 @@ def scan_site(site):
             browser_params[i]['headless'] = True
             browser_params[i]['bot_mitigation'] = True # needed to ensure we look more "normal"
             browser_params[i]['http_instrument'] = True
+            browser_params[i]['js_instrument'] = True
 
         # Personalize manager parameters
         manager_params['data_directory'] = SCAN_DIR
@@ -88,10 +89,10 @@ def scan_site(site):
         command_sequence.get(sleep=10, timeout=60) # 10 sec sleep so everything settles down
 
         # save a screenshot
-        command_sequence.save_screenshot('screenshot')
-
+        command_sequence.save_screenshot('screenshot', 5)
+        command_sequence.dump_page_source('source', 5)
         command_sequence.run_custom_function(determine_final_url, ('final_urls', site)) # needed to determine whether site redirects to https
-        command_sequence.dump_profile_cookies(120)
+        command_sequence.dump_profile_cookies(30)
         # Execute command sequence
         manager.execute_command_sequence(command_sequence, index='**') # ** for synchronized Browsers
 
