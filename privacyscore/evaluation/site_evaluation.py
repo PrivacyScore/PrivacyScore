@@ -11,8 +11,8 @@ class SiteEvaluation:
     It is required that each group defined in groups is present in evaluations
     and vice versa.
     """
-    evaluations: Dict[str, GroupEvaluation]  # GroupEvaluation for each group
-    group_order: list  # The priority order of the groups
+    evaluations  # : Dict[str, GroupEvaluation]  # GroupEvaluation for each group
+    group_order  # : list  # The priority order of the groups
 
     def __init__(self, evaluations: Dict[str, GroupEvaluation], group_order: list):
         self.evaluations = evaluations
