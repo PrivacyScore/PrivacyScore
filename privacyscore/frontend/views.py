@@ -25,7 +25,6 @@ def browse(request: HttpRequest) -> HttpResponse:
     scan_lists = ScanList.objects.annotate(sites__count=Count('sites')).filter(
         editable=False,
         private=False,
-        sites__count__gte=2  # not single site
     ) .order_by('-views', 'name').prefetch_tags().annotate_most_recent_scan_end()
 
     search = request.GET.get('search')

@@ -23,7 +23,6 @@ def get_scan_lists(request: Request) -> Response:
     scan_lists = ScanList.objects.annotate(sites__count=Count('sites')).filter(
         editable=False,
         private=False,
-        sites__count__gte=2  # not single site
     )
 
     return Response([l.as_dict() for l in scan_lists])
