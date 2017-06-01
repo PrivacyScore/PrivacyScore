@@ -1,4 +1,5 @@
 import signal
+import traceback
 from typing import List, Tuple
 
 from celery import chord, shared_task
@@ -94,7 +95,7 @@ def run_test(test_suite: str, test_parameters: dict, scan_pk: int, url: str, pre
                 raw_data, previous_results, **test_parameters)
             return test_suite.test_name, raw_data, processed
     except Exception as e:
-        return ':'.join([test_suite.test_name, str(e)])
+        return ':'.join([test_suite.test_name, traceback.format_exc()])
 
 
 # TODO: configure beat or similar to run this task frequently.
