@@ -1,3 +1,5 @@
+from typing import Union
+
 from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -8,10 +10,14 @@ from django.utils.translation import ugettext_lazy as _
 
 from privacyscore.backend.models import ListColumn, ListColumnValue, Scan, ScanList, Site, ScanResult
 from privacyscore.evaluation.result_groups import RESULT_GROUPS
+from privacyscore.frontend.forms import SingleSiteForm
 
 
 def index(request: HttpRequest) -> HttpResponse:
-    return render(request, 'frontend/index.html')
+    scan_form = SingleSiteForm()
+    return render(request, 'frontend/index.html', {
+        'scan_form': scan_form,
+    })
 
 
 def browse(request: HttpRequest) -> HttpResponse:
@@ -130,16 +136,26 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     })
 
 
-def scan_site(request: HttpRequest, site_id: int) -> HttpResponse:
-    """Schedule the scan of a scan list."""
-    scan_list = get_object_or_404(Site, pk=site_id)
-    if scan_list.scan():
+def scan_site(request: HttpRequest, site_id: Union[int, None] = None) -> HttpResponse:
+    """Schedule the scan of a site."""
+    if site_id:
+        site = get_object_or_404(Site, pk=site_id)
+    if request.method == 'POST':
+        # no site_id supplied, used post
+        form = SingleSiteForm(request.POST)
+        if form.is_valid():
+            site = Site.objects.get_or_create(url=form.cleaned_data.get('url'))[0]
+        else:
+            return render(request, 'frontend/create_site.html', {
+                'form': form,
+            })
+    if site.scan():
         messages.success(request,
-            _('Scan of the site habeen scheduled.'))
+            _('Scan of the site has been scheduled.'))
     else:
         messages.warning(request,
             _('The site has been scanned recently. No scan was scheduled.'))
-    return redirect(reverse('frontend:view_site', args=(site_id,)))
+    return redirect(reverse('frontend:view_site', args=(site.pk,)))
 
 
 def third_parties(request: HttpRequest) -> HttpResponse:

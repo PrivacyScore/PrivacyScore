@@ -1,0 +1,20 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+{% load i18n %}
+{% load widget_tweaks %}
+
+{% block title %}PrivacyScore{% endblock title %}
+
+{% block content %}
+  <form method="POST" action="{% url 'frontend:scan_site' %}">
+    {% csrf_token %}
+    {% render_field form.url class+='form-control' placeholder=form.url.label %}
+    {% for error in form.url.errors %}
+      <p>{{ error }}</p>
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+      <p>{{ error }}</p>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">{% trans 'Scan site' %}</button>
+  </form>
+{% endblock content %}
