@@ -4,8 +4,8 @@ class Rating:
 
     It can be critical, bad, warning, good or doubleplusgood.
     """
-    rating  # : str
-    influences_ranking  # : bool
+    # rating  : str
+    # influences_ranking  : bool
 
     ORDERING = ['critical', 'bad', 'warning', 'good', 'doubleplusgood']
 

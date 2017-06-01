@@ -7,7 +7,7 @@ class GroupEvaluation:
     """
     This class represents the evaluation of a group.
     """
-    classifications  # : List[Rating]
+    # classifications  : List[Rating]
 
     def __init__(self, classifications: List[Rating]):
         self.classifications = classifications
