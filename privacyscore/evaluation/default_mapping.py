@@ -28,6 +28,7 @@ MAPPING = {
     'privacy': [
         (('a_locations',), lambda v: describe_locations(_('web servers'), v[0])),
         (('mx_locations',), lambda v: describe_locations(_('mail servers'), v[0])),
+        (('a_locations','mx_locations',), lambda v: (_('The web servers have a different location than the mail servers.'), Rating('bad')) if set(v[0]) != set(v[1]) else None),
     ],
     'ssl': [
         (('pfs',),
