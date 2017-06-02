@@ -1,9 +1,13 @@
+from urllib.parse import urlparse
 from url_normalize import url_normalize
 
 
 def normalize_url(url: str) -> str:
     """Normalize an url and remove GET query."""
     normalized = url_normalize(url)
+    explicit_port = urlparse(normalized).port
+    if explicit_port:
+        normalized = normalized.replace(':{}'.format(explicit_port), '', 1)
     return normalized.split('?')[0]
 
 
