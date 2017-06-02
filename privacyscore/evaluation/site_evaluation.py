@@ -1,6 +1,7 @@
 from typing import Dict
 
 from privacyscore.evaluation.group_evaluation import GroupEvaluation
+from privacyscore.evaluation.rating import Rating
 
 
 class SiteEvaluation:
@@ -100,6 +101,8 @@ class SiteEvaluation:
 
     @property
     def rating(self):
+        if not self.evaluations:
+            return Rating('neutral')
         return min(self.evaluations.values()).group_rating
 
 
