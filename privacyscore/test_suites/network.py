@@ -26,6 +26,8 @@ def test_site(url: str, previous_results: dict, country_database_path: str) -> D
 
     # mx records
     mx_records = _mx_lookup(hostname)
+    if hostname.startswith('www.'):
+        mx_records += _mx_lookup(hostname[4:])
 
     # mx a-records
     mx_a_records = [(pref, _a_lookup(mx)) for pref, mx in mx_records]
