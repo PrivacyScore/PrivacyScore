@@ -50,12 +50,15 @@ class SiteEvaluation:
 
         # All group ratings were equal -- compare good ratios
         for group in self.group_order:
-            if self.evaluations[group].good_ratio >= other.evaluations[group].good_ratio:
-                # not truly less
+            if self.evaluations[group].good_ratio < other.evaluations[group].good_ratio:
+                # less
+                return True
+            elif self.evaluations[group].good_ratio > other.evaluations[group].good_ratio:
+                # greater
                 return False
 
-        # all good ratios were truly less
-        return True
+        # all good ratios were equal
+        return False
 
     def __le__(self, other):
         return self < other or self == other
@@ -78,12 +81,15 @@ class SiteEvaluation:
 
         # All group ratings were equal -- compare good ratios
         for group in self.group_order:
-            if self.evaluations[group].good_ratio <= other.evaluations[group].good_ratio:
-                # not truly greater
+            if self.evaluations[group].good_ratio > other.evaluations[group].good_ratio:
+                # greater
+                return True
+            elif self.evaluations[group].good_ratio < other.evaluations[group].good_ratio:
+                # less
                 return False
 
-        # all good ratios were truly greater
-        return True
+        # all good ratios were equal
+        return False
 
     def __ge__(self, other):
         return self > other or self == other
