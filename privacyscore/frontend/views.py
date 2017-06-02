@@ -115,7 +115,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
 
     return render(request, 'frontend/view_scan_list.html', {
         'scan_list': scan_list,
-        'sites': sites,
+        'sites': enumerate(sites, start=1),
         'result_groups': [group['name'] for group in RESULT_GROUPS.values()],
     })
 

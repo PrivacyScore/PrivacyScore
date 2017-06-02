@@ -107,6 +107,7 @@
 
   <table class="table table-striped table-bordered table-hover">
     <tr>
+      <th>#</th>
       <th>{% trans 'URL' %}</th>
       {% for column in scan_list.ordered_columns %}
         <th>{{ column.name }}</th>
@@ -119,8 +120,11 @@
       <th class="align-right">{% trans 'Failures' %}</th>
     </tr>
 
-    {% for site in sites %}
+    {% for num, site in sites %}
       <tr>
+        <td>
+          {{ num }}
+        </td>
         <td>
           <a href="{% url 'frontend:view_site' site.pk %}">
             {{ site.url }}
