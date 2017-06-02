@@ -19,7 +19,7 @@ test_name = 'example'
 test_dependencies = ['another_example', 'foobar']
 
 
-def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str, bytes]]]:
+def test_site(url: str, previous_results: dict, **options) -> Dict[str, Dict[str, Union[str, bytes]]]:
     """
     The task of the test function is to scan the site and collect the raw
     data required in order produce a test result. It is **not** its task to
@@ -59,7 +59,7 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
     }
 
 
-def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[str, object]]:
+def process_test_data(raw_data: list, previous_results: dict, **options) -> Dict[str, Dict[str, object]]:
     """
     The task of the process function is to evaluate the raw data collected
     by the test function.
