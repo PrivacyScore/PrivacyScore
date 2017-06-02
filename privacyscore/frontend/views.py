@@ -71,7 +71,8 @@ def scan_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         ScanList.objects.prefetch_related(
             Prefetch(
                 'sites',
-                 queryset=Site.objects.annotate_most_recent_scan_end_or_null())),
+                 queryset=Site.objects.annotate_most_recent_scan_start() \
+                                      .annotate_most_recent_scan_end_or_null())),
         pk=scan_list_id)
     scan_list.scan()
     messages.success(request,

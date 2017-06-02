@@ -180,6 +180,20 @@ class ScanList(models.Model):
 
 
 class SiteQuerySet(models.QuerySet):
+    def annotate_most_recent_scan_start(self) -> 'SiteQuerySet':
+        return self.annotate(
+            last_scan__start=RawSQL('''
+                SELECT "{Scan}"."start"
+                FROM "{Scan}"
+                WHERE
+                    "{Scan}"."start" IS NOT NULL AND
+                    "{Scan}"."site_id" = "{Site}"."id"
+                ORDER BY "{Scan}"."start" DESC
+                LIMIT 1
+                '''.format(
+                    Scan=Scan._meta.db_table,
+                    Site=Site._meta.db_table), ()))
+
     def annotate_most_recent_scan_end_or_null(self) -> 'SiteQuerySet':
         return self.annotate(
             last_scan__end_or_null=RawSQL('''
@@ -187,7 +201,7 @@ class SiteQuerySet(models.QuerySet):
                 FROM "{Scan}"
                 WHERE
                     "{Scan}"."site_id" = "{Site}"."id"
-                ORDER BY "{Scan}"."end" DESC
+                ORDER BY "{Scan}"."end" DESC NULLS FIRST
                 LIMIT 1
                 '''.format(
                     Scan=Scan._meta.db_table,
@@ -289,16 +303,20 @@ class Site(models.Model):
         """
         now = timezone.now()
 
+        last_start = None
         last_end = None
-        if hasattr(self, 'last_scan__end_or_null'):
+        if hasattr(self, 'last_scan__end_or_null') and hasattr(self, 'last_scan__start'):
+            last_start = self.last_scan__start
             last_end = self.last_scan__end_or_null
         else:
             most_recent_scan = self.scans.order_by('end').last()
             if most_recent_scan:
                 # at least one scan has been scheduled previously.
+                last_start = most_recent_scan.start
                 last_end = most_recent_scan.end
-        if (last_end and
-                now - last_end < settings.SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN):
+        if ((last_end and
+                now - last_end < settings.SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN) or
+                (not last_end and last_start)):
             # rate limit scan
             return False
 
