@@ -71,8 +71,10 @@ class GroupEvaluation:
             return Rating('doubleplusgood')
         if self.bad == 0 < self.good:
             return Rating('good')
-        elif self.good > 0 < self.bad:
+        if self.good > 0 < self.bad:
             return Rating('warning')
+        if self.neutral == self.total:
+            return Rating('neutral')
         return Rating('bad')
 
     @property

@@ -7,7 +7,7 @@ class Rating:
     # rating  : str
     # influences_ranking  : bool
 
-    ORDERING = ['critical', 'bad', 'warning', 'good', 'doubleplusgood']
+    ORDERING = ['neutral', 'critical', 'bad', 'warning', 'good', 'doubleplusgood']
 
     def __init__(self, rating: str, influences_ranking: bool = True):
         self.rating = rating

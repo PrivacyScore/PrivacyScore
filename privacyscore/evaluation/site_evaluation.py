@@ -98,6 +98,10 @@ class SiteEvaluation:
         for group in self.group_order:
             yield group, self.evaluations[group]
 
+    @property
+    def rating(self):
+        return min(self.evaluations.values()).group_rating
+
 
 class UnrateableSiteEvaluation(SiteEvaluation):
     """A site evaluation which is not rateable."""

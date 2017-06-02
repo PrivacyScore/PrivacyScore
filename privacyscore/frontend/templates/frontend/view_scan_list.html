@@ -111,6 +111,7 @@
       {% for column in scan_list.ordered_columns %}
         <th>{{ column.name }}</th>
       {% endfor %}
+      <th>{% trans 'Result' %}</th>
       {% for group in result_groups %}
         <th>{{ group }}</th>
       {% endfor %}
@@ -128,6 +129,7 @@
         {% for column_value in site.ordered_column_values %}
           <th>{{ column_value.value }}</th>
         {% endfor %}
+        <td class="rating-{{ site.evaluated.rating }}"></td>
         {% for group, rating in site.evaluated %}
           {% if rating %}
             <td class="rating-{{ rating.group_rating }}">
