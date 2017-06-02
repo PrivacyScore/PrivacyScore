@@ -153,6 +153,8 @@ from datetime import timedelta
 SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN = timedelta(minutes=28)
 SCAN_SUITE_TIMEOUT_SECONDS = 100
 SCAN_TOTAL_TIMEOUT = timedelta(minutes=10)
+SCAN_TEST_BASEPATH = os.path.join(BASE_DIR, 'tests')
+SCAN_LISTS_PER_PAGE = 30
 
 # The base modules containing the test suites. You usually do not want to
 # change this.
@@ -163,7 +165,10 @@ TEST_SUITES_BASEMODULES = [
 # The list of the test names to use. Test names may not be used multiple times.
 # See the example test suite for documentation of the test module interface.
 SCAN_TEST_SUITES = [
-    ('geoip', {}),
+    ('network', {
+        'country_database_path': os.path.join(
+            SCAN_TEST_BASEPATH, 'vendor/geoip/GeoLite2-Country.mmdb'),
+    }),
     ('openwpm', {
         'scan_basedir': '/tmp/openwpm-scans',
         'virtualenv_path': os.path.join(BASE_DIR, 'tests/vendor/OpenWPM/.pyenv'),
@@ -173,12 +178,8 @@ SCAN_TEST_SUITES = [
     ('testssl_mx', {}),
 ]
 
-SCAN_TEST_BASEPATH = os.path.join(BASE_DIR, 'tests')
-
 RAW_DATA_DB_MAX_SIZE = 4000
 RAW_DATA_DIR = os.path.join(BASE_DIR, 'raw_data')
-
-SCAN_LISTS_PER_PAGE = 30
 
 
 
