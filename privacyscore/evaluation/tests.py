@@ -27,13 +27,9 @@ class RatingTestCase(TestCase):
         self.assertTrue(d == e)
 
     def test_group_evaluation_comparison(self):
-        a = GroupEvaluation(1, 0, 0)
-        b = GroupEvaluation(0, 1, 0)
-        c = GroupEvaluation(0, 0, 1)
-        d = GroupEvaluation(3, 1, 0)
-        e = GroupEvaluation(0, 0, 0)
-        f = GroupEvaluation(2, 5, 0)
-        g = GroupEvaluation(2, 20, 0)
+        a = GroupEvaluation([Rating('good')])
+        b = GroupEvaluation([Rating('bad')])
+        c = GroupEvaluation([Rating('neutral')])
 
         self.assertFalse(a > a)
         self.assertFalse(a < a)
@@ -51,37 +47,25 @@ class RatingTestCase(TestCase):
         self.assertFalse(b == a)
         self.assertFalse(a == b)
 
-        self.assertTrue(a == c)
-
-        self.assertTrue(e > d)
-        self.assertFalse(e < d)
-        self.assertTrue(d < e)
-
-        self.assertTrue(f == g)
-        self.assertTrue(f >= g)
-        self.assertTrue(f <= g)
-        self.assertFalse(f < g)
-        self.assertFalse(g < f)
-        self.assertTrue(g <= f)
-        self.assertTrue(g >= f)
-        self.assertFalse(g > f)
+        self.assertFalse(a == c)
+        self.assertTrue(a != c)
 
     def test_site_evaluation_comparison(self):
         a = SiteEvaluation({
-            'eav': GroupEvaluation(5, 0, 0),
-            'third': GroupEvaluation(7, 0, 0),
-            'prov': GroupEvaluation(2, 8, 0),
-        }, ['eav', 'third', 'prov'])
+            'a': GroupEvaluation([Rating('good')]),
+            'b': GroupEvaluation([Rating('bad')]),
+            'c': GroupEvaluation([Rating('good'), Rating('good'), Rating('bad'), Rating('bad')]),
+        }, ['a', 'b','c'])
         b = SiteEvaluation({
-            'eav': GroupEvaluation(1, 4, 0),
-            'third': GroupEvaluation(7, 0, 0),
-            'prov': GroupEvaluation(10, 0, 0),
-        }, ['eav', 'third', 'prov'])
+            'a': GroupEvaluation([]),
+            'b': GroupEvaluation([]),
+            'c': GroupEvaluation([Rating('good'), Rating('good'), Rating('bad'), Rating('bad')]),
+        }, ['a', 'b','c'])
         c = SiteEvaluation({
-            'eav': GroupEvaluation(4, 1, 0),
-            'third': GroupEvaluation(2, 7, 0),
-            'prov': GroupEvaluation(8, 2, 0),
-        }, ['eav', 'third', 'prov'])
+            'a': GroupEvaluation([]),
+            'b': GroupEvaluation([]),
+            'c': GroupEvaluation([Rating('good'), Rating('good'), Rating('good'), Rating('bad')]),
+        }, ['a', 'b','c'])
 
 
         self.assertTrue(a >= a)
@@ -98,8 +82,8 @@ class RatingTestCase(TestCase):
         self.assertTrue(a >= b)
         self.assertTrue(a != b)
 
-        self.assertTrue(a > c)
-        self.assertTrue(b > c)
-        self.assertTrue(b >= c)
-        self.assertFalse(b < c)
-        self.assertFalse(b <= c)
+        self.assertTrue(c > b)
+        self.assertTrue(b < c)
+        self.assertTrue(b <= c)
+        self.assertFalse(b > c)
+        self.assertFalse(b >= c)

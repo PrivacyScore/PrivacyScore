@@ -67,9 +67,9 @@ class GroupEvaluation:
         """The rating of the group."""
         if self.critical > 0:
             return Rating('bad')
-        if self.overall_good == self.overall_total > self.good:
+        if 0 < self.overall_good == self.overall_total > self.good:
             return Rating('doubleplusgood')
-        if self.bad == 0:
+        if self.bad == 0 < self.good:
             return Rating('good')
         elif self.good > 0 < self.bad:
             return Rating('warning')
