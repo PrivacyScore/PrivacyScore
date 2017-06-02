@@ -86,6 +86,8 @@ class ScanList(models.Model):
 
     views = models.IntegerField(default=0)
 
+    created = models.DateTimeField(default=timezone.now)
+
     objects = models.Manager.from_queryset(ScanListQuerySet)()
 
     def __str__(self) -> str:
@@ -266,6 +268,8 @@ class Site(models.Model):
     scan_lists = models.ManyToManyField(ScanList, related_name='sites')
 
     views = models.IntegerField(default=0)
+
+    created = models.DateTimeField(default=timezone.now)
 
     objects = models.Manager.from_queryset(SiteQuerySet)()
 
