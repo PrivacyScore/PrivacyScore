@@ -2,10 +2,11 @@
 Test for common server leaks.
 """
 import json
-import requests
-from requests.models import Response
 from typing import Dict, Union
 from urllib.parse import urlparse
+import requests
+from requests.exceptions import ConnectionError
+from requests.models import Response
 
 
 test_name = 'serverleak'
@@ -26,12 +27,15 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
     parsed_url = urlparse(url)
 
     for trial, pattern in TRIALS:
-        response = requests.get('{}://{}/{}'.format(
-            parsed_url.scheme, parsed_url.netloc, trial))
-        raw_requests[trial] = {
-            'mime_type': 'application/json',
-            'data': _response_to_json(response),
-        }
+        try:
+            response = requests.get('{}://{}/{}'.format(
+                parsed_url.scheme, parsed_url.netloc, trial), timeout=10)
+            raw_requests[trial] = {
+                'mime_type': 'application/json',
+                'data': _response_to_json(response),
+            }
+        except ConnectionError:
+            continue
 
     return raw_requests
 
