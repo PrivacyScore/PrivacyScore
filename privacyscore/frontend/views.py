@@ -196,3 +196,6 @@ def team(request: HttpRequest):
 def faq(request: HttpRequest):
     return render(request, 'frontend/faq.html')
 
+
+def imprint(request: HttpRequest):
+    return render(request, 'frontend/imprint.html')

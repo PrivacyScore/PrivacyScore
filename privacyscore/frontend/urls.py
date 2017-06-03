@@ -30,4 +30,5 @@ urlpatterns = [
     url(r'^code/$', views.code, name='code'),
     url(r'^team/$', views.team, name='team'),
     url(r'^faq/$', views.faq, name='faq'),
+    url(r'^imprint/$', views.imprint, name='imprint'),
 ]
