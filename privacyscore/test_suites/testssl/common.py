@@ -1,4 +1,5 @@
 import os
+import re
 import tempfile
 
 from subprocess import call, check_output, DEVNULL
@@ -14,8 +15,14 @@ def run_testssl(hostname: str, check_mx: bool, remote_host: str = None) -> bytes
     """Test the specified hostname with testssl and return the raw json result."""
     # determine hostname
     if remote_host:
-        return _remote_testssl(hostname, remote_host)
-    return _local_testssl(hostname, check_mx)
+        out =  _remote_testssl(hostname, remote_host)
+    else:
+        out = _local_testssl(hostname, check_mx)
+
+    # fix json syntax error
+    out = re.sub(r'"Invocation.*?\n', '', out.decode(), 1).encode()
+
+    return out
 
 
 def _remote_testssl(hostname: str, remote_host: str) -> bytes:

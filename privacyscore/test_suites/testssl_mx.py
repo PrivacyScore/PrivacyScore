@@ -11,7 +11,7 @@ test_dependencies = ['network']
 
 def test_site(url: str, previous_results: dict, remote_host: str = None) -> Dict[str, Dict[str, Union[str, bytes]]]:
     # test first mx
-    hostname = previous_results['mx_records'][0]  # TODO: list might be empty
+    hostname = previous_results['mx_records'][0][1]  # TODO: list might be empty
 
     jsonresult = run_testssl(hostname, True, remote_host)
 
