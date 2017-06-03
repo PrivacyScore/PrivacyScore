@@ -10,13 +10,11 @@ from hosts import which are not allowed to open outgoing connections to port
 25.
 """
 import os
+import socket
 import sys
 from subprocess import call, DEVNULL
 from tempfile import mktemp
 from typing import List
-
-from dns import resolver
-from dns.exception import DNSException
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -66,11 +64,9 @@ def run_testssl(hostname: str) -> str:
     return result
 
 
-def _a_lookup(name: str) -> List[str]:
-    try:
-        return [e.address for e in resolver.query(name, 'A')]
-    except DNSException:
-        return []
+def _a_lookup(hostname: str) -> List[str]:
+    return [addressinfo[4][0]
+            for addressinfo in socket.getaddrinfo(hostname, 25)]
 
 
 def _check_blacklist(ip_address) -> bool:
