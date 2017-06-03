@@ -1,3 +1,16 @@
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    color: #384452;
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+    margin-bottom:230px; /* for footer */
+}
+
+
 .navbar {
     min-height: 70px;
     padding-top: 10px;
@@ -55,12 +68,6 @@
 
 .navbar-pad {
     margin-top:70px;
-}
-
-body {
-	color: #384452;
-	font-family: 'Lato', sans-serif;
-	font-weight: 400;
 }
 
 /* start page */
@@ -170,5 +177,32 @@ body {
 .spotlight-clearfix {
     height:20px;
     clear:both;
+}
+
+/*
+ * Footer
+ */
+
+.footer {
+    padding:10px 0 10px 0;
+    background: #384452;
+    color:#ddd;
+    height:230px;
+    position:absolute;
+    bottom:0;
+    width:100%;
+}
+
+.footer h3 {
+    border-bottom:2px solid #ddd;
+    font-size:18px;
+}
+
+.footer .imprint {
+    text-align:right;
+}
+
+.footer .imprint a {
+    color:#ccc;
 }
 

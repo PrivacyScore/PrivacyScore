@@ -68,6 +68,34 @@
     {% endblock fullcontent %}
 
     {% block footer %}
+    <div class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h3>{% trans 'About' %}</h3>
+                    <p>
+                    {% trans "PrivacyScore is a website scanning tool that allows anyone to benchmark security and privacy features of websites." %}
+                    {% trans "Users will be able to control ranking and analysis parameters." %}
+                    {% trans "All collected data will be made available under an open license." %}
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <h3>{% trans 'Feedback' %}</h3>
+                    {% trans "We are curious to receive your feedback." %}
+                    {% trans "Please do not hesitate to contact us if you observe any errors." %}
+                    {% trans "Site owners can request to exclude their sites from future scans." %}
+                </div>
+                <div class="col-md-4">
+                    <h3>{% trans 'Beta Status' %}</h3>
+                    {% trans "PrivacyScore is currently in public beta." %}
+                    {% trans "While we're giving our very best, we currently cannot guarantee the accuracy of the displayed results and rankings." %}
+                </div>
+            </div>
+            <p class="imprint">
+                <a href="{% url 'frontend:imprint' %}">Imprint</a>
+            </p>
+        </div>
+    </div>
     {% endblock footer %}
 
     <script src="{% static 'frontend/js/jquery-3.1.1.min.js' %}" type="text/javascript"></script>
