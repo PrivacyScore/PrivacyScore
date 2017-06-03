@@ -35,55 +35,22 @@
         <p>{% trans 'Check out our lists of scanned websites or create your own.' %}</p>
 
         <div class="spotlight-container-outer">
-
             <div class="spotlight-container-inner">
-                <div class="panel panel-default spotlight">
-                    <div class="spotlight-img">
-                        <a href="#"><img src="{% static 'frontend/img/spotlight/newspaper.jpg' %}" alt=""></a>
-                        <div class="spotlight-bg">
-                            <span>German Newspaper</span>
-                        </div>
-                        <a class="spotlight-caption" href="#">
-                            German Newspaper
-                        </a>
-                    </div>
-                    <div class="panel-body">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent congue
-                        nisi sed nunc auctor, sit amet condimentum ex pharetra.
-                    </div>
-                </div>
 
+                {% for spotlight in spotlights %}
                 <div class="panel panel-default spotlight">
                     <div class="spotlight-img">
-                        <a href="#"><img src="{% static 'frontend/img/spotlight/carbrand.jpg' %}" alt=""></a>
+                        <a href="{% url 'frontend:view_scan_list' spotlight.scan_list_id %}"><img src="{{ MEDIA_URL }}{{ spotlight.image.url }}" alt=""></a>
                         <div class="spotlight-bg">
-                            <span>Car Brands</span>
+                            <span>{{ spotlight.title }}</span>
                         </div>
-                        <a class="spotlight-caption" href="#">
-                            Car Brands
+                        <a class="spotlight-caption" href="{% url 'frontend:view_scan_list' spotlight.scan_list_id %}">
+                            {{ spotlight.title }}
                         </a>
                     </div>
-                    <div class="panel-body">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent congue
-                        nisi sed nunc auctor, sit amet condimentum ex pharetra.
-                    </div>
+                    <div class="panel-body">{{ spotlight.content|safe }}</div>
                 </div>
-
-                <div class="panel panel-default spotlight">
-                    <div class="spotlight-img">
-                        <a href="#"><img src="{% static 'frontend/img/spotlight/healthinsurance.jpg' %}" alt=""></a>
-                        <div class="spotlight-bg">
-                            <span>German Health Insurance</span>
-                        </div>
-                        <a class="spotlight-caption" href="#">
-                            German Health Insurance
-                        </a>
-                    </div>
-                    <div class="panel-body">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent congue
-                        nisi sed nunc auctor, sit amet condimentum ex pharetra.
-                    </div>
-                </div>
+                {% endfor %}
 
                 <div class="panel panel-default spotlight">
                     <div class="spotlight-img">

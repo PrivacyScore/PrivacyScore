@@ -13,12 +13,15 @@ from privacyscore.backend.models import ListColumn, ListColumnValue, Scan, ScanL
 from privacyscore.evaluation.result_groups import RESULT_GROUPS
 from privacyscore.evaluation.site_evaluation import UnrateableSiteEvaluation
 from privacyscore.frontend.forms import SingleSiteForm
+from privacyscore.frontend.models import Spotlight
 
 
 def index(request: HttpRequest) -> HttpResponse:
     scan_form = SingleSiteForm()
+    spotlights = Spotlight.objects.filter(is_visible=True).order_by('order_key')
     return render(request, 'frontend/index.html', {
         'scan_form': scan_form,
+        'spotlights': spotlights
     })
 
 
