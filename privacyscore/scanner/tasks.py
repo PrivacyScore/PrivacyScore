@@ -36,18 +36,26 @@ def schedule_scan(scan_pk: int):
 
     # Schedule next stage
     schedule_scan_stage(
-        ('privacyscore.scanner.tasks.schedule_scan', [], {}), scan_pk)
+        ('privacyscore.scanner.tasks.schedule_scan', [], {}),
+        {},
+        scan_pk)
 
 
 @shared_task(queue='master')
-def schedule_scan_stage(previous_results: Tuple[list, dict], scan_pk: int,
-                        stage: int = 0, previous_task_count: int = 0):
+def schedule_scan_stage(new_results: Tuple[list, dict, dict],
+                        previous_results: Tuple[list, dict, dict],
+                        scan_pk: int,
+                        stage: int = 0,
+                        previous_task_count: int = 0):
     """Schedule the next stage for a scan."""
     scan = Scan.objects.get(pk=scan_pk)
 
     if previous_task_count <= 1:
-        previous_results = [previous_results]
-    raw_data, previous_results, errors = _parse_previous_results(previous_results)
+        new_results = [new_results]
+    raw_data, new_results, errors = _parse_new_results(new_results)
+    previous_results.update(new_results)
+
+    # store raw data in database
     for params in raw_data:
         RawScanResult.store_raw_data(scan_pk=scan_pk, **params)
 
@@ -71,8 +79,8 @@ def schedule_scan_stage(previous_results: Tuple[list, dict], scan_pk: int,
 
     tasks = []
     for test_suite, test_parameters in SCAN_TEST_SUITE_STAGES[stage]:
-        tasks.append(run_test.s(test_suite, test_parameters, scan_pk, scan.site.url, previous_results))
-    chord(tasks, schedule_scan_stage.s(scan_pk, stage + 1, len(tasks))).apply_async()
+        tasks.append(run_test.s(test_suite, test_parameters, scan.site.url, previous_results))
+    chord(tasks, schedule_scan_stage.s(previous_results, scan_pk, stage + 1, len(tasks))).apply_async()
 
 
 def handle_finished_scan(scan: Scan):
@@ -84,7 +92,7 @@ def handle_finished_scan(scan: Scan):
 
 
 @shared_task(queue='slave')
-def run_test(test_suite: str, test_parameters: dict, scan_pk: int, url: str, previous_results: dict) -> bool:
+def run_test(test_suite: str, test_parameters: dict, url: str, previous_results: dict) -> bool:
     """Run a single test against a single url."""
     test_suite = AVAILABLE_TEST_SUITES[test_suite]
     try:
@@ -111,7 +119,7 @@ def handle_aborted_scans():
         end__isnull=True).update(end=now)
 
 
-def _parse_previous_results(previous_results: List[Tuple[list, dict]]) -> tuple:
+def _parse_new_results(previous_results: List[Tuple[list, dict]]) -> tuple:
     """
     Parse previous results, split into raw data, results and errors and merge
     data from multiple test suites.

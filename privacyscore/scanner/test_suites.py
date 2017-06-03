@@ -39,8 +39,7 @@ for test in (t[0] for t in settings.SCAN_TEST_SUITES):
 TEST_ORDER = toposort(TEST_DEPENDENCIES)
 
 # Create stages list
-SCAN_TEST_SUITE_STAGES = []
-for stage in TEST_ORDER:
-    SCAN_TEST_SUITE_STAGES.append([
-        (test, TEST_PARAMETERS[test]) for test in stage
-    ])
+SCAN_TEST_SUITE_STAGES = [
+    [(test, TEST_PARAMETERS[test])
+     for test in stage]
+    for stage in TEST_ORDER]
