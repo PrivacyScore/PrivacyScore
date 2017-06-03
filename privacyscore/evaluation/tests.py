@@ -66,6 +66,16 @@ class RatingTestCase(TestCase):
             'b': GroupEvaluation([]),
             'c': GroupEvaluation([Rating('good'), Rating('good'), Rating('good'), Rating('bad')]),
         }, ['a', 'b','c'])
+        d = SiteEvaluation({
+            'a': GroupEvaluation([Rating('good'), Rating('good'), Rating('good')]),
+            'b': GroupEvaluation([Rating('good'), Rating('bad')]),
+            'c': GroupEvaluation([Rating('good'), Rating('good'), Rating('good'), Rating('good')]),
+        }, ['a', 'b','c'])
+        e = SiteEvaluation({
+            'a': GroupEvaluation([Rating('good'), Rating('good'), Rating('good')]),
+            'b': GroupEvaluation([Rating('good'), Rating('good')]),
+            'c': GroupEvaluation([Rating('good'), Rating('good'), Rating('good'), Rating('good')]),
+        }, ['a', 'b','c'])
 
 
         self.assertTrue(a >= a)
@@ -87,3 +97,16 @@ class RatingTestCase(TestCase):
         self.assertTrue(b <= c)
         self.assertFalse(b > c)
         self.assertFalse(b >= c)
+
+        self.assertTrue(e > d)
+        self.assertTrue(e >= d)
+        self.assertFalse(e == d)
+        self.assertTrue(e != d)
+        self.assertFalse(e < d)
+        self.assertFalse(e <= d)
+        self.assertTrue(d < e)
+        self.assertFalse(d >= e)
+        self.assertFalse(d == e)
+        self.assertTrue(d != e)
+        self.assertTrue(d < e)
+        self.assertTrue(d <= e)
