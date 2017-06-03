@@ -164,7 +164,7 @@ body {
     font-weight:bold;
 }
 
-.spotlight-caption {
+a.spotlight-caption {
     position:absolute;
     bottom:0;
     width:100%;
@@ -172,6 +172,8 @@ body {
     font-size:18px;
     padding:10px 5px 10px 5px;
     font-weight:bold;
+    display:block;
+    text-decoration:none;
 }
 
 .spotlight-clearfix {
