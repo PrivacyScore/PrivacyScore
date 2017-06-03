@@ -11,3 +11,4 @@ redis
 tldextract
 toposort
 url_normalize
+adblockparser

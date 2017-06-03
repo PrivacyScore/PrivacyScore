@@ -38,3 +38,9 @@ popd
 
 # testssl.sh
 git clone https://github.com/drwetter/testssl.sh.git tests/vendor/testssl.sh
+
+# EasyList
+mkdir tests/vendor/EasyList
+pushd tests/vendor/EasyList
+wget https://easylist.to/easylist/easyprivacy.txt https://easylist.to/easylist/easylist.txt https://easylist.to/easylist/fanboy-annoyance.txt
+popd

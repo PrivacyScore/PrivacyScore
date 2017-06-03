@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import shutil
 import sqlite3
 import tempfile
@@ -8,6 +9,7 @@ from io import BytesIO
 from subprocess import call, DEVNULL
 from typing import Dict, Union
 from uuid import uuid4
+from adblockparser import AdblockRules
 
 import tldextract
 
@@ -158,6 +160,8 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
         third_parties = list(set(third_parties))
         scantosave["third_parties"] = third_parties
         scantosave["third_parties_count"] = len(third_parties)
+
+        scantosave["tracker_requests"] = detect_trackers(third_party_requests)
 
         # responses
         for url, method, referrer, headers, response_status_text, time_stamp in cur.execute(
@@ -331,3 +335,71 @@ def pixelize_screenshot(screenshot, screenshot_pixelized, target_width=390, pixe
     img = img.resize((undersampling_width, new_height), Image.BICUBIC)
     img = img.resize((target_width, new_height * pixelsize), Image.NEAREST)
     img.save(screenshot_pixelized, format='png')
+
+def detect_trackers(third_parties):
+    """
+    Detect 3rd party trackers and return a list of them.
+
+    :param third_parties: List of third-party requests (not: hosts) to analyze
+    :return: a list of unique hosts in the form domain.tld
+    """
+    if len(third_parties) == 0:
+        return []
+
+    blacklist = [re.compile('^[\|]*http[s]*[:/]*$'),  # match http[s]:// in all variations
+                 re.compile('^[\|]*ws[:/]*$'),  # match ws:// in all variations
+                 re.compile('^\.'),  # match rules like .com
+                 re.compile('^\/'),  # match rules like /stuff
+                 re.compile('^\#'),  # match rules beginning with #
+                 re.compile('^\:'),  # match rules beginning with :
+                 re.compile('^\?'),  # match rules beginning with ?
+                 ]
+
+    def is_acceptable_rule(rule):
+        if '@' in rule:
+            return False
+        for exp in blacklist:
+            if exp.match(rule) is not None:
+                return False
+        return True
+
+    lines = []
+    rules = []
+    result = []
+
+    # Generate paths to files
+    easylist_path = os.path.join(
+        settings.SCAN_TEST_BASEPATH, 'vendor/EasyList', 'easylist.txt')
+    easyprivacy_path = os.path.join(
+        settings.SCAN_TEST_BASEPATH, 'vendor/EasyList', 'easyprivacy.txt')
+    fanboy_path = os.path.join(
+        settings.SCAN_TEST_BASEPATH, 'vendor/EasyList', 'fanboy-annoyance.txt')
+
+    # Read in files:
+    for line in open(easylist_path, 'r', encoding="utf-8"):
+        if 'third-party' in line:
+            lines.append(line)
+    for line in open(easyprivacy_path, 'r', encoding="utf-8"):
+        if 'third-party' in line:
+            lines.append(line)
+    for line in open(fanboy_path, 'r', encoding="utf-8"):
+        if 'third-party' in line:
+            lines.append(line)
+
+    # Clean up lines:
+    for line in lines:
+        try:
+            rule = line.split('$')[0]
+            if is_acceptable_rule(rule):
+                rules.append(rule)
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+
+    abr = AdblockRules(rules)
+
+    for url in third_parties:
+        if abr.should_block(url):
+            ext = tldextract.extract(url)
+            result.append("{}.{}".format(ext.domain, ext.suffix))
+
+    return list(set(result))

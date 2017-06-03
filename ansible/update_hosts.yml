@@ -137,3 +137,28 @@
         repo: https://github.com/citp/OpenWPM
         dest: /opt/privacyscore/tests/vendor/OpenWPM
         version: HEAD
+    - name: Create vendor/EasyList if it does not exist
+      file:
+        path: /opt/privacyscore/tests/vendor/EasyList/
+        owner: privacyscore
+        group: privacyscore
+        mode: 0700
+        state: directory
+    - name: Download EasyList
+      get_url:
+        url: https://easylist.to/easylist/easylist.txt
+        owner: privacyscore
+        group: privacyscore
+        dest: /opt/privacyscore/tests/vendor/EasyList/easylist.txt
+    - name: Download EasyPrivacy
+      get_url:
+        url: https://easylist.to/easylist/easyprivacy.txt
+        owner: privacyscore
+        group: privacyscore
+        dest: /opt/privacyscore/tests/vendor/EasyList/easyprivacy.txt
+    - name: Download Fanboy Anti-Social-Media
+      get_url:
+        url: https://easylist.to/easylist/fanboy-annoyance.txt
+        owner: privacyscore
+        group: privacyscore
+        dest: /opt/privacyscore/tests/vendor/EasyList/fanboy-annoyance.txt
