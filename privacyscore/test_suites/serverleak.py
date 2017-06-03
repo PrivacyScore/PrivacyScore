@@ -14,12 +14,12 @@ test_dependencies = []
 
 
 TRIALS = [
-    ('/server-status/', 'Server Status'),
-    ('/server-info/', 'Server Information'),
-    ('/test.php', 'phpinfo()'),
-    ('/phpinfo.php', 'phpinfo()'),
-    ('/.git/HEAD', 'ref:'),
-    ('/.svn/wc.db', 'SQLite')
+    ('server-status/', 'Server Status'),
+    ('server-info/', 'Server Information'),
+    ('test.php', 'phpinfo()'),
+    ('phpinfo.php', 'phpinfo()'),
+    ('.git/HEAD', 'ref:'),
+    ('.svn/wc.db', 'SQLite')
 ]
 
 
