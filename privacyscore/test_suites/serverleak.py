@@ -14,12 +14,12 @@ test_dependencies = []
 
 
 TRIALS = [
-    ('/server-status/', 'Status'),
+    ('/server-status/', 'Server Status'),
+    ('/server-info/', 'Server Information'),
     ('/test.php', 'phpinfo()'),
     ('/phpinfo.php', 'phpinfo()'),
-    # TODO Maybe extend this to also work if directory listings are disabled?
-    ('/.git/', 'Index of'),
-    ('/.svn/', 'Index of')
+    ('/.git/HEAD', 'ref:'),
+    ('/.svn/wc.db', 'SQLite')
 ]
 
 
