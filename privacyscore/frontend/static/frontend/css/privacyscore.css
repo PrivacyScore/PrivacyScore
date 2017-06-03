@@ -100,3 +100,69 @@ body {
 .scan-seperator {
     color:#ccc;
 }
+
+/*
+ * Spotlights
+ */
+
+.spotlight-container {
+    text-align:center;
+}
+
+.spotlight-container-outer {
+    float: right;
+    position: relative;
+    left: -50%;
+}
+
+.spotlight-container-inner {
+    position: relative;
+    left: 50%;
+}
+
+.spotlight {
+    width:250px;
+    float:left;
+    margin-right:15px;
+    height:350px;
+}
+
+.spotlight-img {
+    position:relative;
+}
+
+.spotlight-img img {
+    width:100%;
+}
+
+.spotlight-bg {
+    position:absolute;
+    bottom:0;
+    background:#000;
+    width:100%;
+    opacity:0.7;
+    padding:10px 5px 10px 5px;
+}
+
+.spotlight-bg-own {
+    /* background:#2c3e50; */
+    background:#337ab7;
+    opacity:0.85;
+}
+
+/* this is an hack to reserve space */
+.spotlight-bg span {
+    visibility: hidden;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.spotlight-caption {
+    position:absolute;
+    bottom:0;
+    width:100%;
+    color:#fff;
+    font-size:18px;
+    padding:10px 5px 10px 5px;
+    font-weight:bold;
+}
