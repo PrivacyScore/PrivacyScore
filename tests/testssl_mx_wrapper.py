@@ -24,13 +24,18 @@ TESTSSL_PATH = os.path.join(
     BASE_DIR, 'vendor/testssl.sh/testssl.sh')
 
 
-def main(hostname: str):
+def main():
     """Wrap testssl."""
+    hostname = os.environ.get('SSH_ORIGINAL_COMMAND')
+    if not hostname:
+        hostname = sys.argv[1]
+
     ips = _a_lookup(hostname)
     for ip_address in ips:
         if _check_blacklist(ip_address):
             print('blacklisted')
             sys.exit(77)  # EX_NOPERM
+
     print(run_testssl(hostname))
 
 
@@ -77,4 +82,4 @@ def _check_blacklist(ip_address) -> bool:
 
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+    main()
