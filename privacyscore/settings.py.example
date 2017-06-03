@@ -152,7 +152,7 @@ CELERY_QUEUES = (
 from datetime import timedelta
 SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN = timedelta(minutes=28)
 SCAN_SUITE_TIMEOUT_SECONDS = 100
-SCAN_TOTAL_TIMEOUT = timedelta(minutes=10)
+SCAN_TOTAL_TIMEOUT = timedelta(hours=2)
 SCAN_TEST_BASEPATH = os.path.join(BASE_DIR, 'tests')
 SCAN_LISTS_PER_PAGE = 30
 
