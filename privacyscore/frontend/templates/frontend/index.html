@@ -12,7 +12,7 @@
             <p>{% trans 'PrivacyScore allows you to test websites and rank them according to their security and privacy features.' %}</p>
 
             <div class="well-form">
-                <button class="btn btn-lg btn-primary btn-well">Create new site list</button>
+                <a class="btn btn-lg btn-primary btn-well" href="{% url 'frontend:scan_list' %}">Create new site list</a>
                 <p class="scan-seperator">— {% trans 'Or scan a single site immediately' %} —</p>
                 <form method="post" action="{% url 'frontend:scan_site' %}">
                     {% csrf_token %}
@@ -54,17 +54,17 @@
 
                 <div class="panel panel-default spotlight">
                     <div class="spotlight-img">
-                        <a href="#"><img src="{% static 'frontend/img/spotlight/createlist.jpg' %}" alt=""></a>
+                        <a href="{% url 'frontend:scan_list' %}"><img src="{% static 'frontend/img/spotlight/createlist.jpg' %}" alt=""></a>
                         <div class="spotlight-bg spotlight-bg-own">
                             <span>{% trans 'Create your own list' %}</span>
                         </div>
-                        <a class="spotlight-caption" href="#">
+                        <a class="spotlight-caption" href="{% url 'frontend:scan_list' %}">
                             {% trans 'Create your own list' %}
                         </a>
                     </div>
                     <div class="panel-body">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent congue
-                        nisi sed nunc auctor, sit amet condimentum ex pharetra.
+                        {% trans "Do you want to submit your own list of sites?" %}
+                        {% trans "You are just a click away!" %}
                     </div>
                 </div>
             </div>
