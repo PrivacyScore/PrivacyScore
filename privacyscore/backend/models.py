@@ -370,7 +370,7 @@ class ListColumn(models.Model):
             ('scan_list', 'sort_key')
         )
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=500)
     scan_list = models.ForeignKey(
         ScanList, on_delete=models.CASCADE, related_name='columns')
     sort_key = models.PositiveSmallIntegerField()
@@ -386,7 +386,7 @@ class ListColumnValue(models.Model):
         ListColumn, on_delete=models.CASCADE, related_name='values')
     site = models.ForeignKey(
         Site, on_delete=models.CASCADE, related_name='column_values')
-    value = models.CharField(max_length=100)
+    value = models.CharField(max_length=500)
 
     def __str__(self) -> str:
         return '{}: {} = {}'.format(str(self.column), str(self.site), self.value)
