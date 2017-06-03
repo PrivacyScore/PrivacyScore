@@ -40,7 +40,7 @@ EU_STATES = [
 
 def describe_locations(server_type: str, locations: list) -> str:
     """Describe a list of locations."""
-    locations = [loc for location in locations if loc]
+    locations = [locaction for location in locations if locaction]
     if not locations:
         return _('The locations of the %(server_type)s could not '
                  'be detected.') % {'server_type': server_type}, Rating('neutral', influences_ranking=False)
