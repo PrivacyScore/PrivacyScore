@@ -54,11 +54,49 @@
 }
 
 .navbar-pad {
-    margin-top:80px;
+    margin-top:70px;
 }
 
 body {
 	color: #384452;
 	font-family: 'Lato', sans-serif;
 	font-weight: 400;
+}
+
+/* start page */
+.well {
+    background:#2c3e50;
+    text-align:center;
+    padding:10px 0 50px 0;
+    color:#fff;
+}
+
+.well h2 {
+    color:#18bc9c;
+    font-size:40px;
+    font-weight:700;
+    font-family: "Raleway", sans-serif;
+}
+
+.well-form {
+    width:500px;
+    margin:0 auto;
+}
+
+.btn-well {
+    width:100%;
+    margin:10px 0 15px 0;
+}
+
+.btn-scan {
+    color:#000;
+    text-transform: uppercase;
+}
+
+.scan-single {
+    margin:15px 0 0 0;
+}
+
+.scan-seperator {
+    color:#ccc;
 }

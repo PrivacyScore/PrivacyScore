@@ -3,59 +3,28 @@
 {% load i18n %}
 {% load widget_tweaks %}
 
-{% block title %}PrivacyScore{% endblock title %}
+{% block title %}{% trans 'Welcome' %}{% endblock title %}
 
-{% block content %}
-  <content>
+{% block fullcontent %}
+    <div class="well">
+        <div class="container">
+            <h2>{% trans 'Compare Websites with PrivacyScore' %}</h2>
+            <p>{% trans 'PrivacyScore allows you to test websites and rank them according to their security and privacy features.' %}</p>
 
-
-    <form method="POST" action="{% url 'frontend:scan_site' %}">
-      {% csrf_token %}
-      {% render_field scan_form.url class+='form-control' placeholder=scan_form.url.label %}
-      <button type="submit" class="btn btn-primary">{% trans 'Scan site' %}</button>
-    </form>
-
-    <div class="row" style="margin-top: 20px; font-size: 120%;">
-    <div class="col-md-6">
-      <img src="{% static 'frontend/img/banner.png' %}" alt="PrivacyScore" style="width:100%;" />
+            <div class="well-form">
+                <button class="btn btn-lg btn-primary btn-well">Create new site list</button>
+                <p class="scan-seperator">— {% trans 'Or scan a single site immediately' %} —</p>
+                <form method="post" action="{% url 'frontend:scan_site' %}">
+                    {% csrf_token %}
+                    <div class="input-group scan-single">
+                        {% render_field scan_form.url class+='form-control' placeholder="Website, e.g. http://privacyscore.org/" %}
+                        <span class="input-group-btn">
+                            <button class="btn btn-secondary btn-scan" type="button">{% trans 'Scan' %}</button>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-    <div class="col-md-6">
-    <li class="well well-lg" style="display:block;list-style-type: none">
-    <label id="searchWebsite"></label>
-    <input type="text" class="form-control" id="singleSearchField" value="" placeholder="URL..."   onkeydown="if (event.keyCode == 13) document.getElementById('singleSearchButton').click()" />
-    <a class="btn btn-default" role="button" id="singleSearchButton" onclick="singleSearch();">Suche</a>
-    </li>
-    </div>
-    </div>
 
-
-    <div class="row" style="margin-top: 20px; font-size: 120%;">
-    <div class="col-md-6">
-    <li class="well well-lg" style="display:block;list-style-type: none;">
-      <span id="leftColumn"></span>
-
-      <a href="{% url 'frontend:browse' %}" id="searchListButton" class="btn btn-default" role="button">Listen durchsuchen</a>
-      <a href="{% url 'frontend:scan_list' %}" id="createListButton" class="btn btn-default" role="button">Eigene Liste erstellen</a>
-      <a href="{% url 'frontend:third_parties' %}" id="popularThirdParties" class="btn btn-default" role="button">Third Parties</a>
-    </li>
-    </div>
-    <div class="col-md-6">
-    <li class="well well-lg" style="display:block;list-style-type: none;">
-      <label id="testCriteriaHeader"></label>
-      <ul id="testCriteria" style="list-style-type: none;"></ul>
-    </li>
-    <li class="well well-lg" style="display:none; list-style-type: none;">
-      <label>Beispiele</label>
-      <br>
-      {#<a href="{% url 'frontend:view_scan_list' %}?list=58a3788d137ed6690a146d80&group=58a37890137ed6690a146d87" class="btn btn-default" role="button">Liste von Universitäten in Deutschland</a>#}
-      <br>
-      <a href="{% url 'frontend:scan' %}?site=58a3788f137ed6690a146d81&scan=58a378e9137ed67da804d62d" class="btn btn-default" role="button">Detailansicht Uni-Siegen.de</a>
-      <br>
-      {#<a href="{% url 'frontend:view_scan_list' %}?list=58a3806a137ed6690a146d88&group=58a3807b137ed6690a146d95" class="btn btn-default" role="button">Liste von News-Websites</a>#}
-      <br>
-      {#<a href="{% url 'frontend:view_scan_list' %}?list=58a4329e137ed6690a1471a3&group=58a4329e137ed6690a14722b" class="btn btn-default" role="button">Liste gesetzlicher Krankenkassen</a>#}
-    </li>
-    </div>
-    </div>
-  </content>
-{% endblock content %}
+{% endblock fullcontent %}
