@@ -8,7 +8,16 @@ from privacyscore.backend.models import ScanList, Site, ListTag, ListColumn, \
 admin.site.register(ListColumn)
 admin.site.register(ListColumnValue)
 admin.site.register(ListTag)
-admin.site.register(RawScanResult)
+
+@admin.register(RawScanResult)
+class RawScanResultAdmin(admin.ModelAdmin):
+    list_display = (
+        'identifier',
+        'test',
+        'scan_host',
+        'scan',
+    )
+
 admin.site.register(Scan)
 admin.site.register(ScanError)
 admin.site.register(ScanList)
