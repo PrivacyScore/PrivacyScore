@@ -17,7 +17,9 @@
                 <form method="post" action="{% url 'frontend:scan_site' %}">
                     {% csrf_token %}
                     <div class="input-group scan-single">
-                        {% render_field scan_form.url class+='form-control' placeholder="Website, e.g. http://privacyscore.org/" %}
+                        {% with placeholder=_('Website, e.g. https://privacyscore.org/') %}
+                            {% render_field scan_form.url class+='form-control' placeholder=placeholder %}
+                        {% endwith %}
                         <span class="input-group-btn">
                             <button class="btn btn-secondary btn-scan" type="button">{% trans 'Scan' %}</button>
                         </span>
