@@ -166,3 +166,9 @@ body {
     padding:10px 5px 10px 5px;
     font-weight:bold;
 }
+
+.spotlight-clearfix {
+    height:20px;
+    clear:both;
+}
+
