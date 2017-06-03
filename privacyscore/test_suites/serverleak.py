@@ -17,6 +17,9 @@ TRIALS = [
     ('/server-status/', 'Status'),
     ('/test.php', 'phpinfo()'),
     ('/phpinfo.php', 'phpinfo()'),
+    # TODO Maybe extend this to also work if directory listings are disabled?
+    ('/.git/', 'Index of'),
+    ('/.svn/', 'Index of')
 ]
 
 
