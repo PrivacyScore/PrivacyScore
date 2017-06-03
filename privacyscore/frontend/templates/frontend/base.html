@@ -54,6 +54,7 @@
     <div class="navbar-pad"></div>
     {% endblock header %}
 
+    {% block fullcontent %}
     <div class="container">
       {% for message in messages %}
         <div class="alert alert-{{ message.tags }}">
@@ -64,6 +65,7 @@
       {% block content %}
       {% endblock content %}
     </div>
+    {% endblock fullcontent %}
 
     {% block footer %}
     {% endblock footer %}
