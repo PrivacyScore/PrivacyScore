@@ -175,3 +175,24 @@ def third_parties(request: HttpRequest) -> HttpResponse:
 
 def user(request: HttpRequest) -> HttpResponse:
     return render(request, 'frontend/user.html')
+
+
+def checks(request: HttpRequest):
+    return render(request, 'frontend/checks.html')
+
+
+def roadmap(request: HttpRequest):
+    return render(request, 'frontend/roadmap.html')
+
+
+def code(request: HttpRequest):
+    return render(request, 'frontend/code.html')
+
+
+def team(request: HttpRequest):
+    return render(request, 'frontend/team.html')
+
+
+def faq(request: HttpRequest):
+    return render(request, 'frontend/faq.html')
+

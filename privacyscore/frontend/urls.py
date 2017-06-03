@@ -25,4 +25,9 @@ urlpatterns = [
     url(r'^login/$', auth_views.LoginView.as_view(template_name='frontend/login.html'), name='login'),
     url(r'^logout/$', auth_views.logout, name='logout'),
     url(r'^user/$', views.user, name='user'),
+    url(r'^checks/$', views.checks, name='checks'),
+    url(r'^roadmap/$', views.roadmap, name='roadmap'),
+    url(r'^code/$', views.code, name='code'),
+    url(r'^team/$', views.team, name='team'),
+    url(r'^faq/$', views.faq, name='faq'),
 ]
