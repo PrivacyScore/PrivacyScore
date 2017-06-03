@@ -428,6 +428,7 @@ class RawScanResult(models.Model):
     scan = models.ForeignKey(
         Scan, on_delete=models.CASCADE, related_name='raw_results')
 
+    scan_host = models.CharField(max_length=80)
     test = models.CharField(max_length=80)
     identifier = models.CharField(max_length=80)
 
@@ -443,7 +444,8 @@ class RawScanResult(models.Model):
         return self.file_name is None
 
     @staticmethod
-    def store_raw_data(data: bytes, mime_type: str, test: str, identifier: str, scan_pk: int):
+    def store_raw_data(data: bytes, mime_type: str, scan_host: str, test: str,
+                       identifier: str, scan_pk: int):
         """Store data in db or filesystem."""
         if len(data) > settings.RAW_DATA_DB_MAX_SIZE:
             # store in filesystem
@@ -456,6 +458,7 @@ class RawScanResult(models.Model):
 
             RawScanResult.objects.create(
                 scan_id=scan_pk,
+                scan_host=scan_host,
                 test=test,
                 identifier=identifier,
                 mime_type=mime_type,
@@ -463,6 +466,7 @@ class RawScanResult(models.Model):
         else:
             RawScanResult.objects.create(
                 scan_id=scan_pk,
+                scan_host=scan_host,
                 test=test,
                 identifier=identifier,
                 mime_type=mime_type,

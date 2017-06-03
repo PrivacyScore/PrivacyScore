@@ -1,6 +1,7 @@
 import signal
 import traceback
 from typing import List, Tuple
+from socket import getfqdn
 
 from celery import chord, shared_task
 from django.conf import settings
@@ -36,7 +37,7 @@ def schedule_scan(scan_pk: int):
 
     # Schedule next stage
     schedule_scan_stage(
-        ('privacyscore.scanner.tasks.schedule_scan', [], {}),
+        (getfqdn(), 'privacyscore.scanner.tasks.schedule_scan', [], {}),
         {},
         scan_pk)
 
@@ -63,7 +64,7 @@ def schedule_scan_stage(new_results: Tuple[list, dict, dict],
     for error in errors:
         test = None
         if ':' in error:
-            test, error = error.split(':', maxsplit=1)
+            host, test, error = error.split(':', maxsplit=2)
         ScanError.objects.create(
             scan=scan, test=test, error=error)
 
@@ -101,9 +102,9 @@ def run_test(test_suite: str, test_parameters: dict, url: str, previous_results:
                 url, previous_results, **test_parameters)
             processed = test_suite.process_test_data(
                 raw_data, previous_results, **test_parameters)
-            return test_suite.test_name, raw_data, processed
+            return getfqdn(), test_suite.test_name, raw_data, processed
     except Exception as e:
-        return ':'.join([test_suite.test_name, traceback.format_exc()])
+        return ':'.join([getfqdn(), test_suite.test_name, traceback.format_exc()])
 
 
 # TODO: configure beat or similar to run this task frequently.
@@ -129,16 +130,18 @@ def _parse_new_results(previous_results: List[Tuple[list, dict]]) -> tuple:
     errors = []
     for e in previous_results:
         if isinstance(e, (list, tuple)):
-            test = e[0]
-            if isinstance(e[1], dict):
+            scan_host = e[0]
+            test = e[1]
+            if isinstance(e[2], dict):
                 # add test specifier to each raw data element
-                for identifier, raw_elem in e[1].items():
+                for identifier, raw_elem in e[2].items():
                     raw.append(dict(
                         identifier=identifier,
+                        scan_host=scan_host,
                         test=test,
                         **raw_elem))
-            if isinstance(e[2], dict):
-                result.update(e[2])
+            if isinstance(e[3], dict):
+                result.update(e[3])
         else:
             errors.append(e)
     return raw, result, errors
