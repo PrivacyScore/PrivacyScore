@@ -1,16 +1,27 @@
 import json
 import re
 from typing import Dict, Union
+from urllib.parse import urlparse
 
-from .testssl import common
 from privacyscore.utils import get_list_item_by_dict_entry
+
+from .testssl.common import run_testssl
 
 test_name = 'testssl_https'
 test_dependencies = []
 
 
-def test_site(*args, **kwargs) -> Dict[str, Dict[str, Union[str, bytes]]]:
-    return common.test_site(*args, test_type='https', **kwargs)
+def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str, bytes]]]:
+    hostname = urlparse(url).hostname
+
+    jsonresult = run_testssl(hostname, False)
+
+    return {
+        'jsonresult': {
+            'mime_type': 'application/json',
+            'data': jsonresult,
+        },
+    }
 
 
 def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[str, object]]:
@@ -22,10 +33,10 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
         # something went wrong with this test.
         raise Exception('no scan result in raw data')
 
-    ssl_result = {}
+    result = {}
 
     # pfs
-    ssl_result['pfs'] = data['scanResult'][0]['pfs'][0]['severity'] == 'OK'
+    result['pfs'] = data['scanResult'][0]['pfs'][0]['severity'] == 'OK'
 
     # detect protocols
     pattern = re.compile(r'is (not )?offered')
@@ -33,18 +44,17 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
         match = pattern.search(p['finding'])
         if not match:
             continue
-        ssl_result['has_protocol_{}'.format(p['id'])] = match.group(1) is None
+        result['has_protocol_{}'.format(p['id'])] = match.group(1) is None
 
     # detect headers
-    # TODO: Are headers really ssl group?
-    ssl_result.update(_detect_hsts(data))
+    result.update(_detect_hsts(data))
 
 
-    return ssl_result
+    return result
 
 
 def _detect_hsts(data: dict) -> dict:
-    ssl_result = {}
+    result = {}
 
     hsts_item = get_list_item_by_dict_entry(
         data['scanResult'][0]['headerResponse'],
@@ -53,17 +63,17 @@ def _detect_hsts(data: dict) -> dict:
         data['scanResult'][0]['headerResponse'],
         'id', 'hsts_preload')
 
-    ssl_result['has_hsts_preload_header'] = False
+    result['has_hsts_preload_header'] = False
     if hsts_preload_item is not None:
-        ssl_result['has_hsts_preload_header'] = hsts_preload_item['severity'] != 'HIGH'
+        result['has_hsts_preload_header'] = hsts_preload_item['severity'] != 'HIGH'
 
-    ssl_result['has_hsts_header'] = False
-    if ssl_result['has_hsts_preload_header']:
-        ssl_result['has_hsts_header'] = True
+    result['has_hsts_header'] = False
+    if result['has_hsts_preload_header']:
+        result['has_hsts_header'] = True
     elif hsts_item is not None:
-        ssl_result['has_hsts_header'] = hsts_item['severity'] != 'HIGH'
+        result['has_hsts_header'] = hsts_item['severity'] != 'HIGH'
 
-    return ssl_result
+    return result
 
 
 def _detect_hpkp(data: dict) -> dict:

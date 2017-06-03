@@ -1,9 +1,7 @@
 import os
-import re
 import tempfile
 
-from subprocess import call, DEVNULL
-from typing import Dict, Union
+from subprocess import call, check_output, DEVNULL
 
 from django.conf import settings
 
@@ -12,13 +10,25 @@ TESTSSL_PATH = os.path.join(
     settings.SCAN_TEST_BASEPATH, 'vendor/testssl.sh', 'testssl.sh')
 
 
-def test_site(url: str, previous_results: dict, test_type: str) -> Dict[str, Dict[str, Union[str, bytes]]]:
-    """Test the specified url with testssl."""
-    result_file = tempfile.mktemp()
-
+def run_testssl(hostname: str, check_mx: bool, remote_host: str = None) -> bytes:
+    """Test the specified hostname with testssl and return the raw json result."""
     # determine hostname
-    pattern = re.compile(r'^(https|http)?(://)?([^/]*)/?.*?')
-    hostname = pattern.match(url).group(3)
+    if remote_host:
+        return _remote_testssl(hostname, remote_host)
+    return _local_testssl(hostname, check_mx)
+
+
+def _remote_testssl(hostname: str, remote_host: str) -> bytes:
+    """Run testssl over ssh."""
+    return check_output([
+        'ssh',
+        remote_host,
+        hostname,
+    ])
+
+
+def _local_testssl(hostname: str, check_mx: bool) -> bytes:
+    result_file = tempfile.mktemp()
 
     args = [
         TESTSSL_PATH,
@@ -38,22 +48,22 @@ def test_site(url: str, previous_results: dict, test_type: str) -> Dict[str, Dic
         '--fast', # skip some time-consuming checks
         '--ip', 'one', # do not scan all IPs returned by the DNS A query, but only the first one
     ]
-    if test_type == 'mx':
-        args.append('--mx')
-    
-    args.append(hostname)
+    if check_mx:
+        args.remove('-h')
+        args.extend([
+            '-t', 'smtp',  # test smtp
+            '{}:25'.format(hostname),  # hostname on port 25
+        ])
+    else:
+        args.append(hostname)
+
     call(args, stdout=DEVNULL, stderr=DEVNULL)
 
     # exception when file does not exist.
-    with open(result_file, 'rb') as f:
-        raw_data = f.read()
+    with open(result_file, 'rb') as file:
+        result = file.read()
     # delete json file.
     os.remove(result_file)
 
     # store raw scan result
-    return {
-        'jsonresult': {
-            'mime_type': 'application/json',
-            'data': raw_data,
-        },
-    }
+    return result
