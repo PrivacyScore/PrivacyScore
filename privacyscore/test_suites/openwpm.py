@@ -3,6 +3,7 @@ import os
 import re
 import shutil
 import sqlite3
+import sys
 import tempfile
 
 from io import BytesIO
@@ -377,14 +378,11 @@ def detect_trackers(third_parties):
 
     # Read in files:
     for line in open(easylist_path, 'r', encoding="utf-8"):
-        if 'third-party' in line:
-            lines.append(line)
+        lines.append(line)
     for line in open(easyprivacy_path, 'r', encoding="utf-8"):
-        if 'third-party' in line:
-            lines.append(line)
+        lines.append(line)
     for line in open(fanboy_path, 'r', encoding="utf-8"):
-        if 'third-party' in line:
-            lines.append(line)
+        lines.append(line)
 
     # Clean up lines:
     for line in lines:
