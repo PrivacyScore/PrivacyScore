@@ -58,7 +58,11 @@
               }),
               ('serverleak', {}),
               ('testssl_https', {}),
-              ('testssl_mx', {}),
+              ('testssl_mx', {
+                {% if testssl_mx_remote_host %}
+                'remote_host': '{{ testssl_mx_remote_host }}',
+                {% endif %}
+              }),
           ]
 
           RAW_DATA_DB_MAX_SIZE = 4000
