@@ -107,7 +107,13 @@ def _get_countries(addresses: List[str], reader: Reader) -> List[str]:
     res = set()
     for ip in addresses:
         try:
-            res.add(reader.country(ip).country.name)
+            geoip_result = reader.country(ip)
+            this_result = geoip_result.country.name
+            if not this_result:
+                this_result = geoip_result.continent.name
+            if not this_result:
+                raise AddressNotFoundError
+            res.add(this_result)
         except AddressNotFoundError:
             # TODO: Add entry specifying that at least one location has not been found
             continue
