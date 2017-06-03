@@ -27,8 +27,10 @@ def test_site(url: str, previous_results: dict, test_type: str) -> Dict[str, Dic
         '-s', # tests certain lists of cipher suites by strength
         '-f', # checks (perfect) forward secrecy settings
         '-U', # tests all (of the following) vulnerabilities (if applicable)
-        '-S', # displays the server's default picks and certificate info, e.g. used CA, trust chain, Sig Alg, DNS CAA, OCSP Stapling
-        '-P', # displays the server's picks: protocol+cipher, e.g., cipher order, security of negotiated protocol and cipher
+        '-S', # displays the server's default picks and certificate info, e.g.
+              # used CA, trust chain, Sig Alg, DNS CAA, OCSP Stapling
+        '-P', # displays the server's picks: protocol+cipher, e.g., cipher
+              # order, security of negotiated protocol and cipher
         '--jsonfile-pretty', result_file,
         '--warnings=batch',
         '--openssl-timeout', '10',
