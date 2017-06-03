@@ -1,3 +1,5 @@
+import os
+from getpass import getuser
 import signal
 import traceback
 from typing import List, Tuple
@@ -11,6 +13,7 @@ from privacyscore.backend.models import RawScanResult, Scan, ScanResult, \
     ScanError
 from privacyscore.scanner.test_suites import AVAILABLE_TEST_SUITES, \
     SCAN_TEST_SUITE_STAGES
+from privacyscore.utils import get_processes_of_user
 
 
 class Timeout:
@@ -19,6 +22,15 @@ class Timeout:
 
     def __enter__(self):
         def handle_timeout(signum, frame):
+            # kill all possible processes
+            # TODO: this is a really bad idea
+            # TODO: Especially with multiple worker threads, bad things are inevitable
+            own_procs = get_processes_of_user(getuser())
+            for pid, cmdline in own_procs:
+                # TODO: Argh
+                if '/tests/' not in cmdline:
+                    continue
+                os.kill(pid, 9)
             raise TimeoutError
 
         signal.signal(signal.SIGALRM, handle_timeout)

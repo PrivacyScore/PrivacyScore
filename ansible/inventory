@@ -1,4 +1,4 @@
-ps01 is_master=True is_slave=False testssl_mx_remote_host=None
+#ps01 is_master=True is_slave=False testssl_mx_remote_host=None
 ps02 is_master=False is_slave=True testssl_mx_remote_host='privscore@fb02itshh.fh-muenster.de'
 ps03 is_master=False is_slave=True testssl_mx_remote_host='privscore@fb02itshh.fh-muenster.de'
 ps04 is_master=False is_slave=True testssl_mx_remote_host='privscore@fb02itshh.fh-muenster.de'

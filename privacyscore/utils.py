@@ -1,3 +1,8 @@
+import os
+
+from pwd import getpwuid
+from typing import List, Tuple
+
 from urllib.parse import urlparse
 from url_normalize import url_normalize
 
@@ -28,3 +33,13 @@ def get_list_item_by_dict_entry(search: list, key: str, value: str):
     """Get the first raw data element with the specified value for key."""
     return next((
         s for s in search if s[key] == value), None)
+
+
+def get_processes_of_user(user: str) -> List[Tuple[int, str]]:
+    """Get a tuple (pid, cmdline) for all processes of user."""
+    return [
+        (int(pid),
+         open('/proc/{}/cmdline'.format(pid), 'r').read())
+        for pid in os.listdir('/proc')
+        if (pid.isdigit() and
+            getpwuid(os.stat('/proc/{}'.format(pid)).st_uid).pw_name == user)]
