@@ -8,6 +8,12 @@ def normalize_url(url: str) -> str:
     explicit_port = urlparse(normalized).port
     if explicit_port:
         normalized = normalized.replace(':{}'.format(explicit_port), '', 1)
+    username = urlparse(normalized).username
+    password = urlparse(normalized).password
+    if username and password:
+        normalized = normalized.replace('{}:{}@'.format(username, password), '', 1)
+    elif username:
+        normalized = normalized.replace('{}@'.format(username), '', 1)
     return normalized.split('?')[0]
 
 
