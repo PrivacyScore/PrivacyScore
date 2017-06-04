@@ -41,7 +41,7 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
         OPENWPM_WRAPPER_PATH,
         url,
         scan_dir,
-    ], timeout=120, stdout=DEVNULL, stderr=DEVNULL,
+    ], stdout=DEVNULL, stderr=DEVNULL,
          cwd=settings.SCAN_TEST_BASEPATH, env={
              'VIRTUAL_ENV': virtualenv_path,
              'PATH': '{}:{}'.format(
