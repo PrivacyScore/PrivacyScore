@@ -44,3 +44,9 @@ mkdir tests/vendor/EasyList
 pushd tests/vendor/EasyList
 wget https://easylist.to/easylist/easyprivacy.txt https://easylist.to/easylist/easylist.txt https://easylist.to/easylist/fanboy-annoyance.txt
 popd
+
+# HSTS Preload List
+mkdir tests/vendor/HSTSPreload
+pushd tests/vendor/HSTSPreload
+wget https://chromium.googlesource.com/chromium/src/net/+/master/http/transport_security_state_static.json?format=TEXT -O - | base64 -d | egrep -v "^([ ]*\/\/|$)" > "transport_security_state_static"
+popd

@@ -162,3 +162,14 @@
         owner: privacyscore
         group: privacyscore
         dest: /opt/privacyscore/tests/vendor/EasyList/fanboy-annoyance.txt
+    - name: Create vendor/HSTSPreload if it does not exist
+      file:
+        path: /opt/privacyscore/tests/vendor/HSTSPreload/
+        owner: privacyscore
+        group: privacyscore
+        mode: 0700
+        state: directory
+    - name: Download HSTS Preload lists
+      shell: wget https://chromium.googlesource.com/chromium/src/net/+/master/http/transport_security_state_static.json?format=TEXT -O - | base64 -d | egrep -v "^([ ]*\/\/|$)" > "/opt/privacyscore/tests/vendor/HSTSPreload/transport_security_state_static"
+      args:
+        executable: /bin/bash
