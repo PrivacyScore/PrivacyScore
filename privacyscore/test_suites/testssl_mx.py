@@ -11,7 +11,15 @@ test_dependencies = ['network']
 
 def test_site(url: str, previous_results: dict, remote_host: str = None) -> Dict[str, Dict[str, Union[str, bytes]]]:
     # test first mx
-    hostname = previous_results['mx_records'][0][1]  # TODO: list might be empty
+    try:
+        hostname = previous_results['mx_records'][0][1]  # TODO: list might be empty
+    except KeyError:
+        return {
+            'jsonresult': {
+                'mime_type': 'application/json',
+                'data': '',
+            },
+        }
 
     jsonresult = run_testssl(hostname, True, remote_host)
 
@@ -25,6 +33,9 @@ def test_site(url: str, previous_results: dict, remote_host: str = None) -> Dict
 
 def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[str, object]]:
     """Process the raw data of the test."""
+    if raw_data['jsonresult']['data'] == "":
+        return {}
+
     data = json.loads(
         raw_data['jsonresult']['data'].decode())
 
