@@ -93,6 +93,17 @@ CHECKS['privacy']['server_locations'] = {
     'missing': None,
 }
 
+CHECKS['ssl']['url_is_https_or_redirects_to_https'] = {
+    'keys': {'final_url',},
+    'rating': lambda **keys: {
+        'description': _('The site url is https or redirects to https.'),
+        'classification': Rating('good'),
+    } if keys['final_url'].startswith('https') else {
+        'description': _('The web server does not redirect to https.'),
+        'classification': Rating('critical'),
+    },
+    'missing': None,
+}
 CHECKS['ssl']['pfs'] = {
     'keys': {'pfs',},
     'rating': lambda **keys: {

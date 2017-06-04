@@ -15,7 +15,6 @@ from django.db.models.expressions import RawSQL
 from django.utils import timezone
 from django.utils.functional import cached_property
 
-from privacyscore.evaluation.result_groups import RESULT_GROUPS, group_result
 from privacyscore.evaluation.site_evaluation import SiteEvaluation
 
 
@@ -495,12 +494,11 @@ class ScanResult(models.Model):
     def __str__(self) -> str:
         return '{}'.format(str(self.scan))
 
-    def evaluate(self, groups: OrderedDict, group_order: list) -> SiteEvaluation:
+    def evaluate(self, group_order: list) -> SiteEvaluation:
         """Evaluate the result."""
         from privacyscore.evaluation.evaluation import evaluate_result
 
-        result = group_result(self.result, groups)
-        return evaluate_result(result, groups, group_order)
+        return evaluate_result(self.result, group_order)
 
 
 class ScanError(models.Model):

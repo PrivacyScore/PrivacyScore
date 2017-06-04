@@ -16,7 +16,7 @@ from privacyscore.evaluation.rating import Rating
 from privacyscore.evaluation.site_evaluation import SiteEvaluation, UnrateableSiteEvaluation
 
 
-def evaluate_result(result: dict, groups: OrderedDict, group_order: list) -> Tuple[dict, OrderedDict]:
+def evaluate_result(result: dict, group_order: list) -> Tuple[dict, OrderedDict]:
     """
     Evaluate and describe a complete result dictionary.
 
@@ -25,17 +25,17 @@ def evaluate_result(result: dict, groups: OrderedDict, group_order: list) -> Tup
     of neutral results as well as the overall group rating and the ratio of
     good results.
     """
-    if 'reachable' in result['general'] and not result['general']['reachable']:
+    if 'reachable' in result and not result['reachable']:
         return UnrateableSiteEvaluation(), {}
     evaluated_groups = {}
     described_groups = OrderedDict()
-    for group, results in result.items():
+    for group in CHECKS.keys():
         evaluated_groups[group], described_groups[group] = evaluate_group(
-            group, results)
+            group, result)
     return SiteEvaluation(evaluated_groups, group_order), described_groups
 
 
-def evaluate_group(group: str, results: dict) -> GroupEvaluation:
+def evaluate_group(group: str, result: dict) -> GroupEvaluation:
     """
     Evaluate all entries of a group. Returns the number of good results, bad
     results and the number of neutral/not rateable results.
@@ -46,10 +46,10 @@ def evaluate_group(group: str, results: dict) -> GroupEvaluation:
     for check, data in CHECKS[group].items():
         keys = {}
         for key in data['keys']:
-            if key not in results:
+            if key not in result:
                 values = None
                 break
-            keys[key] = results[key]
+            keys[key] = result[key]
         if keys:
             res = data['rating'](**keys)
         else:
