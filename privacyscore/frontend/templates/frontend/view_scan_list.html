@@ -14,6 +14,10 @@
   text-align: right;
 }
 
+.unreachable {
+  opacity: 0.6;
+}
+
 .rating-doubleplusgood, .rating-good {
   background: #27FB6B;
 }
@@ -121,7 +125,7 @@
     </tr>
 
     {% for num, site in sites %}
-      <tr>
+      <tr{% if site.result.result.reachable is False %} class="unreachable"{% endif %}>
         <td>
           {{ num }}
         </td>

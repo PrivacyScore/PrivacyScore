@@ -7,7 +7,7 @@ body {
     color: #384452;
     font-family: 'Lato', sans-serif;
     font-weight: 400;
-    margin-bottom:230px; /* for footer */
+    margin-bottom:280px; /* for footer */
 }
 
 h2 {
@@ -231,4 +231,8 @@ a.spotlight-caption {
 .list-description {
     width:100%;
     box-sizing: border-box;
+}
+
+.spacer {
+    height:20px;
 }
