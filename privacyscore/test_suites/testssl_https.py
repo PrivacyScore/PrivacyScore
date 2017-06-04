@@ -8,11 +8,17 @@ from privacyscore.utils import get_list_item_by_dict_entry
 from .testssl.common import run_testssl
 
 test_name = 'testssl_https'
-test_dependencies = []
+test_dependencies = [
+    'network',
+]
 
 
 def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str, bytes]]]:
-    hostname = urlparse(url).hostname
+    final_url = previous_results['final_url']
+    if not final_url.startswith('https'):
+        raise Exception('no ssl (redirection)')
+
+    hostname = urlparse(final_url).hostname
 
     jsonresult = run_testssl(hostname, False)
 
@@ -33,7 +39,9 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
         # something went wrong with this test.
         raise Exception('no scan result in raw data')
 
-    result = {}
+    result = {
+        'has_ssl': True,  # otherwise an exception would have been thrown before
+    }
 
     # pfs
     result['pfs'] = data['scanResult'][0]['pfs'][0]['severity'] == 'OK'
