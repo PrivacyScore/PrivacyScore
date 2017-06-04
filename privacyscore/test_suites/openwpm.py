@@ -162,7 +162,15 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
         scantosave["third_parties"] = third_parties
         scantosave["third_parties_count"] = len(third_parties)
 
+        # Identify known trackers
         scantosave["tracker_requests"] = detect_trackers(third_party_requests)
+
+        # Google Analytics detection
+        (present, anonymized, not_anonymized) = detect_google_analytics(third_party_requests)
+        scantosave["google_analytics_present"] = present
+        scantosave["google_analytics_anonymizeIP_set"] = anonymized
+        scantosave["google_analytics_anonymizeIP_not_set"] = not_anonymized
+
 
         # responses
         for url, method, referrer, headers, response_status_text, time_stamp in cur.execute(
@@ -401,3 +409,31 @@ def detect_trackers(third_parties):
             result.append("{}.{}".format(ext.domain, ext.suffix))
 
     return list(set(result))
+
+def detect_google_analytics(requests):
+    """
+    Detect if Google Analytics is being used, and if yes, if the privacy extensions are active.
+
+    :param requests: All 3rd party requests (not: domains) of the website
+    :return: A 3-tuple (present: boolean, anonymized: int, not_anonymized: int), where
+        present indicates if Google Analytics is present, anonymized indicates the number of
+        collect requests that have anonymizeIp set, and not_anonymized indicates the number of
+        requests without anonymizeIp set.
+    """
+    present = False
+    anonymized = 0
+    not_anonymized = 0
+
+    exp = re.compile('(google-analytics\.com\/.*?collect)|' +  # Match JS tracking endpoint
+                     '(google-analytics\.com\/.*?utm\.gif)|' +  # Match tracking pixel
+                     '(google\..+?\/(pagead)|(ads)/ga-audiences)')  # Match audience remarketing endpoints
+
+    for request in requests:
+        if len(exp.findall(request)) > 0:
+            present = True
+            if "aip=1" in request:
+                anonymized += 1
+            else:
+                not_anonymized += 1
+
+    return (present, anonymized, not_anonymized)
