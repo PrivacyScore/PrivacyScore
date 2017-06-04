@@ -35,7 +35,7 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
 def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[str, object]]:
     """Process the raw data of the test."""
     data = json.loads(
-        raw_data['jsonresult']['data'].decode())
+        raw_data['jsonresult']['data'].decode('unicode_escape'))
 
     if not data['scanResult'] or not data['scanResult'][0]:
         # something went wrong with this test.
@@ -46,6 +46,7 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
 
     # detect headers
     result.update(_detect_hsts(data))
+    result.update(_detect_hpkp(data))
 
 
     return result
@@ -112,6 +113,12 @@ def _detect_hpkp(data: dict) -> dict:
         data['scanResult'][0]['headerResponse'],
         'id', 'hpkp')
     if hpkp_item is not None:
-        return {'web_has_hpkp_header': hpkp_item['severity'] != 'HIGH'}
+        return {'web_has_hpkp_header': not hpkp_item['finding'].startswith('No')}
+
+    hpkp_item = get_list_item_by_dict_entry(
+        data['scanResult'][0]['headerResponse'],
+        'id', 'hpkp_multiple')
+    if hpkp_item is not None:
+        return {'web_has_hpkp_header': True}
 
     return {'web_has_hpkp_header': False}
