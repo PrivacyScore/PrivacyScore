@@ -7,6 +7,8 @@ from subprocess import call, check_output, DEVNULL
 
 from django.conf import settings
 
+from pprint import pprint
+
 
 TESTSSL_PATH = os.path.join(
     settings.SCAN_TEST_BASEPATH, 'vendor/testssl.sh', 'testssl.sh')
@@ -49,7 +51,7 @@ def parse_common_testssl(json: str, prefix: str):
         if vuln['severity'] != u"OK" and vuln['severity'] != u'INFO':
             result['{}_vulnerabilities'.format(prefix)][vuln['id']] = {
                 'severity': vuln['severity'],
-                'cve': vuln['cve'],
+                'cve': vuln['cve'] if 'cve' in vuln.keys() else "",
                 'finding': vuln['finding'],
             }
     
