@@ -316,17 +316,9 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
 
         scantosave["flashcookies_count"] = len(scantosave["flashcookies"])
         scantosave["cookies_count"] = len(scantosave["profilecookies"])
-        (fp_short, fp_long, fp_fc, tp_short, tp_long, tp_fc, tp_track, tp_track_uniq) = \
+        scantosave["cookie_stats"] = \
             detect_cookies(url, scantosave["profilecookies"], 
                 scantosave["flashcookies"], scantosave["tracker_requests"])
-        scantosave["cookie_first_party_short"] = fp_short
-        scantosave["cookie_first_party_long"] = fp_long
-        scantosave["cookie_first_party_flash"] = fp_fc
-        scantosave["cookie_third_party_short"] = tp_short
-        scantosave["cookie_third_party_long"] = tp_long
-        scantosave["cookie_third_party_flash"] = tp_fc
-        scantosave["cookie_third_party_track"] = tp_track
-        scantosave["cookie_third_party_track_uniq"] = tp_track_uniq
 
         # Detect mixed content
         mixed_content = detect_mixed_content(url, scantosave["https"], cur)
@@ -501,7 +493,7 @@ def detect_cookies(domain, cookies, flashcookies, trackers):
     :param cookies: The regular cookies
     :param flashcookies: The flash cookies
     :param trackers: All trackers that have been identified on this website
-    :return: An 8-tuple of values. See variable definitions below.
+    :return: A dictionary of values. See variable definitions below.
     """
     fp_short      = 0  # Short-term first-party cookies
     fp_long       = 0  # Long-Term first-party cookies
@@ -552,4 +544,13 @@ def detect_cookies(domain, cookies, flashcookies, trackers):
                     tp_track_uniq += 1
                 tp_track += 1
 
-    return (fp_short, fp_long, fp_fc, tp_short, tp_long, tp_fc, tp_track, tp_track_uniq)
+    rv = {}
+    rv["first_party_short"] = fp_short
+    rv["first_party_long"] = fp_long
+    rv["first_party_flash"] = fp_fc
+    rv["third_party_short"] = tp_short
+    rv["third_party_long"] = tp_long
+    rv["third_party_flash"] = tp_fc
+    rv["third_party_track"] = tp_track
+    rv["third_party_track_uniq"] = tp_track_uniq
+    return rv
