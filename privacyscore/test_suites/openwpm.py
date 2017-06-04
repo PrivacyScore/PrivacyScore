@@ -8,6 +8,7 @@ import tempfile
 
 from io import BytesIO
 from subprocess import call, DEVNULL
+from time import time
 from typing import Dict, Union
 from uuid import uuid4
 from adblockparser import AdblockRules
@@ -315,6 +316,17 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
 
         scantosave["flashcookies_count"] = len(scantosave["flashcookies"])
         scantosave["cookies_count"] = len(scantosave["profilecookies"])
+        (fp_short, fp_long, fp_fc, tp_short, tp_long, tp_fc, tp_track, tp_track_uniq) = \
+            detect_cookies(url, scantosave["profilecookies"], 
+                scantosave["flashcookies"], scantosave["tracker_requests"])
+        scantosave["cookie_first_party_short"] = fp_short
+        scantosave["cookie_first_party_long"] = fp_long
+        scantosave["cookie_first_party_flash"] = fp_fc
+        scantosave["cookie_third_party_short"] = tp_short
+        scantosave["cookie_third_party_long"] = tp_long
+        scantosave["cookie_third_party_flash"] = tp_fc
+        scantosave["cookie_third_party_track"] = tp_track
+        scantosave["cookie_third_party_track_uniq"] = tp_track_uniq
 
         # Detect mixed content
         mixed_content = detect_mixed_content(url, scantosave["https"], cur)
@@ -451,6 +463,7 @@ def detect_google_analytics(requests):
 
     return (present, anonymized, not_anonymized)
 
+
 def detect_mixed_content(url, https, cursor):
     """
     Detect if we have mixed content on the site.
@@ -478,3 +491,65 @@ def detect_mixed_content(url, https, cursor):
         # Log and ignore, do not make any statements about the existence of mixed content
         print("Unexpected error:", sys.exc_info()[0])
         return None
+
+
+def detect_cookies(domain, cookies, flashcookies, trackers):
+    """
+    Detect cookies and return statistics about them.
+
+    :param domain: The domain (not: URL) that is being scanned
+    :param cookies: The regular cookies
+    :param flashcookies: The flash cookies
+    :param trackers: All trackers that have been identified on this website
+    :return: An 8-tuple of values. See variable definitions below.
+    """
+    fp_short      = 0  # Short-term first-party cookies
+    fp_long       = 0  # Long-Term first-party cookies
+    fp_fc         = 0  # First-party flash cookies
+    tp_short      = 0  # Short-term third party cookies
+    tp_long       = 0  # Long-term third-party cookies
+    tp_fc         = 0  # Third party flash cookies
+    tp_track      = 0  # Third party cookies from known trackers
+    tp_track_uniq = 0  # Number of unique tracking domains that set cookies
+    
+    dom_ext = tldextract.extract(domain)
+    seen_trackers = []
+
+    for cookie in cookies:
+        fp = None
+
+        cd_ext = tldextract.extract(cookie["baseDomain"])
+        if cd_ext.domain == dom_ext.domain and cd_ext.suffix == dom_ext.suffix:
+            fp = True
+        else:
+            fp = False
+            if cd_ext.domain + "." + cd_ext.suffix in trackers:
+                if cd_ext.domain + "." + cd_ext.suffix not in seen_trackers:
+                    seen_trackers.append(cd_ext.domain + "." + cd_ext.suffix)
+                    tp_track_uniq += 1
+                tp_track += 1
+
+        if cookie["expiry"] - (cookie["accessed"] / 1000000) > 86400:  # Expiry is more than 24 hours away from last access
+            if fp:
+                fp_long += 1
+            else:
+                tp_long += 1
+        else:
+            if fp:
+                fp_short += 1
+            else:
+                tp_short += 1
+
+    for cookie in flashcookies:
+        cd_ext = tldextract.extract(cookie["domain"])
+        if cd_ext.domain == dom_ext.domain and cd_ext.suffix == dom_ext.suffix:
+            fp_fc += 1
+        else:
+            tp_fc += 1
+            if cd_ext.domain + "." + cd_ext.suffix in trackers:
+                if cd_ext.domain + "." + cd_ext.suffix not in seen_trackers:
+                    seen_trackers.append(cd_ext.domain + "." + cd_ext.suffix)
+                    tp_track_uniq += 1
+                tp_track += 1
+
+    return (fp_short, fp_long, fp_fc, tp_short, tp_long, tp_fc, tp_track, tp_track_uniq)
