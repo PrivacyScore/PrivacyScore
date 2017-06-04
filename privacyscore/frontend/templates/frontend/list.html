@@ -57,7 +57,11 @@
     <h3>{% trans "Upload List as CSV File" %}</h3>
     <div class="group-box">
         <p>{% trans "During the initial stage of the beta phase we ask you to submit your list of websites by uploading a comma-separated values (CSV) file." %}</p>
-        <p>{% trans "The file has to contain a <em>header line</em> followed by multiple rows, one row per website. The <em>first column</em> is expected to be the URL of the site. All other columns contain <em>site attributes</em>. Please use the <em>semi-colon</em> (;) as a column delimiter." %}</p>
+        <p>
+            {% trans "The file has to contain a <em>header line</em> followed by multiple rows, one row per website." %}
+            {% trans "The <em>first column</em> is expected to be the URL of the site. All other columns contain <em>site attributes</em>." %}
+            {% trans "Please use the <em>semi-colon</em> (;) as a column delimiter." %}
+        </p>
         {% trans "<p>The following example illustrates the structure for a list of hypothetical e-commerce sites:</p>" %}
         <table class="table table-bordered">
             <tr>
@@ -86,6 +90,14 @@
                 {% trans 'Upload CSV File' %}
         </button>
     </div>
+
+    <div class="spacer"></div>
+    <p>
+        <button class="btn btn-primary">
+            {% trans "Scan list of sites" %}
+        </button>
+
+    </p>
 
     </form>
 {% endblock content %}
