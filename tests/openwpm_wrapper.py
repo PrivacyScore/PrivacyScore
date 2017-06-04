@@ -51,6 +51,30 @@ def determine_final_url(table_name, original_url, **kwargs):
     sock.close()
 
 
+def get_browser_log(table_name, original_url, **kwargs):
+    """Write all logs to a new table. Used to later detect mixed content warnings."""
+    driver = kwargs['driver']
+    manager_params = kwargs['manager_params']
+
+    sock = clientsocket()
+    sock.connect(*manager_params['aggregator_address'])
+
+    # It is not possible to use sanitised wildcard ("?") replacement here, as this can only be used
+    # for values, not table or column names. However, this is safe in this context, as the value
+    # is hardcoded into the call to be "final_urls", so there is no possibility of SQL injections here
+    query = ("CREATE TABLE IF NOT EXISTS %s ("
+            "original_url TEXT, log_json TEXT);" % table_name)
+    sock.send((query, ()))
+
+    # Safe against SQLi, for the same reason as outlined above
+    logs = driver.get_log("browser")
+    query = ("INSERT INTO %s (original_url, log_json) "
+             "VALUES (?, ?)" % table_name)
+    for entry in logs:
+        sock.send((query, (original_url, str(entry))))
+    sock.close()
+
+
 def scan_site(site):
     try:
 
@@ -92,6 +116,7 @@ def scan_site(site):
         command_sequence.save_screenshot('screenshot', 5)
         command_sequence.dump_page_source('source', 5)
         command_sequence.run_custom_function(determine_final_url, ('final_urls', site)) # needed to determine whether site redirects to https
+        command_sequence.run_custom_function(get_browser_log, ('browser_logs', site)) # needed to determine if mixed content was blocked
         command_sequence.dump_profile_cookies(30)
         # Execute command sequence
         manager.execute_command_sequence(command_sequence, index='**') # ** for synchronized Browsers

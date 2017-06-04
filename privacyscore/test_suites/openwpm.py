@@ -316,6 +316,12 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
         scantosave["flashcookies_count"] = len(scantosave["flashcookies"])
         scantosave["cookies_count"] = len(scantosave["profilecookies"])
 
+        # Detect mixed content
+        mixed_content = detect_mixed_content(url, scantosave["https"], cur)
+        # Do not set mixed content key in results if function returned None
+        if mixed_content is not None:
+            scantosave["mixed_content"] = mixed_content
+
     # Close SQLite connection
     conn.close()
 
@@ -444,3 +450,31 @@ def detect_google_analytics(requests):
                 not_anonymized += 1
 
     return (present, anonymized, not_anonymized)
+
+def detect_mixed_content(url, https, cursor):
+    """
+    Detect if we have mixed content on the site.
+
+    :param url: initial URL of the website (before forwards etc)
+    :param https: Boolean indicating whether the site uses HTTPS
+    :param cursor: An SQLite curser to use
+    :return: True iff https == True && at least one mixed content warning was thrown by firefox
+    """
+    if not https:
+        return False
+    rv = False
+    try:
+        # Attempt to load all log entries from the database
+        entries = cursor.execute("SELECT log_json FROM browser_logs WHERE original_url LIKE ?;", (url, ))
+        # If we get here, the table existed, so mixed content detection should work
+        exp = re.compile("mixed .* content \"(.*)\"")
+        for entry in entries:
+            match = exp.findall(entry[0])
+            if len(match) > 0:
+                rv = True
+        return rv
+    except:
+        # Very likely, the database table does not exist, so we may be working on an old database format.
+        # Log and ignore, do not make any statements about the existence of mixed content
+        print("Unexpected error:", sys.exc_info()[0])
+        return None
