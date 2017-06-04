@@ -51,7 +51,7 @@ def group_result(result: dict, groups: OrderedDict) -> dict:
     
     Only keys defined in groups are preserved. Keys can be mapped to multiple groups.
     """
-    grouped_result = {}
+    grouped_result = OrderedDict()
     for group, data in groups.items():
         grouped_result[group] = {}
         for key in data['keys']:
