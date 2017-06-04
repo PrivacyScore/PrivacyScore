@@ -15,6 +15,7 @@ RESULT_GROUPS = OrderedDict()
 RESULT_GROUPS['general'] = {
         'name': _('General'),
         'keys': [
+            'reachable',
             'cookies_count',
             'flashcookies_count',
             'third_parties_count',
