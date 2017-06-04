@@ -13,7 +13,7 @@ from typing import Tuple, Union
 from privacyscore.evaluation.default_checks import CHECKS
 from privacyscore.evaluation.group_evaluation import GroupEvaluation
 from privacyscore.evaluation.rating import Rating
-from privacyscore.evaluation.site_evaluation import SiteEvaluation
+from privacyscore.evaluation.site_evaluation import SiteEvaluation, UnrateableSiteEvaluation
 
 
 def evaluate_result(result: dict, groups: OrderedDict, group_order: list) -> Tuple[dict, OrderedDict]:
@@ -25,6 +25,8 @@ def evaluate_result(result: dict, groups: OrderedDict, group_order: list) -> Tup
     of neutral results as well as the overall group rating and the ratio of
     good results.
     """
+    if 'reachable' in result['general'] and not result['general']['reachable']:
+        return UnrateableSiteEvaluation(), {}
     evaluated_groups = {}
     described_groups = OrderedDict()
     for group, results in result.items():
