@@ -62,11 +62,12 @@ h2 {
 
 
 .navbar h1 {
-	display: inline;
-	font-family: "Raleway", sans-serif;
-	font-size: 1.4em;
-	font-weight: 900;
-	line-height: 50px;
+    float: left;
+    display: inline;
+    font-family: "Raleway", sans-serif;
+    font-size: 1.4em;
+    font-weight: 900;
+    line-height: 12px;
     padding-left: 15px;
     text-transform: uppercase;
 }
