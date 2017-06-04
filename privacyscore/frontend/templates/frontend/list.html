@@ -47,33 +47,33 @@
                 <div class="form-group">
                     <label for="id_description">{% trans "Description" %}</label>
                     {% render_field scan_list_form.description class+="form-control list-description" placeholder="Brief description shown in the directory [new paragraph] Details about your collection methodology [new paragraph] all sources you used [new paragraph] description of the Attribute Columns (if your list contains any)" %}
-                <p style="margin-top:5px; margin-left:5px; margin-right:5px; font-size:90%"><strong>Instructions:</strong> Please start with a <strong>brief description</strong> of the list and the motivation to scan it. Please stay between 20 and 50 words, because we show this first paragraph as a preview in the list directory. The second paragraph should <strong>present details about the collection</strong> and if there is something peculiar about it. The next paragraph can be used to <strong>describe the sources</strong> you used to compile the entries (if any). Finally, the last paragraph should be used to explain the <strong>site attributes</strong> and the meaning of the possible values.</p>
+                <p style="margin-top:5px; margin-left:5px; margin-right:5px; font-size:90%"><em>Instructions:</em> Please start with a <em>brief description</em> of the list and the motivation to scan it. Please stay between 20 and 50 words, because we show this first paragraph as a preview in the list directory. The second paragraph should <em>present details about the collection</em> and if there is something peculiar about it. The next paragraph can be used to <em>describe the sources</em> you used to compile the entries (if any). Finally, the last paragraph should be used to explain the <em>site attributes</em> and the meaning of the possible values.</p>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="spacer"></div>
-    <h3>{% trans "Upload list of sites" %}</h3>
+    <h3>{% trans "Upload List as CSV File" %}</h3>
     <div class="group-box">
-        {% trans "Your CSV file should contain a header line followed by the site rows." %}
-        {% trans "The first column is expected to be the URL of the site." %}
-        {% trans "See the following example:" %}
+        <p>{% trans "During the initial stage of the beta phase we ask you to submit your list of websites by uploading a comma-separated values (CSV) file." %}</p>
+        <p>{% trans "The file has to contain a <em>header line</em> followed by multiple rows, one row per website. The <em>first column</em> is expected to be the URL of the site. All other columns contain <em>site attributes</em>. Please use the <em>semi-colon</em> (;) as a column delimiter." %}</p>
+        {% trans "<p>The following example illustrates the structure for a list of hypothetical e-commerce sites:</p>" %}
         <table class="table table-bordered">
             <tr>
                 <th>URL</th>
-                <th>Number of Unicorns</th>
-                <th>Sweetness of Unicorns (1-10)</th>
+                <th>Country</th>
+                <th>Annual Sales</th>
             </tr>
             <tr>
                 <td>http://myunicorn.example.com/</td>
-                <td>10</td>
-                <td>8</td>
+                <td>US</td>
+                <td>8500</td>
             </tr>
             <tr>
-                <td>http://manyunicorns.example.com/</td>
-                <td>99</td>
-                <td>6</td>
+                <td>http://manyunicorns.example.it/</td>
+                <td>IT</td>
+                <td>600</td>
             </tr>
         </table>
 
@@ -83,7 +83,7 @@
         </div>
         <button class="btn btn-default">
             <i class="fa fa-upload"></i>
-                {% trans 'Upload CSV' %}
+                {% trans 'Upload CSV File' %}
         </button>
     </div>
 
