@@ -2,6 +2,7 @@ import json
 from typing import Dict, List, Union
 from urllib.parse import urlparse
 
+import requests
 from dns import resolver, reversename
 from dns.exception import DNSException
 from geoip2.database import Reader
@@ -16,6 +17,12 @@ def test_site(url: str, previous_results: dict, country_database_path: str) -> D
     """Test the specified url with geoip."""
     # determine hostname
     hostname = urlparse(url).hostname
+
+    # determine final url
+    response = requests.get(url, headers={
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0',
+    }, verify=False)
+    final_url = response.url
 
     # DNS
     # cname records
@@ -45,6 +52,7 @@ def test_site(url: str, previous_results: dict, country_database_path: str) -> D
         'dns': {
             'mime_type': 'application/json',
             'data': json.dumps({
+                'final_url': final_url,
                 'cname_records': cname_records,
                 'a_records': a_records,
                 'mx_records': mx_records,
