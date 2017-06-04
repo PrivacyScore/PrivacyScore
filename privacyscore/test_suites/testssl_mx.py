@@ -3,7 +3,7 @@ import re
 from typing import Dict, Union
 from urllib.parse import urlparse
 
-from .testssl.common import run_testssl
+from .testssl.common import run_testssl, parse_common_testssl
 
 test_name = 'testssl_mx'
 test_dependencies = ['network']
@@ -34,8 +34,5 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
 
     # TODO: Parse mx result -- there are no http headers to analyze here ...
 
-    return {
-        'mx_pfs': data['scanResult'][0]['pfs'][0][
-            'severity'] == 'OK',
-    }
+    return parse_common_testssl(data)
 

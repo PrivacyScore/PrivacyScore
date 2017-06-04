@@ -1,6 +1,7 @@
 import os
 import re
 import tempfile
+from pprint import pprint
 
 from subprocess import call, check_output, DEVNULL
 
@@ -24,6 +25,44 @@ def run_testssl(hostname: str, check_mx: bool, remote_host: str = None) -> bytes
 
     return out
 
+
+def parse_common_testssl(json: str):
+    """Perform common parsing tasks on result JSONs."""
+    result = {
+        'has_ssl': True,  # otherwise an exception would have been thrown before
+    }
+
+    # pfs
+    result['pfs'] = json['scanResult'][0]['pfs'][0]['severity'] == 'OK'
+
+    # detect protocols
+    pattern = re.compile(r'is (not )?offered')
+    for p in json['scanResult'][0]['protocols']:
+        match = pattern.search(p['finding'])
+        if not match:
+            continue
+        result['has_protocol_{}'.format(p['id'])] = match.group(1) is None
+
+    # Detect vulnerabilities
+    result['vulnerabilities'] = {}
+    for vuln in json['scanResult'][0]['vulnerabilities']:
+        if vuln['severity'] != u"OK" and vuln['severity'] != u'INFO':
+            result['vulnerabilities'][vuln['id']] = {
+                'severity': vuln['severity'],
+                'cve': vuln['cve'],
+                'finding': vuln['finding'],
+            }
+    
+    # Detect ciphers
+    result['ciphers'] = {}
+    for cipher in json['scanResult'][0]['ciphers']:
+        if cipher['severity'] != u"OK" and cipher['severity'] != u'INFO':
+            result['ciphers'][cipher['id']] = {
+                'severity': cipher['severity'],
+                'finding': cipher['finding'],
+            }
+
+    return result
 
 def _remote_testssl(hostname: str, remote_host: str) -> bytes:
     """Run testssl over ssh."""

@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 
 from privacyscore.utils import get_list_item_by_dict_entry
 
-from .testssl.common import run_testssl
+from .testssl.common import run_testssl, parse_common_testssl
 
 test_name = 'testssl_https'
 test_dependencies = [
@@ -39,20 +39,8 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
         # something went wrong with this test.
         raise Exception('no scan result in raw data')
 
-    result = {
-        'has_ssl': True,  # otherwise an exception would have been thrown before
-    }
-
-    # pfs
-    result['pfs'] = data['scanResult'][0]['pfs'][0]['severity'] == 'OK'
-
-    # detect protocols
-    pattern = re.compile(r'is (not )?offered')
-    for p in data['scanResult'][0]['protocols']:
-        match = pattern.search(p['finding'])
-        if not match:
-            continue
-        result['has_protocol_{}'.format(p['id'])] = match.group(1) is None
+    # Grab common information
+    result = parse_common_testssl(data)
 
     # detect headers
     result.update(_detect_hsts(data))
