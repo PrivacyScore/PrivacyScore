@@ -22,6 +22,7 @@ class SingleSiteForm(forms.Form):
 
 class CreateListForm(forms.ModelForm):
     tags = forms.CharField()
+    csv_file = forms.FileField()
     class Meta:
         model = ScanList
         fields = ('name', 'description', 'pseudonym', 'email', 'private')

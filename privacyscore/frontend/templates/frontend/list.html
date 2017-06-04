@@ -16,8 +16,9 @@
 
     <p>PrivacyScore is a scanning service that allows you to scan the security and privacy properties of multiple sites. On this page you can upload your own list. The list will be scanned by our scan engine as soon as possible. After the scan is finished, you can view the results here. Besides viewing detailed results for every website, you will be able to rank the websites according to your personal preferences.</p>
     
-    <form class="post">
+    <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
+        {{ scan_list_form.errors }}
 
     <h3>{% trans "Basic Information" %}</h3>
     <div class="group-box">
@@ -58,6 +59,7 @@
     <div class="spacer"></div>
     <h3>{% trans "Upload List as CSV File" %}</h3>
     <div class="group-box">
+        {% if not table %}
         <div style="width: 50%" class="pull-left">
             <p>{% trans "During the initial stage of the beta phase we ask you to submit your list of websites by uploading a comma-separated values (CSV) file. At the moment you can upload lists with a <strong>maximum number of 500 websites</strong>. <em>Improvements underway: We plan to increase the maximum number of websites that can be contained in a list. We will also offer the possibility to create and edit lists directly in the browser. Estimated release: July 2017.</em>" %}.</p>
         </div>
@@ -65,6 +67,7 @@
             <div style="height:200px; width: 70%; border: solid 2px orange; background-color: yellow; padding: 2em; vertical-align: middle; margin-left: auto; margin-right: auto;">Hello World!
             </div>
         </div>
+
         <div style="width: 50%" class="pull-left">
             <p><strong>{% trans "Instructions:" %}</strong></p>
             <ul>
@@ -97,10 +100,26 @@
                 <td>600</td>
             </tr>
         </table>
+        {% else %}
+        <table class="table table-bordered">
+            <tr>
+                {% for column in table_header %}
+                <th>{{ column }}</th>
+                {% endfor %}
+            </tr>
+            {% for row in table %}
+            <tr>
+                {% for column in row %}
+                <td>{{ column }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
 
         <div class="spacer"></div>
         <div class="form-group">
-            <input type="file">
+            {{ scan_list_form.csv_file }}
         </div>
         <button class="btn btn-default">
             <i class="fa fa-upload"></i>
