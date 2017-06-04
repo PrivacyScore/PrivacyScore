@@ -112,7 +112,7 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
     } if (keys['final_url'].startswith('https') and
           keys['same_content_via_https']) else {
         'description': _('The site does not use https by default but provides the same content using https.'),
-        'classification': Rating('bad'),
+        'classification': Rating('good'),
     } if keys['same_content_via_https'] else {
         'description': _('The web server does not provide the same content via https as via http.'),
         'classification': Rating('bad'),
