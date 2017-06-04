@@ -118,6 +118,7 @@ def scan_site(site):
         command_sequence.run_custom_function(determine_final_url, ('final_urls', site)) # needed to determine whether site redirects to https
         command_sequence.run_custom_function(get_browser_log, ('browser_logs', site)) # needed to determine if mixed content was blocked
         command_sequence.dump_profile_cookies(30)
+        command_sequence.dump_flash_cookies(30)
         # Execute command sequence
         manager.execute_command_sequence(command_sequence, index='**') # ** for synchronized Browsers
 
