@@ -114,14 +114,14 @@ def _a_lookup(name: str) -> List[str]:
 
 def _cname_lookup(name: str) -> List[str]:
     try:
-        return [e.to_text()[:-1] for e in resolver.query(name, 'CNAME')]
+        return [e.to_text()[:-1].lower() for e in resolver.query(name, 'CNAME')]
     except DNSException:
         return []
 
 
 def _mx_lookup(name: str) -> List[str]:
     try:
-        return sorted([(e.preference, e.exchange.to_text()[:-1])
+        return sorted([(e.preference, e.exchange.to_text()[:-1].lower())
                        for e in resolver.query(name, 'MX')], key=lambda v: v[0])
     except DNSException:
         return []
@@ -130,7 +130,8 @@ def _mx_lookup(name: str) -> List[str]:
 def _reverse_lookup(ip: str) -> List[str]:
     try:
         address = reversename.from_address(ip).to_text()
-        return [rev.to_text()[:-1] for rev in resolver.query(address, 'PTR')]
+        return [rev.to_text()[:-1].lower()
+                for rev in resolver.query(address, 'PTR')]
     except DNSException:
         return []
 
@@ -155,7 +156,7 @@ def _get_countries(addresses: List[str], reader: Reader) -> List[str]:
 def _jaccard_index(a: bytes, b: bytes) -> float:
     """Calculate the jaccard similarity of a and b."""
     pattern = re.compile(rb' |\n')
-    # remove tokens containing / to prevent wrong classifications for 
+    # remove tokens containing / to prevent wrong classifications for
     # absolute paths
     a = set(token for token in pattern.split(a) if b'/' not in token)
     b = set(token for token in pattern.split(b) if b'/' not in token)
