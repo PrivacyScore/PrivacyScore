@@ -22,31 +22,6 @@ def test_site(url: str, previous_results: dict, country_database_path: str) -> D
     # determine hostname
     hostname = urlparse(url).hostname
 
-    # determine final url
-    response = requests.get(url, headers={
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0',
-    }, verify=False, timeout=8)
-    general_result['final_url'] = response.url
-    result['final_url_content'] = {
-        'mime_type': response.headers['content-type'],
-        'data': response.content,
-    }
-    if not general_result['final_url'].startswith('https'):
-        https_url = 'https:/' + general_result['final_url'].split('/', maxsplit=1)[1]
-        try:
-            response = requests.get(https_url, headers={
-                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0',
-            }, verify=False, timeout=8)
-            general_result['final_https_url'] = response.url
-            result['final_https_url_content'] = {
-                'mime_type': response.headers['content-type'],
-                'data': response.content,
-            }
-        except Exception:
-            general_result['final_https_url'] = False
-    else:
-        general_result['final_https_url'] = general_result['final_url']
-
     # DNS
     # cname records
     general_result['cname_records'] = _cname_lookup(hostname)
@@ -71,6 +46,42 @@ def test_site(url: str, previous_results: dict, country_database_path: str) -> D
          [_reverse_lookup(a) for a in mx_a])
         for pref, mx_a in general_result['mx_a_records']]
 
+    # determine final url
+    general_result['reachable'] = True
+    try:
+        response = requests.get(url, headers={
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0',
+        }, verify=False, timeout=8)
+        general_result['final_url'] = response.url
+        result['final_url_content'] = {
+            'mime_type': response.headers['content-type'],
+            'data': response.content,
+        }
+    except Exception:
+        general_result['reachable'] = False
+        result['general'] = {
+            'mime_type': 'application/json',
+            'data': json.dumps(general_result).encode(),
+        }
+        return result
+
+    if not general_result['final_url'].startswith('https'):
+        https_url = 'https:/' + general_result['final_url'].split('/', maxsplit=1)[1]
+        try:
+            response = requests.get(https_url, headers={
+                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0',
+            }, verify=False, timeout=8)
+            general_result['final_https_url'] = response.url
+            result['final_https_url_content'] = {
+                'mime_type': response.headers['content-type'],
+                'data': response.content,
+            }
+        except Exception:
+            general_result['final_https_url'] = False
+    else:
+        general_result['final_https_url'] = general_result['final_url']
+
+
     result['general'] = {
         'mime_type': 'application/json',
         'data': json.dumps(general_result).encode(),
@@ -92,7 +103,8 @@ def process_test_data(raw_data: list, previous_results: dict, country_database_p
 
     # TODO: reverse mx-a matches mx
 
-    result['final_url_is_https'] = result['final_url'].startswith('https')
+    result['final_url_is_https'] = (
+        'final_url' in result and result['final_url'].startswith('https'))
     # handle non-https final url
     if (not result['final_url_is_https'] and
             'final_url_content' in raw_data and
