@@ -26,14 +26,14 @@ def run_testssl(hostname: str, check_mx: bool, remote_host: str = None) -> bytes
     return out
 
 
-def parse_common_testssl(json: str):
+def parse_common_testssl(json: str, prefix: str):
     """Perform common parsing tasks on result JSONs."""
     result = {
-        'has_ssl': True,  # otherwise an exception would have been thrown before
+        '{}_has_ssl'.format(prefix): True,  # otherwise an exception would have been thrown before
     }
 
     # pfs
-    result['pfs'] = json['scanResult'][0]['pfs'][0]['severity'] == 'OK'
+    result['{}_pfs'.format(prefix)] = json['scanResult'][0]['pfs'][0]['severity'] == 'OK'
 
     # detect protocols
     pattern = re.compile(r'is (not )?offered')
@@ -41,23 +41,23 @@ def parse_common_testssl(json: str):
         match = pattern.search(p['finding'])
         if not match:
             continue
-        result['has_protocol_{}'.format(p['id'])] = match.group(1) is None
+        result['{}_has_protocol_{}'.format(prefix, p['id'])] = match.group(1) is None
 
     # Detect vulnerabilities
-    result['vulnerabilities'] = {}
+    result['{}_vulnerabilities'.format(prefix)] = {}
     for vuln in json['scanResult'][0]['vulnerabilities']:
         if vuln['severity'] != u"OK" and vuln['severity'] != u'INFO':
-            result['vulnerabilities'][vuln['id']] = {
+            result['{}_vulnerabilities'.format(prefix)][vuln['id']] = {
                 'severity': vuln['severity'],
                 'cve': vuln['cve'],
                 'finding': vuln['finding'],
             }
     
     # Detect ciphers
-    result['ciphers'] = {}
+    result['{}_ciphers'.format(prefix)] = {}
     for cipher in json['scanResult'][0]['ciphers']:
         if cipher['severity'] != u"OK" and cipher['severity'] != u'INFO':
-            result['ciphers'][cipher['id']] = {
+            result['{}_ciphers'.format(prefix)][cipher['id']] = {
                 'severity': cipher['severity'],
                 'finding': cipher['finding'],
             }

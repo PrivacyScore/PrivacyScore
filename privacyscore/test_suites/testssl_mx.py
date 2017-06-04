@@ -34,5 +34,5 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
 
     # TODO: Parse mx result -- there are no http headers to analyze here ...
 
-    return parse_common_testssl(data)
+    return parse_common_testssl(data, "mx")
 

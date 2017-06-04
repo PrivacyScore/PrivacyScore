@@ -40,7 +40,7 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
         raise Exception('no scan result in raw data')
 
     # Grab common information
-    result = parse_common_testssl(data)
+    result = parse_common_testssl(data, "web")
 
     # detect headers
     result.update(_detect_hsts(data))
@@ -59,15 +59,15 @@ def _detect_hsts(data: dict) -> dict:
         data['scanResult'][0]['headerResponse'],
         'id', 'hsts_preload')
 
-    result['has_hsts_preload_header'] = False
+    result['web_has_hsts_preload_header'] = False
     if hsts_preload_item is not None:
-        result['has_hsts_preload_header'] = hsts_preload_item['severity'] != 'HIGH'
+        result['web_has_hsts_preload_header'] = hsts_preload_item['severity'] != 'HIGH'
 
-    result['has_hsts_header'] = False
-    if result['has_hsts_preload_header']:
-        result['has_hsts_header'] = True
+    result['web_has_hsts_header'] = False
+    if result['web_has_hsts_preload_header']:
+        result['web_has_hsts_header'] = True
     elif hsts_item is not None:
-        result['has_hsts_header'] = hsts_item['severity'] != 'HIGH'
+        result['web_has_hsts_header'] = hsts_item['severity'] != 'HIGH'
 
     return result
 
@@ -77,6 +77,6 @@ def _detect_hpkp(data: dict) -> dict:
         data['scanResult'][0]['headerResponse'],
         'id', 'hpkp')
     if hpkp_item is not None:
-        return {'has_hpkp_header': hpkp_item['severity'] != 'HIGH'}
+        return {'web_has_hpkp_header': hpkp_item['severity'] != 'HIGH'}
 
-    return {'has_hpkp_header': False}
+    return {'web_has_hpkp_header': False}
