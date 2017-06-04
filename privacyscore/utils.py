@@ -9,6 +9,7 @@ from url_normalize import url_normalize
 
 def normalize_url(url: str) -> str:
     """Normalize an url and remove GET query."""
+    url = url.strip()
     normalized = url_normalize(url)
     parsed = urlparse(normalized)
     if parsed.port:
