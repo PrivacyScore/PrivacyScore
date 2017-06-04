@@ -113,8 +113,8 @@ def scan_site(site):
         command_sequence.get(sleep=10, timeout=60) # 10 sec sleep so everything settles down
 
         # save a screenshot
-        command_sequence.save_screenshot('screenshot', 5)
-        command_sequence.dump_page_source('source', 5)
+        command_sequence.save_screenshot('screenshot', 30)
+        command_sequence.dump_page_source('source', 30)
         command_sequence.run_custom_function(determine_final_url, ('final_urls', site)) # needed to determine whether site redirects to https
         command_sequence.run_custom_function(get_browser_log, ('browser_logs', site)) # needed to determine if mixed content was blocked
         command_sequence.dump_profile_cookies(30)
