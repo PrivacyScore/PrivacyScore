@@ -298,7 +298,6 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
                 'isHttpOnly': isHttpOnly
             }
             scantosave["profilecookies"].append(profilecookie)
-            # TODO Check if any cookies are set by known trackers
 
         # Flash-Cookies
         for domain, filename, local_path, key, content in cur.execute(
