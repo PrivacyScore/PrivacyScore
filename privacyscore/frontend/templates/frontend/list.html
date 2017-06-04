@@ -14,6 +14,8 @@
 {% block content %}
     <h2>{% trans "Submit a New List of Websites" %}</h2>
 
+    <p>PrivacyScore is a scanning service that allows you to scan the security and privacy properties of multiple sites. On this page you can upload your own list. The list will be scanned by our scan engine as soon as possible. After the scan is finished, you can view the results here. Besides viewing detailed results for every website, you will be able to rank the websites according to your personal preferences.</p>
+    
     <form class="post">
     {% csrf_token %}
 
@@ -23,7 +25,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="id_name">{% trans "Name" %}</label>
-                    {% render_field scan_list_form.name class+="form-control" placeholder="French Sites About Unicorns" %}
+                    {% render_field scan_list_form.name class+="form-control" placeholder="German Sites About Unicorns" %}
                     <div class="checkbox">
                         <label>
                             {% render_field scan_list_form.private %} {% trans "Private List (only you can view the results)" %}
@@ -32,14 +34,14 @@
                 </div>
                 <div class="form-group">
                     <label for="id_tags">{% trans "Tags" %}</label>
-                    {% render_field scan_list_form.tags class+="form-control" placeholder="unicorn cute fantasy french" %}
+                    {% render_field scan_list_form.tags class+="form-control" placeholder="ecommerce german" %}
                 </div>
                 <div class="form-group">
                     <label for="id_pseudonym">{% trans "Your Name (or a pseudonym, will be published)" %}</label>
                     {% render_field scan_list_form.pseudonym class+="form-control" placeholder="John Doe" %}
                 </div>
                 <div class="form-group">
-                    <label for="id_email">{% trans "Email Address (optional, will not be published)" %}</label>
+                    <label for="id_email">{% trans "E-mail Address (optional, will not be published)" %}</label>
                     {% render_field scan_list_form.email class+="form-control" placeholder="john.doe@example.com" %}
                 </div>
             </div>
@@ -47,7 +49,7 @@
                 <div class="form-group">
                     <label for="id_description">{% trans "Description" %}</label>
                     {% render_field scan_list_form.description class+="form-control list-description" placeholder="Brief description shown in the directory [new paragraph] Details about your collection methodology [new paragraph] all sources you used [new paragraph] description of the Attribute Columns (if your list contains any)" %}
-                <p style="margin-top:5px; margin-left:5px; margin-right:5px; font-size:90%"><em>Instructions:</em> Please start with a <em>brief description</em> of the list and the motivation to scan it. Please stay between 20 and 50 words, because we show this first paragraph as a preview in the list directory. The second paragraph should <em>present details about the collection</em> and if there is something peculiar about it. The next paragraph can be used to <em>describe the sources</em> you used to compile the entries (if any). Finally, the last paragraph should be used to explain the <em>site attributes</em> and the meaning of the possible values.</p>
+                <p style="margin-top:5px; margin-left:5px; margin-right:5px; font-size:90%">{% trans "<em>Instructions:</em> Please start with a <em>brief description</em> of the list and the motivation to scan it. Please stay between 20 and 50 words, because we show this first paragraph as a preview in the list directory. The second paragraph should <em>present details about the collection</em> and if there is something peculiar about it. The next paragraph can be used to <em>describe the sources</em> you used to compile the entries (if any). Finally, the last paragraph should be used to explain the <em>site attributes</em> and the meaning of the possible values." %}</p>
                 </div>
             </div>
         </div>
@@ -56,27 +58,32 @@
     <div class="spacer"></div>
     <h3>{% trans "Upload List as CSV File" %}</h3>
     <div class="group-box">
-        <p>{% trans "During the initial stage of the beta phase we ask you to submit your list of websites by uploading a comma-separated values (CSV) file." %}</p>
-        <p>
-            {% trans "The file has to contain a <em>header line</em> followed by multiple rows, one row per website." %}
-            {% trans "The <em>first column</em> is expected to be the URL of the site. All other columns contain <em>site attributes</em>." %}
-            {% trans "Please use the <em>semi-colon</em> (;) as a column delimiter." %}
-        </p>
-        {% trans "<p>The following example illustrates the structure for a list of hypothetical e-commerce sites:</p>" %}
+        <p>{% trans "During the initial stage of the beta phase we ask you to submit your list of websites by uploading a comma-separated values (CSV) file. At the moment you can upload lists with a <strong>maximum number of 500 websites</strong>. <em>Improvements underway: We plan to increase the maximum number of websites that can be contained in a list. We will also offer the possibility to create and edit lists directly in the browser. Estimated release: July 2017.</em>" %}.</p>
+        <p><strong>{% trans "Instructions:" %}</strong></p>
+        <ul><li>{% trans "The CSV file has to contain a <em>header line</em> followed by multiple rows, one row per website." %}
+        </li>
+        <li>{% trans 'The <em>first column</em> is expected to be the URL of the site. We assume http:// by default, if you do not specify the protocol explicitly (e.g. "unicorn.example.it"). Prefixing a URL with https:// will only scan the website via HTTPS. Please do not mix http:// and https:// URLs in your lists for now, because this will bias the results.' %}
+        </li>
+        <li>{% trans 'All other columns contain <em>site attributes</em>. Site attributes will allow you to compare the security and privacy level of sub-groups (e.g., "are vendors in state A better than in state B?")' %}
+        </li>
+        <li>{% trans "Please use the <em>semi-colon</em> (;) as a column delimiter for now." %}
+        </li>
+	</ul>
+        <p>{% trans "The following example illustrates the file structure for a list of hypothetical e-commerce sites:" %}</p>
         <table class="table table-bordered">
             <tr>
                 <th>URL</th>
-                <th>Country</th>
+                <th>State</th>
                 <th>Annual Sales</th>
             </tr>
             <tr>
-                <td>http://myunicorn.example.com/</td>
-                <td>US</td>
+                <td>http://www.myunicorn.example.com/</td>
+                <td>Bavaria</td>
                 <td>8500</td>
             </tr>
             <tr>
-                <td>http://manyunicorns.example.it/</td>
-                <td>IT</td>
+                <td>unicorns.example.com</td>
+                <td>Saxony</td>
                 <td>600</td>
             </tr>
         </table>
@@ -89,15 +96,15 @@
             <i class="fa fa-upload"></i>
                 {% trans 'Upload CSV File' %}
         </button>
+        <div class="spacer"></div>
+        <p>{% trans 'You can still make changes after the upload.' %}</p>
     </div>
 
     <div class="spacer"></div>
     <p>
         <button class="btn btn-primary">
-            {% trans "Scan list of sites" %}
+            {% trans "Submit List for Scanning" %}
         </button>
-
     </p>
-
     </form>
 {% endblock content %}
