@@ -12,7 +12,7 @@ from django.views.decorators.http import require_POST
 from privacyscore.backend.models import ListColumn, ListColumnValue, Scan, ScanList, Site, ScanResult
 from privacyscore.evaluation.result_groups import RESULT_GROUPS
 from privacyscore.evaluation.site_evaluation import UnrateableSiteEvaluation
-from privacyscore.frontend.forms import SingleSiteForm
+from privacyscore.frontend.forms import SingleSiteForm, CreateListForm
 from privacyscore.frontend.models import Spotlight
 
 
@@ -65,7 +65,14 @@ def legal(request: HttpRequest) -> HttpResponse:
 
 # TODO: Rename function (i.e. create_scan_list)
 def scan_list(request: HttpRequest) -> HttpResponse:
-    return render(request, 'frontend/list.html')
+
+    if request.POST and 'create_scan_list' in request.POST:
+        scan_list_form = CreateListForm(request.POST)
+    else:
+        scan_list_form = CreateListForm()
+    return render(request, 'frontend/list.html', {
+        'scan_list_form': scan_list_form
+    })
 
 
 def scan_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:

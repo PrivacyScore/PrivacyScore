@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from privacyscore.utils import normalize_url
+from privacyscore.backend.models import ScanList
 
 
 class SingleSiteForm(forms.Form):
@@ -17,3 +18,10 @@ class SingleSiteForm(forms.Form):
             raise ValidationError(_('The url is not valid.'))
 
         return url
+
+
+class CreateListForm(forms.ModelForm):
+    tags = forms.CharField()
+    class Meta:
+        model = ScanList
+        fields = ('name', 'description', 'private')
