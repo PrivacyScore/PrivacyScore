@@ -24,4 +24,4 @@ class CreateListForm(forms.ModelForm):
     tags = forms.CharField()
     class Meta:
         model = ScanList
-        fields = ('name', 'description', 'private')
+        fields = ('name', 'description', 'pseudonym', 'email', 'private')

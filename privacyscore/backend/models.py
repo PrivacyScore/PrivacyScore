@@ -84,6 +84,10 @@ class ScanList(models.Model):
         get_user_model(), on_delete=models.CASCADE, related_name='tags',
         null=True, blank=True)
 
+    pseudonym = models.CharField(max_length=120, null=True)
+
+    email = models.EmailField(null=True, blank=True)
+
     views = models.IntegerField(default=0)
 
     created = models.DateTimeField(default=timezone.now)

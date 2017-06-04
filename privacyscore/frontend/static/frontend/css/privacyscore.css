@@ -10,6 +10,17 @@ body {
     margin-bottom:230px; /* for footer */
 }
 
+h2 {
+    padding-top:15px;
+}
+
+.row-equal-height {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+
 .navbar {
     min-height: 70px;
     padding-top: 10px;
@@ -207,3 +218,17 @@ a.spotlight-caption {
     color:#ccc;
 }
 
+
+/*
+ * New scan list
+ */
+
+.group-box {
+    border:3px solid #ccc;
+    padding:30px;
+}
+
+.list-description {
+    width:100%;
+    box-sizing: border-box;
+}

@@ -15,25 +15,42 @@
     <h2>{% trans "Create new site list" %}</h2>
 
     <form class="post">
-        <div class="row">
+    {% csrf_token %}
+
+    <h3>{% trans "Basic Information" %}</h3>
+    <div class="group-box">
+        <div class="row row-equal-height">
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="id_name">{% trans "Name" %}</label>
-                    {% render_field scan_list_form.name class+="form-control" placeholder="Sites about unicorns" %}
+                    {% render_field scan_list_form.name class+="form-control" placeholder="French Sites About Unicorns" %}
+                    <div class="checkbox">
+                        <label>
+                            {% render_field scan_list_form.private %} {% trans "Keep this list private" %}
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="id_tags">{% trans "Tags" %}</label>
+                    {% render_field scan_list_form.tags class+="form-control" placeholder="unicorn cute fantasy french" %}
+                </div>
+                <div class="form-group">
+                    <label for="id_pseudonym">{% trans "Pseudonym" %}</label>
+                    {% render_field scan_list_form.pseudonym class+="form-control" placeholder="John Doe" %}
+                </div>
+                <div class="form-group">
+                    <label for="id_email">{% trans "Email address (optional)" %}</label>
+                    {% render_field scan_list_form.email class+="form-control" placeholder="john.doe@example.com" %}
                 </div>
             </div>
             <div class="col-md-6">
-                {% trans "Give that list a cute name!" %}
-                {% trans "This name will be listed in the list directory." %}
+                <div class="form-group">
+                    <label for="id_description">{% trans "Description" %}</label>
+                    {% render_field scan_list_form.description class+="form-control list-description" %}
+                </div>
             </div>
         </div>
-        <div class="form-group">
-            <label for="id_tags">{% trans "Tags" %}</label>
-            {% render_field scan_list_form.tags class+="form-control" placeholder="unicorn cute fantasy" %}
-        </div>
-        <div class="form-group">
-            <label for="id_description">{% trans "Description" %}</label>
-            {% render_field scan_list_form.description class+="form-control" %}
-        </div>
+    </div>
+
     </form>
 {% endblock content %}
