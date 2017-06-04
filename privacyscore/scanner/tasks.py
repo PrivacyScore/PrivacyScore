@@ -12,7 +12,7 @@ from django.utils import timezone
 from privacyscore.backend.models import RawScanResult, Scan, ScanResult, \
     ScanError
 from privacyscore.scanner.test_suites import AVAILABLE_TEST_SUITES, \
-    SCAN_TEST_SUITE_STAGES
+    TEST_PARAMETERS, SCAN_TEST_SUITE_STAGES
 from privacyscore.utils import get_processes_of_user
 
 
@@ -91,8 +91,8 @@ def schedule_scan_stage(new_results: Tuple[list, dict, dict],
         return True
 
     tasks = []
-    for test_suite, test_parameters in SCAN_TEST_SUITE_STAGES[stage]:
-        tasks.append(run_test.s(test_suite, test_parameters, scan.site.url, previous_results))
+    for test_suite in SCAN_TEST_SUITE_STAGES[stage]:
+        tasks.append(run_test.s(test_suite, scan.site.url, previous_results))
     chord(tasks, schedule_scan_stage.s(previous_results, scan_pk, stage + 1, len(tasks))).apply_async()
 
 
@@ -105,8 +105,9 @@ def handle_finished_scan(scan: Scan):
 
 
 @shared_task(queue='slave')
-def run_test(test_suite: str, test_parameters: dict, url: str, previous_results: dict) -> bool:
+def run_test(test_suite: str, url: str, previous_results: dict) -> bool:
     """Run a single test against a single url."""
+    test_parameters = TEST_PARAMETERS[test_suite]
     test_suite = AVAILABLE_TEST_SUITES[test_suite]
     try:
         with Timeout(settings.SCAN_SUITE_TIMEOUT_SECONDS):
