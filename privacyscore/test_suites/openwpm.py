@@ -48,57 +48,57 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
                  os.path.join(virtualenv_path, 'bin'), os.environ.get('PATH')),
     })
 
+    result = {
+        'raw_url': {
+            'mime_type': 'text/plain',
+            'data': url.encode(),
+        }
+    }
+
     # collect raw output
     # log file
     with open(os.path.join(scan_dir, 'openwpm.log'), 'rb') as f:
-        raw_log = f.read()
+        result['log'] = {
+            'mime_type': 'text/plain',
+            'data': f.read(),
+        }
 
     # sqlite db
     with open(os.path.join(scan_dir, 'crawl-data.sqlite3'), 'rb') as f:
-        sqlite_db = f.read()
+        result['crawldata'] = {
+            'mime_type': 'application/x-sqlite3',
+            'data': f.read(),
+        }
 
     # screenshot
-    with open(os.path.join(scan_dir, 'screenshots/screenshot.png'), 'rb') as f:
-        screenshot = f.read()
+    if os.path.isfile(os.path.join(scan_dir, 'screenshots/screenshot.png')):
+        with open(os.path.join(scan_dir, 'screenshots/screenshot.png'), 'rb') as f:
+            result['screenshot'] = {
+                'mime_type': 'application/x-sqlite3',
+                'data': f.read(),
+            }
     
     # html source
-    with open(os.path.join(scan_dir, 'sources/source.html'), 'rb') as f:
-        html_source = f.read()
+    if os.path.isfile(os.path.join(scan_dir, 'sources/source.html')):
+        with open(os.path.join(scan_dir, 'sources/source.html'), 'rb') as f:
+            result['html_source'] = {
+                'mime_type': 'application/x-sqlite3',
+                'data': f.read(),
+            }
     
     # cropped and pixelized screenshot
-    out = BytesIO()
-    pixelize_screenshot(BytesIO(screenshot), out)
-    cropped_screenshot = out.getvalue()
+    if 'screenshot' in result:
+        out = BytesIO()
+        pixelize_screenshot(BytesIO(result['screenshot']['data']), out)
+        result['cropped_screenshot'] = {
+            'mime_type': 'image/png',
+            'data': out.getvalue(),
+        }
 
     # recursively delete scan folder
     shutil.rmtree(scan_dir)
 
-    return {
-        'crawldata': {
-            'mime_type': 'application/x-sqlite3',
-            'data': sqlite_db,
-        },
-        'raw_url': {
-            'mime_type': 'text/plain',
-            'data': url.encode(),
-        },
-        'screenshot': {
-            'mime_type': 'image/png',
-            'data': screenshot,
-        },
-        'cropped_screenshot': {
-            'mime_type': 'image/png',
-            'data': cropped_screenshot,
-        },
-        'html_source': {
-            'mime_type': 'text/html',
-            'data': html_source,
-        },
-        'log': {
-            'mime_type': 'text/plain',
-            'data': raw_log,
-        },
-    }
+    return result
 
 
 def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str, virtualenv_path: str) -> Dict[str, Dict[str, object]]:
