@@ -54,6 +54,7 @@ def parse_common_testssl(json: str, prefix: str):
             }
     
     # Detect ciphers
+    # TODO Do we maybe want to get all cipher info, not only the bad ones?
     result['{}_ciphers'.format(prefix)] = {}
     for cipher in json['scanResult'][0]['ciphers']:
         if cipher['severity'] != u"OK" and cipher['severity'] != u'INFO':
