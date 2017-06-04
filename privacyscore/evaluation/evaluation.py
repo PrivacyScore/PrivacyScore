@@ -47,7 +47,7 @@ def evaluate_group(group: str, result: dict) -> GroupEvaluation:
         keys = {}
         for key in data['keys']:
             if key not in result:
-                values = None
+                keys = None
                 break
             keys[key] = result[key]
         if keys:

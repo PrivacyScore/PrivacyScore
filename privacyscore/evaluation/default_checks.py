@@ -104,6 +104,21 @@ CHECKS['ssl']['url_is_https_or_redirects_to_https'] = {
     },
     'missing': None,
 }
+CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
+    'keys': {'final_url','same_content_via_https'},
+    'rating': lambda **keys: {
+        'description': _('The web server provides the same content via https as via http.'),
+        'classification': Rating('good'),
+    } if (keys['final_url'].startswith('https') and
+          keys['same_content_via_https']) else {
+        'description': _('The site does not use https by default but provides the same content using https.'),
+        'classification': Rating('bad'),
+    } if keys['same_content_via_https'] else {
+        'description': _('The web server does not provide the same content via https as via http.'),
+        'classification': Rating('bad'),
+    },
+    'missing': None,
+}
 CHECKS['ssl']['pfs'] = {
     'keys': {'pfs',},
     'rating': lambda **keys: {
