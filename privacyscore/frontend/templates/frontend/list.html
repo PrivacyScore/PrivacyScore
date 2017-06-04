@@ -12,7 +12,7 @@
 {% endblock additional_css %}
 
 {% block content %}
-    <h2>{% trans "Create new site list" %}</h2>
+    <h2>{% trans "Submit a New List of Websites" %}</h2>
 
     <form class="post">
     {% csrf_token %}
@@ -26,7 +26,7 @@
                     {% render_field scan_list_form.name class+="form-control" placeholder="French Sites About Unicorns" %}
                     <div class="checkbox">
                         <label>
-                            {% render_field scan_list_form.private %} {% trans "Keep this list private" %}
+                            {% render_field scan_list_form.private %} {% trans "Private List (only you can view the results)" %}
                         </label>
                     </div>
                 </div>
@@ -35,18 +35,19 @@
                     {% render_field scan_list_form.tags class+="form-control" placeholder="unicorn cute fantasy french" %}
                 </div>
                 <div class="form-group">
-                    <label for="id_pseudonym">{% trans "Pseudonym" %}</label>
+                    <label for="id_pseudonym">{% trans "Your Name (or a pseudonym, will be published)" %}</label>
                     {% render_field scan_list_form.pseudonym class+="form-control" placeholder="John Doe" %}
                 </div>
                 <div class="form-group">
-                    <label for="id_email">{% trans "Email address (optional)" %}</label>
+                    <label for="id_email">{% trans "Email Address (optional, will not be published)" %}</label>
                     {% render_field scan_list_form.email class+="form-control" placeholder="john.doe@example.com" %}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="id_description">{% trans "Description" %}</label>
-                    {% render_field scan_list_form.description class+="form-control list-description" %}
+                    {% render_field scan_list_form.description class+="form-control list-description" placeholder="Brief description shown in the directory [new paragraph] Details about your collection methodology [new paragraph] all sources you used [new paragraph] description of the Attribute Columns (if your list contains any)" %}
+                <p style="margin-top:5px; margin-left:5px; margin-right:5px; font-size:90%"><strong>Instructions:</strong> Please start with a <strong>brief description</strong> of the list and the motivation to scan it. Please stay between 20 and 50 words, because we show this first paragraph as a preview in the list directory. The second paragraph should <strong>present details about the collection</strong> and if there is something peculiar about it. The next paragraph can be used to <strong>describe the sources</strong> you used to compile the entries (if any). Finally, the last paragraph should be used to explain the <strong>site attributes</strong> and the meaning of the possible values.</p>
                 </div>
             </div>
         </div>
