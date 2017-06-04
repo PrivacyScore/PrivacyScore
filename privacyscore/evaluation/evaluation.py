@@ -10,7 +10,7 @@ This is only a draft and will most likely be changed essentially later.
 from collections import OrderedDict
 from typing import Tuple, Union
 
-from privacyscore.evaluation.default_mapping import MAPPING
+from privacyscore.evaluation.default_checks import CHECKS
 from privacyscore.evaluation.group_evaluation import GroupEvaluation
 from privacyscore.evaluation.rating import Rating
 from privacyscore.evaluation.site_evaluation import SiteEvaluation
@@ -41,22 +41,22 @@ def evaluate_group(group: str, results: dict) -> GroupEvaluation:
     classifications = []
     descriptions = []
     good_descriptions = []
-    for keys, func in MAPPING[group]:
-        values = []
-        for key in keys:
+    for check, data in CHECKS[group].items():
+        keys = {}
+        for key in data['keys']:
             if key not in results:
                 values = None
                 break
-            values.append(results[key])
-        if not values:
-            continue
-        res = func(values)
+            keys[key] = results[key]
+        if keys:
+            res = data['rating'](**keys)
+        else:
+            res = data['missing']
         if not res:
             continue
-        description, classification = res
-        classifications.append(classification)
-        if classification == Rating('good'):
-            good_descriptions.append((description, classification))
+        classifications.append(res['classification'])
+        if res['classification'] == Rating('good'):
+            good_descriptions.append((res['description'], res['classification']))
         else:
-            descriptions.append((description, classification))
+            descriptions.append((res['description'], res['classification']))
     return GroupEvaluation(classifications), descriptions + good_descriptions
