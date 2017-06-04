@@ -223,22 +223,62 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
 
 
             # Content-Security-Policy
-            #
-
-            # Public-Key-Pins
-            # 
+            result = {'key': 'content-security-policy', 'value': '', 'status': 'MISSING'}
+            if 'content-security-policy' in headers_lc.keys():
+                result['value'] = headers_lc['content-security-policy']
+                result['status'] = "INFO"
+            scantosave['headerchecks'].append(result)
 
             # X-Frame-Options
-            # 
+            result = {'key': 'x-frame-options', 'value': '', 'status': 'MISSING'}
+            if 'x-frame-options' in headers_lc.keys():
+                result['value'] = headers_lc['x-frame-options']
+                result['status'] = "INFO"
+            scantosave['headerchecks'].append(result)
 
             # X-XSS-Protection
-            # 
+            result = {'key': 'x-xss-protection', 'value': '', 'status': 'MISSING'}
+            if 'x-xss-protection' in headers_lc.keys():
+                result['value'] = headers_lc['x-xss-protection']
+                if result['value'] == '1; mode=block':
+                    result['status'] = "OK"
+                else:
+                    result['status'] = "INFO"
+            scantosave['headerchecks'].append(result)
 
             # X-Content-Type-Options
-            # 
+            result = {'key': 'x-content-type-options', 'value': '', 'status': 'MISSING'}
+            if 'x-content-type-options' in headers_lc.keys():
+                result['value'] = headers_lc['x-content-type-options']
+                if result['value'] == 'nosniff':
+                    result['status'] = "OK"
+                else:
+                    result['status'] = "WARN"
+            scantosave['headerchecks'].append(result)
 
             # Referrer-Policy
-            # 
+            result = {'key': 'referrer-policy', 'value': '', 'status': 'MISSING'}
+            if 'referrer-policy' in headers_lc.keys():
+                result = {'key': 'referrer-policy', 'value': headers_lc['referrer-policy']}
+                if headers_lc['referrer-policy'] == 'no-referrer':
+                    result['status'] = "OK"
+                else:
+                    result['status'] = "WARN"
+            scantosave['headerchecks'].append(result)
+
+            # X-Powered-By
+            result = {'key': 'x-powered-by', 'value': '', 'status': 'MISSING'}
+            if 'x-powered-by' in headers_lc.keys():
+                result['value'] = headers_lc['x-powered-by']
+                result['status'] = "INFO"
+            scantosave['headerchecks'].append(result)
+
+            # Server
+            result = {'key': 'server', 'value': '', 'status': 'MISSING'}
+            if 'server' in headers_lc.keys():
+                result['value'] = headers_lc['server']
+                result['status'] = "INFO"
+            scantosave['headerchecks'].append(result)
 
 
             # Check if the browser has been redirected to https.
