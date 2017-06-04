@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Dict, List, Union
 from urllib.parse import urlparse
 
@@ -15,58 +16,71 @@ test_dependencies = []
 
 def test_site(url: str, previous_results: dict, country_database_path: str) -> Dict[str, Dict[str, Union[str, bytes]]]:
     """Test the specified url with geoip."""
+    result = {}
+    general_result = {}
+
     # determine hostname
     hostname = urlparse(url).hostname
 
     # determine final url
     response = requests.get(url, headers={
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0',
-    }, verify=False)
-    final_url = response.url
+    }, verify=False, timeout=8)
+    general_result['final_url'] = response.url
+    result['final_url_content'] = {
+        'mime_type': response.headers['content-type'],
+        'data': response.content,
+    }
+    if not general_result['final_url'].startswith('https'):
+        https_url = 'https:/' + general_result['final_url'].split('/', maxsplit=1)[1]
+        try:
+            response = requests.get(https_url, headers={
+                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0',
+            }, verify=False, timeout=8)
+            general_result['final_https_url'] = response.url
+            result['final_https_url_content'] = {
+                'mime_type': response.headers['content-type'],
+                'data': response.content,
+            }
+        except Exception:
+            general_result['final_https_url'] = False
+    else:
+        general_result['final_https_url'] = general_result['final_url']
 
     # DNS
     # cname records
-    cname_records = _cname_lookup(hostname)
+    general_result['cname_records'] = _cname_lookup(hostname)
 
     # a records
-    a_records = _a_lookup(hostname)
+    general_result['a_records'] = _a_lookup(hostname)
 
     # mx records
-    mx_records = _mx_lookup(hostname)
+    general_result['mx_records'] = _mx_lookup(hostname)
     if hostname.startswith('www.'):
-        mx_records += _mx_lookup(hostname[4:])
+        general_result['mx_records'] += _mx_lookup(hostname[4:])
 
     # mx a-records
-    mx_a_records = [(pref, _a_lookup(mx)) for pref, mx in mx_records]
+    general_result['mx_a_records'] = [(pref, _a_lookup(mx)) for pref, mx in general_result['mx_records']]
 
     # reverse a
-    a_records_reverse = [_reverse_lookup(a) for a in a_records]
+    general_result['a_records_reverse'] = [_reverse_lookup(a) for a in general_result['a_records']]
 
     # reverse mx-a
-    mx_a_records_reverse = [
+    general_result['mx_a_records_reverse'] = [
         (pref,
          [_reverse_lookup(a) for a in mx_a])
-        for pref, mx_a in mx_a_records]
+        for pref, mx_a in general_result['mx_a_records']]
 
-    return {
-        'dns': {
-            'mime_type': 'application/json',
-            'data': json.dumps({
-                'final_url': final_url,
-                'cname_records': cname_records,
-                'a_records': a_records,
-                'mx_records': mx_records,
-                'mx_a_records': mx_a_records,
-                'a_records_reverse': a_records_reverse,
-                'mx_a_records_reverse': mx_a_records_reverse,
-            }).encode(),
-        }
+    result['general'] = {
+        'mime_type': 'application/json',
+        'data': json.dumps(general_result).encode(),
     }
+    return result
 
 
 def process_test_data(raw_data: list, previous_results: dict, country_database_path: str) -> Dict[str, Dict[str, object]]:
     """Process the raw data of the test."""
-    result = json.loads(raw_data['dns']['data'].decode())
+    result = json.loads(raw_data['general']['data'].decode())
 
     # geoip
     reader = Reader(country_database_path)
@@ -77,6 +91,16 @@ def process_test_data(raw_data: list, previous_results: dict, country_database_p
          for ip in mx_a_records[1]), reader)
 
     # TODO: reverse mx-a matches mx
+
+    result['final_url_is_https'] = result['final_url'].startswith('https')
+    # handle non-https final url
+    if (not result['final_url_is_https'] and
+            'final_url_content' in raw_data and
+            'final_https_url_content' in raw_data):
+        similarity = _jaccard_index(
+            raw_data['final_url_content']['data'],
+            raw_data['final_https_url_content']['data'])
+        result['same_content_via_https'] = similarity > 0.95
 
     return result
 
@@ -126,3 +150,15 @@ def _get_countries(addresses: List[str], reader: Reader) -> List[str]:
             # TODO: Add entry specifying that at least one location has not been found
             continue
     return list(res)
+
+
+def _jaccard_index(a: bytes, b: bytes) -> float:
+    """Calculate the jaccard similarity of a and b."""
+    pattern = re.compile(rb' |\n')
+    # remove tokens containing / to prevent wrong classifications for 
+    # absolute paths
+    a = set(token for token in pattern.split(a) if b'/' not in token)
+    b = set(token for token in pattern.split(b) if b'/' not in token)
+    intersection = a.intersection(b)
+    union = a.union(b)
+    return len(intersection) / len(union)

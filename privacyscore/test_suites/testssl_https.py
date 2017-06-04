@@ -14,11 +14,11 @@ test_dependencies = [
 
 
 def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str, bytes]]]:
-    final_url = previous_results['final_url']
-    if not final_url.startswith('https'):
-        raise Exception('no ssl (redirection)')
+    scan_url = previous_results.get('final_https_url')
+    if not scan_url:
+        raise Exception('no https url')
 
-    hostname = urlparse(final_url).hostname
+    hostname = urlparse(scan_url).hostname
 
     jsonresult = run_testssl(hostname, False)
 
