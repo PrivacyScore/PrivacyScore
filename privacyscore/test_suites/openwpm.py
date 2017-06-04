@@ -110,7 +110,7 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
         f.write(raw_data['crawldata']['data'])
 
     conn = sqlite3.connect(temp_db_file)
-    cur = conn.cursor()
+    outercur = conn.cursor()
 
     # TODO: Clean up collection
     scantosave = {
@@ -124,10 +124,13 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
     }
 
     # requests
-    for start_time, site_url in cur.execute(
+    for start_time, site_url in outercur.execute(
             "SELECT DISTINCT start_time, site_url " +
             "FROM crawl as c JOIN site_visits as s " +
             "ON c.crawl_id = s.crawl_id WHERE site_url LIKE ?;", (url,)):
+        # Get a new cursor to avoid confusing the old one
+        cur = conn.cursor()
+
         # collect third parties (i.e. domains that differ in their second and third level domain
         third_parties = []
         third_party_requests = []
@@ -135,23 +138,23 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
         maindomain_visited_url = "{}.{}".format(extracted_visited_url.domain, extracted_visited_url.suffix)
         hostname_visited_url = '.'.join(extracted_visited_url)
 
-        for url, method, referrer, headers in cur.execute("SELECT url, method, referrer, headers " +
+        for requrl, method, referrer, headers in cur.execute("SELECT url, method, referrer, headers " +
                 "FROM site_visits as s JOIN http_requests as h ON s.visit_id = h.visit_id " +
                 "WHERE s.site_url LIKE ? ORDER BY h.id;", (url,)):  # site["url"]
             scantosave["requests"].append({
-                'url': url,
+                'url': requrl,
                 'method': method,
                 'referrer': referrer,
                 'headers': headers
             })
 
             # extract domain name from request and check whether it is a 3rd party host
-            extracted = tldextract.extract(url)
+            extracted = tldextract.extract(requrl)
             maindomain = "{}.{}".format(extracted.domain, extracted.suffix)
             hostname = '.'.join(extracted)
             if(maindomain_visited_url != maindomain):
                 third_parties.append(hostname) # add full domain to list
-                third_party_requests.append(url) # add full domain to list
+                third_party_requests.append(requrl) # add full domain to list
 
 
         scantosave["requests_count"] = len(scantosave["requests"])
@@ -173,12 +176,12 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
 
 
         # responses
-        for url, method, referrer, headers, response_status_text, time_stamp in cur.execute(
+        for respurl, method, referrer, headers, response_status_text, time_stamp in cur.execute(
                 "SELECT url, method, referrer, headers, response_status_text, " +
                 "time_stamp FROM site_visits as s JOIN http_responses as h " +
                 "ON s.visit_id = h.visit_id WHERE s.site_url LIKE ? ORDER BY h.id;", (url,)):  # site["url"]
             scantosave["responses"].append({
-                'url': url,
+                'url': respurl,
                 'method': method,
                 'referrer': referrer,
                 'headers': headers,
@@ -269,6 +272,7 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
                     scantosave["redirected_to_https"] = True
 
             except Exception:
+                print("Unexpected error:", sys.exc_info()[0])
                 scantosave["redirected_to_https"] = False
                 scantosave["https"] = False
                 scantosave["success"] = False
@@ -293,6 +297,7 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
                 'isHttpOnly': isHttpOnly
             }
             scantosave["profilecookies"].append(profilecookie)
+            # TODO Check if any cookies are set by known trackers
 
         # Flash-Cookies
         for domain, filename, local_path, key, content in cur.execute(
@@ -344,6 +349,7 @@ def pixelize_screenshot(screenshot, screenshot_pixelized, target_width=390, pixe
     img = img.resize((undersampling_width, new_height), Image.BICUBIC)
     img = img.resize((target_width, new_height * pixelsize), Image.NEAREST)
     img.save(screenshot_pixelized, format='png')
+
 
 def detect_trackers(third_parties):
     """
@@ -409,6 +415,7 @@ def detect_trackers(third_parties):
             result.append("{}.{}".format(ext.domain, ext.suffix))
 
     return list(set(result))
+
 
 def detect_google_analytics(requests):
     """
