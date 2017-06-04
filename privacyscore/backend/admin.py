@@ -19,7 +19,14 @@ class RawScanResultAdmin(admin.ModelAdmin):
     )
 
 admin.site.register(Scan)
-admin.site.register(ScanError)
+@admin.register(ScanError)
+class RawScanResultAdmin(admin.ModelAdmin):
+    list_display = (
+        'error',
+        'test',
+        'scan_host',
+        'scan',
+    )
 admin.site.register(ScanList)
 admin.site.register(ScanResult)
 admin.site.register(Site)

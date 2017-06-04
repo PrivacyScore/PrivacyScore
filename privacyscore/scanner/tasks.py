@@ -76,9 +76,9 @@ def schedule_scan_stage(new_results: Tuple[list, dict, dict],
     for error in errors:
         test = None
         if ':' in error:
-            host, test, error = error.split(':', maxsplit=2)
+            scan_host, test, error = error.split(':', maxsplit=2)
         ScanError.objects.create(
-            scan=scan, test=test, error=error)
+            scan_host=scan_host, scan=scan, test=test, error=error)
 
     if stage >= len(SCAN_TEST_SUITE_STAGES):
         # all stages finished.

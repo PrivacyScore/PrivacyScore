@@ -503,6 +503,7 @@ class ScanError(models.Model):
     """A single scan result key-value pair."""
     scan = models.ForeignKey(
         Scan, on_delete=models.CASCADE, related_name='errors')
+    scan_host = models.CharField(max_length=80)
     test = models.CharField(max_length=80, null=True, blank=True)
     error = models.TextField()
 
