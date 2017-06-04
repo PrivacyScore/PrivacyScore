@@ -232,3 +232,7 @@ a.spotlight-caption {
     width:100%;
     box-sizing: border-box;
 }
+
+.spacer {
+    height:20px;
+}

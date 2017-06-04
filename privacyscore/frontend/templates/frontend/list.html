@@ -52,5 +52,39 @@
         </div>
     </div>
 
+    <div class="spacer"></div>
+    <h3>{% trans "Upload list of sites" %}</h3>
+    <div class="group-box">
+        {% trans "Your CSV file should contain a header line followed by the site rows." %}
+        {% trans "The first column is expected to be the URL of the site." %}
+        {% trans "See the following example:" %}
+        <table class="table table-bordered">
+            <tr>
+                <th>URL</th>
+                <th>Number of Unicorns</th>
+                <th>Sweetness of Unicorns (1-10)</th>
+            </tr>
+            <tr>
+                <td>http://myunicorn.example.com/</td>
+                <td>10</td>
+                <td>8</td>
+            </tr>
+            <tr>
+                <td>http://manyunicorns.example.com/</td>
+                <td>99</td>
+                <td>6</td>
+            </tr>
+        </table>
+
+        <div class="spacer"></div>
+        <div class="form-group">
+            <input type="file">
+        </div>
+        <button class="btn btn-default">
+            <i class="fa fa-upload"></i>
+                {% trans 'Upload CSV' %}
+        </button>
+    </div>
+
     </form>
 {% endblock content %}
