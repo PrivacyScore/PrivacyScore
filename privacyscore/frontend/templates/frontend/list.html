@@ -60,6 +60,9 @@
     <h3>{% trans "Upload List as CSV File" %}</h3>
     <div class="group-box">
         {% if not table %}
+        {% if scan_list_form.csv_data.errors %}
+            <p class="alert alert-danger">{% trans "Sorry, but your CSV file is invalid. Please read the instructions and try again." %}</p>
+        {% endif %}
         <div class="row">
             <div class="col-sm-6 flex-last pull-right">
                 <div class="row">
@@ -108,6 +111,9 @@
             </tr>
         </table>
         {% else %}
+        {% if invalid_rows %}
+        <p class="alert alert-danger">There are some invalid rows. Please correct them and retry.</p>
+        {% endif %}
         <table class="table table-bordered">
             <tr>
                 {% for column in table_header %}
@@ -115,7 +121,7 @@
                 {% endfor %}
             </tr>
             {% for row in table %}
-            <tr>
+            <tr{% if forloop.counter0 in invalid_rows %} class="bg-danger"{% endif %}>
                 {% for column in row %}
                 <td>{{ column }}</td>
                 {% endfor %}
@@ -125,6 +131,7 @@
         {% endif %}
 
         <div class="spacer"></div>
+        <input type="hidden" name="csv_data" value="{{ csv_data }}">
         <div class="form-group">
             {{ scan_list_form.csv_file }}
         </div>
@@ -138,7 +145,7 @@
 
     <div class="spacer"></div>
     <p>
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" name="start_scan">
             {% trans "Submit List for Scanning" %}
         </button>
     </p>

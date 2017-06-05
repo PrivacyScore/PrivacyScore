@@ -5,6 +5,7 @@ from typing import Union
 from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db import transaction
 from django.db.models import Count, F, Prefetch, Q
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render, reverse
@@ -16,6 +17,7 @@ from privacyscore.evaluation.result_groups import RESULT_GROUPS
 from privacyscore.evaluation.site_evaluation import UnrateableSiteEvaluation
 from privacyscore.frontend.forms import SingleSiteForm, CreateListForm
 from privacyscore.frontend.models import Spotlight
+from privacyscore.utils import normalize_url
 
 
 def index(request: HttpRequest) -> HttpResponse:
@@ -69,25 +71,35 @@ def legal(request: HttpRequest) -> HttpResponse:
 def scan_list(request: HttpRequest) -> HttpResponse:
     table = []
     table_header = []
+    csv_data = ''
+    invalid_rows = set()
     if request.POST:
         scan_list_form = CreateListForm(request.POST, request.FILES)
-        print('form')
         if scan_list_form.is_valid():
-            print('is valid')
-            csv_file = scan_list_form.cleaned_data['csv_file']
-            csv_file = io.TextIOWrapper(csv_file, 'utf-8')
-            dialect = csv.Sniffer().sniff(csv_file.read(1024))
-            csv_file.seek(0)
-            reader = csv.reader(csv_file, dialect=dialect)
-            table_header = next(reader)
-            for line in reader:
-                table.append(line)
+            table_header, table, invalid_rows = scan_list_form.get_table()
+            csv_data = scan_list_form.cleaned_data['csv_data']
+            # TODO: Hacky code ahead
+            if not invalid_rows and 'start_scan' in request.POST:
+                with transaction.atomic():
+                    scan_list = scan_list_form.save()
+                    for i, name in enumerate(table_header[1:]):
+                        column = ListColumn.objects.create(
+                            scan_list=scan_list, name=name, visible=True, sort_key=i)
+                        for row in table:
+                            url = normalize_url(row[0])
+                            site, _created = Site.objects.get_or_create(url=url)
+                            site.scan_lists.add(scan_list)
+                            ListColumnValue.objects.create(column=column, site=site, value=row[i + 1])
+                return redirect(reverse('frontend:scan_scan_list', args=(scan_list.pk,)))
+
     else:
         scan_list_form = CreateListForm()
     return render(request, 'frontend/list.html', {
         'scan_list_form': scan_list_form,
         'table_header': table_header,
-        'table': table
+        'table': table,
+        'invalid_rows': invalid_rows,
+        'csv_data': csv_data,
     })
 
 
