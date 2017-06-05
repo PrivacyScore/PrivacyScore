@@ -40,6 +40,14 @@ def parse_common_testssl(json: str, prefix: str):
     # detect protocols
     pattern = re.compile(r'is (not )?offered')
     for p in json['scanResult'][0]['protocols']:
+        if p['severity'] == "CRITICAL":
+            # Hardcoded special case to grab a specific error
+            # This is horrible style
+            # TODO make less horrible
+            pat = re.compile(r'higher version number')
+            match = pat.search(p['finding'])
+            result['{}_has_protocol_{}'.format(prefix, p['id'])] = match is not None
+            continue
         match = pattern.search(p['finding'])
         if not match:
             continue
