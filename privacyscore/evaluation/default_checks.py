@@ -98,7 +98,7 @@ CHECKS['general']['google_analytics_present'] = {
 # AnonIP: good
 # !AnonIP: bad
 CHECKS['general']['google_analytics_anonymizeIP_not_set'] = {
-    'keys': {'google_analytics_anonymizeIP_not_set',},
+    'keys': {'google_analytics_anonymizeIP_not_set', 'google_analytics_present'},
     'rating': lambda **keys: {
         'description': _('The site does not use Google Analytics.'),
         'classification': Rating('neutral')
@@ -188,8 +188,7 @@ CHECKS['ssl']['redirects_from_https_to_http'] = {
 # Check if website does not redirect to HTTPS, but offers HTTPS on demand and serves the same content
 # HTTPS available and serving same content: good
 # HTTPS available but different content: bad
-# TODO What is the result if the website forwarded to HTTPS?
-# DH: This is one of the tests where I hate that we uselambda functions for this.
+# We only scanned the HTTPS version: neutral
 CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
     'keys': {'final_url','final_https_url','same_content_via_https'},
     'rating': lambda **keys: {
@@ -202,7 +201,10 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
         'classification': Rating('bad'),
     } if (not keys['final_url'].startswith('https') and
           keys['final_https_url'].startswith('https') and
-          not keys['same_content_via_https']) else None,
+          not keys['same_content_via_https']) else {
+        'description': _('The website was scanned only over HTTPS.'),
+        'classification': Rating('neutral'),
+    } if (keys.final_url.startswith("https:")) else None,
     'missing': None,
 }
 # Check for Perfect Forward Secrecy on Webserver
@@ -237,8 +239,6 @@ CHECKS['ssl']['web_has_hsts_preload_header'] = {
 # Check for HTTP Public Key Pinning Header
 # HPKP present: Good, but does not influence ranking (TODO why not?)
 # else: bad, but does not influence ranking
-# DH: HPKP is not considered mandatory by most other scanners (e.h. qualys)
-# cf. our wiki, where it is said that it does not influence the ranking
 CHECKS['ssl']['web_has_hpkp_header'] = {
     'keys': {'web_has_hpkp_header',},
     'rating': lambda **keys: {
