@@ -98,6 +98,13 @@ def scan_list(request: HttpRequest) -> HttpResponse:
                             site, _created = Site.objects.get_or_create(url=url)
                             site.scan_lists.add(scan_list)
                             ListColumnValue.objects.create(column=column, site=site, value=row[i + 1])
+
+                    # tags
+                    tags_to_add = set()
+                    for tag in request.POST.get('tags', '').split():
+                        tag = ListTag.objects.get_or_create(name=tag)[0]
+                        tags_to_add.add(tag)
+                    scan_list.tags.add(*tags_to_add)
                 scan_list.scan()
                 return redirect(reverse('frontend:scan_list_created', args=(scan_list.token,)))
 
