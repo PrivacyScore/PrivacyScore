@@ -377,7 +377,10 @@ CHECKS['ssl']['web_insecure_protocols_sslv2'] = {
         'description': _('Not checking for SSLv2 support, as the server does not offer HTTPS.'),
         'classification': Rating('neutral')
     },
-    'missing': None,
+    'missing': {
+        'description': _('Something went wrong during the SSL check, and it did not complete. Please run a rescan and contact us if the problem persists.'),
+        'classification': Rating("neutral"),
+    },
 }
 # Check for insecure SSLv3 protocol
 # No SSLv3: Good
@@ -486,7 +489,10 @@ CHECKS['mx']['mx_insecure_protocols_sslv2'] = {
         'description': _('Not checking for SSLv2 support, as the server does not offer TLS.'),
         'classification': Rating('neutral')
     },
-    'missing': None,
+    'missing': {
+        'description': _('Something went wrong during the SSL check, and it did not complete. Please run a rescan and contact us if the problem persists.'),
+        'classification': Rating("neutral"),
+    },
 }
 # Check for insecure SSLv3 protocol
 # No SSLv3: Good
