@@ -213,6 +213,20 @@ CHECKS['security']['leaks'] = {
         'classification':  Rating('bad')},
     'missing': None,
 }
+# Check for CSP header
+# No leaks: good
+# Else: bad
+CHECKS['security']['header_csp'] = {
+    'keys': {'headerchecks',},
+    'rating': lambda **keys: {
+        'description': _('The site does not disclose internal system information at usual paths.'),
+        'classification': Rating('good')
+    } if len(keys['headerchecks'][]) == 0 else {
+        'description': _('The site discloses internal system information that should not be available.'),
+        'classification':  Rating('bad')},
+    'missing': None,
+}
+
 
 
 ##########################
@@ -288,7 +302,7 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
           keys['final_https_url'].startswith('https') and
           keys['same_content_via_https']) else {
         'description': _('The web server does not support HTTPS by default. It hosts an HTTPS site, but it does not serve the same content over HTTPS that is offered via HTTP.'),
-        'classification': Rating('bad'),
+        'classification': Rating('critical'),
     } if (not keys['final_url'].startswith('https') and
           keys['final_https_url'] and
           keys['final_https_url'].startswith('https') and
