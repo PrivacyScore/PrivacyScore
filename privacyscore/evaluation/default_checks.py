@@ -143,8 +143,7 @@ CHECKS['privacy']['mailserver_locations'] = {
 }
 # Check if web and mail servers are in the same country
 # Servers in different countries: bad
-# Else: None
-# TODO Do we want to put an explicit neutral result here?
+# Else: good
 CHECKS['privacy']['server_locations'] = {
     'keys': {'a_locations', 'mx_locations'},
     'rating': lambda **keys: {
@@ -153,7 +152,7 @@ CHECKS['privacy']['server_locations'] = {
     } if (keys['a_locations'] and keys['mx_locations'] and
           set(keys['a_locations']) != set(keys['mx_locations'])) else {
         'description': _('The geo-location(s) of the web server(s) and the mail server(s) are identical.'),
-        'classification': Rating('critical'),
+        'classification': Rating('good'),
     },
     'missing': None,
 }
@@ -172,11 +171,9 @@ CHECKS['ssl']['url_is_https_or_redirects_to_https'] = {
     },
     'missing': None,
 }
-# Check if website explicitly redirected us to HTTPS version
-# yes: good
-# no: bad
-# TODO What if https-url was entered by user?
-# DH: This does not matter. A HTTPS server that redirects to HTTP is always unacceptable.
+# Check if website explicitly redirected us from HTTPS to the HTTP version
+# yes: bad
+# no: good
 CHECKS['ssl']['redirects_from_https_to_http'] = {
     'keys': {'final_https_url'},
     'rating': lambda **keys: {
