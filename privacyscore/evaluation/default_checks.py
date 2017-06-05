@@ -224,15 +224,63 @@ CHECKS['ssl']['web_pfs'] = {
 # Checks for HSTS Preload header
 # HSTS present: good
 # No HSTS: bad
-# TODO CRITICAL Inconsistent and incomplete
-CHECKS['ssl']['web_has_hsts_preload_header'] = {
-    'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header'},
+# No HTTPS at all: Neutral
+CHECKS['ssl']['web_hsts_header'] = {
+    'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header', 'web_has_hsts_preload', 'https'},
     'rating': lambda **keys: {
+        'description': _("The server does not offer HTTPS."),
+        'classification': Rating("neutral"),
+    } if not keys['https'] else {
         'description': _('The server uses HSTS to prevent insecure requests.'),
         'classification': Rating('good'),
-    } if keys['web_has_hsts_header'] else {
+    } if keys['web_has_hsts_header'] or keys['web_has_hsts_preload'] else {
         'description': _('The site is not using HSTS to prevent insecure requests.'),
         'classification': Rating('bad'),
+    },
+    'missing': None,
+}
+# Checks for HSTS preloading in list
+# HSTS preloading prepared or already done: good
+# No HSTS preloading: bad
+# No HSTS / HTTPS: neutral
+CHECKS['ssl']['web_hsts_preload_prepared'] = {
+    'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header', 'web_has_hsts_preload', 'https'},
+    'rating': lambda **keys: {
+        'description': _("The server does not offer HTTPS."),
+        'classification': Rating("neutral"),
+    } if not keys['https'] else {
+        'description': _('The server is ready for HSTS preloading.'),
+        'classification': Rating('good'),
+    } if keys['web_has_hsts_preload'] or keys['web_has_hsts_preload_header'] else {
+        'description': _('The site is not using HSTS preloading to prevent insecure requests.'),
+        'classification': Rating('bad'),
+    } if keys['web_has_hsts_header'] else {
+        'description': _('The site is not using HSTS to prevent insecure requests.'),
+        'classification': Rating('neutral')
+    },
+    'missing': None,
+}
+# Checks for HSTS preloading in list
+# HSTS preloaded: good
+# Not in database: bad
+# No HSTS / HTTPS: neutral
+CHECKS['ssl']['web_hsts_preload_listed'] = {
+    'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header', 'web_has_hsts_preload', 'https'},
+    'rating': lambda **keys: {
+        'description': _("The server does not offer HTTPS."),
+        'classification': Rating("neutral"),
+    } if not keys['https'] else {
+        'description': _('The server is part of the Chrome HSTS preload list.'),
+        'classification': Rating('good'),
+    } if keys['web_has_hsts_preload'] else {
+        'description': _('The server is ready for HSTS preloading, but not in the preloading database yet.'),
+        'clasification': Rating('bad')
+    } if keys['web_has_hsts_preload_header'] else {
+        'description': _('The site is not using HSTS preloading to prevent insecure requests.'),
+        'classification': Rating('neutral'),
+    } if keys['web_has_hsts_header'] else {
+        'description': _('The site is not using HSTS to prevent insecure requests.'),
+        'classification': Rating('neutral')
     },
     'missing': None,
 }
