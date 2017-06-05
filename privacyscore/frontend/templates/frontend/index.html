@@ -13,11 +13,11 @@
 
             <div class="well-form">
                 <a class="btn btn-lg btn-primary btn-well" href="{% url 'frontend:scan_list' %}">Create new site list</a>
-                <p class="scan-separator">— {% trans 'Or scan a single site immediately' %} —</p>
+                <p class="scan-separator">— {% trans 'or scan a single site immediately' %} —</p>
                 <form method="post" action="{% url 'frontend:scan_site' %}">
                     {% csrf_token %}
                     <div class="input-group scan-single">
-                        {% with placeholder=_('Website, e.g. https://privacyscore.org/') %}
+                        {% with placeholder=_('URL of website, e.g. https://privacyscore.org/') %}
                             {% render_field scan_form.url class+='form-control' placeholder=placeholder %}
                         {% endwith %}
                         <span class="input-group-btn">
