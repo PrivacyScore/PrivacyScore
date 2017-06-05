@@ -19,6 +19,10 @@ CHECKS = {
     'privacy': OrderedDict(),
     'ssl': OrderedDict(),
 }
+# Check for presence of cookies (first or third party)
+# 0 cookies: good
+# else: bad
+# TODO This may be a bit brutal - not all cookies are terrible
 CHECKS['general']['cookies'] = {
     'keys': {'cookies_count',},
     'rating': lambda **keys: {
@@ -32,6 +36,9 @@ CHECKS['general']['cookies'] = {
         'classification':  Rating('bad')},
     'missing': None,
 }
+# Checks for presence of flash cookies
+# 0 cookies: good
+# else: bad
 CHECKS['general']['flashcookies'] = {
     'keys': {'flashcookies_count',},
     'rating': lambda **keys: {
@@ -46,6 +53,9 @@ CHECKS['general']['flashcookies'] = {
         'classification':  Rating('bad')},
     'missing': None,
 }
+# Check for embedded third parties
+# 0 parties: good
+# else: bad
 CHECKS['general']['third_parties'] = {
     'keys': {'third_parties_count',},
     'rating': lambda **keys: {
@@ -60,7 +70,9 @@ CHECKS['general']['third_parties'] = {
         'classification':  Rating('bad')},
     'missing': None,
 }
-
+# Checks for presence of Google Analytics code
+# No GA: good
+# else: bad
 CHECKS['general']['google_analytics_present'] = {
     'keys': {'google_analytics_present',},
     'rating': lambda **keys: {
@@ -72,10 +84,16 @@ CHECKS['general']['google_analytics_present'] = {
     },
     'missing': None,
 }
-
+# Check for AnonymizeIP setting on Google Analytics
+# No GA: neutral
+# AnonIP: good
+# !AnonIP: bad
 CHECKS['general']['google_analytics_anonymizeIP_not_set'] = {
     'keys': {'google_analytics_anonymizeIP_not_set',},
     'rating': lambda **keys: {
+        'description': _('The site does not use Google Analytics.'),
+        'classification': Rating('neutral')
+    } if not keys["google_analytics_present"] else {
         'description': _('The site uses Google Analytics, but does not instruct Google to store anonymized IPs.'),
         'classification': Rating('bad'),
     } if keys['google_analytics_anonymizeIP_not_set'] else {
@@ -84,7 +102,9 @@ CHECKS['general']['google_analytics_anonymizeIP_not_set'] = {
     },
     'missing': None,
 }
-
+# Check for exposed internal system information
+# No leaks: good
+# Else: bad
 CHECKS['general']['leaks'] = {
     'keys': {'leaks',},
     'rating': lambda **keys: {
@@ -96,18 +116,26 @@ CHECKS['general']['leaks'] = {
     'missing': None,
 }
 
+# Check for the GeoIP of webservers
+# Purely informational, no rating associated
 CHECKS['privacy']['webserver_locations'] = {
     'keys': {'a_locations',},
     'rating': lambda **keys: describe_locations(
         _('web servers'), keys['a_locations']),
     'missing': None,
 }
+# Check for the GeoIP of mail servers, if any
+# Purely informational, no rating associated
 CHECKS['privacy']['mailserver_locations'] = {
     'keys': {'mx_locations',},
     'rating': lambda **keys: describe_locations(
         _('mail servers'), keys['mx_locations']),
     'missing': None,
 }
+# Check if web and mail servers are in the same country
+# Servers in different countries: bad
+# Else: None
+# TODO Do we want to put an explicit neutral result here?
 CHECKS['privacy']['server_locations'] = {
     'keys': {'a_locations', 'mx_locations'},
     'rating': lambda **keys: {
@@ -118,6 +146,9 @@ CHECKS['privacy']['server_locations'] = {
     'missing': None,
 }
 
+# Check if final URL is https
+# yes: good
+# no: critical
 CHECKS['ssl']['url_is_https_or_redirects_to_https'] = {
     'keys': {'final_url',},
     'rating': lambda **keys: {
@@ -129,6 +160,10 @@ CHECKS['ssl']['url_is_https_or_redirects_to_https'] = {
     },
     'missing': None,
 }
+# Check if website explicitly redirected us to HTTPS version
+# yes: good
+# no: bad
+# TODO What if https-url was entered by user?
 CHECKS['ssl']['redirects_from_https_to_http'] = {
     'keys': {'final_https_url'},
     'rating': lambda **keys: {
@@ -140,7 +175,10 @@ CHECKS['ssl']['redirects_from_https_to_http'] = {
     },
     'missing': None,
 }
-
+# Check if website does not redirect to HTTPS, but offers HTTPS on demand and serves the same content
+# HTTPS available and serving same content: good
+# HTTPS available but different content: bad
+# TODO What is the result if the website forwarded to HTTPS?
 CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
     'keys': {'final_url','final_https_url','same_content_via_https'},
     'rating': lambda **keys: {
@@ -156,39 +194,52 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
           not keys['same_content_via_https']) else None,
     'missing': None,
 }
+# Check for Perfect Forward Secrecy on Webserver
+# PFS available: good
+# Else: bad
 CHECKS['ssl']['web_pfs'] = {
     'keys': {'web_pfs',},
     'rating': lambda **keys: {
         'description': _('The web server is supporting perfect forward secrecy.'),
         'classification': Rating('good'),
-    } if keys['pfs'] else {
+    } if keys['web_pfs'] else {
         'description': _('The web server is not supporting perfect forward secrecy.'),
         'classification': Rating('bad'),
     },
     'missing': None,
 }
+# Checks for HSTS Preload header
+# HSTS present: good
+# No HSTS: bad
+# TODO CRITICAL Inconsistent and incomplete
 CHECKS['ssl']['web_has_hsts_preload_header'] = {
     'keys': {'web_has_hsts_preload_header',},
     'rating': lambda **keys: {
         'description': _('The server uses HSTS to prevent insecure requests.'),
         'classification': Rating('good'),
-    } if keys['has_hsts_header'] else {
+    } if keys['web_has_hsts_header'] else {
         'description': _('The site is not using HSTS to prevent insecure requests.'),
         'classification': Rating('bad'),
     },
     'missing': None,
 }
+# Check for HTTP Public Key Pinning Header
+# HPKP present: Good, but does not influence ranking (TODO why not?)
+# else: bad, but does not influence ranking
 CHECKS['ssl']['web_has_hpkp_header'] = {
     'keys': {'web_has_hpkp_header',},
     'rating': lambda **keys: {
         'description': _('The site uses Public Key Pinning to prevent attackers from using invalid certificates.'),
-        'classification': Rating('good', influence_ranking=False),
-    } if keys['has_hpkp_header'] else {
+        'classification': Rating('good', influences_ranking=False),
+    } if keys['web_has_hpkp_header'] else {
         'description': _('The site is not using Public Key Pinning to prevent attackers from using invalid certificates.'),
         'classification': Rating('bad', influences_ranking=False),
     },
     'missing': None,
 }
+# Check for insecure protocols
+# No insecure protocols: Good
+# Else: bad
 CHECKS['ssl']['web_insecure_protocols'] = {
     'keys': {'web_has_protocol_sslv2','web_has_protocol_sslv3'},
     'rating': lambda **keys: {
@@ -200,6 +251,10 @@ CHECKS['ssl']['web_insecure_protocols'] = {
     },
     'missing': None,
 }
+# Check for secure protocols
+# Secure protocols supported: good
+# Else: critical
+# TODO WTF is this check doing?
 CHECKS['ssl']['web_secure_protocols'] = {
     'keys': {'web_has_protocol_tls1','web_has_protocol_tls1_1','web_has_protocol_tls1_2'},
     'rating': lambda **keys: {
@@ -214,6 +269,9 @@ CHECKS['ssl']['web_secure_protocols'] = {
         'classification': Rating('critical'),
     },
 }
+# Check for mixed content
+# No mixed content: Good
+# Else: bad
 CHECKS['ssl']['mixed_content'] = {
     'keys': {'final_url','mixed_content'},
     'rating': lambda **keys: {
