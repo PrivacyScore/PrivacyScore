@@ -188,6 +188,9 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     # TODO: use ordered dict and sort by rating ordering
     # for now, frontend template can just use static ordering of all available ratings
     ratings_count = dict(Counter(site.evaluated.rating.rating for site in sites))
+    for rating in ('good', 'bad', 'warning', 'neutral'):
+        if rating not in ratings_count:
+            ratings_count[rating] = 0
 
     return render(request, 'frontend/view_scan_list.html', {
         'scan_list': scan_list,

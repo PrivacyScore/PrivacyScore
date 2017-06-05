@@ -276,3 +276,23 @@ div.improvements {
 .improvements p {
     color: #474747;
 }
+
+/*
+ * Ranking Colors
+ */
+
+.color-bad {
+    color: #e02c2c;
+}
+
+.color-mediocre, .color-warning {
+    color: #fcab10;
+}
+
+.color-good, .color-doubleplusgood {
+    color: #44af69;
+}
+
+.color-neutral {
+    color: #888;
+}

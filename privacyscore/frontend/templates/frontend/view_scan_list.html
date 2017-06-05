@@ -2,199 +2,114 @@
 {% load static %}
 {% load i18n %}
 
-{% block title %}Results for {{ scan_list.name }}{% endblock title %}
-
-{% block additional_css %}
-<style type="text/css">
-.align-center {
-  text-align: center;
-}
-
-.align-right {
-  text-align: right;
-}
-
-.unreachable {
-  opacity: 0.6;
-}
-
-.rating-doubleplusgood, .rating-good {
-  background: #27FB6B;
-}
-
-.rating-warning {
-  background: #FCAB10;
-}
-
-.rating-bad {
-  background: #E02C2C;
-}
-</style>
-{% endblock additional_css %}
+{% block title %}{{ scan_list.name }}{% endblock title %}
 
 {% block content %}
-    <h1>
-      {{ scan_list.name }}
-    </h1>
-
-
     <div class="row">
-      <div class="col-md-9">
-        <div class="box">
-          <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" title="{% trans 'Description' %}" id="tooltipDescription"></span>
-          <span id="description">{{ scan_list.description }}</span>
-        </div>
-        <div class="box">
-          <span class="glyphicon glyphicon-tags" data-toggle="tooltip" title="{% trans 'Tags' %}" id="tooltipTags"></span>
-          <span id="tags">{{ scan_list.tags_as_str }}</span>
-        </div>
-        <div class="box">
-          <span class="glyphicon glyphicon-tags" data-toggle="tooltip" title="{% trans 'Running Scans' %}" id="tooltipTags"></span>
-          <span id="running_scans">
-            {% blocktrans count counter=scan_list.running_scans__count %}
-              {{ counter }} scan currently running
-            {% plural %}
-              {{ counter }} scans currently running
-            {% endblocktrans %}
-          </span>
-        </div>
-        <div class="box">
-          <span class="glyphicon glyphicon-time" data-toggle="tooltip" title="Zeit" id="tooltipTime">{{ scan_list.last_scan_datetime|date:"j.n.Y H:i" }}</span>
-          <span id="startdate"></span> <i class="fa fa-long-arrow-right"></i>
-        </div>
-        <div class="box">
-          <i class="fa fa-hand-o-right" data-toggle="tooltip" id="popularThirdParties"></i>
-          <a id="popularThirdPartiesButton" href="TODO" style="color:black;">
+        <div class="col-md-8">
+            <h2>
+                {{ scan_list.name }}
+            </h2>
 
-            <span id="popularThirdPartiesDiv">Häufige Third Parties</span>
-          </a>
+            <h3>{% trans "Result overview" %}</h3>
+            <ul class="list-unstyled">
+                <li>
+                    {% blocktrans count counter=sites_count %}
+                        {{ counter }} website
+                    {% plural %}
+                        {{ counter }} websites
+                    {% endblocktrans %}
+
+                    {% blocktrans count counter=sites_with_failures_count %}
+                        (with {{ counter }} scan error)
+                    {% plural %}
+                        (with {{ counter }} scan errors)
+                    {% endblocktrans %}
+                </li>
+
+                <li class="color-good">
+                    {{ ratings_count.good }} passed all checks
+                </li>
+                <li class="color-warning">
+                    {{ ratings_count.warning }} with one or more issues
+                </li>
+                <li class="color-bad">
+                    {{ ratings_count.bad }} with critical issues
+                </li>
+                <li class="color-neutral">
+                    {{ ratings_count.neutral }} could not be judged
+                </li>
+            </ul>
         </div>
-        <div class="well-sm result">
-           <div class="row result-body" id="dashboard" style="display:none; padding-top:15px;">
-            <div class="col-md-3">
-              <div class="result-value"></div>
-              <div id="dashboardScore">Durchschnittliche Bewertung</div>
-              </div>
-              <div class="col-md-3">
-              <div class="result-value"></div>
-              <div id="dashboardHTTPS">der Seiten bieten HTTPS als Standard an</div>
-              </div>
-              <div class="col-md-3">
-              <div class="result-value"></div>
-              <div id="dashboardCookies">Durchschnittliche Anzahl an Cookies</div>
-              </div>
-              <div class="col-md-3">
-              <div class="result-value"></div>
-              <div id="dashboardThirdParties">Durchschnittliche Anzahl an Third Parties</div>
-
-              </div>
-          </div>
+        <div class="col-md-4">
+            <div class="improvements">
+                <h5>&mdash; IMPROVEMENTS UNDERWAY &mdash; </h5>
+                <hr>
+                <p><em>
+                    In future you will be able to reorder the ranking categories to
+                    match your personal importance rating. In addition the table
+                    can by sorted and grouped by attribute.
+                </em>
+                <p><em>Estimated release: August 2017.</em></p>
+            </div>
         </div>
-      </div>
-
-      <div class="col-md-3">
-
-
-        <a class="btn btn-default" onclick="deleteList()" role="button" id="delete_list" style="width:100%; display:none;">Liste löschen</a>
-        <form method="POST" action="{% url 'frontend:scan_scan_list' scan_list.pk %}">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-default" role="button" id="scan_again" style="width:100%;">
-            {% trans 'Rescan' %}
-          </button>
-        </form>
-        <a href="{% url 'frontend:scan_list' %}" class="btn btn-default" role="button" id="new_list" style="width:100%;">Neue Liste aus dieser erstellen</a>
-
-         <div class="form-group">
-          <label id="labelShowScan">Scan anzeigen</label>
-          <select onchange="location = this.options[this.selectedIndex].value;" class="form-control" id="oldNewScans">
-          </select>
-
-        <div id="compareDiv">
-        <input type="checkbox" id="compareCheckbox" value="" onclick="toggleCompare();">
-          <label id="labelCompareScan">Vergleichs-Scan</label>
-          <select onchange="dropdownAction()" class="form-control" id="compareScans">
-          </select>
-        </div>
-        </div>
-      </div>
     </div>
 
-    <p>
-      {% blocktrans count counter=sites_count %}
-        {{ counter }} site on list.
-      {% plural %}
-        {{ counter }} sites on list.
-      {% endblocktrans %}
-    </p>
-    <p>
-      {% blocktrans count counter=sites_with_failures_count %}
-        {{ counter }} site had at least one failure during the last scan.
-      {% plural %}
-        {{ counter }} sites had at least one failure during the last scan.
-      {% endblocktrans %}
-    </p>
-    <p>
-      {% for rating, count in ratings_count.items %}
-        {% blocktrans count counter=count with rating=rating %}
-          {{ count }} site has rating {{ rating }}.
-        {% plural %}
-          {{ count }} sites have rating {{ rating }}.
-        {% endblocktrans %}
-      {% endfor %}
-    </p>
+    <h3>{% trans "Ranking" %}</h3>
+    <table class="table table-striped table-bordered table-hover">
+        <tr>
+            <th>#</th>
+            <th>{% trans 'URL' %}</th>
+            {% for column in scan_list.ordered_columns %}
+                <th>{{ column.name }}</th>
+            {% endfor %}
+            <th>{% trans 'Result' %}</th>
+            {% for group in result_groups %}
+                <th>{{ group }}</th>
+            {% endfor %}
+            <th class="align-right">{% trans 'Scan time' %}</th>
+            <th class="align-right">{% trans 'Failures' %}</th>
+        </tr>
 
-  <table class="table table-striped table-bordered table-hover">
-    <tr>
-      <th>#</th>
-      <th>{% trans 'URL' %}</th>
-      {% for column in scan_list.ordered_columns %}
-        <th>{{ column.name }}</th>
-      {% endfor %}
-      <th>{% trans 'Result' %}</th>
-      {% for group in result_groups %}
-        <th>{{ group }}</th>
-      {% endfor %}
-      <th class="align-right">{% trans 'Scan time' %}</th>
-      <th class="align-right">{% trans 'Failures' %}</th>
-    </tr>
-
-    {% for num, site in sites %}
-      <tr{% if site.result.result.reachable is False %} class="unreachable"{% endif %}>
-        <td>
-          {{ num }}
-        </td>
-        <td>
-          <a href="{% url 'frontend:view_site' site.pk %}">
-            {{ site.url }}
-          </a>
-        </td>
-        {% for column_value in site.ordered_column_values %}
-          <th>{{ column_value.value }}</th>
+        {% for num, site in sites %}
+            <tr{% if site.result.result.reachable is False %} class="unreachable"{% endif %}>
+                <td>
+                    {{ num }}
+                </td>
+                <td>
+                    <a href="{% url 'frontend:view_site' site.pk %}">
+                        {{ site.url }}
+                    </a>
+                </td>
+                {% for column_value in site.ordered_column_values %}
+                    <th>{{ column_value.value }}</th>
+                {% endfor %}
+                <td class="rating-{{ site.evaluated.rating }}"></td>
+                {% for group, rating in site.evaluated %}
+                    {% if rating %}
+                        <td class="rating-{{ rating.group_rating }}">
+                            {{ rating.group_rating }}
+                            {% blocktrans with overall_good=rating.overall_good good=rating.good overall_total=rating.overall_total total=rating.total %}
+                                ({{ good }}/{{ total }} [{{ overall_good }}/{{ overall_total }}] good)
+                            {% endblocktrans %}
+                            {% if rating.group_rating.rating == 'doubleplusgood' %}
+                                <i class="fa fa-star-o" aria-hidden="true"></i>
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <td>
+                            {% trans 'n/a' %}
+                        </td>
+                    {% endif %}
+                {% empty %}
+                    <td class="align-center" colspan="{{ result_groups|length }}">{% trans 'n/a' %}</td>
+                {% endfor %}
+                <td class="align-right">
+                    {% if site.last_scan_datetime is not None %}{{ site.last_scan_datetime }}{% else %}
+                        --{% endif %}</td>
+                <td class="align-right">{{ site.last_scan__error_count }}</td>
+            </tr>
         {% endfor %}
-        <td class="rating-{{ site.evaluated.rating }}"></td>
-        {% for group, rating in site.evaluated %}
-          {% if rating %}
-            <td class="rating-{{ rating.group_rating }}">
-              {{ rating.group_rating }}
-              {%  blocktrans with overall_good=rating.overall_good good=rating.good overall_total=rating.overall_total total=rating.total %}
-                ({{ good }}/{{ total }} [{{ overall_good }}/{{ overall_total }}] good)
-              {% endblocktrans %}
-              {% if rating.group_rating.rating == 'doubleplusgood' %}
-                <i class="fa fa-star-o" aria-hidden="true"></i>
-              {% endif %}
-            </td>
-          {% else %}
-            <td>
-              {% trans 'n/a' %}
-            </td>
-          {% endif %}
-        {% empty %}
-          <td class="align-center" colspan="{{ result_groups|length }}">{% trans 'n/a' %}</td>
-        {% endfor %}
-        <td class="align-right">{% if site.last_scan_datetime is not None %}{{ site.last_scan_datetime }}{% else %}--{% endif %}</td>
-        <td class="align-right">{{ site.last_scan__error_count }}</td>
-      </tr>
-    {% endfor %}
-  </table>
+    </table>
 
 {% endblock content %}
