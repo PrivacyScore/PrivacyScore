@@ -124,6 +124,8 @@ def scan_list(request: HttpRequest) -> HttpResponse:
         'table': table,
         'invalid_rows': invalid_rows,
         'csv_data': csv_data,
+        'popular_tags_str': ', '.join(t.name for t in ListTag.objects.annotate_scan_lists__count() \
+            .order_by('-scan_lists__count')[:10]),
     })
 
 

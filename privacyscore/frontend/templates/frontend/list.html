@@ -35,7 +35,13 @@
                 </div>
                 <div class="form-group">
                     <label for="id_tags">{% trans "Tags" %}</label>
-                    {% render_field scan_list_form.tags class+="form-control" placeholder="ecommerce german" %}
+                    {% render_field scan_list_form.tags class+="form-control" placeholder="ecommerce de" %}
+                    
+                    <p class="smallnotice">Popular tags:
+                    <span>
+                        {{ popular_tags_str }}
+                    </span>
+                    </p>
                 </div>
                 <div class="form-group">
                     <label for="id_pseudonym">{% trans "Your Name (or a pseudonym, will be published)" %}</label>
