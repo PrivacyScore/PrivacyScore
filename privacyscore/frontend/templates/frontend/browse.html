@@ -30,7 +30,8 @@
             <div class="spacer"></div>
             <form method="get" action="{{ request.path }}">
                 <div class="input-group">
-                    <input style="" type="text" id="search" name="search" class="form-control" placeholder="{% trans 'Search in list descriptions and tags' %}" {% if search %}value="{{ search }}"{% endif %} />
+                    <input type="text" id="search" name="search" class="form-control" placeholder="{% trans 'Search in list descriptions and tags' %}" {% if request.GET.search %}value="{{ request.GET.search }}"{% endif %} />
+                    <input type="text" id="tags" name="tags" class="form-control" placeholder="{% trans 'Filter tags (i.e. banks german)' %}" {% if request.GET.tags %}value="{{ request.GET.tags }}"{% endif %} />
                     <span class="input-group-btn">
                         <button class="btn btn-secondary btn-scan" type="submit">{% trans 'Search' %}</button>
                     </span>

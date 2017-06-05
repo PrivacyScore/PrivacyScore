@@ -10,7 +10,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres import fields as postgres_fields
 from django.db import models, transaction
-from django.db.models import Prefetch, QuerySet
+from django.db.models import Count, Prefetch, QuerySet
 from django.db.models.expressions import RawSQL
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -373,10 +373,17 @@ class Site(models.Model):
         return self.prefetched_scans[len(self.prefetched_scans) - 1]
 
 
+class ListTagQuerySet(models.QuerySet):
+    def annotate_scan_lists__count(self) -> 'ListTagQuerySet':
+        return self.annotate(scan_lists__count=Count('scan_lists'))
+
+
 class ListTag(models.Model):
     """Tags for a list."""
     scan_lists = models.ManyToManyField(ScanList, related_name='tags')
     name = models.CharField(max_length=50, unique=True)
+
+    objects = models.Manager.from_queryset(ListTagQuerySet)()
 
     def __str__(self) -> str:
         return self.name

@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 
-from privacyscore.backend.models import ListColumn, ListColumnValue, Scan, ScanList, Site, ScanResult
+from privacyscore.backend.models import ListColumn, ListColumnValue, ListTag,  Scan, ScanList, Site, ScanResult
 from privacyscore.evaluation.result_groups import RESULT_GROUPS
 from privacyscore.evaluation.site_evaluation import UnrateableSiteEvaluation
 from privacyscore.frontend.forms import SingleSiteForm, CreateListForm
@@ -42,6 +42,12 @@ def browse(request: HttpRequest) -> HttpResponse:
             Q(name__icontains=search) |
             Q(description__icontains=search) |
             Q(tags__name__icontains=search)).distinct()
+    tags = request.GET.get('tags')
+    if tags:
+        tags = tags.split()
+        for tag in tags:
+            scan_lists = scan_lists.filter(tags__name__iexact=tag)
+
 
     paginator = Paginator(scan_lists, settings.SCAN_LISTS_PER_PAGE)
     page = request.GET.get('page')
@@ -51,8 +57,9 @@ def browse(request: HttpRequest) -> HttpResponse:
         scan_lists = paginator.page(1)
 
     return render(request, 'frontend/browse.html', {
+        'popular_tags': ListTag.objects.annotate_scan_lists__count() \
+            .order_by('-scan_lists__count')[:10],
         'scan_lists': scan_lists,
-        'search': search,
     })
 
 
