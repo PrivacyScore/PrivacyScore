@@ -22,8 +22,8 @@
 
     <h3>{% trans "Basic Information" %}</h3>
     <div class="group-box">
-        <div class="row row-equal-height">
-            <div class="col-md-6">
+        <div class="row">
+            <div class="col-sm-6">
                 <div class="form-group">
                     <label for="id_name">{% trans "Name" %}</label>
                     {% render_field scan_list_form.name class+="form-control" placeholder="German Sites About Unicorns" %}
@@ -46,7 +46,7 @@
                     {% render_field scan_list_form.email class+="form-control" placeholder="john.doe@example.com" %}
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-sm-6">
                 <div class="form-group">
                     <label for="id_description">{% trans "Description" %}</label>
                     {% render_field scan_list_form.description class+="form-control list-description" placeholder="Brief description shown in the directory [new paragraph] Details about your collection methodology [new paragraph] all sources you used [new paragraph] description of the Attribute Columns (if your list contains any)" %}
@@ -60,32 +60,35 @@
     <h3>{% trans "Upload List as CSV File" %}</h3>
     <div class="group-box">
         {% if not table %}
-        <div style="width: 50%" class="pull-left">
-            <p>{% trans "During the initial stage of the beta phase we ask you to submit your list of websites by uploading a comma-separated values (CSV) file. At the moment you can upload lists with a <strong>maximum number of 500 websites</strong>." %}.</p>
-        </div>
-        <div style="width: 45%" class="pull-right">
-            <div style="width: 350px; border: solid 1px #F4D35E; background-color: #FAF0CA; padding: 1.5em 2em; vertical-align: middle; margin-left: auto; margin-right: auto; margin-top: 1.5em">
-                <h5 style="text-align: center; font-family: Raleway, sans-serif; font-weight: bold; color: #474747; letter-spacing: 0.7px">&mdash;&nbsp; IMPROVEMENTS UNDERWAY&nbsp; &mdash;</h5>
-                <hr style="width: 100%; border: 0; border-top: 1px solid #474747">
-                <p style="color: #474747"><em>We plan to increase the maximum number of websites that can be contained in a list. We will also offer the possibility to create and edit lists directly in the browser.</em>
-                <p><em>Estimated release: July 2017.</em></p>
+        <div class="row">
+            <div class="col-sm-6 flex-last pull-right">
+                <div class="row">
+                    <div
+                    class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-md-offset-2 col-lg-offset-2 col-xl-offset-2">
+                        <div
+                        style="border: solid 1px #F4D35E; display: block; background-color: #FAF0CA; padding: 1.5em 2em; vertical-align: middle; margin-top: 1.5em; margin-bottom: 1em">
+                            <h5 style="text-align: center; font-family: Raleway, sans-serif; font-weight: bold; color: #474747; letter-spacing: 0.7px">&mdash; IMPROVEMENTS UNDERWAY &mdash; </h5>
+                            <hr style="width: 100%; border: 0; border-top: 1px solid #474747">
+                            <p style="color: #474747"><em>We plan to increase the maximum number of websites that can be contained in a list. We will also offer the possibility to create and edit lists directly in the browser.</em>
+                            <p><em>Estimated release: July 2017.</em></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-sm-6 flex-first">
+                <p>{% trans "During the initial stage of the beta phase we ask you to submit your list of websites by uploading a comma-separated values (CSV) file. At the moment you can upload lists with a <strong>maximum number of 500 websites</strong>." %}</p>
+                
+                <p><strong>{% trans "Instructions:" %}</strong></p>
+                <ul>
+                    <li>{% trans "The CSV file has to contain a <em>header line</em> followed by multiple rows, one row per website." %}</li>
+                    <li>{% trans 'The <em>first column</em> is expected to be the URL of the site. We assume http:// by default, if you do not specify the protocol explicitly (e.g. "unicorn.example.it"). Prefixing a URL with https:// will only scan the website via HTTPS. Please do not mix http:// and https:// URLs in your lists for now, because this will bias the results.' %}</li>
+                    <li>{% trans 'All other columns contain <em>site attributes</em>. Site attributes will allow you to compare the security and privacy level of sub-groups (e.g., "are vendors in state A better than in state B?")' %}</li>
+                    <li>{% trans "Please use the <em>semi-colon</em> (;) as a column delimiter for now." %}</li>
+                </ul>
             </div>
         </div>
-
-        <div style="width: 50%" class="pull-left">
-            <p><strong>{% trans "Instructions:" %}</strong></p>
-            <ul>
-            <li>{% trans "The CSV file has to contain a <em>header line</em> followed by multiple rows, one row per website." %}
-            </li>
-            <li>{% trans 'The <em>first column</em> is expected to be the URL of the site. We assume http:// by default, if you do not specify the protocol explicitly (e.g. "unicorn.example.it"). Prefixing a URL with https:// will only scan the website via HTTPS. Please do not mix http:// and https:// URLs in your lists for now, because this will bias the results.' %}
-            </li>
-            <li>{% trans 'All other columns contain <em>site attributes</em>. Site attributes will allow you to compare the security and privacy level of sub-groups (e.g., "are vendors in state A better than in state B?")' %}
-            </li>
-            <li>{% trans "Please use the <em>semi-colon</em> (;) as a column delimiter for now." %}
-            </li>
-            </ul>
-        </div>
-        <div class="clearfix"></div>
+        
         <p>{% trans "The following example illustrates the file structure for a list of hypothetical e-commerce sites:" %}</p>
         <table class="table table-bordered">
             <tr>
@@ -127,7 +130,7 @@
         </div>
         <button class="btn btn-default">
             <i class="fa fa-upload"></i>
-                {% trans 'Upload CSV File' %}
+            {% trans 'Upload CSV File' %}
         </button>
         <div class="spacer"></div>
         <p>{% trans 'You can still make changes after the upload.' %}</p>
