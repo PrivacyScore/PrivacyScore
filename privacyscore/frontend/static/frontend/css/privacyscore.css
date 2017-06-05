@@ -238,3 +238,41 @@ a.spotlight-caption {
 .spacer {
     height:20px;
 }
+
+.smallnotice {
+    margin-top:5px;
+    margin-left:5px;
+    margin-right:5px;
+    font-size:90%;
+}
+
+/*
+ * improvements box 
+ */
+div.improvements {
+    border: solid 1px #F4D35E;
+    display: block;
+    background-color: #FAF0CA;
+    padding: 1.5em 2em;
+    vertical-align: middle;
+    margin-top: 1.5em;
+    margin-bottom: 1em;
+}
+
+.improvements h5 {
+    text-align: center;
+    font-family: Raleway, sans-serif;
+    font-weight: bold;
+    color: #474747;
+    letter-spacing: 0.7px;
+}
+
+.improvements hr {
+    width: 100%;
+    border: 0;
+    border-top: 1px solid #474747;
+}
+
+.improvements p {
+    color: #474747;
+}
