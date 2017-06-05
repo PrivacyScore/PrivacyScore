@@ -370,7 +370,7 @@ CHECKS['ssl']['web_insecure_protocols_sslv2'] = {
     'rating': lambda **keys: {
         'description': _('The server does not support SSLv2.'),
         'classification': Rating('good'),
-    } if not any(keys.values()) else {
+    } if not keys["web_has_protocol_sslv2"] else {
         'description': _('The server supports SSLv2.'),
         'classification': Rating('bad'),
     } if keys['https'] else {
@@ -388,7 +388,7 @@ CHECKS['ssl']['web_insecure_protocols_sslv3'] = {
     'rating': lambda **keys: {
         'description': _('The server does not support SSLv3.'),
         'classification': Rating('good'),
-    } if not any(keys.values()) else {
+    } if not keys["web_has_protocol_sslv3"] else {
         'description': _('The server supports SSLv3.'),
         'classification': Rating('bad'),
     } if keys['https'] else {
@@ -405,7 +405,7 @@ CHECKS['ssl']['web_secure_protocols_tls1'] = {
     'rating': lambda **keys: {
         'description': _('The server supports TLS 1.0.'),
         'classification': Rating('neutral'),
-    } if any(keys.values()) else {
+    } if keys["web_has_protocol_tls1"] else {
         'description': _('The server does not support TLS 1.0.'),
         'classification': Rating('good'),
     } if keys['https'] else {
@@ -422,7 +422,7 @@ CHECKS['ssl']['web_secure_protocols_tls1_1'] = {
     'rating': lambda **keys: {
         'description': _('The server supports TLS 1.1.'),
         'classification': Rating('neutral'),
-    } if any(keys.values()) else {
+    } if keys["web_has_protocol_tls1_1"] else {
         'description': _('The server does not support TLS 1.1.'),
         'classification': Rating('neutral'),
     } if keys['https'] else {
@@ -439,7 +439,7 @@ CHECKS['ssl']['web_secure_protocols_tls1_2'] = {
     'rating': lambda **keys: {
         'description': _('The server supports TLS 1.2.'),
         'classification': Rating('good'),
-    } if any(keys.values()) else {
+    } if keys["web_has_protocol_tls1_2"] else {
         'description': _('The server does not support TLS 1.2.'),
         'classification': Rating('critical'),
     }if keys['https'] else {
@@ -460,7 +460,7 @@ CHECKS['ssl']['mixed_content'] = {
         'description': _('The site uses HTTPS and all objects are retrieved via HTTPS (no mixed content).'),
         'classification': Rating('good'),
     } if (not keys['mixed_content'] and keys['final_url'].startswith('https')) else {
-        'description': _('The site uses HTTP only, mixed content checks do not apply.'),
+        'description': _('The site was scanned via HTTP only, mixed content checks do not apply.'),
         'classification': Rating('neutral'),
     },
     'missing': None,
@@ -470,4 +470,90 @@ CHECKS['ssl']['mixed_content'] = {
 ###########################
 ## Mailserver TLS Checks ##
 ###########################
-# TODO Implement
+# Check for insecure SSLv2 protocol
+# No SSLv2: Good
+# No HTTPS at all: neutral
+# Else: bad
+# CHECKS['mx']['mx_insecure_protocols_sslv2'] = {
+#     'keys': {'mx_has_protocol_sslv2', 'https'},
+#     'rating': lambda **keys: {
+#         'description': _('The server does not support SSLv2.'),
+#         'classification': Rating('good'),
+#     } if not any(keys.values()) else {
+#         'description': _('The server supports SSLv2.'),
+#         'classification': Rating('bad'),
+#     } if keys['https'] else {
+#         'description': _('Not checking for SSLv2 support, as the server does not offer TLS.'),
+#         'classification': Rating('neutral')
+#     },
+#     'missing': None,
+# }
+# Check for insecure SSLv3 protocol
+# No SSLv3: Good
+# Not HTTPS at all: neutral
+# Else: bad
+# CHECKS['mx']['mx_insecure_protocols_sslv3'] = {
+#     'keys': {'mx_has_protocol_sslv3', 'https'},
+#     'rating': lambda **keys: {
+#         'description': _('The server does not support SSLv3.'),
+#         'classification': Rating('good'),
+#     } if not keys["mx_has_protocol_sslv3"] else {
+#         'description': _('The server supports SSLv3.'),
+#         'classification': Rating('bad'),
+#     } if keys['https'] else {
+#         'description': _('Not checking for SSLv3 support, as the server does not offer TLS.'),
+#         'classification': Rating('neutral')
+#     },
+#     'missing': None,
+# }
+# # Check for TLS 1.0
+# # supported: neutral
+# # Else: good
+# CHECKS['mx']['mx_secure_protocols_tls1'] = {
+#     'keys': {'mx_has_protocol_tls1', "https"},
+#     'rating': lambda **keys: {
+#         'description': _('The server supports TLS 1.0.'),
+#         'classification': Rating('neutral'),
+#     } if any(keys.values()) else {
+#         'description': _('The server does not support TLS 1.0.'),
+#         'classification': Rating('good'),
+#     } if keys['https'] else {
+#         'description': _('Not checking for TLS 1.0-support, as the server does not offer TLS.'),
+#         'classification': Rating('neutral')
+#     },
+#     'missing': None,
+# }
+# # Check for TLS 1.1
+# # supported: neutral
+# # Else: neutral
+# CHECKS['mx']['mx_secure_protocols_tls1_1'] = {
+#     'keys': {'mx_has_protocol_tls1_1', "https"},
+#     'rating': lambda **keys: {
+#         'description': _('The server supports TLS 1.1.'),
+#         'classification': Rating('neutral'),
+#     } if any(keys.values()) else {
+#         'description': _('The server does not support TLS 1.1.'),
+#         'classification': Rating('neutral'),
+#     } if keys['https'] else {
+#         'description': _('Not checking for TLS 1.1-support, as the server does not offer TLS.'),
+#         'classification': Rating('neutral')
+#     },
+#     'missing':None,
+# }
+# # Check for TLS 1.2
+# # supported: good
+# # Else: critical
+# CHECKS['mx']['mx_secure_protocols_tls1_2'] = {
+#     'keys': {'mx_has_protocol_tls1_2', "https"},
+#     'rating': lambda **keys: {
+#         'description': _('The server supports TLS 1.2.'),
+#         'classification': Rating('good'),
+#     } if any(keys.values()) else {
+#         'description': _('The server does not support TLS 1.2.'),
+#         'classification': Rating('critical'),
+#     }if keys['https'] else {
+#         'description': _('Not checking for TLS 1.2-support, as the server does not offer TLS.'),
+#         'classification': Rating('neutral')
+#     },
+#     'missing': None,
+# }
