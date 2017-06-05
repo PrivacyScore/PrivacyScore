@@ -147,7 +147,7 @@ CHECKS['privacy']['server_locations'] = {
           set(keys['a_locations']) != set(keys['mx_locations'])) else {
         'description': _('The geo-location(s) of the web server(s) and the mail server(s) are identical.'),
         'classification': Rating('good'),
-    },
+    } if len(keys['mx_locations']) > 0 else None,
     'missing': None,
 }
 
