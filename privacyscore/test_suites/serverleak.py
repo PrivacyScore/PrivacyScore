@@ -45,7 +45,8 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
 
 def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[str, object]]:
     leaks = []
-
+    result = {}
+    
     for trial, pattern in TRIALS:
         if trial not in raw_data:
             # Test raw data too old or particular request failed.
@@ -55,7 +56,8 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
             if pattern in response['text']:
                 leaks.append(trial)
 
-    return leaks
+    result['leaks'] = leaks
+    return result
 
 
 def _response_to_json(resp: Response) -> bytes:
