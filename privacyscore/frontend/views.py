@@ -1,5 +1,6 @@
 import io
 import csv
+from collections import Counter
 from typing import Union
 
 from django.conf import settings
@@ -152,8 +153,16 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
 
     sites = sorted(sites, key=lambda v: v.evaluated, reverse=True)
 
+    # TODO: use ordered dict and sort by rating ordering
+    # for now, frontend template can just use static ordering of all available ratings
+    ratings_count = dict(Counter(site.evaluated.rating.rating for site in sites))
+
     return render(request, 'frontend/view_scan_list.html', {
         'scan_list': scan_list,
+        'sites_count': len(sites),
+        'ratings_count': ratings_count,
+        'sites_with_failures_count': sum(
+            1 for site in sites if site.last_scan__error_count > 0),
         'sites': enumerate(sites, start=1),
         'result_groups': [group['name'] for group in RESULT_GROUPS.values()],
     })

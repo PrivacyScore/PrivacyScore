@@ -51,11 +51,12 @@
         <div class="box">
           <span class="glyphicon glyphicon-tags" data-toggle="tooltip" title="{% trans 'Running Scans' %}" id="tooltipTags"></span>
           <span id="running_scans">
-            {% blocktrans count counter=scan_list.running_scans__count %}</span>
+            {% blocktrans count counter=scan_list.running_scans__count %}
               {{ counter }} scan currently running
             {% plural %}
               {{ counter }} scans currently running
             {% endblocktrans %}
+          </span>
         </div>
         <div class="box">
           <span class="glyphicon glyphicon-time" data-toggle="tooltip" title="Zeit" id="tooltipTime">{{ scan_list.last_scan_datetime|date:"j.n.Y H:i" }}</span>
@@ -117,6 +118,30 @@
         </div>
       </div>
     </div>
+
+    <p>
+      {% blocktrans count counter=sites_count %}
+        {{ counter }} site on list.
+      {% plural %}
+        {{ counter }} sites on list.
+      {% endblocktrans %}
+    </p>
+    <p>
+      {% blocktrans count counter=sites_with_failures_count %}
+        {{ counter }} site had at least one failure during the last scan.
+      {% plural %}
+        {{ counter }} sites had at least one failure during the last scan.
+      {% endblocktrans %}
+    </p>
+    <p>
+      {% for rating, count in ratings_count.items %}
+        {% blocktrans count counter=count with rating=rating %}
+          {{ count }} site has rating {{ rating }}.
+        {% plural %}
+          {{ count }} sites have rating {{ rating }}.
+        {% endblocktrans %}
+      {% endfor %}
+    </p>
 
   <table class="table table-striped table-bordered table-hover">
     <tr>
