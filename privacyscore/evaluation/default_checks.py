@@ -24,28 +24,50 @@ CHECKS = {
 ####################
 ## Privacy Checks ##
 ####################
-# Check for presence of cookies (first or third party)
+# ["cookie_stats"]["first_party_short"]
+# ["cookie_stats"]["first_party_long"]
+# ["cookie_stats"]["first_party_flash"]
+# ["cookie_stats"]["third_party_short"]
+# ["cookie_stats"]["third_party_long"]
+# ["cookie_stats"]["third_party_flash"]
+# ["cookie_stats"]["third_party_track"]
+# ["cookie_stats"]["third_party_track_uniq"]
+# ["cookie_stats"]["third_party_track_domains"]
+# Check for presence of first-party cookies
+# 0 cookies: good
+# else: neutral
+CHECKS['privacy']['cookies_1st_party'] = {
+    'keys': {'cookie_stats',},
+    'rating': lambda **keys: {
+        'description': _('The website itself is not setting any cookies.'),
+        'classification': Rating('good')
+    } if keys['cookie_stats']["first_party_short"] == 0 and keys['cookie_stats']["first_party_long"] == 0 else {
+        'description': _('The website itself is setting %(short)d short-term and %(long)d long-term cookies.') % {
+                'short': keys['cookie_stats']["first_party_short"],
+                'long': keys['cookie_stats']["first_party_long"]},
+        'classification':  Rating('neutral')},
+    'missing': None,
+}
+
+# Check for presence of third-party cookies
 # 0 cookies: good
 # else: bad
-# TODO This may be a bit brutal - not all cookies are terrible
-# DH: This is a legacy check that shold be replaced by a series
-# of checks that pull data out from Max's new fance cookie dictionary
-# we want separate checks for
-# short as well as long-term permanent cookies
-# for first party, third parties, and tracking third parties
-# CHECKS['privacy']['cookies'] = {
-#     'keys': {'cookies_count',},
-#     'rating': lambda **keys: {
-#         'description': _('The site is not using cookies.'),
-#         'classification': Rating('good')
-#     } if keys['cookies_count'] == 0 else {
-#         'description': ungettext_lazy(
-#             'The site is using one cookie.',
-#             'The site is using %(count)d cookies.', keys['cookies_count']) % {
-#                 'count': keys['cookies_count']},
-#         'classification':  Rating('bad')},
-#     'missing': None,
-# }
+CHECKS['privacy']['cookies_3rd_party'] = {
+    'keys': {'cookie_stats',},
+    'rating': lambda **keys: {
+        'description': _('No one else is setting any cookies.'),
+        'classification': Rating('good'),
+        'trackers': []
+    } if keys['cookie_stats']["third_party_short"] == 0 and keys['cookie_stats']["third_party_long"] == 0 else {
+        'description': _('Third parties are setting %(short)d short-term and %(long)d long-term cookies, %(notrack)d of which are set by %(uniqtrack)d known trackers.') % {
+                'short': keys['cookie_stats']["third_party_short"],
+                'long': keys['cookie_stats']["third_party_long"],
+                "notrack": keys['cookie_stats']["third_party_track"],
+                "uniqtrack": keys['cookie_stats']["third_party_track_uniq"]},
+        'classification':  Rating('bad'),
+        'trackers': keys['cookie_stats']["third_party_track_domains"] if "third_party_track_domains" in keys['cookie_stats'] else None},
+    'missing': None,
+}
 
 # Checks for presence of flash cookies
 # 0 cookies: good
