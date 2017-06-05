@@ -592,4 +592,5 @@ def detect_cookies(domain, cookies, flashcookies, trackers):
     rv["third_party_flash"] = tp_fc
     rv["third_party_track"] = tp_track
     rv["third_party_track_uniq"] = tp_track_uniq
+    rv["third_party_track_domains"] = seen_trackers
     return rv
