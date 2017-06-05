@@ -314,7 +314,7 @@ CHECKS['ssl']['web_hsts_preload_listed'] = {
 # HPKP present: Good, but does not influence ranking (TODO why not?)
 # else: bad, but does not influence ranking
 CHECKS['ssl']['web_has_hpkp_header'] = {
-    'keys': {'web_has_hpkp_header',},
+    'keys': {'web_has_hpkp_header', "https"},
     'rating': lambda **keys: {
         'description': _('The site uses Public Key Pinning to prevent attackers from using invalid certificates.'),
         'classification': Rating('good', influences_ranking=False),
