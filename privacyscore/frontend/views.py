@@ -91,7 +91,8 @@ def scan_list(request: HttpRequest) -> HttpResponse:
                             site, _created = Site.objects.get_or_create(url=url)
                             site.scan_lists.add(scan_list)
                             ListColumnValue.objects.create(column=column, site=site, value=row[i + 1])
-                return redirect(reverse('frontend:scan_scan_list', args=(scan_list.pk,)))
+                scan_list.scan()
+                return redirect(reverse('frontend:scan_list_created', args=(scan_list.token,)))
 
     else:
         scan_list_form = CreateListForm()
@@ -101,6 +102,13 @@ def scan_list(request: HttpRequest) -> HttpResponse:
         'table': table,
         'invalid_rows': invalid_rows,
         'csv_data': csv_data,
+    })
+
+
+def scan_list_created(request: HttpRequest, token: str) -> HttpResponse:
+    scan_list = get_object_or_404(ScanList, token=token)
+    return render(request, 'frontend/scan_list_created.html', {
+        'scan_list': scan_list
     })
 
 

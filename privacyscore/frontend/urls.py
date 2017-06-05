@@ -15,6 +15,7 @@ urlpatterns = [
         name='view_scan_list'),
     url(r'^list/(?P<scan_list_id>\d+)/scan$', views.scan_scan_list,
         name='scan_scan_list'),
+    url(r'^list/(?P<token>\w+)/created$', views.scan_list_created, name='scan_list_created'),
     url(r'^site/(?P<site_id>\d+)/$', views.view_site, name='view_site'),
     url(r'^site/(?P<site_id>\d+)/screenshot$', views.site_screenshot, name='site_screenshot'),
     url(r'^site/scan/$', views.scan_site, name='scan_site'),
