@@ -1,12 +1,12 @@
 {% extends "frontend/base.html" %}
 {% load i18n %}
 
-{% block title %}List created{% endblock %}
+{% block title %}{% trans 'List created' %}{% endblock %}
 
 {% block content %}
 <h2>{% trans "List created successfully!" %}</h2>
 
-<p>{% trans "Your can has been added to queue and will be executed soon." %}</p>
+<p>{% trans "Your scan has been added to queue and will be executed soon." %}</p>
 
 <p>{% trans "If you want to edit your list later on, remember the following access token:" %}</p>
 
