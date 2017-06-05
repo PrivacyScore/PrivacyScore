@@ -23,6 +23,11 @@ CHECKS = {
 # 0 cookies: good
 # else: bad
 # TODO This may be a bit brutal - not all cookies are terrible
+# DH: This is a legacy check that shold be replaced by a series
+# of checks that pull data out from Max's new fance cookie dictionary
+# we want separate checks for
+# short as well as long-term permanent cookies
+# for first party, third parties, and tracking third parties
 CHECKS['general']['cookies'] = {
     'keys': {'cookies_count',},
     'rating': lambda **keys: {
@@ -39,6 +44,8 @@ CHECKS['general']['cookies'] = {
 # Checks for presence of flash cookies
 # 0 cookies: good
 # else: bad
+# TODO: can we differentiate between first and third parties here as well?
+# if not => don't care for now
 CHECKS['general']['flashcookies'] = {
     'keys': {'flashcookies_count',},
     'rating': lambda **keys: {
@@ -56,6 +63,8 @@ CHECKS['general']['flashcookies'] = {
 # Check for embedded third parties
 # 0 parties: good
 # else: bad
+# TODO: is this still the correct key or has this been obsoleted by
+# Max's new processing technique?
 CHECKS['general']['third_parties'] = {
     'keys': {'third_parties_count',},
     'rating': lambda **keys: {
@@ -139,10 +148,13 @@ CHECKS['privacy']['mailserver_locations'] = {
 CHECKS['privacy']['server_locations'] = {
     'keys': {'a_locations', 'mx_locations'},
     'rating': lambda **keys: {
-        'description': _('The web servers have a different location than the mail servers.'),
+        'description': _('The geo-location(s) of the web server(s) and the mail server(s) are not identical.'),
         'classification': Rating('bad'),
     } if (keys['a_locations'] and keys['mx_locations'] and
-          set(keys['a_locations']) != set(keys['mx_locations'])) else None,
+          set(keys['a_locations']) != set(keys['mx_locations'])) else {
+        'description': _('The geo-location(s) of the web server(s) and the mail server(s) are identical.'),
+        'classification': Rating('critical'),
+    },
     'missing': None,
 }
 
@@ -164,6 +176,7 @@ CHECKS['ssl']['url_is_https_or_redirects_to_https'] = {
 # yes: good
 # no: bad
 # TODO What if https-url was entered by user?
+# DH: This does not matter. A HTTPS server that redirects to HTTP is always unacceptable.
 CHECKS['ssl']['redirects_from_https_to_http'] = {
     'keys': {'final_https_url'},
     'rating': lambda **keys: {
@@ -179,6 +192,7 @@ CHECKS['ssl']['redirects_from_https_to_http'] = {
 # HTTPS available and serving same content: good
 # HTTPS available but different content: bad
 # TODO What is the result if the website forwarded to HTTPS?
+# DH: This is one of the tests where I hate that we uselambda functions for this.
 CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
     'keys': {'final_url','final_https_url','same_content_via_https'},
     'rating': lambda **keys: {
@@ -226,6 +240,8 @@ CHECKS['ssl']['web_has_hsts_preload_header'] = {
 # Check for HTTP Public Key Pinning Header
 # HPKP present: Good, but does not influence ranking (TODO why not?)
 # else: bad, but does not influence ranking
+# DH: HPKP is not considered mandatory by most other scanners (e.h. qualys)
+# cf. our wiki, where it is said that it does not influence the ranking
 CHECKS['ssl']['web_has_hpkp_header'] = {
     'keys': {'web_has_hpkp_header',},
     'rating': lambda **keys: {
@@ -240,6 +256,7 @@ CHECKS['ssl']['web_has_hpkp_header'] = {
 # Check for insecure protocols
 # No insecure protocols: Good
 # Else: bad
+# TODO: split this check into two checks (see wiki!)
 CHECKS['ssl']['web_insecure_protocols'] = {
     'keys': {'web_has_protocol_sslv2','web_has_protocol_sslv3'},
     'rating': lambda **keys: {
@@ -255,6 +272,8 @@ CHECKS['ssl']['web_insecure_protocols'] = {
 # Secure protocols supported: good
 # Else: critical
 # TODO WTF is this check doing?
+# DH: I think we must split this into separate checks, i.e. check each protocol separately
+# see wiki
 CHECKS['ssl']['web_secure_protocols'] = {
     'keys': {'web_has_protocol_tls1','web_has_protocol_tls1_1','web_has_protocol_tls1_2'},
     'rating': lambda **keys: {
@@ -272,6 +291,7 @@ CHECKS['ssl']['web_secure_protocols'] = {
 # Check for mixed content
 # No mixed content: Good
 # Else: bad
+# TODO I do not like that the else None; it should state that the site does not offer HTTPS therefore Mixed Content checks do not apply (neutral)
 CHECKS['ssl']['mixed_content'] = {
     'keys': {'final_url','mixed_content'},
     'rating': lambda **keys: {
