@@ -312,11 +312,11 @@ CHECKS['ssl']['web_pfs'] = {
 # No HSTS: bad
 # No HTTPS at all: Neutral
 CHECKS['ssl']['web_hsts_header'] = {
-    'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header', 'web_has_hsts_preload', 'https'},
+    'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header', 'web_has_hsts_preload', 'web_has_ssl'},
     'rating': lambda **keys: {
         'description': _("Not checking for HSTS support, as the server does not offer HTTPS."),
         'classification': Rating("neutral"),
-    } if not keys['https'] else {
+    } if not keys['web_has_ssl'] else {
         'description': _('The server uses HSTS to prevent insecure requests.'),
         'classification': Rating('good'),
     } if keys['web_has_hsts_header'] or keys['web_has_hsts_preload'] else {
@@ -330,11 +330,11 @@ CHECKS['ssl']['web_hsts_header'] = {
 # No HSTS preloading: bad
 # No HSTS / HTTPS: neutral
 CHECKS['ssl']['web_hsts_preload_prepared'] = {
-    'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header', 'web_has_hsts_preload', 'https'},
+    'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header', 'web_has_hsts_preload', 'web_has_ssl'},
     'rating': lambda **keys: {
         'description': _("Not checking for HSTS Preloading support, as the server does not offer HTTPS."),
         'classification': Rating("neutral"),
-    } if not keys['https'] else {
+    } if not keys['web_has_ssl'] else {
         'description': _('The server is ready for HSTS preloading.'),
         'classification': Rating('good'),
     } if keys['web_has_hsts_preload'] or keys['web_has_hsts_preload_header'] else {
@@ -351,11 +351,11 @@ CHECKS['ssl']['web_hsts_preload_prepared'] = {
 # Not in database: bad
 # No HSTS / HTTPS: neutral
 CHECKS['ssl']['web_hsts_preload_listed'] = {
-    'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header', 'web_has_hsts_preload', 'https'},
+    'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header', 'web_has_hsts_preload', 'web_has_ssl'},
     'rating': lambda **keys: {
         'description': _("Not checking for HSTS Preloading list inclusion, as the server does not offer HTTPS."),
         'classification': Rating("neutral"),
-    } if not keys['https'] else {
+    } if not keys['web_has_ssl'] else {
         'description': _('The server is part of the Chrome HSTS preload list.'),
         'classification': Rating('good'),
     } if keys['web_has_hsts_preload'] else {
@@ -375,14 +375,14 @@ CHECKS['ssl']['web_hsts_preload_listed'] = {
 # No HTTPS: Neutral
 # else: bad, but does not influence ranking
 CHECKS['ssl']['web_has_hpkp_header'] = {
-    'keys': {'web_has_hpkp_header', "https"},
+    'keys': {'web_has_hpkp_header', 'web_has_ssl'},
     'rating': lambda **keys: {
         'description': _('The site uses Public Key Pinning to prevent attackers from using invalid certificates.'),
         'classification': Rating('good', influences_ranking=False),
     } if keys['web_has_hpkp_header'] else {
         'description': _('The site is not using Public Key Pinning to prevent attackers from using invalid certificates.'),
         'classification': Rating('bad', influences_ranking=False),
-    } if keys["https"] else {
+    } if keys['web_has_ssl'] else {
         'description': _('Not checking for HPKP support, as the server does not offer HTTPS.'),
         'classification': Rating('neutral', influences_ranking=False),
     },
