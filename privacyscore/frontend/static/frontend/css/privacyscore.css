@@ -70,6 +70,7 @@ h2 {
     line-height: 12px;
     padding-left: 15px;
     text-transform: uppercase;
+    letter-spacing: 0.9px;
 }
 
 .navbar h1 a, .navbar h1 a:hover, .navbar h1 a:active {
