@@ -215,7 +215,7 @@ CHECKS['ssl']['site_has_https'] = {
 # no: neutral (as it may still happen, we're not yet explicitly checking the HTTP version)
 # TODO Explicitly check http://-version and see if we are being forwarded, even if user provided https://-version
 CHECKS['ssl']['site_redirects_to_https'] = {
-    'keys': {'redirected_to_https',},
+    'keys': {'redirected_to_https', 'https'},
     'rating': lambda **keys: {
         'description': _('The website redirects visitors to the secure (HTTPS) version.'),
         'classification': Rating('good'),
