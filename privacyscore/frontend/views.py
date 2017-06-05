@@ -1,3 +1,5 @@
+import io
+import csv
 from typing import Union
 
 from django.conf import settings
@@ -65,13 +67,27 @@ def legal(request: HttpRequest) -> HttpResponse:
 
 # TODO: Rename function (i.e. create_scan_list)
 def scan_list(request: HttpRequest) -> HttpResponse:
-
-    if request.POST and 'create_scan_list' in request.POST:
-        scan_list_form = CreateListForm(request.POST)
+    table = []
+    table_header = []
+    if request.POST:
+        scan_list_form = CreateListForm(request.POST, request.FILES)
+        print('form')
+        if scan_list_form.is_valid():
+            print('is valid')
+            csv_file = scan_list_form.cleaned_data['csv_file']
+            csv_file = io.TextIOWrapper(csv_file, 'utf-8')
+            dialect = csv.Sniffer().sniff(csv_file.read(1024))
+            csv_file.seek(0)
+            reader = csv.reader(csv_file, dialect=dialect)
+            table_header = next(reader)
+            for line in reader:
+                table.append(line)
     else:
         scan_list_form = CreateListForm()
     return render(request, 'frontend/list.html', {
-        'scan_list_form': scan_list_form
+        'scan_list_form': scan_list_form,
+        'table_header': table_header,
+        'table': table
     })
 
 
