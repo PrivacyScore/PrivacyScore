@@ -18,15 +18,31 @@ class RawScanResultAdmin(admin.ModelAdmin):
         'scan',
     )
 
+
 admin.site.register(Scan)
+
+
 @admin.register(ScanError)
-class RawScanResultAdmin(admin.ModelAdmin):
+class ScanErrorAdmin(admin.ModelAdmin):
     list_display = (
         'error',
         'test',
         'scan_host',
         'scan',
     )
+    list_filter = (
+        'test',
+        'scan_host',
+        'scan__site',
+    )
+    search_fields = (
+        'error',
+        'test',
+        'scan_host',
+        'scan__site',
+    )
+
+
 admin.site.register(ScanList)
 admin.site.register(ScanResult)
 admin.site.register(Site)
