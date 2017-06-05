@@ -204,7 +204,7 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
           not keys['same_content_via_https']) else {
         'description': _('The website was scanned only over HTTPS.'),
         'classification': Rating('neutral'),
-    } if (keys.final_url.startswith("https:")) else None,
+    } if (keys["final_url"].startswith("https:")) else None,
     'missing': None,
 }
 # Check for Perfect Forward Secrecy on Webserver
