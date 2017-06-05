@@ -11,6 +11,20 @@
                 {{ scan_list.name }}
             </h2>
 
+            <p>
+                <i class="fa fa-tags"></i> <strong>Tags: </strong>
+                {% for tag in scan_list.tags.all %}
+                    <span class="label label-default">{{ tag }}</span>
+                {% endfor %}
+            </p>
+
+            {{ scan_list.description|linebreaks }}
+
+            <p>
+                <i class="fa fa-user"></i>
+                <strong>{% trans "Author" %}:</strong> {{ scan_list.pseudonym }}
+            </p>
+
             <h3>{% trans "Result overview" %}</h3>
             <ul class="list-unstyled">
                 <li>
@@ -95,15 +109,15 @@
                         <td class="rating-{{ rating.group_rating }}">
                             {% with group_rating=rating.group_rating.rating %}
                                 {% if group_rating == 'doubleplusgood' %}
-                                    <i class="fa fa-star-o color-{{ group_rating }}"></i>
+                                    <i class="fa fa-lg fa-star-o color-{{ group_rating }}"></i>
                                 {% elif group_rating == 'good' %}
-                                    <i class="fa fa-check-circle color-{{ group_rating }}"></i>
+                                    <i class="fa fa-lg fa-check-circle color-{{ group_rating }}"></i>
                                 {% elif group_rating == 'warning' %}
-                                    <i class="fa fa-minus-circle color-{{ group_rating }}"></i>
+                                    <i class="fa fa-lg fa-minus-circle color-{{ group_rating }}"></i>
                                 {% elif group_rating == 'bad' %}
-                                    <i class="fa fa-times-circle color-{{ group_rating }}"></i>
+                                    <i class="fa fa-lg fa-times-circle color-{{ group_rating }}"></i>
                                 {% elif group_rating == 'neutral' %}
-                                    <i class="fa fa-question-circle color-{{ group_rating }}"></i>
+                                    <i class="fa fa-lg fa-question-circle color-{{ group_rating }}"></i>
                                 {% endif %}
 
                             {% endwith %}
