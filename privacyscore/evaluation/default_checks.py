@@ -213,6 +213,77 @@ CHECKS['security']['leaks'] = {
         'classification':  Rating('bad')},
     'missing': None,
 }
+# Check for CSP header
+# Present: good
+# Not present: bad
+CHECKS['security']['header_csp'] = {
+    'keys': {'headerchecks',},
+    'rating': lambda **keys: {
+        'description': _('The site sets a Content-Security-Policy (CSP) header.'),
+        'classification': Rating('good')
+    } if keys['headerchecks'].get('content-security-policy') is not None and 
+        keys['headerchecks']['content-security-policy']['status'] != "MISSING" else {
+        'description': _('The site does not set a Content-Security-Policy (CSP) header.'),
+        'classification':  Rating('bad')},
+    'missing': None,
+}
+# Check for CSP header
+# Present: good
+# Not present: bad
+CHECKS['security']['header_xfo'] = {
+    'keys': {'headerchecks',},
+    'rating': lambda **keys: {
+        'description': _('The site sets a X-Frame-Options (XFO) header.'),
+        'classification': Rating('good')
+    } if keys['headerchecks'].get('x-frame-options') is not None and
+        keys['headerchecks']['x-frame-options']['status'] != "MISSING" else {
+        'description': _('The site does not set a X-Frame-Options (XFO) header.'),
+        'classification':  Rating('bad')},
+    'missing': None,
+}
+# Check for CSP header
+# Present: good
+# Not present: bad
+CHECKS['security']['header_xssp'] = {
+    'keys': {'headerchecks',},
+    'rating': lambda **keys: {
+        'description': _('The site sets a X-XSS-Protection  header.'),
+        'classification': Rating('good')
+    } if keys['headerchecks'].get('x-xss-protection') is not None and 
+    keys['headerchecks']['x-xss-protection']['status'] != "MISSING" else {
+        'description': _('The site does not set a X-XSS-Protection header.'),
+        'classification':  Rating('bad')},
+    'missing': None,
+}
+# Check for CSP header
+# Present: good
+# Not present: bad
+CHECKS['security']['header_xcto'] = {
+    'keys': {'headerchecks',},
+    'rating': lambda **keys: {
+        'description': _('The site sets a X-Content-Type-Options header.'),
+        'classification': Rating('good')
+    } if keys['headerchecks'].get('x-content-type-options') is not None and 
+        keys['headerchecks']['x-content-type-options']['status'] != "MISSING" else {
+        'description': _('The site does not set a X-Content-Type-Options header.'),
+        'classification':  Rating('bad')},
+    'missing': None,
+}
+# Check for CSP header
+# Present: good
+# Not present: bad
+CHECKS['security']['header_ref'] = {
+    'keys': {'headerchecks',},
+    'rating': lambda **keys: {
+        'description': _('The site sets a Referrer-Policy header.'),
+        'classification': Rating('good')
+    } if keys['headerchecks'].get('referrer-policy') is not None and 
+        keys['headerchecks']['referrer-policy']['status'] != "MISSING" else {
+        'description': _('The site does not set a referrer-policy header.'),
+        'classification':  Rating('bad')},
+    'missing': None,
+}
+
 
 
 ##########################
@@ -288,7 +359,7 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
           keys['final_https_url'].startswith('https') and
           keys['same_content_via_https']) else {
         'description': _('The web server does not support HTTPS by default. It hosts an HTTPS site, but it does not serve the same content over HTTPS that is offered via HTTP.'),
-        'classification': Rating('bad'),
+        'classification': Rating('critical'),
     } if (not keys['final_url'].startswith('https') and
           keys['final_https_url'] and
           keys['final_https_url'].startswith('https') and
