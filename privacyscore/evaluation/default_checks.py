@@ -276,7 +276,7 @@ CHECKS['ssl']['web_hsts_preload_listed'] = {
         'classification': Rating('good'),
     } if keys['web_has_hsts_preload'] else {
         'description': _('The server is ready for HSTS preloading, but not in the preloading database yet.'),
-        'clasification': Rating('bad')
+        'classification': Rating('bad')
     } if keys['web_has_hsts_preload_header'] else {
         'description': _('The site is not using HSTS preloading to prevent insecure requests.'),
         'classification': Rating('neutral'),
