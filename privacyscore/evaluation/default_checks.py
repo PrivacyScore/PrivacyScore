@@ -340,7 +340,6 @@ CHECKS['ssl']['web_secure_protocols_tls1_2'] = {
 # Check for mixed content
 # No mixed content: Good
 # Else: bad
-# TODO I do not like that the else None; it should state that the site does not offer HTTPS therefore Mixed Content checks do not apply (neutral)
 CHECKS['ssl']['mixed_content'] = {
     'keys': {'final_url','mixed_content'},
     'rating': lambda **keys: {
@@ -349,6 +348,9 @@ CHECKS['ssl']['mixed_content'] = {
     } if (keys['mixed_content'] and keys['final_url'].startswith('https')) else {
         'description': _('The site uses HTTPS and all objects are retrieved via HTTPS (no mixed content).'),
         'classification': Rating('good'),
-    } if (not keys['mixed_content'] and keys['final_url'].startswith('https')) else None,
+    } if (not keys['mixed_content'] and keys['final_url'].startswith('https')) else {
+        'description': _('The site uses HTTP only, mixed content checks do not apply.'),
+        'classification': Rating('neutral'),
+    },
     'missing': None,
 }
