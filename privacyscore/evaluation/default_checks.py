@@ -66,22 +66,27 @@ CHECKS = {
 #         'classification':  Rating('bad')},
 #     'missing': None,
 # }
+
 # Check for embedded third parties
 # 0 parties: good
 # else: bad
 # TODO: Convert to more comprehensive third party checks
 CHECKS['privacy']['third_parties'] = {
-    'keys': {'third_parties_count',},
+    'keys': {'third_parties_count','tracker_requests'},
     'rating': lambda **keys: {
         'description': _('The site does not use any third parties.'),
         'classification': Rating('good')
     } if keys['third_parties_count'] == 0 else {
-        'description': ungettext_lazy(
-            'The site is using one third party.',
-            'The site is using %(count)d third parties.',
-            keys['third_parties_count']) % {
+        'description': _('The site is using %(count)d third parties.') % {
                 'count': keys['third_parties_count']},
-        'classification':  Rating('bad')},
+        'classification':  Rating('bad')
+    } if keys['third_parties_count'] != 0 and keys['tracker_requests'] == 0 else {
+        'description': _('The site is using %(count)d third parties, including %(party)d known trackers.') % {
+                'count': keys['third_parties_count'],
+                'party': keys['tracker_requests']
+            },
+        'classification':  Rating('bad')
+    },
     'missing': None,
 }
 # Checks for presence of Google Analytics code
@@ -136,7 +141,6 @@ CHECKS['privacy']['mailserver_locations'] = {
 # Check if web and mail servers are in the same country
 # Servers in different countries: bad
 # Else: good
-# TODO If no MX exists, return neutral result
 CHECKS['privacy']['server_locations'] = {
     'keys': {'a_locations', 'mx_locations'},
     'rating': lambda **keys: {
