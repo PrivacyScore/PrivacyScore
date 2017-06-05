@@ -221,7 +221,8 @@ CHECKS['security']['header_csp'] = {
     'rating': lambda **keys: {
         'description': _('The site sets a Content-Security-Policy (CSP) header.'),
         'classification': Rating('good')
-    } if keys['headerchecks']['content-security-policy']['status'] != "MISSING" else {
+    } if keys['headerchecks'].get('content-security-policy') is not None and 
+        keys['headerchecks']['content-security-policy']['status'] != "MISSING" else {
         'description': _('The site does not set a Content-Security-Policy (CSP) header.'),
         'classification':  Rating('bad')},
     'missing': None,
@@ -234,7 +235,8 @@ CHECKS['security']['header_xfo'] = {
     'rating': lambda **keys: {
         'description': _('The site sets a X-Frame-Options (XFO) header.'),
         'classification': Rating('good')
-    } if keys['headerchecks']['x-frame-options']['status'] != "MISSING" else {
+    } if keys['headerchecks'].get('x-frame-options') is not None and
+        keys['headerchecks']['x-frame-options']['status'] != "MISSING" else {
         'description': _('The site does not set a X-Frame-Options (XFO) header.'),
         'classification':  Rating('bad')},
     'missing': None,
@@ -247,7 +249,8 @@ CHECKS['security']['header_xssp'] = {
     'rating': lambda **keys: {
         'description': _('The site sets a X-XSS-Protection  header.'),
         'classification': Rating('good')
-    } if keys['headerchecks']['x-xss-protection']['status'] != "MISSING" else {
+    } if keys['headerchecks'].get('x-xss-protection') is not None and 
+    keys['headerchecks']['x-xss-protection']['status'] != "MISSING" else {
         'description': _('The site does not set a X-XSS-Protection header.'),
         'classification':  Rating('bad')},
     'missing': None,
@@ -260,7 +263,8 @@ CHECKS['security']['header_xcto'] = {
     'rating': lambda **keys: {
         'description': _('The site sets a X-Content-Type-Options header.'),
         'classification': Rating('good')
-    } if keys['headerchecks']['x-content-type-options']['status'] != "MISSING" else {
+    } if keys['headerchecks'].get('x-content-type-options') is not None and 
+        keys['headerchecks']['x-content-type-options']['status'] != "MISSING" else {
         'description': _('The site does not set a X-Content-Type-Options header.'),
         'classification':  Rating('bad')},
     'missing': None,
@@ -273,7 +277,8 @@ CHECKS['security']['header_ref'] = {
     'rating': lambda **keys: {
         'description': _('The site sets a Referrer-Policy header.'),
         'classification': Rating('good')
-    } if keys['headerchecks']['referrer-policy']['status'] != "MISSING" else {
+    } if keys['headerchecks'].get('referrer-policy') is not None and 
+        keys['headerchecks']['referrer-policy']['status'] != "MISSING" else {
         'description': _('The site does not set a referrer-policy header.'),
         'classification':  Rating('bad')},
     'missing': None,
