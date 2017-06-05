@@ -44,7 +44,6 @@ def evaluate_group(group: str, result: dict) -> GroupEvaluation:
     """
     classifications = []
     descriptions = []
-    good_descriptions = []
     for check, data in CHECKS[group].items():
         keys = {}
         for key in data['keys']:
@@ -59,8 +58,5 @@ def evaluate_group(group: str, result: dict) -> GroupEvaluation:
         if not res:
             continue
         classifications.append(res['classification'])
-        if res['classification'] == Rating('good'):
-            good_descriptions.append((res['description'], res['classification']))
-        else:
-            descriptions.append((res['description'], res['classification']))
-    return GroupEvaluation(classifications), descriptions + good_descriptions
+        descriptions.append((res['description'], res['classification']))
+    return GroupEvaluation(classifications), sorted(descriptions, key=lambda k: k[1])
