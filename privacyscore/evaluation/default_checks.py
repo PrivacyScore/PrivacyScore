@@ -412,7 +412,7 @@ CHECKS['ssl']['web_secure_protocols_tls1'] = {
         'description': _('Not checking for TLS 1.0-support, as the server does not offer HTTPS.'),
         'classification': Rating('neutral')
     },
-    'missing': None,
+    'missing': {'description': 'this should not happen', 'classification': Rating("critical")},
 }
 # Check for TLS 1.1
 # supported: neutral
