@@ -216,16 +216,16 @@ CHECKS['security']['leaks'] = {
 # Check for CSP header
 # No leaks: good
 # Else: bad
-CHECKS['security']['header_csp'] = {
-    'keys': {'headerchecks',},
-    'rating': lambda **keys: {
-        'description': _('The site does not disclose internal system information at usual paths.'),
-        'classification': Rating('good')
-    } if len(keys['headerchecks'][]) == 0 else {
-        'description': _('The site discloses internal system information that should not be available.'),
-        'classification':  Rating('bad')},
-    'missing': None,
-}
+# CHECKS['security']['header_csp'] = {
+#     'keys': {'headerchecks',},
+#     'rating': lambda **keys: {
+#         'description': _('The site does not disclose internal system information at usual paths.'),
+#         'classification': Rating('good')
+#     } if len(keys['headerchecks'][]) == 0 else {
+#         'description': _('The site discloses internal system information that should not be available.'),
+#         'classification':  Rating('bad')},
+#     'missing': None,
+# }
 
 
 
