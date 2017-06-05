@@ -15,10 +15,15 @@ from privacyscore.evaluation.rating import Rating
 # missing.
 
 CHECKS = {
-    'general': OrderedDict(),
     'privacy': OrderedDict(),
+    'security': OrderedDict(),
     'ssl': OrderedDict(),
+    'mx': OrderedDict(),
 }
+
+####################
+## Privacy Checks ##
+####################
 # Check for presence of cookies (first or third party)
 # 0 cookies: good
 # else: bad
@@ -28,44 +33,45 @@ CHECKS = {
 # we want separate checks for
 # short as well as long-term permanent cookies
 # for first party, third parties, and tracking third parties
-CHECKS['general']['cookies'] = {
-    'keys': {'cookies_count',},
-    'rating': lambda **keys: {
-        'description': _('The site is not using cookies.'),
-        'classification': Rating('good')
-    } if keys['cookies_count'] == 0 else {
-        'description': ungettext_lazy(
-            'The site is using one cookie.',
-            'The site is using %(count)d cookies.', keys['cookies_count']) % {
-                'count': keys['cookies_count']},
-        'classification':  Rating('bad')},
-    'missing': None,
-}
+# CHECKS['privacy']['cookies'] = {
+#     'keys': {'cookies_count',},
+#     'rating': lambda **keys: {
+#         'description': _('The site is not using cookies.'),
+#         'classification': Rating('good')
+#     } if keys['cookies_count'] == 0 else {
+#         'description': ungettext_lazy(
+#             'The site is using one cookie.',
+#             'The site is using %(count)d cookies.', keys['cookies_count']) % {
+#                 'count': keys['cookies_count']},
+#         'classification':  Rating('bad')},
+#     'missing': None,
+# }
+
 # Checks for presence of flash cookies
 # 0 cookies: good
 # else: bad
 # TODO: can we differentiate between first and third parties here as well?
 # if not => don't care for now
-CHECKS['general']['flashcookies'] = {
-    'keys': {'flashcookies_count',},
-    'rating': lambda **keys: {
-        'description': _('The site is not using flash cookies.'),
-        'classification': Rating('good')
-    } if keys['flashcookies_count'] == 0 else {
-        'description': ungettext_lazy(
-            'The site is using one flash cookie.',
-            'The site is using %(count)d flash cookies.',
-            keys['flashcookies_count']) % {
-                'count': keys['flashcookies_count']},
-        'classification':  Rating('bad')},
-    'missing': None,
-}
+# CHECKS['general']['flashcookies'] = {
+#     'keys': {'flashcookies_count',},
+#     'rating': lambda **keys: {
+#         'description': _('The site is not using flash cookies.'),
+#         'classification': Rating('good')
+#     } if keys['flashcookies_count'] == 0 else {
+#         'description': ungettext_lazy(
+#             'The site is using one flash cookie.',
+#             'The site is using %(count)d flash cookies.',
+#             keys['flashcookies_count']) % {
+#                 'count': keys['flashcookies_count']},
+#         'classification':  Rating('bad')},
+#     'missing': None,
+# }
 # Check for embedded third parties
 # 0 parties: good
 # else: bad
 # TODO: is this still the correct key or has this been obsoleted by
 # Max's new processing technique?
-CHECKS['general']['third_parties'] = {
+CHECKS['privacy']['third_parties'] = {
     'keys': {'third_parties_count',},
     'rating': lambda **keys: {
         'description': _('The site does not use any third parties.'),
@@ -82,7 +88,7 @@ CHECKS['general']['third_parties'] = {
 # Checks for presence of Google Analytics code
 # No GA: good
 # else: bad
-CHECKS['general']['google_analytics_present'] = {
+CHECKS['privacy']['google_analytics_present'] = {
     'keys': {'google_analytics_present',},
     'rating': lambda **keys: {
         'description': _('The site uses Google Analytics.'),
@@ -97,7 +103,7 @@ CHECKS['general']['google_analytics_present'] = {
 # No GA: neutral
 # AnonIP: good
 # !AnonIP: bad
-CHECKS['general']['google_analytics_anonymizeIP_not_set'] = {
+CHECKS['privacy']['google_analytics_anonymizeIP_not_set'] = {
     'keys': {'google_analytics_anonymizeIP_not_set', 'google_analytics_present'},
     'rating': lambda **keys: {
         'description': _('The site does not use Google Analytics.'),
@@ -109,19 +115,6 @@ CHECKS['general']['google_analytics_anonymizeIP_not_set'] = {
         'description': _('The site uses Google Analytics, however it instructs Google to store only anonymized IPs.'),
         'classification': Rating('good'),
     },
-    'missing': None,
-}
-# Check for exposed internal system information
-# No leaks: good
-# Else: bad
-CHECKS['general']['leaks'] = {
-    'keys': {'leaks',},
-    'rating': lambda **keys: {
-        'description': _('The site does not disclose internal system information at usual paths.'),
-        'classification': Rating('good')
-    } if len(keys['leaks']) == 0 else {
-        'description': _('The site discloses internal system information that should not be available.'),
-        'classification':  Rating('bad')},
     'missing': None,
 }
 
@@ -156,6 +149,30 @@ CHECKS['privacy']['server_locations'] = {
     },
     'missing': None,
 }
+
+
+#####################
+## Security Checks ##
+#####################
+
+# Check for exposed internal system information
+# No leaks: good
+# Else: bad
+CHECKS['security']['leaks'] = {
+    'keys': {'leaks',},
+    'rating': lambda **keys: {
+        'description': _('The site does not disclose internal system information at usual paths.'),
+        'classification': Rating('good')
+    } if len(keys['leaks']) == 0 else {
+        'description': _('The site discloses internal system information that should not be available.'),
+        'classification':  Rating('bad')},
+    'missing': None,
+}
+
+
+##########################
+## Webserver SSL Checks ##
+##########################
 
 # Check if final URL is https
 # yes: good
@@ -404,3 +421,9 @@ CHECKS['ssl']['mixed_content'] = {
     },
     'missing': None,
 }
+
+
+###########################
+## Mailserver TLS Checks ##
+###########################
+# TODO Implement
