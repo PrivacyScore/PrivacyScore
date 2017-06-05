@@ -180,15 +180,29 @@ CHECKS['security']['leaks'] = {
 # Check if final URL is https
 # yes: good
 # no: critical
-# TODO Make this test more comprehensive, it's hella important
-CHECKS['ssl']['url_is_https_or_redirects_to_https'] = {
-    'keys': {'final_url',},
+CHECKS['ssl']['site_has_https'] = {
+    'keys': {'https',},
     'rating': lambda **keys: {
-        'description': _('The site URL is HTTPS, or redirects to https.'),
+        'description': _('The website offers HTTPS.'),
         'classification': Rating('good'),
-    } if keys['final_url'].startswith('https') else {
-        'description': _('The web server does not redirect to https.'),
+    } if keys['https'] else {
+        'description': _('The web server does not offer https.'),
         'classification': Rating('critical'),
+    },
+    'missing': None,
+}
+# Check if server forwarded us to HTTPS version
+# yes: good
+# no: neutral (as it may still happen, we're not yet explicitly checking the HTTP version)
+# TODO Explicitly check http://-version and see if we are being forwarded, even if user provided https://-version
+CHECKS['ssl']['site_redirects_to_https'] = {
+    'keys': {'redirected_to_https',},
+    'rating': lambda **keys: {
+        'description': _('The website redirects visitors to the secure (HTTPS) version.'),
+        'classification': Rating('good'),
+    } if keys['redirected_to_https'] else {
+        'description': _('Not checking if websites automatically redirects to HTTPS version, as the provided URL already was HTTPS.'),
+        'classification': Rating('neutral'),
     },
     'missing': None,
 }
