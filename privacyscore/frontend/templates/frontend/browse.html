@@ -2,7 +2,7 @@
 {% load static %}
 {% load i18n %}
 
-{% block title %}PrivacyScore{% endblock title %}
+{% block title %}Browse Lists{% endblock title %}
 
 {% block additional_css %}
 	<style>
@@ -20,19 +20,42 @@
 {% endblock additional_css %}
 
 {% block content %}
-  <form method="get" action="{{ request.path }}" class="form">
-    <div class="form-group">
-      <label for="search">{% trans 'Search list' %}</label>
-        <div class="row">
-          <div class="col-md-8">
-            <input style="margin-top:5px;" type="text" id="search" name="search" class="form-control" placeholder="{% trans 'Search' %}" {% if search %}value="{{ search }}"{% endif %} />
-        </div>
-        <div class="col-md-4">
-          <button type="submit" class="btn btn-default" role="button">{% trans 'Search' %}</button>
-        </div>
-      </div>
+
+<h2>{% trans 'Browse Lists' %}</h2>
+
+
+                <form method="get" action="{{ request.path }}">
+                    <div class="input-group scan-single">
+                        <input style="margin-top:5px;" type="text" id="search" name="search" class="form-control" placeholder="{% trans 'Search in list descriptions and tags' %}" {% if search %}value="{{ search }}"{% endif %} />
+                        <span class="input-group-btn">
+                            <button class="btn btn-secondary btn-scan" type="submit">{% trans 'Search' %}</button>
+                        </span>
+                    </div>
+                </form>
+
+
+<div class="row">
+    <div class="col-sm-6">
+        <form method="get" action="{{ request.path }}" class="form">
+          <div class="form-group">
+              <div class="row">
+                <div class="col-md-8">
+                  <input style="margin-top:5px;" type="text" id="search" name="search" class="form-control" placeholder="{% trans 'Search in list descriptions and tags' %}" {% if search %}value="{{ search }}"{% endif %} />
+              </div>
+              <div class="col-md-4">
+                <button type="submit" class="btn btn-default" role="button">{% trans 'Search' %}</button>
+              </div>
+            </div>
+          </div>
+        </form>
+    </div>    
+    <div class="col-sm-6 pull-right">
+        <a class="btn btn-primary" href="{% url 'frontend:scan_list' %}">Create a new list</a>
     </div>
-  </form>
+</div>
+
+
+
   
     
     

@@ -33,6 +33,7 @@
             </div>
             <div class="navbar-collapse collapse navbar-right">
                 <ul class="nav navbar-nav">
+<!--
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">LISTS <b class="caret"></b></a>
                         <ul class="dropdown-menu">
@@ -41,6 +42,8 @@
                             <li><a href="#">Edit Your Lists</a></li>
                         </ul>
                     </li>
+-->
+                    <li><a href="{% url 'frontend:browse' %}">Lists</a></li>
                     <li><a href="{% url 'frontend:checks' %}">Checks</a></li>
                     <li><a href="{% url 'frontend:roadmap' %}">Roadmap</a></li>
                     <li><a href="{% url 'frontend:code' %}">Code</a></li>
