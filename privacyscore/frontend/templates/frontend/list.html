@@ -29,7 +29,7 @@
                     {% render_field scan_list_form.name class+="form-control" placeholder="German Sites About Unicorns" %}
                     <div class="checkbox">
                         <label>
-                            {% render_field scan_list_form.private %} {% trans "Private List (only you can view the results)" %}
+                            {% render_field scan_list_form.private|append_attr:"disabled:disabled" %} {% trans 'Private List (only you can view the results) <span class="label label-warning">coming soon!</span>' %}
                         </label>
                     </div>
                 </div>
