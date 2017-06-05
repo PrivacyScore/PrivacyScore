@@ -68,34 +68,48 @@
             <div class="browse-list-item">
                 <div class="row">
                     <div class="col-xs-8">
-                        <h4>
+                        <h4><strong>
                             <a href="{% url 'frontend:view_scan_list' scan_list.pk %}">
                                 {{ scan_list.name }}
                             </a>
-                        </h4>
-                    </div>
-                    <div class="col-xs-4">
-                        <h4 class="pull-right text-right">
+                            </strong>
+                            <br>
                             <small>
-                                <strong>LAST SCAN</strong><br>
-                                <span>{{ scan_list.last_scan_datetime|date:"H:i:s" }}</span>
-                                <span>{{ scan_list.last_scan_datetime|date:"Y-m-d" }}</span>
+                                CREATED ON
+                                <strong>{{ scan_list.created|date:"Y-m-d" }}</strong>
+                                BY
+                                <strong>{{ scan_list.pseudonym }}</strong>
                             </small>
                         </h4>
-                    </div>
-                    <div class="col-md-8">
                         <p style="margin-top:10px;">
                             {{ scan_list.description }}
                         </p>
                     </div>
-                    <div class="col-md-4" >
-                        <label class="pull-right">
-                            foobar
-                        </label>
+                    <div class="col-xs-4 pull-right text-right">
+                        <h4>
+                            <small>
+                                LAST SCAN<br>
+                                <strong>
+                                    {{ scan_list.last_scan_datetime|date:"Y-m-d" }}
+                                </strong><br>
+                                <span>
+                                    {{ scan_list.last_scan_datetime|date:"H:i:s" }}
+                                </span>
+                            </small>
+                        </h4>
+                        <h4>
+                            <small>
+                                <strong>
+                                    {{ scan_list.sites.count }}
+                                </strong>
+                                SITES
+                            </small>
+                        </h4>
+
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-8">
+                    <div class="col-xs-8">
                         <div style="margin-top:10px;">
                             {% for tag in scan_list.ordered_tags %}
                             <a class="btn btn-default btn-xs"
