@@ -297,6 +297,18 @@ div.improvements {
     color: #888;
 }
 
+/*
+ * Ranking
+ */
+
+.category-header {
+    width:70px;
+}
+
+/*
+ * Browse lists
+ */
+
 .browse-list-item {
     margin-bottom: 1.5em;
     display:block;
@@ -305,3 +317,4 @@ div.improvements {
     background-color: #FAF0CA;
     padding: 0.7em 1.5em 1.5em 1.5em;
 }
+

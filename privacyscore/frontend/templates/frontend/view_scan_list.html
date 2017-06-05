@@ -82,12 +82,25 @@
             {% for column in scan_list.ordered_columns %}
                 <th>{{ column.name }}</th>
             {% endfor %}
+            {% comment %}
             <th>{% trans 'Result' %}</th>
             {% for group in result_groups %}
                 <th>{{ group }}</th>
             {% endfor %}
+            {% endcomment %}
+            <th class="category-header">
+                <abbr title="{% trans 'Security Web' %}">{% trans "SecWeb" %}</abbr>
+            </th>
+            <th class="category-header">
+                <abbr title="{% trans 'Security Mail' %}">{% trans "SecMail" %}</abbr>
+            </th>
+            <th class="category-header">
+                <abbr title="{% trans 'No Tracking' %}">{% trans "NoTrack" %}</abbr>
+            </th>
+            <th class="category-header">
+                <abbr title="{% trans 'Attacks' %}">{% trans "Attacks" %}</abbr>
+            </th>
             <th class="align-right">{% trans 'Scan time' %}</th>
-            <th class="align-right">{% trans 'Failures' %}</th>
         </tr>
 
         {% for num, site in sites %}
@@ -103,7 +116,9 @@
                 {% for column_value in site.ordered_column_values %}
                     <th>{{ column_value.value }}</th>
                 {% endfor %}
+                {% comment %}
                 <td class="rating-{{ site.evaluated.rating }}"></td>
+                {% endcomment %}
                 {% for group, rating in site.evaluated %}
                     {% if rating %}
                         <td class="rating-{{ rating.group_rating }}">
@@ -140,8 +155,19 @@
                 {% endfor %}
                 <td class="align-right">
                     {% if site.last_scan_datetime is not None %}{{ site.last_scan_datetime }}{% else %}
-                        --{% endif %}</td>
-                <td class="align-right">{{ site.last_scan__error_count }}</td>
+                        --{% endif %}
+                    {% with num_failures=site.last_scan__error_count %}
+                        {% if num_failures %}
+                        <span class="color-neutral">
+                        {% blocktrans count counter=num_failures %}
+                            ({{ counter }} failure)
+                        {% plural %}
+                            ({{ counter }} failures)
+                        {% endblocktrans %}
+                        </span>
+                        {% endif %}
+                    {% endwith %}
+                </td>
             </tr>
         {% endfor %}
     </table>
