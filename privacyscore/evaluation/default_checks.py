@@ -226,7 +226,7 @@ CHECKS['ssl']['web_pfs'] = {
 # No HSTS: bad
 # TODO CRITICAL Inconsistent and incomplete
 CHECKS['ssl']['web_has_hsts_preload_header'] = {
-    'keys': {'web_has_hsts_preload_header',},
+    'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header'},
     'rating': lambda **keys: {
         'description': _('The server uses HSTS to prevent insecure requests.'),
         'classification': Rating('good'),
@@ -250,18 +250,39 @@ CHECKS['ssl']['web_has_hpkp_header'] = {
     },
     'missing': None,
 }
-# Check for insecure protocols
-# No insecure protocols: Good
+# Check for insecure SSLv2 protocol
+# No SSLv2: Good
+# No HTTPS at all: neutral
 # Else: bad
-# TODO: split this check into two checks (see wiki!)
-CHECKS['ssl']['web_insecure_protocols'] = {
-    'keys': {'web_has_protocol_sslv2','web_has_protocol_sslv3'},
+CHECKS['ssl']['web_insecure_protocols_sslv2'] = {
+    'keys': {'web_has_protocol_sslv2', 'https'},
     'rating': lambda **keys: {
         'description': _('The server does not support insecure protocols.'),
         'classification': Rating('good'),
     } if not any(keys.values()) else {
         'description': _('The server supports insecure protocols.'),
         'classification': Rating('bad'),
+    } if keys['https'] else {
+        'description': _('The server does not offer HTTPS.'),
+        'classification': Rating('neutral')
+    },
+    'missing': None,
+}
+# Check for insecure SSLv3 protocol
+# No SSLv3: Good
+# Not HTTPS at all: neutral
+# Else: bad
+CHECKS['ssl']['web_insecure_protocols_sslv3'] = {
+    'keys': {'web_has_protocol_sslv3', 'https'},
+    'rating': lambda **keys: {
+        'description': _('The server does not support insecure protocols.'),
+        'classification': Rating('good'),
+    } if not any(keys.values()) else {
+        'description': _('The server supports insecure protocols.'),
+        'classification': Rating('bad'),
+    } if keys['https'] else {
+        'description': _('The server does not offer HTTPS.'),
+        'classification': Rating('neutral')
     },
     'missing': None,
 }
