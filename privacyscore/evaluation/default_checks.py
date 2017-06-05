@@ -341,7 +341,7 @@ CHECKS['ssl']['web_hsts_preload_prepared'] = {
         'description': _('The site is not using HSTS preloading to prevent insecure requests.'),
         'classification': Rating('bad'),
     } if keys['web_has_hsts_header'] else {
-        'description': _('The site is not using HSTS to prevent insecure requests.'),
+        'description': _('Not checking for HSTS preloading, as the website does not offer HSTS.'),
         'classification': Rating('neutral')
     },
     'missing': None,
@@ -362,10 +362,10 @@ CHECKS['ssl']['web_hsts_preload_listed'] = {
         'description': _('The server is ready for HSTS preloading, but not in the preloading database yet.'),
         'classification': Rating('bad')
     } if keys['web_has_hsts_preload_header'] else {
-        'description': _('The site is not using HSTS preloading to prevent insecure requests.'),
+        'description': _('Not checking for inclusion in HSTS preloading lists, as the website does not advertise it.'),
         'classification': Rating('neutral'),
     } if keys['web_has_hsts_header'] else {
-        'description': _('The site is not using HSTS to prevent insecure requests.'),
+        'description': _('Not checking for inclusion in HSTS preloading lists, as the website does not offer HSTS.'),
         'classification': Rating('neutral')
     },
     'missing': None,
