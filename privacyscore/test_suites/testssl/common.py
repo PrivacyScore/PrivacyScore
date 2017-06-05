@@ -34,6 +34,29 @@ def parse_common_testssl(json: str, prefix: str):
         '{}_has_ssl'.format(prefix): True,  # otherwise an exception would have been thrown before
     }
 
+    # Detect if cert is valid
+    trust_cert = None
+    trust_chain = None
+    for default in json['scanResult'][0]['serverDefaults']:
+        if default['id'] == 'trust':
+            trust_cert = default
+        elif default['id'] == 'chain_of_trust':
+            trust_chain = default
+    assert trust_cert is not None
+    assert trust_chain is not None
+    reason = ""
+    trusted = True
+    if not trust_cert['severity'] in ['OK', "INFO"]:
+        reason += trust_cert['finding']
+        trusted = False
+    if not trust_chain['severity'] in ['OK', 'INFO']:
+        reason += trust_chain['finding']
+        trusted = False
+
+    result['{}_cert_trusted'.format(prefix)] = trusted
+    result['{}_cert_trusted_reason'.format(prefix)] = reason
+
+
     # pfs
     result['{}_pfs'.format(prefix)] = json['scanResult'][0]['pfs'][0]['severity'] == 'OK'
 
