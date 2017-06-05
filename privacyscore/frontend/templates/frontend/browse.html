@@ -55,7 +55,7 @@
     <div class="row">
         <div class="col-sm-10">
             {% for scan_list in scan_lists %}
-              <div class="" style="display:block;list-style-type: none; border: 1px solid #F4D35E; background-color: #FAF0CA; padding: 0.7em 1.5em;">
+              <div class="browse-list-item">
                 <h4>
                   <a href="{% url 'frontend:view_scan_list' scan_list.pk %}">
                     {{ scan_list.name }}

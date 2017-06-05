@@ -296,3 +296,12 @@ div.improvements {
 .color-neutral {
     color: #888;
 }
+
+.browse-list-item {
+    margin-bottom: 1.5em;
+    display:block;
+    list-style-type: none;
+    border: 1px solid #F4D35E;
+    background-color: #FAF0CA;
+    padding: 0.7em 1.5em 1.5em 1.5em;
+}
