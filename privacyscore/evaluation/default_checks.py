@@ -119,7 +119,7 @@ CHECKS['general']['leaks'] = {
     'rating': lambda **keys: {
         'description': _('The site does not disclose internal system information at usual paths.'),
         'classification': Rating('good')
-    } if keys['leaks'] == 0 else {
+    } if len(keys['leaks']) == 0 else {
         'description': _('The site discloses internal system information that should not be available.'),
         'classification':  Rating('bad')},
     'missing': None,
