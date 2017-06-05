@@ -45,6 +45,23 @@ class ScanListQuerySet(models.QuerySet):
                     Site_ScanLists=Site.scan_lists.through._meta.db_table,
                     ScanList=ScanList._meta.db_table), ()))
 
+    def annotate_running_scans_count(self) -> 'ScanListQuerySet':
+        return self.annotate(
+            running_scans__count=RawSQL('''
+                SELECT COUNT("{Scan}"."id")
+                FROM "{Scan}"
+                WHERE
+                    "{Scan}"."end" IS NULL AND
+                    "{Scan}"."site_id" IN
+                        (SELECT "{Site_ScanLists}"."site_id"
+                         FROM "{Site_ScanLists}"
+                         WHERE "{Site_ScanLists}"."scanlist_id" = "{ScanList}"."id"
+                         GROUP BY "{Site_ScanLists}"."site_id")
+                '''.format(
+                    Scan=Scan._meta.db_table,
+                    Site_ScanLists=Site.scan_lists.through._meta.db_table,
+                    ScanList=ScanList._meta.db_table), ()))
+
     def prefetch_columns(self) -> 'ScanListQuerySet':
         return self.prefetch_related(
             Prefetch(

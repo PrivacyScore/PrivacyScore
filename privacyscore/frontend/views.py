@@ -120,7 +120,7 @@ def scan(request: HttpRequest) -> HttpResponse:
 
 def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     scan_list = get_object_or_404(
-        ScanList.objects.prefetch_columns(), pk=scan_list_id)
+        ScanList.objects.annotate_running_scans_count().prefetch_columns(), pk=scan_list_id)
     scan_list.views = F('views') + 1
     scan_list.save(update_fields=('views',))
 
