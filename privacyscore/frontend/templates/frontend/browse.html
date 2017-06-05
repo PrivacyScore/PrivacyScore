@@ -50,7 +50,8 @@
     
     {% if request.GET.tags %}
         
-        <p><strong>Filtered by tag:</strong>&nbsp; {{ request.GET.tags }}&nbsp;&nbsp;&nbsp;
+        <p>The list is filtered by tag &nbsp; <strong>{{ request.GET.tags }}</strong>
+            &nbsp;&nbsp;&nbsp;
             <a class="btn btn-default btn-xs" href="{{ request.path }}">
                 Remove Filter</a>
         </p>
@@ -64,24 +65,46 @@
     <div class="row">
         <div class="col-sm-10">
             {% for scan_list in scan_lists %}
-              <div class="browse-list-item">
-                <h4>
-                  <a href="{% url 'frontend:view_scan_list' scan_list.pk %}">
-                    {{ scan_list.name }}
-                  </a>
-                  <span style="float:right;">
-                    last scanned at {{ scan_list.last_scan_datetime|date:"j.n.Y H:i" }}
-                  </span>
-                </h4>
-                <div style="margin-top:10px;">
-                  {{ scan_list.description }}
+            <div class="browse-list-item">
+                <div class="row">
+                    <div class="col-xs-8">
+                        <h4>
+                            <a href="{% url 'frontend:view_scan_list' scan_list.pk %}">
+                                {{ scan_list.name }}
+                            </a>
+                        </h4>
+                    </div>
+                    <div class="col-xs-4">
+                        <h4 class="pull-right text-right">
+                            <small>
+                                <strong>LAST SCAN</strong><br>
+                                <span>{{ scan_list.last_scan_datetime|date:"H:i:s" }}</span>
+                                <span>{{ scan_list.last_scan_datetime|date:"Y-m-d" }}</span>
+                            </small>
+                        </h4>
+                    </div>
+                    <div class="col-md-8">
+                        <p style="margin-top:10px;">
+                            {{ scan_list.description }}
+                        </p>
+                    </div>
+                    <div class="col-md-4" >
+                        <label class="pull-right">
+                            foobar
+                        </label>
+                    </div>
                 </div>
-                <div style="margin-top:10px;">
-                   {% for tag in scan_list.ordered_tags %}
-                   <a class="btn btn-default btn-xs" href="{{ request.path }}?tags={{ tag }}">{{ tag }}</a>&nbsp;
-                   {% endfor %}
+                <div class="row">
+                    <div class="col-md-8">
+                        <div style="margin-top:10px;">
+                            {% for tag in scan_list.ordered_tags %}
+                            <a class="btn btn-default btn-xs"
+                            href="{{ request.path }}?tags={{ tag }}">{{ tag }}</a>&nbsp;
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
-              </div>
+            </div>
             {% endfor %}
 
             <div class="pagination">
