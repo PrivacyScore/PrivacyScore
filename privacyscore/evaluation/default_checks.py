@@ -129,19 +129,31 @@ CHECKS['ssl']['url_is_https_or_redirects_to_https'] = {
     },
     'missing': None,
 }
-CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
-    'keys': {'final_url','same_content_via_https'},
+CHECKS['ssl']['redirects_from_https_to_http'] = {
+    'keys': {'final_https_url'},
     'rating': lambda **keys: {
-        'description': _('The web server provides the same content via https as via http.'),
-        'classification': Rating('good'),
-    } if (keys['final_url'].startswith('https') and
-          keys['same_content_via_https']) else {
-        'description': _('The site does not use https by default but provides the same content using https.'),
-        'classification': Rating('good'),
-    } if keys['same_content_via_https'] else {
-        'description': _('The web server does not provide the same content via https as via http.'),
+        'description': _('The web server redirects to HTTP if content is requested via HTTPS.'),
         'classification': Rating('bad'),
+    } if (keys['final_https_url'].startswith('http:')) else {
+        'description': _('The web server does not redirect to HTTP if content is requested via HTTPS'),
+        'classification': Rating('good'),
     },
+    'missing': None,
+}
+
+CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
+    'keys': {'final_url','final_https_url','same_content_via_https'},
+    'rating': lambda **keys: {
+        'description': _('The site does not use HTTPS by default but it makes available the same content via HTTPS upon request.'),
+        'classification': Rating('good'),
+    } if (not keys['final_url'].startswith('https') and 
+          keys['final_https_url'].startswith('https') and
+          keys['same_content_via_https']) else {
+        'description': _('The web server does not support HTTPS by default. It hosts an HTTPS site, but it does not serve the same content over HTTPS that is offered via HTTP.'),
+        'classification': Rating('bad'),
+    } if (not keys['final_url'].startswith('https') and
+          keys['final_https_url'].startswith('https') and
+          not keys['same_content_via_https']) else None,
     'missing': None,
 }
 CHECKS['ssl']['web_pfs'] = {
@@ -203,13 +215,13 @@ CHECKS['ssl']['web_secure_protocols'] = {
     },
 }
 CHECKS['ssl']['mixed_content'] = {
-    'keys': {'mixed_content',},
+    'keys': {'final_url','mixed_content'},
     'rating': lambda **keys: {
         'description': _('The site uses HTTPS, but some objects are retrieved via HTTP (mixed content).'),
         'classification': Rating('bad'),
-    } if keys['mixed_content'] else {
+    } if (keys['mixed_content'] and keys['final_url'].startswith('https')) else {
         'description': _('The site uses HTTPS and all objects are retrieved via HTTPS (no mixed content).'),
         'classification': Rating('good'),
-    },
+    } if (not keys['mixed_content'] and keys['final_url'].startswith('https')) else None,
     'missing': None,
 }
