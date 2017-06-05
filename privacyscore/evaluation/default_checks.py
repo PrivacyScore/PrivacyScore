@@ -181,11 +181,14 @@ CHECKS['security']['leaks'] = {
 # yes: good
 # no: critical
 CHECKS['ssl']['site_has_https'] = {
-    'keys': {'https',},
+    'keys': {'https', 'final_url', 'final_https_url', 'same_content_via_https'},
     'rating': lambda **keys: {
         'description': _('The website offers HTTPS.'),
         'classification': Rating('good'),
-    } if keys['https'] else {
+    } if keys['https'] or (not keys['final_url'].startswith('https') and 
+          keys['final_https_url'] and
+          keys['final_https_url'].startswith('https') and
+          keys['same_content_via_https']) else {
         'description': _('The web server does not offer https.'),
         'classification': Rating('critical'),
     },
