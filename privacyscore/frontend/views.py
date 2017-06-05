@@ -85,6 +85,16 @@ def scan_list(request: HttpRequest) -> HttpResponse:
         scan_list_form = CreateListForm(request.POST, request.FILES)
         if scan_list_form.is_valid():
             table_header, table, invalid_rows = scan_list_form.get_table()
+            if len(table) > 500:
+                messages.warning(
+                    request, _('For now, lists may not contain more than 500 sites.'))
+                return render(request, 'frontend/list.html', {
+                    'scan_list_form': scan_list_form,
+                    'table_header': table_header,
+                    'table': table,
+                    'invalid_rows': invalid_rows,
+                    'csv_data': csv_data,
+                })
             csv_data = scan_list_form.cleaned_data['csv_data']
             # TODO: Hacky code ahead
             if not invalid_rows and 'start_scan' in request.POST:
