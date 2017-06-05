@@ -196,31 +196,58 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
         if len(scantosave["responses"]) > 0:
             scantosave["success"] = True
 
+            # Check if the browser has been redirected to https.
+            # The https-flag is also True if the URL was already specified with https://
+            # and the browser succeeded in opening it (exception: page redirects
+            # to http:// URL, see below)
+
+            if site_url.startswith("https://"):
+                scantosave["https"] = True
+
+
+            try:
+                # retrieve final URL (after potential redirects)
+                cur.execute("SELECT final_url FROM final_urls WHERE original_url = ?;", [site_url]);
+                res = cur.fetchone()
+                final_url = ""
+                if(not(res == None) and len(res)>0):
+                    final_url = res[0]
+                    scantosave['final_url'] = final_url
+
+                # if we are redirected to an insecure http:// site we have to set https-flag
+                # to false even if the original URL used https://
+                redirected_to_https = final_url.startswith("https://")
+                if(redirected_to_https and scantosave["success"]):
+                    scantosave["https"] = True
+                else:
+                    scantosave["https"] = False
+                
+                # if we have been redirected from http:// to https:// this
+                # is remembered separately
+                if(site_url.startswith("http://") and redirected_to_https):
+                    scantosave["redirected_to_https"] = True
+
+            except Exception:
+                print("Unexpected error:", sys.exc_info()[0])
+                scantosave["redirected_to_https"] = False
+                scantosave["https"] = False
+                scantosave["success"] = False
+                scantosave["final_url"] = site_url  # To ensure the next test does not crash and burn
 
             # HTTP Security Headers
+            # Iterate through responses in order until we have arrived at the final_url
+            # (i.e. the URL of the website after all redirects), as this is the one whose headers we want.
             responses = scantosave["responses"]
-            firstresp = scantosave["responses"][0]
-            headers = json.loads(firstresp['headers']) # This is a list of lists: [ ['Server', 'nginx'], ['Date', '...'] ]
+            found = False
+            for resp in responses:
+                if resp["url"] == scantosave["final_url"]:
+                    found = True
+                    break
+            if not found:
+                assert False
+            headers = json.loads(resp['headers']) # This is a list of lists: [ ['Server', 'nginx'], ['Date', '...'] ]
             headers_dict = {d[0]: d[1] for d in headers} # This gets us { 'Server': 'nginx', 'Date': '...' }
             headers_lc = {k.lower():v for k,v in headers_dict.items()} # lowercase keys, allows for case-insensitive lookup
-
-            # HSTS
-            # todo: this is not entirely correct: hsts header must only be present in https response
-            # its presence in an http response seems to be in violation of the rfc
-            # result = {'key': 'hsts', 'status': 'MISSING', 'value': ''}
-            # if(headers_lc['strict-transport-security']):
-            #     result['status'] = 'OK'
-            #     resutl['value'] = headers_lc['strict-transport-security']
-            #
-            #     # check whether preload is activated;
-            #     # todo: this check is wrong (many additional requirements such as only TLDs)
-            #     # differentiate between preload-ready (but not in chrome's list) and preload-ok (in chrome's list)
-            #     if("preload" in headers_lc['strict-transport-security'])
-            #         result_preload = {'key': 'hsts_preload', 'status': 'prepared', 'value': ''}
-            #         scantosave['headerchecks'].append(result_preload)
-            #
-            # scantosave['headerchecks'].append(result)
-
 
             # Content-Security-Policy
             result = {'value': '', 'status': 'MISSING'}
@@ -279,44 +306,6 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
                 result['value'] = headers_lc['server']
                 result['status'] = "INFO"
             scantosave['headerchecks']['server'] = result
-
-
-            # Check if the browser has been redirected to https.
-            # The https-flag is also True if the URL was already specified with https://
-            # and the browser succeeded in opening it (exception: page redirects
-            # to http:// URL, see below)
-
-            if site_url.startswith("https://"):
-                scantosave["https"] = True
-
-
-            try:
-                # retrieve final URL (after potential redirects)
-                cur.execute("SELECT final_url FROM final_urls WHERE original_url = ?;", [site_url]);
-                res = cur.fetchone()
-                final_url = ""
-                if(not(res == None) and len(res)>0):
-                    final_url = res[0]
-                    scantosave['final_url'] = final_url
-
-                # if we are redirected to an insecure http:// site we have to set https-flag
-                # to false even if the original URL used https://
-                redirected_to_https = final_url.startswith("https://")
-                if(redirected_to_https and scantosave["success"]):
-                    scantosave["https"] = True
-                else:
-                    scantosave["https"] = False
-                
-                # if we have been redirected from http:// to https:// this
-                # is remembered separately
-                if(site_url.startswith("http://") and redirected_to_https):
-                    scantosave["redirected_to_https"] = True
-
-            except Exception:
-                print("Unexpected error:", sys.exc_info()[0])
-                scantosave["redirected_to_https"] = False
-                scantosave["https"] = False
-                scantosave["success"] = False
 
 
         # Cookies

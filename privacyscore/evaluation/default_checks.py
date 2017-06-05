@@ -293,20 +293,21 @@ CHECKS['security']['header_ref'] = {
 # Check if final URL is https
 # yes: good
 # no: critical
-CHECKS['ssl']['site_has_https'] = {
-    'keys': {'https', 'final_url', 'final_https_url', 'same_content_via_https'},
-    'rating': lambda **keys: {
-        'description': _('The website offers HTTPS.'),
-        'classification': Rating('good'),
-    } if keys['https'] or (not keys['final_url'].startswith('https') and 
-          keys['final_https_url'] and
-          keys['final_https_url'].startswith('https') and
-          keys['same_content_via_https']) else {
-        'description': _('The web server does not offer https.'),
-        'classification': Rating('critical'),
-    },
-    'missing': None,
-}
+# Integrated into 
+# CHECKS['ssl']['site_has_https'] = {
+#     'keys': {'https', 'final_url', 'final_https_url', 'same_content_via_https'},
+#     'rating': lambda **keys: {
+#         'description': _('The website offers HTTPS.'),
+#         'classification': Rating('good'),
+#     } if keys['https'] or (not keys['final_url'].startswith('https') and 
+#           keys['final_https_url'] and
+#           keys['final_https_url'].startswith('https') and
+#           keys['same_content_via_https']) else {
+#         'description': _('The web server does not offer https.'),
+#         'classification': Rating('critical'),
+#     },
+#     'missing': None,
+# }
 # Check if server forwarded us to HTTPS version
 # yes: good
 # no: neutral (as it may still happen, we're not yet explicitly checking the HTTP version)
@@ -318,15 +319,39 @@ CHECKS['ssl']['site_redirects_to_https'] = {
         'classification': Rating('good'),
     } if keys['redirected_to_https'] else {
         'description': _('The website does not redirect visitors to the secure (HTTPS) version, even though one is available.'),
-        'classification': Rating('bad'),
+        'classification': Rating('critical'),
     } if not keys['redirected_to_https'] and keys["final_https_url"] else {
         'description': _('Not checking if websites automatically redirects to HTTPS version, as the provided URL already was HTTPS.'),
         'classification': Rating('neutral'),
     } if keys["https"] else {
-        'description': _('Not checking if websites automatically redirects to HTTPS version, as the webserver does not offer HTTPS.'),
-        'classification': Rating('neutral'),
+        'description': _('The webserver does not offer HTTPS.'),
+        'classification': Rating('critical'),
     },
     'missing': None,
+}
+# Check if server cert is valid
+# yes: good
+# no: critical
+CHECKS['ssl']['web_cert'] = {
+    'keys': {'web_has_ssl', 'web_cert_trusted', 'web_cert_trusted_reason'},
+    'rating': lambda **keys: {
+        'description': _('The website uses a valid security certificate.'),
+        'classification': Rating('good'),
+        'reason': '',
+    } if keys['web_has_ssl'] and keys['web_cert_trusted'] else {
+        'description': _('Not checking SSL certificate, as the server does not offer SSL'),
+        'classification': Rating('neutral'),
+        'reason:': ""
+    } if not keys['web_has_ssl'] else {
+        'description': _('Server uses an invalid SSL certificate.'),
+        'classification': Rating('critical'),
+        'reason': keys['web_cert_trusted_reason'],
+    },
+    'missing': {
+        'description': _('Cannot check server certificate validity due to outdated dataset - please rescan.'),
+        'classification': Rating('neutral'),
+        'reason': '',
+    },
 }
 # Check if website explicitly redirected us from HTTPS to the HTTP version
 # yes: bad
@@ -335,7 +360,7 @@ CHECKS['ssl']['redirects_from_https_to_http'] = {
     'keys': {'final_https_url'},
     'rating': lambda **keys: {
         'description': _('The web server redirects to HTTP if content is requested via HTTPS.'),
-        'classification': Rating('bad'),
+        'classification': Rating('critical'),
     } if (keys['final_https_url'] and keys['final_https_url'].startswith('http:')) else {
         'description': _('Not checking for HTTPS->HTTP redirection, as the server does not offer HTTPS.'),
         'classification': Rating('neutral')

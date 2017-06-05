@@ -1,6 +1,4 @@
-import io
-import csv
-from collections import Counter
+from collections import Counter, defaultdict
 from typing import Union
 
 from django.conf import settings
@@ -185,23 +183,38 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
 
     sites = sorted(sites, key=lambda v: v.evaluated, reverse=True)
 
-    # Sorting by attributes
+    # Sorting and grouping by attributes
     sort_by = None
     sort_dir = request.GET.get('sort_dir', 'asc')
+    group_by = None
     if 'sort_by' in request.GET:
-        try:
-            sort_by = int(request.GET['sort_by'])
-        except ValueError:
-            pass
-        if sort_by >= len(scan_list.ordered_columns):
-            sort_by = None
+        sort_by = _get_column_index(request.GET['sort_by'], scan_list)
+    if 'group_by' in request.GET:
+        group_by = _get_column_index(request.GET['group_by'], scan_list)
 
     if sort_by:
         sites = list(sites)
 
         def sort_fn(site):
-            return site.ordered_column_values[sort_by].value
+            return site.ordered_column_values[sort_by].value if sort_by else None
         sites.sort(key=sort_fn, reverse=sort_dir == 'desc')
+
+    groups = None
+    group_attr = None
+    if group_by:
+        lookup = defaultdict(list)
+        for site in sites:
+            lookup[site.ordered_column_values[group_by].value].append(site)
+        groups = []
+        for column_value, sites in lookup.items():
+            groups.append({
+                'name': column_value,
+                'sites': enumerate(lookup[column_value], start=1)
+
+            })
+        groups.sort(key=lambda x: x['name'])
+        group_attr = scan_list.ordered_columns[group_by].name
+
 
     # TODO: use ordered dict and sort by rating ordering
     # for now, frontend template can just use static ordering of all available ratings
@@ -218,7 +231,20 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
             1 for site in sites if site.last_scan__error_count > 0),
         'sites': enumerate(sites, start=1),
         'result_groups': [group['name'] for group in RESULT_GROUPS.values()],
+        'groups': groups,
+        'group_attr': group_attr
     })
+
+
+def _get_column_index(param, scan_list):
+    column_index = None
+    try:
+        column_index = int(param)
+        if column_index >= len(scan_list.ordered_columns):
+            column_index = None
+    except ValueError:
+        pass
+    return column_index
 
 
 def site_screenshot(request: HttpRequest, site_id: int) -> HttpResponse:

@@ -1,0 +1,97 @@
+{% load i18n %}
+<table class="table table-striped table-bordered table-hover">
+    <tr>
+        <th>#</th>
+        <th>{% trans 'URL' %}</th>
+        {% for column in scan_list.ordered_columns %}
+            <th>{{ column.name }}</th>
+        {% endfor %}
+        {% comment %}
+            <th>{% trans 'Result' %}</th>
+            {% for group in result_groups %}
+                <th>{{ group }}</th>
+            {% endfor %}
+            {% endcomment %}
+        <th class="category-header">
+            <abbr title="{% trans 'Security Web' %}">{% trans "SecWeb" %}</abbr>
+        </th>
+        <th class="category-header">
+            <abbr title="{% trans 'Security Mail' %}">{% trans "SecMail" %}</abbr>
+        </th>
+        <th class="category-header">
+            <abbr title="{% trans 'No Tracking' %}">{% trans "NoTrack" %}</abbr>
+        </th>
+        <th class="category-header">
+            <abbr title="{% trans 'Attacks' %}">{% trans "Attacks" %}</abbr>
+        </th>
+        <th class="align-right">{% trans 'Scan time' %}</th>
+    </tr>
+
+    {% for num, site in sites %}
+        <tr{% if site.result.result.reachable is False %} class="unreachable"{% endif %}>
+            <td>
+                {{ num }}
+            </td>
+            <td>
+                <a href="{% url 'frontend:view_site' site.pk %}">
+                    {{ site.url }}
+                </a>
+            </td>
+            {% for column_value in site.ordered_column_values %}
+                <th>{{ column_value.value }}</th>
+            {% endfor %}
+            {% comment %}
+                <td class="rating-{{ site.evaluated.rating }}"></td>
+                {% endcomment %}
+            {% for group, rating in site.evaluated %}
+                {% if rating %}
+                    <td class="rating-{{ rating.group_rating }}">
+                        {% with group_rating=rating.group_rating.rating %}
+                            {% if group_rating == 'doubleplusgood' %}
+                                <i class="fa fa-lg fa-star-o color-{{ group_rating }}"></i>
+                            {% elif group_rating == 'good' %}
+                                <i class="fa fa-lg fa-check-circle color-{{ group_rating }}"></i>
+                            {% elif group_rating == 'warning' %}
+                                <i class="fa fa-lg fa-minus-circle color-{{ group_rating }}"></i>
+                            {% elif group_rating == 'bad' %}
+                                <i class="fa fa-lg fa-times-circle color-{{ group_rating }}"></i>
+                            {% elif group_rating == 'neutral' %}
+                                <i class="fa fa-lg fa-question-circle color-{{ group_rating }}"></i>
+                            {% endif %}
+
+                        {% endwith %}
+                        {% comment %}
+                            {% blocktrans with overall_good=rating.overall_good good=rating.good overall_total=rating.overall_total total=rating.total %}
+                                ({{ good }}/{{ total }} [{{ overall_good }}/{{ overall_total }}] good)
+                            {% endblocktrans %}
+                            {% if rating.group_rating.rating == 'doubleplusgood' %}
+                                <i class="fa fa-star-o" aria-hidden="true"></i>
+                            {% endif %}
+                            {% endcomment %}
+                    </td>
+                {% else %}
+                    <td>
+                        {% trans 'n/a' %}
+                    </td>
+                {% endif %}
+            {% empty %}
+                <td class="align-center" colspan="{{ result_groups|length }}">{% trans 'n/a' %}</td>
+            {% endfor %}
+            <td class="align-right">
+                {% if site.last_scan_datetime is not None %}{{ site.last_scan_datetime }}{% else %}
+                    --{% endif %}
+                {% with num_failures=site.last_scan__error_count %}
+                    {% if num_failures %}
+                        <span class="color-neutral">
+                        {% blocktrans count counter=num_failures %}
+                            ({{ counter }} failure)
+                        {% plural %}
+                            ({{ counter }} failures)
+                        {% endblocktrans %}
+                        </span>
+                    {% endif %}
+                {% endwith %}
+            </td>
+        </tr>
+    {% endfor %}
+</table>
