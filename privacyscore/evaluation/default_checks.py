@@ -108,7 +108,7 @@ CHECKS['privacy']['google_analytics_anonymizeIP_not_set'] = {
         'description': _('Not checking if Google Analytics data is being anonymized, as the site does not use Google Analytics.'),
         'classification': Rating('neutral')
     } if not keys["google_analytics_present"] else {
-        'description': _('The site uses Google Analytics, but does not instruct Google to store anonymized IPs.'),
+        'description': _('The site uses Google Analytics without the AnonymizeIP Privacy extension.'),
         'classification': Rating('bad'),
     } if keys['google_analytics_anonymizeIP_not_set'] else {
         'description': _('The site uses Google Analytics, however it instructs Google to store only anonymized IPs.'),
