@@ -70,23 +70,35 @@ CHECKS = {
 # Check for embedded third parties
 # 0 parties: good
 # else: bad
-# TODO: Convert to more comprehensive third party checks
 CHECKS['privacy']['third_parties'] = {
-    'keys': {'third_parties_count','tracker_requests'},
+    'keys': {'third_parties_count',},
     'rating': lambda **keys: {
         'description': _('The site does not use any third parties.'),
         'classification': Rating('good')
     } if keys['third_parties_count'] == 0 else {
-        'description': _('The site is using %(count)d third parties.') % {
+        'description': ungettext_lazy(
+            'The site is using one third party.',
+            'The site is using %(count)d third parties.',
+            keys['third_parties_count']) % {
                 'count': keys['third_parties_count']},
-        'classification':  Rating('bad')
-    } if keys['third_parties_count'] != 0 and len(keys['tracker_requests']) == 0 else {
-        'description': _('The site is using %(count)d third parties, including %(party)d known trackers.') % {
-                'count': keys['third_parties_count'],
-                'party': len(keys['tracker_requests'])
-            },
-        'classification':  Rating('bad')
-    },
+        'classification':  Rating('bad')},
+    'missing': None,
+}
+# Check for embedded known trackers
+# 0 parties: good
+# else: bad
+CHECKS['privacy']['third_party-trackers'] = {
+    'keys': {'tracker_requests',},
+    'rating': lambda **keys: {
+        'description': _('The site does not use any known tracking- or advertising companies.'),
+        'classification': Rating('good')
+    } if len(keys['tracker_requests']) == 0 else {
+        'description': ungettext_lazy(
+            'The site is using one known tracking- or advertising company.',
+            'The site is using %(count)d known tracking- or advertising companies.',
+            len(keys['tracker_requests'])) % {
+                'count': len(keys['tracker_requests'])},
+        'classification':  Rating('bad')},
     'missing': None,
 }
 # Checks for presence of Google Analytics code
