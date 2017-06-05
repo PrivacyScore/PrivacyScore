@@ -46,7 +46,7 @@ def parse_common_testssl(json: str, prefix: str):
             # TODO make less horrible
             pat = re.compile(r'higher version number')
             match = pat.search(p['finding'])
-            result['{}_has_protocol_{}'.format(prefix, p['id'])] = match is not None
+            result['{}_has_protocol_{}'.format(prefix, p['id'])] = match is None
             continue
         match = pattern.search(p['finding'])
         if not match:
