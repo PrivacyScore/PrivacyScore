@@ -185,6 +185,24 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
 
     sites = sorted(sites, key=lambda v: v.evaluated, reverse=True)
 
+    # Sorting by attributes
+    sort_by = None
+    sort_dir = request.GET.get('sort_dir', 'asc')
+    if 'sort_by' in request.GET:
+        try:
+            sort_by = int(request.GET['sort_by'])
+        except ValueError:
+            pass
+        if sort_by >= len(scan_list.ordered_columns):
+            sort_by = None
+
+    if sort_by:
+        sites = list(sites)
+
+        def sort_fn(site):
+            return site.ordered_column_values[sort_by].value
+        sites.sort(key=sort_fn, reverse=sort_dir == 'desc')
+
     # TODO: use ordered dict and sort by rating ordering
     # for now, frontend template can just use static ordering of all available ratings
     ratings_count = dict(Counter(site.evaluated.rating.rating for site in sites))
