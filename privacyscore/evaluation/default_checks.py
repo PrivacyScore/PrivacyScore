@@ -60,6 +60,31 @@ CHECKS['general']['third_parties'] = {
         'classification':  Rating('bad')},
     'missing': None,
 }
+
+CHECKS['general']['google_analytics_present'] = {
+    'keys': {'google_analytics_present',},
+    'rating': lambda **keys: {
+        'description': _('The site uses Google Analytics.'),
+        'classification': Rating('bad'),
+    } if keys['google_analytics_present'] else {
+        'description': _('The site does not use Google Analytics.'),
+        'classification': Rating('good'),
+    },
+    'missing': None,
+}
+
+CHECKS['general']['google_analytics_anonymizeIP_not_set'] = {
+    'keys': {'google_analytics_anonymizeIP_not_set',},
+    'rating': lambda **keys: {
+        'description': _('The site uses Google Analytics, but does not instruct Google to store anonymized IPs.'),
+        'classification': Rating('bad'),
+    } if keys['google_analytics_anonymizeIP_not_set'] else {
+        'description': _('The site uses Google Analytics, however it instructs Google to store only anonymized IPs.'),
+        'classification': Rating('good'),
+    },
+    'missing': None,
+}
+
 CHECKS['general']['leaks'] = {
     'keys': {'leaks',},
     'rating': lambda **keys: {
@@ -119,8 +144,8 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
     },
     'missing': None,
 }
-CHECKS['ssl']['pfs'] = {
-    'keys': {'pfs',},
+CHECKS['ssl']['web_pfs'] = {
+    'keys': {'web_pfs',},
     'rating': lambda **keys: {
         'description': _('The web server is supporting perfect forward secrecy.'),
         'classification': Rating('good'),
@@ -130,8 +155,8 @@ CHECKS['ssl']['pfs'] = {
     },
     'missing': None,
 }
-CHECKS['ssl']['has_hsts_header'] = {
-    'keys': {'has_hsts_header',},
+CHECKS['ssl']['web_has_hsts_preload_header'] = {
+    'keys': {'web_has_hsts_preload_header',},
     'rating': lambda **keys: {
         'description': _('The server uses HSTS to prevent insecure requests.'),
         'classification': Rating('good'),
@@ -141,8 +166,8 @@ CHECKS['ssl']['has_hsts_header'] = {
     },
     'missing': None,
 }
-CHECKS['ssl']['has_hpkp_header'] = {
-    'keys': {'has_hpkp_header',},
+CHECKS['ssl']['web_has_hpkp_header'] = {
+    'keys': {'web_has_hpkp_header',},
     'rating': lambda **keys: {
         'description': _('The site uses Public Key Pinning to prevent attackers from using invalid certificates.'),
         'classification': Rating('good', influence_ranking=False),
@@ -152,8 +177,8 @@ CHECKS['ssl']['has_hpkp_header'] = {
     },
     'missing': None,
 }
-CHECKS['ssl']['insecure_protocols'] = {
-    'keys': {'has_protocol_sslv2','has_protocol_sslv3'},
+CHECKS['ssl']['web_insecure_protocols'] = {
+    'keys': {'web_has_protocol_sslv2','web_has_protocol_sslv3'},
     'rating': lambda **keys: {
         'description': _('The server does not support insecure protocols.'),
         'classification': Rating('good'),
@@ -163,8 +188,8 @@ CHECKS['ssl']['insecure_protocols'] = {
     },
     'missing': None,
 }
-CHECKS['ssl']['secure_protocols'] = {
-    'keys': {'has_protocol_tls1','has_protocol_tls1_1','has_protocol_tls1_2'},
+CHECKS['ssl']['web_secure_protocols'] = {
+    'keys': {'web_has_protocol_tls1','web_has_protocol_tls1_1','web_has_protocol_tls1_2'},
     'rating': lambda **keys: {
         'description': _('The server supports secure protocols.'),
         'classification': Rating('good'),
@@ -176,4 +201,15 @@ CHECKS['ssl']['secure_protocols'] = {
         'description': _('The server does not support secure connections.'),
         'classification': Rating('critical'),
     },
+}
+CHECKS['ssl']['mixed_content'] = {
+    'keys': {'mixed_content',},
+    'rating': lambda **keys: {
+        'description': _('The site uses HTTPS, but some objects are retrieved via HTTP (mixed content).'),
+        'classification': Rating('bad'),
+    } if keys['mixed_content'] else {
+        'description': _('The site uses HTTPS and all objects are retrieved via HTTPS (no mixed content).'),
+        'classification': Rating('good'),
+    },
+    'missing': None,
 }
