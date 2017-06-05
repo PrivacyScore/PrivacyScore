@@ -214,18 +214,70 @@ CHECKS['security']['leaks'] = {
     'missing': None,
 }
 # Check for CSP header
-# No leaks: good
-# Else: bad
-# CHECKS['security']['header_csp'] = {
-#     'keys': {'headerchecks',},
-#     'rating': lambda **keys: {
-#         'description': _('The site does not disclose internal system information at usual paths.'),
-#         'classification': Rating('good')
-#     } if len(keys['headerchecks'][]) == 0 else {
-#         'description': _('The site discloses internal system information that should not be available.'),
-#         'classification':  Rating('bad')},
-#     'missing': None,
-# }
+# Present: good
+# Not present: bad
+CHECKS['security']['header_csp'] = {
+    'keys': {'headerchecks',},
+    'rating': lambda **keys: {
+        'description': _('The site sets a Content-Security-Policy (CSP) header.'),
+        'classification': Rating('good')
+    } if keys['headerchecks']['content-security-policy']['status'] != "MISSING" else {
+        'description': _('The site does not set a Content-Security-Policy (CSP) header.'),
+        'classification':  Rating('bad')},
+    'missing': None,
+}
+# Check for CSP header
+# Present: good
+# Not present: bad
+CHECKS['security']['header_xfo'] = {
+    'keys': {'headerchecks',},
+    'rating': lambda **keys: {
+        'description': _('The site sets a X-Frame-Options (XFO) header.'),
+        'classification': Rating('good')
+    } if keys['headerchecks']['x-frame-options']['status'] != "MISSING" else {
+        'description': _('The site does not set a X-Frame-Options (XFO) header.'),
+        'classification':  Rating('bad')},
+    'missing': None,
+}
+# Check for CSP header
+# Present: good
+# Not present: bad
+CHECKS['security']['header_xssp'] = {
+    'keys': {'headerchecks',},
+    'rating': lambda **keys: {
+        'description': _('The site sets a X-XSS-Protection  header.'),
+        'classification': Rating('good')
+    } if keys['headerchecks']['x-xss-protection']['status'] != "MISSING" else {
+        'description': _('The site does not set a X-XSS-Protection header.'),
+        'classification':  Rating('bad')},
+    'missing': None,
+}
+# Check for CSP header
+# Present: good
+# Not present: bad
+CHECKS['security']['header_xcto'] = {
+    'keys': {'headerchecks',},
+    'rating': lambda **keys: {
+        'description': _('The site sets a X-Content-Type-Options header.'),
+        'classification': Rating('good')
+    } if keys['headerchecks']['x-content-type-options']['status'] != "MISSING" else {
+        'description': _('The site does not set a X-Content-Type-Options header.'),
+        'classification':  Rating('bad')},
+    'missing': None,
+}
+# Check for CSP header
+# Present: good
+# Not present: bad
+CHECKS['security']['header_ref'] = {
+    'keys': {'headerchecks',},
+    'rating': lambda **keys: {
+        'description': _('The site sets a Referrer-Policy header.'),
+        'classification': Rating('good')
+    } if keys['headerchecks']['referrer-policy']['status'] != "MISSING" else {
+        'description': _('The site does not set a referrer-policy header.'),
+        'classification':  Rating('bad')},
+    'missing': None,
+}
 
 
 
