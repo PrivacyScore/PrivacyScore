@@ -179,7 +179,7 @@ CHECKS['ssl']['redirects_from_https_to_http'] = {
     'rating': lambda **keys: {
         'description': _('The web server redirects to HTTP if content is requested via HTTPS.'),
         'classification': Rating('bad'),
-    } if (keys['final_https_url'].startswith('http:')) else {
+    } if (keys['final_https_url'] and keys['final_https_url'].startswith('http:')) else {
         'description': _('The web server does not redirect to HTTP if content is requested via HTTPS'),
         'classification': Rating('good'),
     },
@@ -195,11 +195,13 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
         'description': _('The site does not use HTTPS by default but it makes available the same content via HTTPS upon request.'),
         'classification': Rating('good'),
     } if (not keys['final_url'].startswith('https') and 
+          keys['final_https_url'] and
           keys['final_https_url'].startswith('https') and
           keys['same_content_via_https']) else {
         'description': _('The web server does not support HTTPS by default. It hosts an HTTPS site, but it does not serve the same content over HTTPS that is offered via HTTP.'),
         'classification': Rating('bad'),
     } if (not keys['final_url'].startswith('https') and
+          keys['final_https_url'] and
           keys['final_https_url'].startswith('https') and
           not keys['same_content_via_https']) else {
         'description': _('The website was scanned only over HTTPS.'),
