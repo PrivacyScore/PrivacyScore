@@ -286,25 +286,56 @@ CHECKS['ssl']['web_insecure_protocols_sslv3'] = {
     },
     'missing': None,
 }
-# Check for secure protocols
-# Secure protocols supported: good
-# Else: critical
-# TODO WTF is this check doing?
-# DH: I think we must split this into separate checks, i.e. check each protocol separately
-# see wiki
-CHECKS['ssl']['web_secure_protocols'] = {
-    'keys': {'web_has_protocol_tls1','web_has_protocol_tls1_1','web_has_protocol_tls1_2'},
+# Check for TLS 1.0
+# supported: neutral
+# Else: good
+CHECKS['ssl']['web_secure_protocols_tls1'] = {
+    'keys': {'web_has_protocol_tls1', "https"},
     'rating': lambda **keys: {
-        'description': _('The server supports secure protocols.'),
+        'description': _('The server supports TLS 1.0.'),
+        'classification': Rating('neutral'),
+    } if any(keys.values()) else {
+        'description': _('The server does not support TLS 1.0.'),
+        'classification': Rating('good'),
+    } if keys['https'] else {
+        'description': _('The server does not offer HTTPS.'),
+        'classification': Rating('neutral')
+    },
+    'missing': None,
+}
+# Check for TLS 1.1
+# supported: neutral
+# Else: neutral
+CHECKS['ssl']['web_secure_protocols_tls1_1'] = {
+    'keys': {'web_has_protocol_tls1_1', "https"},
+    'rating': lambda **keys: {
+        'description': _('The server supports TLS 1.1.'),
+        'classification': Rating('neutral'),
+    } if any(keys.values()) else {
+        'description': _('The server does not support TLS 1.1.'),
+        'classification': Rating('neutral'),
+    } if keys['https'] else {
+        'description': _('The server does not offer HTTPS.'),
+        'classification': Rating('neutral')
+    },
+    'missing':None,
+}
+# Check for TLS 1.2
+# supported: good
+# Else: critical
+CHECKS['ssl']['web_secure_protocols_tls1_2'] = {
+    'keys': {'web_has_protocol_tls1_2', "https"},
+    'rating': lambda **keys: {
+        'description': _('The server supports TLS 1.2.'),
         'classification': Rating('good'),
     } if any(keys.values()) else {
-        'description': _('The server does not support secure protocols.'),
+        'description': _('The server does not support TLS 1.2.'),
         'classification': Rating('critical'),
+    }if keys['https'] else {
+        'description': _('The server does not offer HTTPS.'),
+        'classification': Rating('neutral')
     },
-    'missing': {
-        'description': _('The server does not support secure connections.'),
-        'classification': Rating('critical'),
-    },
+    'missing': None,
 }
 # Check for mixed content
 # No mixed content: Good
