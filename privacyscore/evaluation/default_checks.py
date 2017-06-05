@@ -222,6 +222,9 @@ CHECKS['ssl']['site_redirects_to_https'] = {
     } if keys['redirected_to_https'] else {
         'description': _('Not checking if websites automatically redirects to HTTPS version, as the provided URL already was HTTPS.'),
         'classification': Rating('neutral'),
+    } if keys["https"] else {
+        'description': _('Not checking if websites automatically redirects to HTTPS version, as the webserver does not offer HTTPS.'),
+        'classification': Rating('neutral'),
     },
     'missing': None,
 }
