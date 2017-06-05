@@ -74,7 +74,7 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
     if os.path.isfile(os.path.join(scan_dir, 'screenshots/screenshot.png')):
         with open(os.path.join(scan_dir, 'screenshots/screenshot.png'), 'rb') as f:
             result['screenshot'] = {
-                'mime_type': 'application/x-sqlite3',
+                'mime_type': 'image/png',
                 'data': f.read(),
             }
     
@@ -82,7 +82,7 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
     if os.path.isfile(os.path.join(scan_dir, 'sources/source.html')):
         with open(os.path.join(scan_dir, 'sources/source.html'), 'rb') as f:
             result['html_source'] = {
-                'mime_type': 'application/x-sqlite3',
+                'mime_type': 'text/html',
                 'data': f.read(),
             }
     
