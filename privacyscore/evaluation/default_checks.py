@@ -80,10 +80,10 @@ CHECKS['privacy']['third_parties'] = {
         'description': _('The site is using %(count)d third parties.') % {
                 'count': keys['third_parties_count']},
         'classification':  Rating('bad')
-    } if keys['third_parties_count'] != 0 and keys['tracker_requests'] == 0 else {
+    } if keys['third_parties_count'] != 0 and len(keys['tracker_requests']) == 0 else {
         'description': _('The site is using %(count)d third parties, including %(party)d known trackers.') % {
                 'count': keys['third_parties_count'],
-                'party': keys['tracker_requests']
+                'party': len(keys['tracker_requests'])
             },
         'classification':  Rating('bad')
     },
