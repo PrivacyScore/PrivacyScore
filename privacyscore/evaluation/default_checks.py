@@ -42,9 +42,10 @@ CHECKS['privacy']['cookies_1st_party'] = {
         'description': _('The website itself is not setting any cookies.'),
         'classification': Rating('good')
     } if keys['cookie_stats']["first_party_short"] == 0 and keys['cookie_stats']["first_party_long"] == 0 else {
-        'description': _('The website itself is setting %(short)d short-term and %(long)d long-term cookies.') % {
+        'description': _('The website itself is setting %(short)d short-term and %(long)d long-term cookies, and %(flash)d flash cookies.') % {
                 'short': keys['cookie_stats']["first_party_short"],
-                'long': keys['cookie_stats']["first_party_long"]},
+                'long': keys['cookie_stats']["first_party_long"],
+                'flash': keys['cookie_stats']["first_party_flash"]},
         'classification':  Rating('neutral')},
     'missing': None,
 }
@@ -59,11 +60,12 @@ CHECKS['privacy']['cookies_3rd_party'] = {
         'classification': Rating('good'),
         'trackers': []
     } if keys['cookie_stats']["third_party_short"] == 0 and keys['cookie_stats']["third_party_long"] == 0 else {
-        'description': _('Third parties are setting %(short)d short-term and %(long)d long-term cookies, %(notrack)d of which are set by %(uniqtrack)d known trackers.') % {
+        'description': _('Third parties are setting %(short)d short-term, %(long)d long-term and %(flash)d flash cookies, %(notrack)d of which are set by %(uniqtrack)d known trackers.') % {
                 'short': keys['cookie_stats']["third_party_short"],
                 'long': keys['cookie_stats']["third_party_long"],
                 "notrack": keys['cookie_stats']["third_party_track"],
-                "uniqtrack": keys['cookie_stats']["third_party_track_uniq"]},
+                "uniqtrack": keys['cookie_stats']["third_party_track_uniq"],
+                "flash": keys['cookie_stats']["third_party_flash"]},
         'classification':  Rating('bad'),
         'trackers': keys['cookie_stats']["third_party_track_domains"] if "third_party_track_domains" in keys['cookie_stats'] else None},
     'missing': None,
