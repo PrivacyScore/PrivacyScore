@@ -11,9 +11,24 @@
                 {{ scan_list.name }}
             </h2>
 
+            <p>
+                <i class="fa fa-tags"></i> <strong>Tags: </strong>
+                {% for tag in scan_list.tags.all %}
+                    <span class="label label-default">{{ tag }}</span>
+                {% endfor %}
+            </p>
+
+            {{ scan_list.description|linebreaks }}
+
+            <p>
+                <i class="fa fa-user"></i>
+                <strong>{% trans "Author" %}:</strong> {{ scan_list.pseudonym }}
+            </p>
+
             <h3>{% trans "Result overview" %}</h3>
             <ul class="list-unstyled">
                 <li>
+                    <i class="fa fa-info-circle"></i>
                     {% blocktrans count counter=sites_count %}
                         {{ counter }} website
                     {% plural %}
@@ -28,15 +43,19 @@
                 </li>
 
                 <li class="color-good">
+                    <i class="fa fa-check-circle color-good"></i>
                     {{ ratings_count.good }} passed all checks
                 </li>
                 <li class="color-warning">
+                    <i class="fa fa-minus-circle color-warning"></i>
                     {{ ratings_count.warning }} with one or more issues
                 </li>
                 <li class="color-bad">
+                    <i class="fa fa-times-circle color-bad"></i>
                     {{ ratings_count.bad }} with critical issues
                 </li>
                 <li class="color-neutral">
+                    <i class="fa fa-question-circle color-neutral"></i>
                     {{ ratings_count.neutral }} could not be judged
                 </li>
             </ul>
@@ -88,13 +107,28 @@
                 {% for group, rating in site.evaluated %}
                     {% if rating %}
                         <td class="rating-{{ rating.group_rating }}">
-                            {{ rating.group_rating }}
+                            {% with group_rating=rating.group_rating.rating %}
+                                {% if group_rating == 'doubleplusgood' %}
+                                    <i class="fa fa-lg fa-star-o color-{{ group_rating }}"></i>
+                                {% elif group_rating == 'good' %}
+                                    <i class="fa fa-lg fa-check-circle color-{{ group_rating }}"></i>
+                                {% elif group_rating == 'warning' %}
+                                    <i class="fa fa-lg fa-minus-circle color-{{ group_rating }}"></i>
+                                {% elif group_rating == 'bad' %}
+                                    <i class="fa fa-lg fa-times-circle color-{{ group_rating }}"></i>
+                                {% elif group_rating == 'neutral' %}
+                                    <i class="fa fa-lg fa-question-circle color-{{ group_rating }}"></i>
+                                {% endif %}
+
+                            {% endwith %}
+                            {% comment %}
                             {% blocktrans with overall_good=rating.overall_good good=rating.good overall_total=rating.overall_total total=rating.total %}
                                 ({{ good }}/{{ total }} [{{ overall_good }}/{{ overall_total }}] good)
                             {% endblocktrans %}
                             {% if rating.group_rating.rating == 'doubleplusgood' %}
                                 <i class="fa fa-star-o" aria-hidden="true"></i>
                             {% endif %}
+                            {% endcomment %}
                         </td>
                     {% else %}
                         <td>

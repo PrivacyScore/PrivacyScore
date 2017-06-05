@@ -91,14 +91,16 @@ CHECKS['privacy']['third_party-trackers'] = {
     'keys': {'tracker_requests',},
     'rating': lambda **keys: {
         'description': _('The site does not use any known tracking- or advertising companies.'),
-        'classification': Rating('good')
+        'classification': Rating('good'),
+        'trackers': [],
     } if len(keys['tracker_requests']) == 0 else {
         'description': ungettext_lazy(
             'The site is using one known tracking- or advertising company.',
             'The site is using %(count)d known tracking- or advertising companies.',
             len(keys['tracker_requests'])) % {
                 'count': len(keys['tracker_requests'])},
-        'classification':  Rating('bad')},
+        'classification':  Rating('bad'),
+        'trackers': keys['tracker_requests']},
     'missing': None,
 }
 # Checks for presence of Google Analytics code
@@ -215,12 +217,15 @@ CHECKS['ssl']['site_has_https'] = {
 # no: neutral (as it may still happen, we're not yet explicitly checking the HTTP version)
 # TODO Explicitly check http://-version and see if we are being forwarded, even if user provided https://-version
 CHECKS['ssl']['site_redirects_to_https'] = {
-    'keys': {'redirected_to_https',},
+    'keys': {'redirected_to_https', 'https'},
     'rating': lambda **keys: {
         'description': _('The website redirects visitors to the secure (HTTPS) version.'),
         'classification': Rating('good'),
     } if keys['redirected_to_https'] else {
         'description': _('Not checking if websites automatically redirects to HTTPS version, as the provided URL already was HTTPS.'),
+        'classification': Rating('neutral'),
+    } if keys["https"] else {
+        'description': _('Not checking if websites automatically redirects to HTTPS version, as the webserver does not offer HTTPS.'),
         'classification': Rating('neutral'),
     },
     'missing': None,
