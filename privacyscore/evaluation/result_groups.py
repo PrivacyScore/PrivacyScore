@@ -12,12 +12,15 @@ from django.utils.translation import ugettext_lazy as _
 
 # TODO: Replace by dynamic user-defined groups
 RESULT_GROUPS = OrderedDict()
-RESULT_GROUPS['general'] = {
-    'name': _('General'),
-}
 RESULT_GROUPS['privacy'] = {
     'name': _('Privacy'),
 }
+RESULT_GROUPS['security'] = {
+    'name': _('Security'),
+}
 RESULT_GROUPS['ssl'] = {
     'name': _('SSL'),
+}
+RESULT_GROUPS["mx"] = {
+	'name': _('Mail-Server')
 }

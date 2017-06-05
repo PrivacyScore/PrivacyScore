@@ -15,10 +15,15 @@ from privacyscore.evaluation.rating import Rating
 # missing.
 
 CHECKS = {
-    'general': OrderedDict(),
     'privacy': OrderedDict(),
+    'security': OrderedDict(),
     'ssl': OrderedDict(),
+    'mx': OrderedDict(),
 }
+
+####################
+## Privacy Checks ##
+####################
 # Check for presence of cookies (first or third party)
 # 0 cookies: good
 # else: bad
@@ -28,44 +33,44 @@ CHECKS = {
 # we want separate checks for
 # short as well as long-term permanent cookies
 # for first party, third parties, and tracking third parties
-CHECKS['general']['cookies'] = {
-    'keys': {'cookies_count',},
-    'rating': lambda **keys: {
-        'description': _('The site is not using cookies.'),
-        'classification': Rating('good')
-    } if keys['cookies_count'] == 0 else {
-        'description': ungettext_lazy(
-            'The site is using one cookie.',
-            'The site is using %(count)d cookies.', keys['cookies_count']) % {
-                'count': keys['cookies_count']},
-        'classification':  Rating('bad')},
-    'missing': None,
-}
+# CHECKS['privacy']['cookies'] = {
+#     'keys': {'cookies_count',},
+#     'rating': lambda **keys: {
+#         'description': _('The site is not using cookies.'),
+#         'classification': Rating('good')
+#     } if keys['cookies_count'] == 0 else {
+#         'description': ungettext_lazy(
+#             'The site is using one cookie.',
+#             'The site is using %(count)d cookies.', keys['cookies_count']) % {
+#                 'count': keys['cookies_count']},
+#         'classification':  Rating('bad')},
+#     'missing': None,
+# }
+
 # Checks for presence of flash cookies
 # 0 cookies: good
 # else: bad
 # TODO: can we differentiate between first and third parties here as well?
 # if not => don't care for now
-CHECKS['general']['flashcookies'] = {
-    'keys': {'flashcookies_count',},
-    'rating': lambda **keys: {
-        'description': _('The site is not using flash cookies.'),
-        'classification': Rating('good')
-    } if keys['flashcookies_count'] == 0 else {
-        'description': ungettext_lazy(
-            'The site is using one flash cookie.',
-            'The site is using %(count)d flash cookies.',
-            keys['flashcookies_count']) % {
-                'count': keys['flashcookies_count']},
-        'classification':  Rating('bad')},
-    'missing': None,
-}
+# CHECKS['general']['flashcookies'] = {
+#     'keys': {'flashcookies_count',},
+#     'rating': lambda **keys: {
+#         'description': _('The site is not using flash cookies.'),
+#         'classification': Rating('good')
+#     } if keys['flashcookies_count'] == 0 else {
+#         'description': ungettext_lazy(
+#             'The site is using one flash cookie.',
+#             'The site is using %(count)d flash cookies.',
+#             keys['flashcookies_count']) % {
+#                 'count': keys['flashcookies_count']},
+#         'classification':  Rating('bad')},
+#     'missing': None,
+# }
 # Check for embedded third parties
 # 0 parties: good
 # else: bad
-# TODO: is this still the correct key or has this been obsoleted by
-# Max's new processing technique?
-CHECKS['general']['third_parties'] = {
+# TODO: Convert to more comprehensive third party checks
+CHECKS['privacy']['third_parties'] = {
     'keys': {'third_parties_count',},
     'rating': lambda **keys: {
         'description': _('The site does not use any third parties.'),
@@ -82,7 +87,7 @@ CHECKS['general']['third_parties'] = {
 # Checks for presence of Google Analytics code
 # No GA: good
 # else: bad
-CHECKS['general']['google_analytics_present'] = {
+CHECKS['privacy']['google_analytics_present'] = {
     'keys': {'google_analytics_present',},
     'rating': lambda **keys: {
         'description': _('The site uses Google Analytics.'),
@@ -97,10 +102,10 @@ CHECKS['general']['google_analytics_present'] = {
 # No GA: neutral
 # AnonIP: good
 # !AnonIP: bad
-CHECKS['general']['google_analytics_anonymizeIP_not_set'] = {
+CHECKS['privacy']['google_analytics_anonymizeIP_not_set'] = {
     'keys': {'google_analytics_anonymizeIP_not_set', 'google_analytics_present'},
     'rating': lambda **keys: {
-        'description': _('The site does not use Google Analytics.'),
+        'description': _('Not checking if Google Analytics data is being anonymized, as the site does not use Google Analytics.'),
         'classification': Rating('neutral')
     } if not keys["google_analytics_present"] else {
         'description': _('The site uses Google Analytics, but does not instruct Google to store anonymized IPs.'),
@@ -109,19 +114,6 @@ CHECKS['general']['google_analytics_anonymizeIP_not_set'] = {
         'description': _('The site uses Google Analytics, however it instructs Google to store only anonymized IPs.'),
         'classification': Rating('good'),
     },
-    'missing': None,
-}
-# Check for exposed internal system information
-# No leaks: good
-# Else: bad
-CHECKS['general']['leaks'] = {
-    'keys': {'leaks',},
-    'rating': lambda **keys: {
-        'description': _('The site does not disclose internal system information at usual paths.'),
-        'classification': Rating('good')
-    } if len(keys['leaks']) == 0 else {
-        'description': _('The site discloses internal system information that should not be available.'),
-        'classification':  Rating('bad')},
     'missing': None,
 }
 
@@ -144,6 +136,7 @@ CHECKS['privacy']['mailserver_locations'] = {
 # Check if web and mail servers are in the same country
 # Servers in different countries: bad
 # Else: good
+# TODO If no MX exists, return neutral result
 CHECKS['privacy']['server_locations'] = {
     'keys': {'a_locations', 'mx_locations'},
     'rating': lambda **keys: {
@@ -153,17 +146,45 @@ CHECKS['privacy']['server_locations'] = {
           set(keys['a_locations']) != set(keys['mx_locations'])) else {
         'description': _('The geo-location(s) of the web server(s) and the mail server(s) are identical.'),
         'classification': Rating('good'),
+    } if len(keys['mx_locations']) > 0 else {
+        'description': _('Not checking if web and mail servers are in the same country, as there are no mail servers.'),
+        'classification': Rating('neutral')
     },
     'missing': None,
 }
 
+
+#####################
+## Security Checks ##
+#####################
+
+# Check for exposed internal system information
+# No leaks: good
+# Else: bad
+CHECKS['security']['leaks'] = {
+    'keys': {'leaks',},
+    'rating': lambda **keys: {
+        'description': _('The site does not disclose internal system information at usual paths.'),
+        'classification': Rating('good')
+    } if len(keys['leaks']) == 0 else {
+        'description': _('The site discloses internal system information that should not be available.'),
+        'classification':  Rating('bad')},
+    'missing': None,
+}
+
+
+##########################
+## Webserver SSL Checks ##
+##########################
+
 # Check if final URL is https
 # yes: good
 # no: critical
+# TODO Make this test more comprehensive, it's hella important
 CHECKS['ssl']['url_is_https_or_redirects_to_https'] = {
     'keys': {'final_url',},
     'rating': lambda **keys: {
-        'description': _('The site url is https or redirects to https.'),
+        'description': _('The site URL is HTTPS, or redirects to https.'),
         'classification': Rating('good'),
     } if keys['final_url'].startswith('https') else {
         'description': _('The web server does not redirect to https.'),
@@ -180,6 +201,9 @@ CHECKS['ssl']['redirects_from_https_to_http'] = {
         'description': _('The web server redirects to HTTP if content is requested via HTTPS.'),
         'classification': Rating('bad'),
     } if (keys['final_https_url'] and keys['final_https_url'].startswith('http:')) else {
+        'description': _('Not checking for HTTPS->HTTP redirection, as the server does not offer HTTPS.'),
+        'classification': Rating('neutral')
+    } if not keys['final_https_url'] else {
         'description': _('The web server does not redirect to HTTP if content is requested via HTTPS'),
         'classification': Rating('good'),
     },
@@ -204,7 +228,7 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
           keys['final_https_url'] and
           keys['final_https_url'].startswith('https') and
           not keys['same_content_via_https']) else {
-        'description': _('The website was scanned only over HTTPS.'),
+        'description': _('Not comparing between HTTP and HTTPS version, as the website was scanned only over HTTPS.'),
         'classification': Rating('neutral'),
     } if (keys["final_url"].startswith("https:")) else None,
     'missing': None,
@@ -230,7 +254,7 @@ CHECKS['ssl']['web_pfs'] = {
 CHECKS['ssl']['web_hsts_header'] = {
     'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header', 'web_has_hsts_preload', 'https'},
     'rating': lambda **keys: {
-        'description': _("The server does not offer HTTPS."),
+        'description': _("Not checking for HSTS support, as the server does not offer HTTPS."),
         'classification': Rating("neutral"),
     } if not keys['https'] else {
         'description': _('The server uses HSTS to prevent insecure requests.'),
@@ -248,7 +272,7 @@ CHECKS['ssl']['web_hsts_header'] = {
 CHECKS['ssl']['web_hsts_preload_prepared'] = {
     'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header', 'web_has_hsts_preload', 'https'},
     'rating': lambda **keys: {
-        'description': _("The server does not offer HTTPS."),
+        'description': _("Not checking for HSTS Preloading support, as the server does not offer HTTPS."),
         'classification': Rating("neutral"),
     } if not keys['https'] else {
         'description': _('The server is ready for HSTS preloading.'),
@@ -269,7 +293,7 @@ CHECKS['ssl']['web_hsts_preload_prepared'] = {
 CHECKS['ssl']['web_hsts_preload_listed'] = {
     'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header', 'web_has_hsts_preload', 'https'},
     'rating': lambda **keys: {
-        'description': _("The server does not offer HTTPS."),
+        'description': _("Not checking for HSTS Preloading list inclusion, as the server does not offer HTTPS."),
         'classification': Rating("neutral"),
     } if not keys['https'] else {
         'description': _('The server is part of the Chrome HSTS preload list.'),
@@ -297,6 +321,9 @@ CHECKS['ssl']['web_has_hpkp_header'] = {
     } if keys['web_has_hpkp_header'] else {
         'description': _('The site is not using Public Key Pinning to prevent attackers from using invalid certificates.'),
         'classification': Rating('bad', influences_ranking=False),
+    } if keys["https"] else {
+        'description': _('Not checking for HPKP support, as the server does not offer HTTPS.'),
+        'classification': Rating('bad', influences_ranking=False),
     },
     'missing': None,
 }
@@ -307,13 +334,13 @@ CHECKS['ssl']['web_has_hpkp_header'] = {
 CHECKS['ssl']['web_insecure_protocols_sslv2'] = {
     'keys': {'web_has_protocol_sslv2', 'https'},
     'rating': lambda **keys: {
-        'description': _('The server does not support insecure protocols.'),
+        'description': _('The server does not support SSLv2.'),
         'classification': Rating('good'),
     } if not any(keys.values()) else {
-        'description': _('The server supports insecure protocols.'),
+        'description': _('The server supports SSLv2.'),
         'classification': Rating('bad'),
     } if keys['https'] else {
-        'description': _('The server does not offer HTTPS.'),
+        'description': _('Not checking for SSLv2 support, as the server does not offer HTTPS.'),
         'classification': Rating('neutral')
     },
     'missing': None,
@@ -325,13 +352,13 @@ CHECKS['ssl']['web_insecure_protocols_sslv2'] = {
 CHECKS['ssl']['web_insecure_protocols_sslv3'] = {
     'keys': {'web_has_protocol_sslv3', 'https'},
     'rating': lambda **keys: {
-        'description': _('The server does not support insecure protocols.'),
+        'description': _('The server does not support SSLv3.'),
         'classification': Rating('good'),
     } if not any(keys.values()) else {
-        'description': _('The server supports insecure protocols.'),
+        'description': _('The server supports SSLv3.'),
         'classification': Rating('bad'),
     } if keys['https'] else {
-        'description': _('The server does not offer HTTPS.'),
+        'description': _('Not checking for SSLv3 support, as the server does not offer HTTPS.'),
         'classification': Rating('neutral')
     },
     'missing': None,
@@ -348,7 +375,7 @@ CHECKS['ssl']['web_secure_protocols_tls1'] = {
         'description': _('The server does not support TLS 1.0.'),
         'classification': Rating('good'),
     } if keys['https'] else {
-        'description': _('The server does not offer HTTPS.'),
+        'description': _('Not checking for TLS 1.0-support, as the server does not offer HTTPS.'),
         'classification': Rating('neutral')
     },
     'missing': None,
@@ -365,7 +392,7 @@ CHECKS['ssl']['web_secure_protocols_tls1_1'] = {
         'description': _('The server does not support TLS 1.1.'),
         'classification': Rating('neutral'),
     } if keys['https'] else {
-        'description': _('The server does not offer HTTPS.'),
+        'description': _('Not checking for TLS 1.1-support, as the server does not offer HTTPS.'),
         'classification': Rating('neutral')
     },
     'missing':None,
@@ -382,7 +409,7 @@ CHECKS['ssl']['web_secure_protocols_tls1_2'] = {
         'description': _('The server does not support TLS 1.2.'),
         'classification': Rating('critical'),
     }if keys['https'] else {
-        'description': _('The server does not offer HTTPS.'),
+        'description': _('Not checking for TLS 1.2-support, as the server does not offer HTTPS.'),
         'classification': Rating('neutral')
     },
     'missing': None,
@@ -404,3 +431,9 @@ CHECKS['ssl']['mixed_content'] = {
     },
     'missing': None,
 }
+
+
+###########################
+## Mailserver TLS Checks ##
+###########################
+# TODO Implement

@@ -29,7 +29,9 @@ def evaluate_result(result: dict, group_order: list) -> Tuple[dict, OrderedDict]
         return UnrateableSiteEvaluation(), {}
     evaluated_groups = {}
     described_groups = OrderedDict()
-    for group in CHECKS.keys():
+    for group in group_order:
+        if group not in CHECKS:
+            continue
         evaluated_groups[group], described_groups[group] = evaluate_group(
             group, result)
     return SiteEvaluation(evaluated_groups, group_order), described_groups

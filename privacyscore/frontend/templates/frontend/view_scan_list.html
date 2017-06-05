@@ -49,6 +49,15 @@
           <span id="tags">{{ scan_list.tags_as_str }}</span>
         </div>
         <div class="box">
+          <span class="glyphicon glyphicon-tags" data-toggle="tooltip" title="{% trans 'Running Scans' %}" id="tooltipTags"></span>
+          <span id="running_scans">
+            {% blocktrans count counter=scan_list.running_scans__count %}</span>
+              {{ counter }} scan currently running
+            {% plural %}
+              {{ counter }} scans currently running
+            {% endblocktrans %}
+        </div>
+        <div class="box">
           <span class="glyphicon glyphicon-time" data-toggle="tooltip" title="Zeit" id="tooltipTime">{{ scan_list.last_scan_datetime|date:"j.n.Y H:i" }}</span>
           <span id="startdate"></span> <i class="fa fa-long-arrow-right"></i>
         </div>

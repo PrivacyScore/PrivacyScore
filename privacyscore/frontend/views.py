@@ -120,7 +120,7 @@ def scan(request: HttpRequest) -> HttpResponse:
 
 def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     scan_list = get_object_or_404(
-        ScanList.objects.prefetch_columns(), pk=scan_list_id)
+        ScanList.objects.annotate_running_scans_count().prefetch_columns(), pk=scan_list_id)
     scan_list.views = F('views') + 1
     scan_list.save(update_fields=('views',))
 
@@ -136,7 +136,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         if not result:
             continue
         site.result = result
-        site.evaluated = result.evaluate(['general', 'privacy', 'ssl'])[0]
+        site.evaluated = result.evaluate(['privacy', 'security', 'ssl', 'mx'])[0]
 
     sites = sorted(sites, key=lambda v: v.evaluated, reverse=True)
 
@@ -168,7 +168,7 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
         # TODO: groups not statically
         'groups_descriptions': (
             (RESULT_GROUPS[group]['name'], val) for group, val in
-            site.last_scan.result_or_none.evaluate(['general', 'privacy', 'ssl'])[1].items()
+            site.last_scan.result_or_none.evaluate(['privacy', 'security', 'ssl', 'mx'])[1].items()
         ) if site.last_scan and site.last_scan.result_or_none else None,
     })
 
