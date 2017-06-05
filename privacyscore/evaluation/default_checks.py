@@ -137,6 +137,7 @@ CHECKS['privacy']['mailserver_locations'] = {
 # Check if web and mail servers are in the same country
 # Servers in different countries: bad
 # Else: good
+# TODO If no MX exists, return neutral result
 CHECKS['privacy']['server_locations'] = {
     'keys': {'a_locations', 'mx_locations'},
     'rating': lambda **keys: {
@@ -197,6 +198,9 @@ CHECKS['ssl']['redirects_from_https_to_http'] = {
         'description': _('The web server redirects to HTTP if content is requested via HTTPS.'),
         'classification': Rating('bad'),
     } if (keys['final_https_url'] and keys['final_https_url'].startswith('http:')) else {
+        'description': _('The web server does not support HTTPS.'),
+        'classification': Rating('neutral')
+    } if not keys['final_https_url'] else {
         'description': _('The web server does not redirect to HTTP if content is requested via HTTPS'),
         'classification': Rating('good'),
     },
