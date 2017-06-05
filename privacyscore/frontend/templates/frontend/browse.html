@@ -21,12 +21,22 @@
 
 {% block content %}
 
-    <h2>{% trans 'Browse Lists' %}</h2>
 
-    <p>PrivacyScore hosts lists of websites that are contributed by its users. You can browse our collection here.</p>
+    <div class="row">
+        <div class="col-sm-2 flex-last pull-right text-right">
+            <h2>
+            <a style="width:100%;" class="btn btn-primary" href="{% url 'frontend:scan_list' %}">New List</a>
+            </h2>
+        </div>
+        <div class="col-sm-10">
+            <h2>{% trans 'Browse Lists' %}</h2>
+
+            <p>PrivacyScore hosts lists of websites that are contributed by its users. You can browse our collection here.</p>
+        </div>
+    </div>
     
     <div class="row">
-        <div class="col-sm-6 ">
+        <div class="col-sm-12 col-md-10">
             <div class="spacer"></div>
             <form method="get" action="{{ request.path }}">
                 <div class="input-group">
@@ -37,11 +47,6 @@
                     </span>
                 </div>
             </form>
-        </div>
-    
-        <div class="col-sm-2 col-sm-offset-4 pull-right text-right">
-            <div class="spacer"></div>
-            <a class="btn btn-primary" href="{% url 'frontend:scan_list' %}">Create a new list</a>
         </div>
     </div>
     
@@ -58,12 +63,26 @@
         
     {% endif %}
     
-    <p>The listing is ordered according to the <strong>list popularity</strong>, i.e., the lists that have been viewed most often are shown at the top.</p>
-    
-    <div class="spacer"></div>
-    
     <div class="row">
-        <div class="col-sm-10">
+        <div class="col-md-2 col-md-push-10">
+            <div class="spacer visible-lg-block visible-md-block"></div>
+            <div class="spacer visible-lg-block visible-md-block"></div>
+            <div class="spacer visible-lg-block visible-md-block"></div>
+            <div class="spacer visible-lg-block visible-md-block"></div>
+            Popular tags:
+            {% for tag in popular_tags %}
+            <div class="visible-lg-block visible-md-block visible-sm-inline visible-xs-inline" style="padding: 0.6em; padding-left: 0;"><a class="btn btn-default btn-xs"
+            href="{{ request.path }}?tags={{ tag }}">{{ tag }}</a> </div>
+            {% endfor %}
+            <div class="spacer"></div>
+        </div>
+        
+        <div class="col-md-10 col-md-pull-2">
+            <div class="spacer"></div>
+            <p>The listing is ordered according to the <strong>list popularity</strong>, i.e., the lists with the most views are shown at the top.</p>
+            
+            <div class="spacer"></div>
+            
             {% for scan_list in scan_lists %}
             <div class="browse-list-item">
                 <div class="row">
@@ -139,5 +158,6 @@
               </span>
             </div>
         </div>
+        
     </div>
 {% endblock content %}
