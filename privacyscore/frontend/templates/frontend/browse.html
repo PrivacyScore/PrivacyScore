@@ -68,8 +68,9 @@
                   {{ scan_list.description }}
                 </div>
                 <div style="margin-top:10px;">
-                  <span class="glyphicon glyphicon-tags" data-toggle="tooltip" title="{% trans 'Tags' %}"></span> 
-                  {{ scan_list.tags_as_str }}
+                   {% for tag in scan_list.ordered_tags %}
+                   <button type="button" class="btn btn-default btn-xs">{{ tag }}</button>&nbsp;
+                   {% endfor %}
                 </div>
               </div>
             {% endfor %}
