@@ -311,7 +311,8 @@ CHECKS['ssl']['web_hsts_preload_listed'] = {
     'missing': None,
 }
 # Check for HTTP Public Key Pinning Header
-# HPKP present: Good, but does not influence ranking (TODO why not?)
+# HPKP present: Good, but does not influence ranking
+# No HTTPS: Neutral
 # else: bad, but does not influence ranking
 CHECKS['ssl']['web_has_hpkp_header'] = {
     'keys': {'web_has_hpkp_header', "https"},
@@ -323,7 +324,7 @@ CHECKS['ssl']['web_has_hpkp_header'] = {
         'classification': Rating('bad', influences_ranking=False),
     } if keys["https"] else {
         'description': _('Not checking for HPKP support, as the server does not offer HTTPS.'),
-        'classification': Rating('bad', influences_ranking=False),
+        'classification': Rating('neutral', influences_ranking=False),
     },
     'missing': None,
 }
