@@ -460,7 +460,7 @@ CHECKS['ssl']['mixed_content'] = {
         'description': _('The site uses HTTPS and all objects are retrieved via HTTPS (no mixed content).'),
         'classification': Rating('good'),
     } if (not keys['mixed_content'] and keys['final_url'].startswith('https')) else {
-        'description': _('The site uses HTTP only, mixed content checks do not apply.'),
+        'description': _('The site was scanned via HTTP only, mixed content checks do not apply.'),
         'classification': Rating('neutral'),
     },
     'missing': None,
