@@ -247,7 +247,7 @@ CHECKS['ssl']['site_redirects_to_https'] = {
         'classification': Rating('good'),
     } if keys['redirected_to_https'] else {
         'description': _('The website does not redirect visitors to the secure (HTTPS) version, even though one is available.'),
-        'classification': Rating('good'),
+        'classification': Rating('bad'),
     } if not keys['redirected_to_https'] and keys["final_https_url"] else {
         'description': _('Not checking if websites automatically redirects to HTTPS version, as the provided URL already was HTTPS.'),
         'classification': Rating('neutral'),
