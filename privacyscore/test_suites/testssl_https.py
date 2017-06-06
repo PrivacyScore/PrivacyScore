@@ -45,8 +45,10 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
 
 def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[str, object]]:
     """Process the raw data of the test."""
+    rv = {'web_ssl_finished': True}
     if raw_data['jsonresult']['data'] == b'':
-        return {'web_has_ssl': False}
+        rv['web_has_ssl'] = False
+        return rv
 
     data = json.loads(
         raw_data['jsonresult']['data'].decode('unicode_escape'))
@@ -54,18 +56,20 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
     if not 'scanResult' in data:
         # something went wrong with this test.
         # raise Exception('no scan result in raw data')
-        return {'web_scan_failed': True}
+        rv['web_scan_failed': True]
+        return rv
     if len(data['scanResult']) == 0:
         # The test terminated, but did not give any results => probably no HTTPS
-        return {'web_has_ssl': False}
+        rv['web_has_ssl'] = False
+        return rv
 
     # Grab common information
     result = parse_common_testssl(data, "web")
+    result["web_ssl_finished"] = True
 
     # detect headers
     result.update(_detect_hsts(data))
     result.update(_detect_hpkp(data))
-
 
     return result
 
