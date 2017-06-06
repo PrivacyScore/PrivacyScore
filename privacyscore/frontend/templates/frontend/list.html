@@ -91,7 +91,7 @@
                 <ul>
                     <li>{% trans "The CSV file has to contain a <em>header line</em> followed by multiple rows, one row per website." %}</li>
                     <li>{% trans 'The <em>first column</em> is expected to be the URL of the site. We assume http:// by default, if you do not specify the protocol explicitly (e.g. "unicorn.example.it"). Prefixing a URL with https:// will only scan the website via HTTPS. Please do not mix http:// and https:// URLs in your lists for now, because this will bias the results.' %}</li>
-                    <li>{% trans 'All other columns contain <em>site attributes</em>. Site attributes will allow you to compare the security and privacy level of sub-groups (e.g., "are vendors in state A better than in state B?")' %}</li>
+                    <li>{% trans 'All other columns contain <em>site attributes</em>. Site attributes will allow you to compare the security and privacy level of sub-groups (e.g., "are vendors in state A better than in state B?"). Please ensure that column headers and values do not exceed 500 characters.' %}</li>
                     <li>{% trans "Please use the <em>semi-colon</em> (;) as a column delimiter for now." %}</li>
                 </ul>
             </div>
