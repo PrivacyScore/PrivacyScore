@@ -17,9 +17,18 @@ test_dependencies = [
 
 def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str, bytes]]]:
     # Commented out for now because it gives bad results sometimes
-    #scan_url = previous_results.get('final_https_url')
-    #if not scan_url:
-    #    raise Exception('no https url')
+    scan_url = previous_results.get('final_https_url')
+    if scan_url and (previous_results.get('same_content_via_https') or previous_results.get('final_url_is_https')):
+        hostname = urlparse(scan_url).hostname
+    elif url.startswith('https'):
+        hostname = urlparse(url).hostname
+    else:
+        return {
+            'jsonresult': {
+                'mime_type': 'application/json',
+                'data': b'',
+            },
+        }
     #
     #hostname = urlparse(scan_url).hostname
 
@@ -36,6 +45,9 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
 
 def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[str, object]]:
     """Process the raw data of the test."""
+    if raw_data['jsonresult']['data'] == b'':
+        return {'web_has_ssl': False}
+
     data = json.loads(
         raw_data['jsonresult']['data'].decode('unicode_escape'))
 
@@ -84,7 +96,6 @@ def _detect_hsts(data: dict) -> dict:
     # Look for HSTS Preload header
     result['web_has_hsts_preload_header'] = False
     if hsts_preload_item is not None:
-        print("HSTS_PRELOAD_HEADER_FOUND:",hsts_preload_item['severity'],hsts_preload_item['finding'])
         result['web_has_hsts_preload_header'] = hsts_preload_item['severity'] == 'OK'
 
     # Look for HSTS header
@@ -92,7 +103,7 @@ def _detect_hsts(data: dict) -> dict:
     if result['web_has_hsts_preload_header']:
         result['web_has_hsts_header'] = True
     elif hsts_item is not None:
-        result['web_has_hsts_header'] = hsts_item['severity'] != 'HIGH'
+        result['web_has_hsts_header'] = hsts_item['severity'] == 'OK'
 
     # Check the HSTS Preloading database
     result["web_has_hsts_preload"] = False
@@ -111,7 +122,6 @@ def _detect_hsts(data: dict) -> dict:
     else:
         # Found
         result["web_has_hsts_preload"] = True
-    print("WEB_HAS_HSTS_PRELOAD =",result["web_has_hsts_preload"])
     return result
 
 
