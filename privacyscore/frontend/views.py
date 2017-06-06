@@ -194,6 +194,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
 
     category_order = []
     for category in request.GET.get('categories', '').split(','):
+        category = category.strip()
         if category in categories:
             category_order.append(category)
     if not category_order:
