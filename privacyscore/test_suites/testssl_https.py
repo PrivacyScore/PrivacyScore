@@ -39,9 +39,13 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
     data = json.loads(
         raw_data['jsonresult']['data'].decode('unicode_escape'))
 
-    if not data['scanResult'] or not data['scanResult'][0]:
+    if not 'scanResult' in data:
         # something went wrong with this test.
-        raise Exception('no scan result in raw data')
+        # raise Exception('no scan result in raw data')
+        return {'web_scan_failed': True}
+    if len(data['scanResult']) == 0:
+        # The test terminated, but did not give any results => probably no HTTPS
+        return {'web_has_ssl': False}
 
     # Grab common information
     result = parse_common_testssl(data, "web")
