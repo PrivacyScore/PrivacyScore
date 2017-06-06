@@ -6,12 +6,14 @@ class Rating:
     """
     # rating  : str
     # influences_ranking  : bool
+    # devaluates_group : bool
 
     ORDERING = ['critical', 'bad', 'warning', 'neutral', 'good', 'doubleplusgood']
 
-    def __init__(self, rating: str, influences_ranking: bool = True):
+    def __init__(self, rating: str, influences_ranking: bool = True, devaluates_group: bool = False):
         self.rating = rating
         self.influences_ranking = influences_ranking
+        self.devaluates_group = devaluates_group
 
     def __str__(self) -> str:
         return self.rating

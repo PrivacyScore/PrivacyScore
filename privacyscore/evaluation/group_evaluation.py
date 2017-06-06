@@ -54,17 +54,24 @@ class GroupEvaluation:
 
     @property
     def overall_neutral(self):
-        return sum(1 for c in self.classifications if c == Rating('neutral')
+        return sum(1 for c in self.classifications
                    if c == Rating('neutral'))
 
     @property
     def neutral(self):
-        return sum(1 for c in self.classifications if c == Rating('neutral')
+        return sum(1 for c in self.classifications
                    if c == Rating('neutral') and c.influences_ranking)
+
+    @property
+    def devaluating(self):
+        return sum(1 for c in self.classifications
+                   if c.devaluates_group)
 
     @property
     def group_rating(self) -> Rating:
         """The rating of the group."""
+        if self.devaluating > 0:
+            return Rating('neutral', devaluates_group=True)
         if self.critical > 0:
             return Rating('bad')
         if 0 < self.overall_good == self.overall_total > self.good:
