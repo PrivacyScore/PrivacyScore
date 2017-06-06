@@ -59,4 +59,4 @@ def evaluate_group(group: str, result: dict) -> GroupEvaluation:
             continue
         classifications.append(res['classification'])
         descriptions.append((res['description'], res['classification']))
-    return GroupEvaluation(classifications), sorted(descriptions, key=lambda k: k[1])
+    return GroupEvaluation(classifications), descriptions) # sorted(descriptions, key=lambda k: k[1])
