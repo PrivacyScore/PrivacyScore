@@ -46,6 +46,7 @@ def describe_locations(server_type: str, locations: list) -> dict:
             'description': _('The locations of the %(server_type)s could not '
                              'be detected.') % {'server_type': server_type},
             'classification': Rating('neutral', influences_ranking=False),
+            'details_list': None
         }
     rating = Rating('good')
     for country in locations:
@@ -56,7 +57,9 @@ def describe_locations(server_type: str, locations: list) -> dict:
             'description': _('All %(server_type)s are located in %(country)s.') % {
                 'server_type': server_type,
                 'country': locations[0],
-            }, 'classification': rating,
+            }, 
+            'classification': rating,
+            'details_list': None
         }
     return {
         'description': _('The %(server_type)s are located in %(countries)s.') % {
@@ -64,4 +67,5 @@ def describe_locations(server_type: str, locations: list) -> dict:
             'countries': ', '.join(locations[:-1]) + ' and {}'.format(locations[-1])
         },
         'classification': rating,
+        'details_list': [(country,) for country in locations]
     }
