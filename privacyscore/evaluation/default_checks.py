@@ -1034,6 +1034,17 @@ CHECKS['mx']['has_mx'] = {
     } if not keys['mx_records'] else None,
     'missing': None,
 }
+# Check if mail server check actually finished
+# Result is informational
+CHECKS['mx']['mx_scan_finished'] = {
+    'keys': {'mx_ssl_finished'},
+    'rating': lambda **keys: None,
+    'missing': {
+        'description': _('The SSL scan of the mail server timed out.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+}
 # Check for insecure SSLv2 protocol
 # No SSLv2: Good
 # No HTTPS at all: neutral
@@ -1053,11 +1064,7 @@ CHECKS['mx']['mx_insecure_protocols_sslv2'] = {
         'classification': Rating('neutral'),
         'details_list': None
     },
-    'missing': {
-        'description': _('Something went wrong during the SSL check, and it did not complete. Please run a rescan and contact us if the problem persists.'),
-        'classification': Rating('neutral'),
-        'details_list': None,
-    },
+    'missing': None
 }
 # Check for insecure SSLv3 protocol
 # No SSLv3: Good
