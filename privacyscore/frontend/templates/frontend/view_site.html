@@ -50,6 +50,65 @@ table.dataTable thead .sorting_desc_disabled
 
 {% block content %}
 
+<div class="row" style="margin-top:40px">
+    <div class="col-xs-12">
+        <div>
+            <h2><small>SHOWING RESULTS FOR</small><br>
+                {{ site.url }}
+            </h2>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-8">
+        <div class="group-box">
+            
+            <div class="row">
+                <div class="col-sm-3 text-center bg-warning">
+                    1
+                </div>
+                <div class="col-sm-3 text-center bg-warning">
+                    1
+                </div>
+                <div class="col-sm-3 text-center bg-warning">
+                    1
+                </div>
+                <div class="col-sm-3 text-center bg-warning">
+                    1
+                </div>
+                
+            </div>
+            
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <form method="POST" action="{% url 'frontend:scan_site' site.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-default btn-primary btn-lg" role="button" id="scan_again" style="width:100%">
+                {% trans 'Re-scan site now' %}
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="spacer"></div>
+<div class="spacer"></div>
+
+<div class="row">
+    <div class="col-md-4">
+        {% if site.has_screenshot %}
+        <div><img src="{% url 'frontend:site_screenshot' site.pk %}" class="screenshot" style="width:320px" /></div>
+        {% else %}
+        <div><img src="" class="screenshot" style="background-color: silver; width:320px; height: 240px;" /></div>
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        <p>URL after fully loading the page: TODO</p>
+        <p>Hostname of the analyzed mail server:</p>
+    </div>
+</div>
+
+
 <div class="pull-right" style="margin-top:40px">
     <form method="POST" action="{% url 'frontend:scan_site' site.pk %}">
         {% csrf_token %}
