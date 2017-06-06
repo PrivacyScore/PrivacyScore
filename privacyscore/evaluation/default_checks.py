@@ -194,7 +194,20 @@ CHECKS['privacy']['server_locations'] = {
     },
     'missing': None,
 }
-
+# Check for Referrer policy header
+# Present: good
+# Not present: bad
+CHECKS['privacy']['header_ref'] = {
+    'keys': {'headerchecks',},
+    'rating': lambda **keys: {
+        'description': _('The site sets a Referrer-Policy header.'),
+        'classification': Rating('good')
+    } if keys['headerchecks'].get('referrer-policy') is not None and 
+        keys['headerchecks']['referrer-policy']['status'] != "MISSING" else {
+        'description': _('The site does not set a referrer-policy header.'),
+        'classification':  Rating('bad')},
+    'missing': None,
+}
 
 #####################
 ## Security Checks ##
@@ -227,7 +240,7 @@ CHECKS['security']['header_csp'] = {
         'classification':  Rating('bad')},
     'missing': None,
 }
-# Check for CSP header
+# Check for XFO header
 # Present: good
 # Not present: bad
 CHECKS['security']['header_xfo'] = {
@@ -241,7 +254,7 @@ CHECKS['security']['header_xfo'] = {
         'classification':  Rating('bad')},
     'missing': None,
 }
-# Check for CSP header
+# Check for X-XSS-Protection header
 # Present: good
 # Not present: bad
 CHECKS['security']['header_xssp'] = {
@@ -255,7 +268,7 @@ CHECKS['security']['header_xssp'] = {
         'classification':  Rating('bad')},
     'missing': None,
 }
-# Check for CSP header
+# Check for XCTO header
 # Present: good
 # Not present: bad
 CHECKS['security']['header_xcto'] = {
@@ -266,20 +279,6 @@ CHECKS['security']['header_xcto'] = {
     } if keys['headerchecks'].get('x-content-type-options') is not None and 
         keys['headerchecks']['x-content-type-options']['status'] != "MISSING" else {
         'description': _('The site does not set a X-Content-Type-Options header.'),
-        'classification':  Rating('bad')},
-    'missing': None,
-}
-# Check for CSP header
-# Present: good
-# Not present: bad
-CHECKS['security']['header_ref'] = {
-    'keys': {'headerchecks',},
-    'rating': lambda **keys: {
-        'description': _('The site sets a Referrer-Policy header.'),
-        'classification': Rating('good')
-    } if keys['headerchecks'].get('referrer-policy') is not None and 
-        keys['headerchecks']['referrer-policy']['status'] != "MISSING" else {
-        'description': _('The site does not set a referrer-policy header.'),
         'classification':  Rating('bad')},
     'missing': None,
 }
