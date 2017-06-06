@@ -61,19 +61,29 @@ table.dataTable thead .sorting_desc_disabled
 </div>
 <div class="row">
     <div class="col-sm-8">
-        <div class="group-box">
-            
+        
+        <div style="background-color: #888; width: 100%; padding: 8px 12px 6px 12px; color: #ccc; font-size: 90%">
+            <span>
+                {% blocktrans count counter=num_scans %}
+                    <span style="color:white">{{ counter }}</span>&nbsp; SCAN
+                {% plural %}
+                    <span style="color:white">{{ counter }}</span>&nbsp; SCANS
+                {% endblocktrans %}
+            </span>
+            <span class="pull-right"><span>LAST SCAN</span>&nbsp; <span style="color: white">{{ site.last_scan.start|date:"Y-m-d @ H:i:s" }} – {{ site.last_scan.end|date:"H:i:s" }}</span></span></div>
+        
+        <div class="group-box" style="border: 2px solid #888; background: #eee">
             <div class="row">
-                <div class="col-sm-3 text-center bg-warning">
+                <div class="col-xs-6 col-sm-3 text-center bg-warning">
                     1
                 </div>
-                <div class="col-sm-3 text-center bg-warning">
+                <div class="col-xs-6 col-sm-3 text-center bg-warning">
                     1
                 </div>
-                <div class="col-sm-3 text-center bg-warning">
+                <div class="col-xs-6 col-sm-3 text-center bg-warning">
                     1
                 </div>
-                <div class="col-sm-3 text-center bg-warning">
+                <div class="col-xs-6 col-sm-3 text-center bg-warning">
                     1
                 </div>
                 
@@ -88,100 +98,62 @@ table.dataTable thead .sorting_desc_disabled
                 {% trans 'Re-scan site now' %}
             </button>
         </form>
+        
+        <div class="spacer"></div>
+    
+        <p class="text-center">
+            {% if site.last_scan__start and site.last_scan__end_or_null is None %}
+                <strong>scheduled for scanning</strong>
+            {% else %}
+                currently not scheduled for scanning
+            {% endif %}
+        </p>
     </div>
 </div>
+
 
 <div class="spacer"></div>
 <div class="spacer"></div>
 
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-xs-6 col-sm-3 col-md-3">
+        <div class="group-box" style="padding:5px">
         {% if site.has_screenshot %}
-        <div><img src="{% url 'frontend:site_screenshot' site.pk %}" class="screenshot" style="width:320px" /></div>
+        <img src="{% url 'frontend:site_screenshot' site.pk %}" class="screenshot" style="width:100%; " />
         {% else %}
-        <div><img src="" class="screenshot" style="background-color: silver; width:320px; height: 240px;" /></div>
+        <img src="" class="screenshot" style="width:100%; background-color: silver; width:320px; height: 240px;" />
         {% endif %}
+        </div>
     </div>
-    <div class="col-md-6">
-        <p>URL after fully loading the page: TODO</p>
-        <p>Hostname of the analyzed mail server:</p>
+    <div class="col-xs-6 col-sm-5 col-md-5" style="paddin-left: 2em">
+        <p><small>URL after fully loading the page:</small><br>
+            <span style="word-wrap: break-word;"> http://wölsdkfösdfsdölfkasödlfjöl.com/sdlöjfsöldfjölasdjf/sdlkfn</span></p>
+
+        <p><small>Analyzed mail server:</small><br>
+            foobar.hostname.com
+        </p>
     </div>
-</div>
-
-
-<div class="pull-right" style="margin-top:40px">
-    <form method="POST" action="{% url 'frontend:scan_site' site.pk %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-default btn-primary btn-lg" role="button" id="scan_again" style="width:320px;">
-            {% trans 'Re-scan this site now' %}
-        </button>
-    </form>
-      
-    <div class="spacer"></div>
-
-    {% if site.has_screenshot %}
-    <div><img src="{% url 'frontend:site_screenshot' site.pk %}" class="screenshot" style="width:320px" /></div>
-    {% endif %}
-  
-    <div class="spacer"></div>
-    
-    <p>
-        {% if site.last_scan__start and site.last_scan__end_or_null is None %}
-            <strong>This site is currently scheduled for scanning.</strong>
-        {% else %}
-            There are no scans scheduled for this site.
-        {% endif %}
-    </p>
-
-    <p>This site has been added at {{ site.created|date:"Y-m-d @ H:i:s" }}
-    </p>
-    
-    <p>This site has been scanned
-        {% blocktrans count counter=num_scans %}
-            {{ counter }} time
-        {% plural %}
-            {{ counter }} times
-        {% endblocktrans %}
-    </p>
-
-    <p>
-        {% trans 'Last Scan:' %}
-        {% if site.last_scan_datetime %}
-        {{ site.last_scan_datetime|date:"Y-m-d @ H:i:s" }}
-        {% else %}
-        {% trans 'never' %}
-        {% endif %}
-    </p>
-    
-    <p>Last Scan Start Time {{ site.last_scan.start|date:"Y-m-d @ H:i:s" }}</p>
-    <p>Last Scan End Time   {{ site.last_scan.end|date:"Y-m-d @ H:i:s" }}</p>
-  
-    <div class="spacer"></div>
-    
-    <p>The site is part of the following
-        {% blocktrans count counter=scan_lists.count %}
-            {{ counter }} list
-        {% plural %}
-            {{ counter }} lists
-        {% endblocktrans %}</p>
-        {% for list in scan_lists %}
-        <a style="width: 320; white-space: normal"
-            type="button" class="btn btn-sm btn-default btn-block"
-            href="{% url 'frontend:view_scan_list' list.pk %}">
-            {{ list.name }}
-        </a>
-        {% endfor %}
-    
+    <div class="col-xs-12 col-sm-4 col-md-4 text-center">
+        <p>{{ site.created|date:"Y-m-d @ H:i:s" }}
+        </p>
+        
+        <p>The site is part of the following
+            {% blocktrans count counter=scan_lists.count %}
+                {{ counter }} list
+            {% plural %}
+                {{ counter }} lists
+            {% endblocktrans %}
+        </p>
+            {% for list in scan_lists %}
+            <a style="width: 320; white-space: normal"
+                type="button" class="btn btn-sm btn-default btn-block"
+                href="{% url 'frontend:view_scan_list' list.pk %}">
+                {{ list.name }}
+            </a>
+            {% endfor %}
+    </div>
 
 </div>
-
-
-
-  <h1 style="margin-top:40px">
-    {{ site.url }}
-  </h1>
-
-  
 
   {% for group, descriptions in groups_descriptions %}
     <h3>{{ group }}</h3>
