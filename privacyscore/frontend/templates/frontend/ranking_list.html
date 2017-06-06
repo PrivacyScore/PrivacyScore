@@ -1,7 +1,7 @@
 {% load i18n %}
 <table class="table table-striped table-bordered table-hover">
     <tr>
-        <th>#</th>
+        <th class="text-right">#</th>
         <th>{% trans 'URL' %}</th>
         {% for column in scan_list.ordered_columns %}
             <th>{{ column.name }}</th>
@@ -31,7 +31,7 @@
 
     {% for num, site in sites %}
         <tr{% if site.result.result.reachable is False %} class="unreachable"{% endif %}>
-            <td>
+            <td class="text-right">
                 {{ num }}
             </td>
             <td>
@@ -58,14 +58,14 @@
                 </small>
             </td>
             {% for column_value in site.ordered_column_values %}
-                <th>{{ column_value.value }}</th>
+                <td>{{ column_value.value }}</td>
             {% endfor %}
             {% comment %}
                 <td class="rating-{{ site.evaluated.rating }}"></td>
                 {% endcomment %}
             {% for group, rating in site.evaluated %}
                 {% if rating %}
-                    <td class="rating-{{ rating.group_rating }}">
+                    <td class="rating-{{ rating.group_rating }} text-center">
                         {% with group_rating=rating.group_rating.rating %}
                             {% if group_rating == 'doubleplusgood' %}
                                 <i class="fa fa-lg fa-star-o color-{{ group_rating }}"></i>
@@ -95,9 +95,9 @@
                     </td>
                 {% endif %}
             {% empty %}
-                <td class="align-center" colspan="{{ result_groups|length }}">{% trans 'n/a' %}</td>
+                <td class="text-center" colspan="{{ result_groups|length }}">{% trans 'n/a' %}</td>
             {% endfor %}
-            <td>
+            <td class="text-center">
                 
                 {% with r=site.evaluated.rating.rating %}
                     {% if r == 'doubleplusgood' %}
