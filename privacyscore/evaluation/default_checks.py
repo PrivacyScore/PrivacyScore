@@ -900,7 +900,7 @@ CHECKS['mx']['has_mx'] = {
     'keys': {'mx_records'},
     'rating': lambda **keys: {
         'description': _('No mail server is available for this site.'),
-        'classification': Rating('good'),
+        'classification': Rating('neutral', devaluates_group=True),
     } if not keys['mx_records'] else None,
     'missing': None,
 }
@@ -920,7 +920,10 @@ CHECKS['mx']['mx_insecure_protocols_sslv2'] = {
         'description': _('Not checking for SSLv2 support, as the server does not offer TLS.'),
         'classification': Rating('neutral')
     },
-    'missing': None,
+    'missing': {
+        'description': _('Something went wrong during the SSL check, and it did not complete. Please run a rescan and contact us if the problem persists.'),
+        'classification': Rating('neutral'),
+    },
 }
 # Check for insecure SSLv3 protocol
 # No SSLv3: Good

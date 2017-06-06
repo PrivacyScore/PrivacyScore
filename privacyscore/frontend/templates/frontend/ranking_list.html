@@ -12,18 +12,11 @@
                 <th>{{ group }}</th>
             {% endfor %}
             {% endcomment %}
+        {% for category in category_names %}
         <th class="category-header">
-            <abbr title="{% trans 'Encryption of Web Traffic' %}">{% trans "EncWeb" %}</abbr>
+            <abbr title="{{ category.long_name }}">{{ category.short_name }}</abbr>
         </th>
-        <th class="category-header">
-            <abbr title="{% trans 'Encryption of Mail Traffic' %}">{% trans "EncMail" %}</abbr>
-        </th>
-        <th class="category-header">
-            <abbr title="{% trans 'No Tracking by Website and Third Parties' %}">{% trans "NoTrack" %}</abbr>
-        </th>
-        <th class="category-header">
-            <abbr title="{% trans 'Protection Against Various Attacks' %}">{% trans "Attacks" %}</abbr>
-        </th>
+        {% endfor %}
         <th class="category-header">
             Rating
         </th>
@@ -67,6 +60,9 @@
                 {% if rating %}
                     <td class="rating-{{ rating.group_rating }} text-center">
                         {% with group_rating=rating.group_rating.rating %}
+                            {% if rating.devaluating %}
+                            (
+                            {% endif %}
                             {% if group_rating == 'doubleplusgood' %}
                                 <i class="fa fa-lg fa-star-o color-{{ group_rating }}"></i>
                             {% elif group_rating == 'good' %}
@@ -77,6 +73,9 @@
                                 <i class="fa fa-lg fa-times-circle color-{{ group_rating }}"></i>
                             {% elif group_rating == 'neutral' %}
                                 <i class="fa fa-lg fa-question-circle color-{{ group_rating }}"></i>
+                            {% endif %}
+                            {% if rating.devaluating %}
+                            )
                             {% endif %}
 
                         {% endwith %}
