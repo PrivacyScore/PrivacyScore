@@ -18,7 +18,7 @@ test_dependencies = [
 def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str, bytes]]]:
     # Commented out for now because it gives bad results sometimes
     scan_url = previous_results.get('final_https_url')
-    if scan_url and previous_results.get('same_content_via_https'):
+    if scan_url and (previous_results.get('same_content_via_https') or previous_results.get('final_url_is_https')):
         hostname = urlparse(scan_url).hostname
     elif url.startswith('https'):
         hostname = urlparse(url).hostname
