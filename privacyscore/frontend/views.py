@@ -181,7 +181,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         if not result:
             continue
         site.result = result
-        site.evaluated = result.evaluate(['privacy', 'security', 'ssl', 'mx'])[0]
+        site.evaluated = result.evaluate(['ssl', 'mx', 'privacy', 'security'])[0]
 
     sites = sorted(sites, key=lambda v: v.evaluated, reverse=True)
 
