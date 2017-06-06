@@ -66,6 +66,14 @@ table.dataTable thead .sorting_desc_disabled
   
     <div class="spacer"></div>
     
+    <p>
+        {% if site.last_scan__start and site.last_scan__end_or_null is None %}
+            <strong>This site is currently scheduled for scanning.</strong>
+        {% else %}
+            There are no scans scheduled for this site.
+        {% endif %}
+    </p>
+
     <p>This site has been added at {{ site.created|date:"Y-m-d @ H:i:s" }}
     </p>
     
@@ -89,14 +97,22 @@ table.dataTable thead .sorting_desc_disabled
     <p>Last Scan Start Time {{ site.last_scan.start|date:"Y-m-d @ H:i:s" }}</p>
     <p>Last Scan End Time   {{ site.last_scan.end|date:"Y-m-d @ H:i:s" }}</p>
   
-    <p>
-        {% if site.last_scan__start and site.last_scan__end_or_null is None %}
-            <strong>This site is currently scheduled for scanning.</strong>
-        {% else %}
-            There are no scans scheduled for this site.
-        {% endif %}
-    </p>
-
+    <div class="spacer"></div>
+    
+    <p>The site is part of the following
+        {% blocktrans count counter=scan_lists.count %}
+            {{ counter }} list
+        {% plural %}
+            {{ counter }} lists
+        {% endblocktrans %}</p>
+        {% for list in scan_lists %}
+        <a style="width: 320; white-space: normal"
+            type="button" class="btn btn-sm btn-default btn-block"
+            href="{% url 'frontend:view_scan_list' list.pk %}">
+            {{ list.name }}
+        </a>
+        {% endfor %}
+    
 
 </div>
 
