@@ -12,18 +12,11 @@
                 <th>{{ group }}</th>
             {% endfor %}
             {% endcomment %}
+        {% for category in category_names %}
         <th class="category-header">
-            <abbr title="{% trans 'Encryption of Web Traffic' %}">{% trans "EncWeb" %}</abbr>
+            <abbr title="{{ category.long_name }}">{{ category.short_name }}</abbr>
         </th>
-        <th class="category-header">
-            <abbr title="{% trans 'Encryption of Mail Traffic' %}">{% trans "EncMail" %}</abbr>
-        </th>
-        <th class="category-header">
-            <abbr title="{% trans 'No Tracking by Website and Third Parties' %}">{% trans "NoTrack" %}</abbr>
-        </th>
-        <th class="category-header">
-            <abbr title="{% trans 'Protection Against Various Attacks' %}">{% trans "Attacks" %}</abbr>
-        </th>
+        {% endfor %}
         <th class="category-header">
             Rating
         </th>
