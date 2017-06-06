@@ -65,19 +65,29 @@ table.dataTable thead .sorting_desc_disabled
     {% endif %}
   
     <div class="spacer"></div>
-  
+    
+    <p>This site has been added at {{ site.created|date:"Y-m-d @ H:i:s" }}
+    </p>
+    
+    <p>This site has been scanned
+        {% blocktrans count counter=num_scans %}
+            {{ counter }} time
+        {% plural %}
+            {{ counter }} times
+        {% endblocktrans %}
+    </p>
 
     <p>
         {% trans 'Last Scan:' %}
         {% if site.last_scan_datetime %}
-        {{ site.last_scan_datetime }}
+        {{ site.last_scan_datetime|date:"Y-m-d @ H:i:s" }}
         {% else %}
         {% trans 'never' %}
         {% endif %}
     </p>
     
-    <p>Last Scan Start Time {{ site.last_scan.start }}</p>
-    <p>Last Scan End Time   {{ site.last_scan.end }}</p>
+    <p>Last Scan Start Time {{ site.last_scan.start|date:"Y-m-d @ H:i:s" }}</p>
+    <p>Last Scan End Time   {{ site.last_scan.end|date:"Y-m-d @ H:i:s" }}</p>
   
     <p>
         {% if site.last_scan__start and site.last_scan__end_or_null is None %}

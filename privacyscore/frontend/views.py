@@ -277,9 +277,12 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
         prefetch_last_scan(), pk=site_id)
     site.views = F('views') + 1
     site.save(update_fields=('views',))
-
+    
+    num_scans = Scan.objects.filter(site_id=site.pk).count()
+    
     return render(request, 'frontend/view_site.html', {
         'site': site,
+        'num_scans': num_scans,
         # TODO: groups not statically
         'groups_descriptions': (
             (RESULT_GROUPS[group]['name'], val) for group, val in
