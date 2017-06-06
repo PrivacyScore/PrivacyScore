@@ -329,6 +329,17 @@ CHECKS['ssl']['site_redirects_to_https'] = {
     },
     'missing': None,
 }
+# Check if server scan failed in an unexpected way
+# yes: notify, neutral
+# no: Nothing
+CHECKS['ssl']['https_scan_failed'] = {
+    'keys': {'web_scan_failed'},
+    'rating': lambda **keys: {
+        'description': _('The SSL scan experienced an unexpected error. Please rescan and contact us if the problem persists.'),
+        'classification': Rating('neutral'),
+    } if keys['web_scan_failed'] else None,
+    'missing': None,
+}
 # Check if server cert is valid
 # yes: good
 # no: critical
@@ -347,24 +358,20 @@ CHECKS['ssl']['web_cert'] = {
         'classification': Rating('critical'),
         'reason': keys['web_cert_trusted_reason'],
     },
-    'missing': {
-        'description': _('Cannot check server certificate validity due to outdated dataset - please rescan.'),
-        'classification': Rating('neutral'),
-        'reason': '',
-    },
+    'missing': None
 }
 # Check if website explicitly redirected us from HTTPS to the HTTP version
 # yes: bad
 # no: good
 CHECKS['ssl']['redirects_from_https_to_http'] = {
-    'keys': {'final_https_url'},
+    'keys': {'final_https_url', 'web_has_ssl'},
     'rating': lambda **keys: {
         'description': _('The web server redirects to HTTP if content is requested via HTTPS.'),
         'classification': Rating('critical'),
     } if (keys['final_https_url'] and keys['final_https_url'].startswith('http:')) else {
         'description': _('Not checking for HTTPS->HTTP redirection, as the server does not offer HTTPS.'),
         'classification': Rating('neutral')
-    } if not keys['final_https_url'] else {
+    } if not keys['web_has_ssl'] else {
         'description': _('The web server does not redirect to HTTP if content is requested via HTTPS'),
         'classification': Rating('good'),
     },
@@ -505,10 +512,7 @@ CHECKS['ssl']['web_insecure_protocols_sslv2'] = {
         'description': _('Not checking for SSLv2 support, as the server does not offer HTTPS.'),
         'classification': Rating('neutral')
     },
-    'missing': {
-        'description': _('Something went wrong during the SSL check, and it did not complete. Please run a rescan and contact us if the problem persists.'),
-        'classification': Rating("neutral"),
-    },
+    'missing': None
 }
 # Check for insecure SSLv3 protocol
 # No SSLv3: Good
