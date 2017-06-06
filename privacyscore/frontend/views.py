@@ -271,7 +271,10 @@ def site_screenshot(request: HttpRequest, site_id: int) -> HttpResponse:
 
 def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     """View a site and its most recent scan result (if any)."""
-    site = get_object_or_404(Site.objects.annotate_most_recent_scan_end().prefetch_last_scan(), pk=site_id)
+    site = get_object_or_404(
+        Site.objects.annotate_most_recent_scan_end_or_null() \
+        .annotate_most_recent_scan_end().annotate_most_recent_scan_start(). \
+        prefetch_last_scan(), pk=site_id)
     site.views = F('views') + 1
     site.save(update_fields=('views',))
 

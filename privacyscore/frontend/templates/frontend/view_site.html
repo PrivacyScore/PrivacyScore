@@ -71,7 +71,7 @@ table.dataTable thead .sorting_desc_disabled
         {% trans 'Last Scan:' %}
         {% if site.last_scan_datetime %}
         {{ site.last_scan_datetime }}
-        {% else %}"
+        {% else %}
         {% trans 'never' %}
         {% endif %}
     </p>
@@ -80,10 +80,10 @@ table.dataTable thead .sorting_desc_disabled
     <p>Last Scan End Time   {{ site.last_scan.end }}</p>
   
     <p>
-        {% if site.last_scan.end == None %}
+        {% if site.last_scan__start and site.last_scan__end_or_null is None %}
             <strong>This site is currently scheduled for scanning.</strong>
         {% else %}
-            There are no scans are scheduled for this site.
+            There are no scans scheduled for this site.
         {% endif %}
     </p>
 
