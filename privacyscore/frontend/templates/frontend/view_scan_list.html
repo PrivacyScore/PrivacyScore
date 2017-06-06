@@ -17,14 +17,16 @@
                     <span class="label label-default">{{ tag }}</span>
                 {% endfor %}
             </p>
-
+            
             {{ scan_list.description|linebreaks }}
-
+            
             <p>
                 <i class="fa fa-user"></i>
                 <strong>{% trans "Author" %}:</strong> {{ scan_list.pseudonym }}
             </p>
-
+            
+            <div class="spacer"></div>
+            
             <h3>{% trans "Result overview" %}</h3>
             <ul class="list-unstyled">
                 <li>
@@ -61,6 +63,23 @@
             </ul>
         </div>
         <div class="col-md-4">
+
+            {% if scan_list.running_scans__count > 0 %}
+            <h2 class="text-center">Scan Running</h2>
+            <p class="text-center">
+            {% blocktrans count counter=scan_list.running_scans__count %}
+                {{ counter }} site
+            {% plural %}
+                {{ counter }} sites
+            {% endblocktrans %}
+            of this list are being scanned at the moment
+            </p>
+            {% else %}
+            <h2 class="text-center color-neutral">No Scan Running</h2>
+            {% endif %}
+            
+            <div class="spacer"></div>
+            
             <div class="improvements">
                 <h5>&mdash; IMPROVEMENTS UNDERWAY &mdash; </h5>
                 <hr>

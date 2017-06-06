@@ -98,23 +98,23 @@
                 <td class="align-center" colspan="{{ result_groups|length }}">{% trans 'n/a' %}</td>
             {% endfor %}
             <td>
-                {% if site.evaluated and site.evaluated.rating %}
-                {% with r=site.evaluated.rating %}
+                
+                {% with r=site.evaluated.rating.rating %}
                     {% if r == 'doubleplusgood' %}
-                        <i class="fa fa-lg fa-star-o color-{{ group_rating }}"></i>
+                        <i class="fa fa-lg fa-star-o color-{{ r }}"></i>
                     {% elif r == 'good' %}
-                        <i class="fa fa-lg fa-check-circle color-{{ group_rating }}"></i>
+                        <i class="fa fa-lg fa-check-circle color-{{ r }}"></i>
                     {% elif r == 'warning' %}
-                        <i class="fa fa-lg fa-minus-circle color-{{ group_rating }}"></i>
+                        <i class="fa fa-lg fa-minus-circle color-{{ r }}"></i>
                     {% elif r == 'bad' %}
-                        <i class="fa fa-lg fa-times-circle color-{{ group_rating }}"></i>
+                        <i class="fa fa-lg fa-times-circle color-{{ r }}"></i>
                     {% elif r == 'neutral' %}
-                        <i class="fa fa-lg fa-question-circle color-{{ group_rating }}"></i>
+                        <i class="fa fa-lg fa-question-circle color-{{ r }}"></i>
                     {% else  %}
-                        TODO
+                        {{ r }}
                     {% endif %}
                 {% endwith %}
-                {% endif %}
+
             </td>
         </tr>
     {% endfor %}
