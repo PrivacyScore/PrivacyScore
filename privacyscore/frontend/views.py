@@ -99,14 +99,17 @@ def scan_list(request: HttpRequest) -> HttpResponse:
             if not invalid_rows and 'start_scan' in request.POST:
                 with transaction.atomic():
                     scan_list = scan_list_form.save()
+                    sites = []
+                    for row in table:
+                        url = normalize_url(row[0])
+                        site, _created = Site.objects.get_or_create(url=url)
+                        site.scan_lists.add(scan_list)
+                        sites.append(site)
                     for i, name in enumerate(table_header[1:]):
                         column = ListColumn.objects.create(
                             scan_list=scan_list, name=name, visible=True, sort_key=i)
-                        for row in table:
-                            url = normalize_url(row[0])
-                            site, _created = Site.objects.get_or_create(url=url)
-                            site.scan_lists.add(scan_list)
-                            ListColumnValue.objects.create(column=column, site=site, value=row[i + 1])
+                        for row_no, row in enumerate(table):
+                            ListColumnValue.objects.create(column=column, site=sites[row_no], value=row[i + 1])
 
                     # tags
                     tags_to_add = set()
