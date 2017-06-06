@@ -610,6 +610,7 @@ CHECKS['ssl']['web_vuln_heartbleed'] = {
     'rating': lambda **keys: {
         'description': _('The server may be vulnerable to the Heartbleed attack.'),
         'classification': Rating('bad'),
+        'finding': keys["web_vulnerabilities"].get('heartbleed')['finding']
     } if keys["web_vulnerabilities"].get('heartbleed') else {
         'description': _('The server is secure against the Heartbleed attack.'),
         'classification': Rating('good'),
@@ -627,6 +628,7 @@ CHECKS['ssl']['web_vuln_ccs'] = {
     'rating': lambda **keys: {
         'description': _('The server may be vulnerable to the CCS attack.'),
         'classification': Rating('bad'),
+        'finding': keys["web_vulnerabilities"].get('ccs')['finding']
     } if keys["web_vulnerabilities"].get('ccs') else {
         'description': _('The server is secure against the CCS attack.'),
         'classification': Rating('good'),
@@ -644,6 +646,7 @@ CHECKS['ssl']['web_vuln_ticketbleed'] = {
     'rating': lambda **keys: {
         'description': _('The server may be vulnerable to the Ticketbleed attack.'),
         'classification': Rating('bad'),
+        'finding': keys["web_vulnerabilities"].get('ticketbleed')['finding']
     } if keys["web_vulnerabilities"].get('ticketbleed') else {
         'description': _('The server is secure against the Ticketbleed attack.'),
         'classification': Rating('good'),
@@ -661,6 +664,7 @@ CHECKS['ssl']['web_vuln_secure_renego'] = {
     'rating': lambda **keys: {
         'description': _('The server may be vulnerable to a Secure Re-Negotiation attack.'),
         'classification': Rating('bad'),
+        'finding': keys["web_vulnerabilities"].get('secure-renego')['finding']
     } if keys["web_vulnerabilities"].get('secure-renego') else {
         'description': _('The server is secure against the Secure Re-Negotiation attack.'),
         'classification': Rating('good'),
