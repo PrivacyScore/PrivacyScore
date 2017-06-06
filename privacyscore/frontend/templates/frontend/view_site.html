@@ -105,8 +105,11 @@ table.dataTable thead .sorting_desc_disabled
             {% if site.last_scan__start and site.last_scan__end_or_null is None %}
                 <strong>scheduled for scanning</strong>
             {% else %}
-                currently not scheduled for scanning
+                not scheduled for scanning
             {% endif %}
+        </p>
+        <p class="text-center">
+            on PrivacyScore since {{ site.created|date:"Y-m-d" }}
         </p>
     </div>
 </div>
@@ -117,7 +120,7 @@ table.dataTable thead .sorting_desc_disabled
 
 <div class="row">
     <div class="col-xs-6 col-sm-3 col-md-3">
-        <div class="group-box" style="padding:5px">
+        <div class="group-box" style="padding:5px; margin-bottom: 20px">
         {% if site.has_screenshot %}
         <img src="{% url 'frontend:site_screenshot' site.pk %}" class="screenshot" style="width:100%; " />
         {% else %}
@@ -134,10 +137,8 @@ table.dataTable thead .sorting_desc_disabled
         </p>
     </div>
     <div class="col-xs-12 col-sm-4 col-md-4 text-center">
-        <p>{{ site.created|date:"Y-m-d @ H:i:s" }}
-        </p>
         
-        <p>The site is part of the following
+        <p>Referenced in 
             {% blocktrans count counter=scan_lists.count %}
                 {{ counter }} list
             {% plural %}
@@ -145,7 +146,7 @@ table.dataTable thead .sorting_desc_disabled
             {% endblocktrans %}
         </p>
             {% for list in scan_lists %}
-            <a style="width: 320; white-space: normal"
+            <a style="white-space: normal"
                 type="button" class="btn btn-sm btn-default btn-block"
                 href="{% url 'frontend:view_scan_list' list.pk %}">
                 {{ list.name }}
