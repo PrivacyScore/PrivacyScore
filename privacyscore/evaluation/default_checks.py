@@ -602,8 +602,74 @@ CHECKS['ssl']['mixed_content'] = {
     },
     'missing': None,
 }
-
-
+# Check for Heartbleed
+# vulnerable: bad
+# Else: good
+CHECKS['ssl']['web_vuln_heartbleed'] = {
+    'keys': {'web_vulnerabilities', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The server may be vulnerable to Heartbleed.'),
+        'classification': Rating('bad'),
+    } if keys["web_vulnerabilities"].get('heartbleed') else {
+        'description': _('The server is secure against Heartbleed.'),
+        'classification': Rating('good'),
+    } if keys['web_has_ssl'] else {
+        'description': _('Not checking for Heartbleed vulnerability, as the server does not offer HTTPS.'),
+        'classification': Rating('neutral')
+    },
+    'missing': None,
+}
+# Check for CCS
+# vulnerable: bad
+# Else: good
+CHECKS['ssl']['web_vuln_ccs'] = {
+    'keys': {'web_vulnerabilities', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The server may be vulnerable to the CCS attack.'),
+        'classification': Rating('bad'),
+    } if keys["web_vulnerabilities"].get('ccs') else {
+        'description': _('The server is secure against the CCS attack.'),
+        'classification': Rating('good'),
+    } if keys['web_has_ssl'] else {
+        'description': _('Not checking for CCS vulnerability, as the server does not offer HTTPS.'),
+        'classification': Rating('neutral')
+    },
+    'missing': None,
+}
+# Check for ticketbleed
+# vulnerable: bad
+# Else: good
+CHECKS['ssl']['web_vuln_ticketbleed'] = {
+    'keys': {'web_vulnerabilities', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The server may be vulnerable to the Ticketbleed attack.'),
+        'classification': Rating('bad'),
+    } if keys["web_vulnerabilities"].get('ticketbleed') else {
+        'description': _('The server is secure against Ticketbleed.'),
+        'classification': Rating('good'),
+    } if keys['web_has_ssl'] else {
+        'description': _('Not checking for Ticketbleed vulnerability, as the server does not offer HTTPS.'),
+        'classification': Rating('neutral')
+    },
+    'missing': None,
+}
+# Check for Secure Renegotiation
+# vulnerable: bad
+# Else: good
+CHECKS['ssl']['web_vuln_secure_renego'] = {
+    'keys': {'web_vulnerabilities', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The server may be vulnerable to a Secure Re-Negotiation attack.'),
+        'classification': Rating('bad'),
+    } if keys["web_vulnerabilities"].get('secure-renego') else {
+        'description': _('The server is secure against the Secure Re-Negotiation attack.'),
+        'classification': Rating('good'),
+    } if keys['web_has_ssl'] else {
+        'description': _('Not checking for Secure Re-Negotiation vulnerability, as the server does not offer HTTPS.'),
+        'classification': Rating('neutral')
+    },
+    'missing': None,
+}
 ###########################
 ## Mailserver TLS Checks ##
 ###########################
