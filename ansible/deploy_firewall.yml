@@ -1,0 +1,25 @@
+- hosts: all
+  become: true
+  become_user: root
+  vars:
+    ansible_ssh_pipelining: yes
+  tasks:
+    - name: Create if-pre-up script
+      when: is_slave
+      copy:
+        src: if-pre-up
+        dest: /etc/network/if-pre-up.d/iptables
+        owner: root
+        group: root
+        mode: 0755
+    - name: Copy rules
+      when: is_slave
+      copy:
+        src: iptables_slave
+        dest: /etc/iptables.rules
+        owner: root
+        group: root
+        mode: 0644
+    - name: Activate iptables rules
+      when: is_slave
+      command: /etc/network/if-pre-up.d/iptables
