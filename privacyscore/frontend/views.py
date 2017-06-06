@@ -195,7 +195,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     if 'group_by' in request.GET:
         group_by = _get_column_index(request.GET['group_by'], scan_list)
 
-    if sort_by:
+    if sort_by is not None:
         sites = list(sites)
 
         def sort_fn(site):
@@ -204,7 +204,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
 
     groups = None
     group_attr = None
-    if group_by:
+    if group_by is not None:
         lookup = defaultdict(list)
         for site in sites:
             lookup[site.ordered_column_values[group_by].value].append(site)
