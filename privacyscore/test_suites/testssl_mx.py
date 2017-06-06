@@ -38,6 +38,14 @@ def process_test_data(raw_data: list, previous_results: dict, remote_host: str =
 
     data = json.loads(
         raw_data['jsonresult']['data'].decode())
+    # Attempt at solving
+    # try:
+    #     data = json.loads(
+    #         raw_data['jsonresult']['data'].decode())
+    # except Exception:
+    #     # oh well, it's worth a shot, it may be that one specific bug I saw that one time.
+    #     data = json.loads(
+    #         raw_data['jsonresult']['data'].decode() + "]}")
 
     if not data['scanResult'] or not data['scanResult'][0]:
         # something went wrong with this test.
