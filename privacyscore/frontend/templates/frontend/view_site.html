@@ -130,10 +130,12 @@ table.dataTable thead .sorting_desc_disabled
     </div>
     <div class="col-xs-6 col-sm-5 col-md-5" style="paddin-left: 2em">
         <p><small>URL after fully loading the page:</small><br>
-            <span style="word-wrap: break-word;"> http://wölsdkfösdfsdölfkasödlfjöl.com/sdlöjfsöldfjölasdjf/sdlkfn</span></p>
+            <span style="word-wrap: break-word;">
+                {{ res.final_url }}
+            </span></p>
 
         <p><small>Analyzed mail server:</small><br>
-            foobar.hostname.com
+                {{ res.mx_record }}
         </p>
     </div>
     <div class="col-xs-12 col-sm-4 col-md-4 text-center">

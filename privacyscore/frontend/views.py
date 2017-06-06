@@ -331,8 +331,26 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     num_scans = Scan.objects.filter(site_id=site.pk).count()
     scan_lists = ScanList.objects.filter(sites=site.pk)
     
+    if site.last_scan and site.last_scan.result_or_none:
+        results = site.last_scan.result_or_none.result
+
+    res = {}
+    
+    if not results:
+        results = {}
+    
+    res['final_url'] = results.get('final_url', _('(error during scan)'))
+
+    if results.get('mx_records') and results.get('mx_records')[0] and results.get('mx_records')[0][1]:
+        mxrec = results.get('mx_records')[0][1]
+    else:
+        mxrec = _('(no mx records found)')
+     
+    res['mx_record'] = mxrec
+    
     return render(request, 'frontend/view_site.html', {
         'site': site,
+        'res': res,
         'scan_lists': scan_lists,
         'num_scans': num_scans,
         # TODO: groups not statically
