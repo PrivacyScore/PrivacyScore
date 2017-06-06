@@ -327,7 +327,10 @@ CHECKS['ssl']['site_redirects_to_https'] = {
         'description': _('The webserver does not offer a well-configured HTTPS.'),
         'classification': Rating('critical'),
     },
-    'missing': None,
+    'missing': {
+        'description': _('The website does not appear to offer a well-configured HTTPS. If this seems wrong to you, please rescan and contact us if the problem persists.'),
+        'classification': Rating('critical')
+    },
 }
 # Check if server scan failed in an unexpected way
 # yes: notify, neutral
