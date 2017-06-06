@@ -1,6 +1,7 @@
 {% extends 'frontend/base.html' %}
 {% load static %}
 {% load i18n %}
+{% load widget_tweaks %}
 
 {% block title %}{{ scan_list.name }}{% endblock title %}
 
@@ -24,7 +25,29 @@
                 <i class="fa fa-user"></i>
                 <strong>{% trans "Author" %}:</strong> {{ scan_list.pseudonym }}
             </p>
-            
+
+            <p><a id="configure-link" href="#">&raquo; {% trans "Configure ranking" %}</a></p>
+
+            <div id="configuration">
+                <h3>{% trans "Configuration" %}</h3>
+                <form method="get">
+                    <input type="hidden" name="configure" value="">
+                    <div class="form-group">
+                        {{ config_form.categories.label_tag }}
+                        {% render_field config_form.categories class+="form-control" %}
+                    </div>
+                    <div class="form-group">
+                        {{ config_form.sort_by.label_tag }}
+                        {% render_field config_form.sort_by class+="form-control" %}
+                    </div>
+                    <div class="form-group">
+                        {{ config_form.group_by.label_tag }}
+                        {% render_field config_form.group_by class+="form-control" %}
+                    </div>
+                    <p><button class="btn btn-primary">{% trans "Configure" %}</button></p>
+                </form>
+            </div>
+
             <div class="spacer"></div>
             
             <h3>{% trans "Result overview" %}</h3>

@@ -11,6 +11,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
+from django import forms
 
 from privacyscore.backend.models import ListColumn, ListColumnValue, ListTag,  Scan, ScanList, Site, ScanResult
 from privacyscore.evaluation.result_groups import RESULT_GROUPS
@@ -173,6 +174,22 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     scan_list.views = F('views') + 1
     scan_list.save(update_fields=('views',))
 
+    column_choices = [(None, _('None'))] + list(enumerate(x.name for x in scan_list.ordered_columns))
+    class ConfigurationForm(forms.Form):
+        categories = forms.CharField(required=False)
+        sort_by = forms.ChoiceField(choices=column_choices, required=False)
+        group_by = forms.ChoiceField(choices=column_choices, required=False)
+
+    config_initial = {
+        'categories': 'ssl,mx,privacy,security',
+        'sort_by': None,
+        'group_by': None,
+    }
+    if 'configure' in request.GET:
+        config_form = ConfigurationForm(request.GET, initial=config_initial)
+    else:
+        config_form = ConfigurationForm(initial=config_initial)
+
     categories = {
         'ssl': {
             'short_name': _('EncWeb'),
@@ -262,7 +279,8 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         'result_groups': [group['name'] for group in RESULT_GROUPS.values()],
         'groups': groups,
         'group_attr': group_attr,
-        'category_names': category_names
+        'category_names': category_names,
+        'config_form': config_form
     })
 
 
