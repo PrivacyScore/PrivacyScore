@@ -49,35 +49,64 @@ table.dataTable thead .sorting_desc_disabled
 
 
 {% block content %}
-  <h1>
+
+<div class="pull-right" style="margin-top:40px">
+    <form method="POST" action="{% url 'frontend:scan_site' site.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-default" role="button" id="scan_again" style="width:320px;">
+            {% trans 'Rescan' %}
+        </button>
+    </form>
+      
+    <div class="spacer"></div>
+
+    {% if site.has_screenshot %}
+    <div><img src="{% url 'frontend:site_screenshot' site.pk %}" class="screenshot" style="width:320px" /></div>
+    {% endif %}
+  
+    <div class="spacer"></div>
+  
+
+    <p>
+        {% trans 'Last Scan:' %}
+        {% if site.last_scan_datetime %}
+        {{ site.last_scan_datetime }}
+        {% else %}"
+        {% trans 'never' %}
+        {% endif %}
+    </p>
+    
+    <p>Last Scan Start Time {{ site.last_scan.start }}</p>
+    <p>Last Scan End Time   {{ site.last_scan.end }}</p>
+  
+    <p>
+        {% if site.last_scan.end == None %}
+            <strong>This site is currently scheduled for scanning.</strong>
+        {% else %}
+            There are no scans are scheduled for this site.
+        {% endif %}
+    </p>
+
+
+</div>
+
+
+
+  <h1 style="margin-top:40px">
     {{ site.url }}
   </h1>
 
-  <p>
-    {% trans 'Last scan:' %}
-    {% if site.last_scan_datetime %}
-      {{ site.last_scan_datetime }}
-    {% else %}
-      {% trans 'never' %}
-    {% endif %}
-      <form method="POST" action="{% url 'frontend:scan_site' site.pk %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-default" role="button" id="scan_again" style="width:100%;">
-          {% trans 'Rescan' %}
-        </button>
-      </form>
-  </p>
-
-  {% if site.has_screenshot %}
-    <img src="{% url 'frontend:site_screenshot' site.pk %}" class="screenshot" style="width:320px" />
-  {% endif %}
+  
 
   {% for group, descriptions in groups_descriptions %}
-    <h2>{{ group }}</h2>
+    <h3>{{ group }}</h3>
 
     {% for description, classification in descriptions %}
       <p class="description-{{ classification }}">{{ description }}</p>
     {% endfor %}
   {% endfor %}
+
+  
+
 
 {% endblock content %}
