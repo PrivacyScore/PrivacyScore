@@ -13,18 +13,20 @@
             {% endfor %}
             {% endcomment %}
         <th class="category-header">
-            <abbr title="{% trans 'Security Web' %}">{% trans "SecWeb" %}</abbr>
+            <abbr title="{% trans 'Encryption of Web Traffic' %}">{% trans "EncWeb" %}</abbr>
         </th>
         <th class="category-header">
-            <abbr title="{% trans 'Security Mail' %}">{% trans "SecMail" %}</abbr>
+            <abbr title="{% trans 'Encryption of Mail Traffic' %}">{% trans "EncMail" %}</abbr>
         </th>
         <th class="category-header">
-            <abbr title="{% trans 'No Tracking' %}">{% trans "NoTrack" %}</abbr>
+            <abbr title="{% trans 'No Tracking by Website and Third Parties' %}">{% trans "NoTrack" %}</abbr>
         </th>
         <th class="category-header">
-            <abbr title="{% trans 'Attacks' %}">{% trans "Attacks" %}</abbr>
+            <abbr title="{% trans 'Protection Against Various Attacks' %}">{% trans "Attacks" %}</abbr>
         </th>
-        <th class="align-right">{% trans 'Scan time' %}</th>
+        <th class="category-header">
+            Rating
+        </th>
     </tr>
 
     {% for num, site in sites %}
@@ -36,6 +38,24 @@
                 <a href="{% url 'frontend:view_site' site.pk %}">
                     {{ site.url }}
                 </a>
+                <small class="pull-right">
+                    {% with num_failures=site.last_scan__error_count %}
+                        {% if num_failures %}
+                            <span class="color-neutral">
+                            {% blocktrans count counter=num_failures %}
+                                ({{ counter }} failure)
+                            {% plural %}
+                                ({{ counter }} failures)
+                            {% endblocktrans %}
+                            </span>
+                        {% endif %}
+                    {% endwith %}
+                    {% if site.last_scan_datetime is not None %}
+                        / {{ site.last_scan_datetime|date:"Y-m-d @ H:i:s" }}
+                    {% else %}
+                        –
+                    {% endif %}
+                </small>
             </td>
             {% for column_value in site.ordered_column_values %}
                 <th>{{ column_value.value }}</th>
@@ -77,20 +97,24 @@
             {% empty %}
                 <td class="align-center" colspan="{{ result_groups|length }}">{% trans 'n/a' %}</td>
             {% endfor %}
-            <td class="align-right">
-                {% if site.last_scan_datetime is not None %}{{ site.last_scan_datetime }}{% else %}
-                    --{% endif %}
-                {% with num_failures=site.last_scan__error_count %}
-                    {% if num_failures %}
-                        <span class="color-neutral">
-                        {% blocktrans count counter=num_failures %}
-                            ({{ counter }} failure)
-                        {% plural %}
-                            ({{ counter }} failures)
-                        {% endblocktrans %}
-                        </span>
+            <td>
+                {% if site.evaluated and site.evaluated.rating %}
+                {% with r=site.evaluated.rating %}
+                    {% if r == 'doubleplusgood' %}
+                        <i class="fa fa-lg fa-star-o color-{{ group_rating }}"></i>
+                    {% elif r == 'good' %}
+                        <i class="fa fa-lg fa-check-circle color-{{ group_rating }}"></i>
+                    {% elif r == 'warning' %}
+                        <i class="fa fa-lg fa-minus-circle color-{{ group_rating }}"></i>
+                    {% elif r == 'bad' %}
+                        <i class="fa fa-lg fa-times-circle color-{{ group_rating }}"></i>
+                    {% elif r == 'neutral' %}
+                        <i class="fa fa-lg fa-question-circle color-{{ group_rating }}"></i>
+                    {% else  %}
+                        TODO
                     {% endif %}
                 {% endwith %}
+                {% endif %}
             </td>
         </tr>
     {% endfor %}
