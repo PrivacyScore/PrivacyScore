@@ -36,11 +36,10 @@
             <h2 class="text-center">Scan Running</h2>
             <p class="text-center">
             {% blocktrans count counter=scan_list.running_scans__count %}
-                {{ counter }} site
+                {{ counter }} site of this list is being scanned at the moment
             {% plural %}
-                {{ counter }} sites
+                {{ counter }} sites of this list are being scanned at the moment
             {% endblocktrans %}
-            of this list are being scanned at the moment
             </p>
             {% else %}
             <h2 class="text-center color-neutral">No Scan Running</h2>
