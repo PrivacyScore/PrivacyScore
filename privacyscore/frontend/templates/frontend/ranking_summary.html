@@ -1,0 +1,41 @@
+{% load i18n %}
+<ul class="list-unstyled">
+    <li>
+        <i class="fa fa-info-circle"></i>
+        {% blocktrans count counter=sites_count %}
+            {{ counter }} website
+        {% plural %}
+            {{ counter }} websites
+        {% endblocktrans %}
+
+        {% blocktrans count counter=sites_failures_count %}
+            (with {{ counter }} scan error)
+        {% plural %}
+            (with {{ counter }} scan errors)
+        {% endblocktrans %}
+    </li>
+    <li class="color-good">
+        <i class="fa fa-check-circle color-good"></i>
+        {% blocktrans with count=ratings_count.good %}
+        {{ count }} passed all checks
+        {% endblocktrans %}
+    </li>
+    <li class="color-warning">
+        <i class="fa fa-minus-circle color-warning"></i>
+        {% blocktrans with count=ratings_count.warning %}
+        {{ count }} with one or more issues
+        {% endblocktrans %}
+    </li>
+    <li class="color-bad">
+        <i class="fa fa-times-circle color-bad"></i>
+        {% blocktrans with count=ratings_count.bad %}
+        {{ count }} with critical issues
+        {% endblocktrans %}
+    </li>
+    <li class="color-neutral">
+        <i class="fa fa-question-circle color-neutral"></i>
+        {% blocktrans with count=ratings_count.neutral %}
+        {{ count }} could not be judged
+        {% endblocktrans %}
+    </li>
+</ul>

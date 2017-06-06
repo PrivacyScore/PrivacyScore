@@ -209,29 +209,24 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         for site in sites:
             lookup[site.ordered_column_values[group_by].value].append(site)
         groups = []
-        for column_value, sites in lookup.items():
+        for column_value, group_sites in lookup.items():
             groups.append({
                 'name': column_value,
-                'sites': enumerate(lookup[column_value], start=1)
-
+                'sites': enumerate(group_sites, start=1),
+                'sites_count': len(group_sites),
+                'sites_failures_count': _calculate_failures_count(group_sites),
+                'ratings_count': _calculate_ratings_count(group_sites)
             })
         groups.sort(key=lambda x: x['name'])
         group_attr = scan_list.ordered_columns[group_by].name
 
-
-    # TODO: use ordered dict and sort by rating ordering
-    # for now, frontend template can just use static ordering of all available ratings
-    ratings_count = dict(Counter(site.evaluated.rating.rating for site in sites))
-    for rating in ('good', 'bad', 'warning', 'neutral'):
-        if rating not in ratings_count:
-            ratings_count[rating] = 0
+    ratings_count = _calculate_ratings_count(sites)
 
     return render(request, 'frontend/view_scan_list.html', {
         'scan_list': scan_list,
         'sites_count': len(sites),
         'ratings_count': ratings_count,
-        'sites_with_failures_count': sum(
-            1 for site in sites if site.last_scan__error_count > 0),
+        'sites_failures_count': _calculate_failures_count(sites),
         'sites': enumerate(sites, start=1),
         'result_groups': [group['name'] for group in RESULT_GROUPS.values()],
         'groups': groups,
@@ -248,6 +243,20 @@ def _get_column_index(param, scan_list):
     except ValueError:
         pass
     return column_index
+
+
+def _calculate_ratings_count(sites):
+    # TODO: use ordered dict and sort by rating ordering
+    # for now, frontend template can just use static ordering of all available ratings
+    ratings_count = dict(Counter(site.evaluated.rating.rating for site in sites))
+    for rating in ('good', 'bad', 'warning', 'neutral'):
+        if rating not in ratings_count:
+            ratings_count[rating] = 0
+    return ratings_count
+
+
+def _calculate_failures_count(sites):
+    return sum(1 for site in sites if site.last_scan__error_count > 0)
 
 
 def site_screenshot(request: HttpRequest, site_id: int) -> HttpResponse:

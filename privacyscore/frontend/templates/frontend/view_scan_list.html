@@ -28,39 +28,7 @@
             <div class="spacer"></div>
             
             <h3>{% trans "Result overview" %}</h3>
-            <ul class="list-unstyled">
-                <li>
-                    <i class="fa fa-info-circle"></i>
-                    {% blocktrans count counter=sites_count %}
-                        {{ counter }} website
-                    {% plural %}
-                        {{ counter }} websites
-                    {% endblocktrans %}
-
-                    {% blocktrans count counter=sites_with_failures_count %}
-                        (with {{ counter }} scan error)
-                    {% plural %}
-                        (with {{ counter }} scan errors)
-                    {% endblocktrans %}
-                </li>
-
-                <li class="color-good">
-                    <i class="fa fa-check-circle color-good"></i>
-                    {{ ratings_count.good }} passed all checks
-                </li>
-                <li class="color-warning">
-                    <i class="fa fa-minus-circle color-warning"></i>
-                    {{ ratings_count.warning }} with one or more issues
-                </li>
-                <li class="color-bad">
-                    <i class="fa fa-times-circle color-bad"></i>
-                    {{ ratings_count.bad }} with critical issues
-                </li>
-                <li class="color-neutral">
-                    <i class="fa fa-question-circle color-neutral"></i>
-                    {{ ratings_count.neutral }} could not be judged
-                </li>
-            </ul>
+            {% include 'frontend/ranking_summary.html' with sites_count=sites_count sites_failures_count=sites_failures_count ratings_count=ratings_count %}
         </div>
         <div class="col-md-4">
 
@@ -103,6 +71,7 @@
     {% if groups %}
         {% for group in groups %}
         <h4>{{ group.name }}</h4>
+        {% include 'frontend/ranking_summary.html' with sites_count=group.sites_count sites_failures_count=group.sites_failures_count ratings_count=group.ratings_count %}
         {% include "frontend/ranking_list.html" with site_list=site_list sites=group.sites %}
         {% endfor %}
     {% else %}
