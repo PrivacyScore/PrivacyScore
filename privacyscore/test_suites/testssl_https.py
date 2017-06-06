@@ -84,7 +84,8 @@ def _detect_hsts(data: dict) -> dict:
     # Look for HSTS Preload header
     result['web_has_hsts_preload_header'] = False
     if hsts_preload_item is not None:
-        result['web_has_hsts_preload_header'] = hsts_preload_item['severity'] != 'HIGH'
+        print("HSTS_PRELOAD_HEADER_FOUND:",hsts_preload_item['severity'],hsts_preload_item['finding'])
+        result['web_has_hsts_preload_header'] = hsts_preload_item['severity'] == 'OK'
 
     # Look for HSTS header
     result['web_has_hsts_header'] = False
@@ -110,7 +111,7 @@ def _detect_hsts(data: dict) -> dict:
     else:
         # Found
         result["web_has_hsts_preload"] = True
-
+    print("WEB_HAS_HSTS_PRELOAD =",result["web_has_hsts_preload"])
     return result
 
 

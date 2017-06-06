@@ -37,10 +37,13 @@ def parse_common_testssl(json: str, prefix: str):
     # Detect if cert is valid
     trust_cert = None
     trust_chain = None
+    trust_pat = re.compile(r'(^trust$)|(.*? trust)')
+    chain_pat = re.compile(r'.*?chain_of_trust$')
+    # TODO If a server uses more than one certificate, this code will validate only the last one.
     for default in json['scanResult'][0]['serverDefaults']:
-        if default['id'] == 'trust':
+        if trust_pat.search(default['id']) is not None:
             trust_cert = default
-        elif default['id'] == 'chain_of_trust':
+        elif chain_pat.search(default['id']) is not None:
             trust_chain = default
     assert trust_cert is not None
     assert trust_chain is not None
