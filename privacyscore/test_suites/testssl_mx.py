@@ -33,7 +33,7 @@ def test_site(url: str, previous_results: dict, remote_host: str = None) -> Dict
 
 def process_test_data(raw_data: list, previous_results: dict, remote_host: str = None) -> Dict[str, Dict[str, object]]:
     """Process the raw data of the test."""
-    if raw_data['jsonresult']['data'] is b'':
+    if raw_data['jsonresult']['data'] == b'':
         return {}
 
     data = json.loads(
