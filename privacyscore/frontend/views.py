@@ -279,11 +279,11 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     site.save(update_fields=('views',))
     
     num_scans = Scan.objects.filter(site_id=site.pk).count()
-    site_lists = SiteList.objects.filter(sites=site.pk)
+    scan_lists = ScanList.objects.filter(sites=site.pk)
     
     return render(request, 'frontend/view_site.html', {
         'site': site,
-        'site_lists': site_lists,
+        'scan_lists': scan_lists,
         'num_scans': num_scans,
         # TODO: groups not statically
         'groups_descriptions': (
