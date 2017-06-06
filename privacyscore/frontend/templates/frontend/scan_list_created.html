@@ -1,20 +1,33 @@
 {% extends "frontend/base.html" %}
 {% load i18n %}
+{% load static %}
 
 {% block title %}{% trans 'List created' %}{% endblock %}
 
 {% block content %}
-<h2>{% trans "List created successfully!" %}</h2>
 
-<p>{% trans "Your scan has been added to queue and will be executed soon." %}</p>
+<div style="margin-top: 60px;" class="row">
+    <div class="col-md-3">
+        <img src="{% static 'frontend/img/privacy-rex.png' %}">
+        
+        <div style="width:100%"><a class="btn btn-primary" href="{% url 'frontend:view_scan_list' scan_list.pk %}">{% trans "Go to the Scan Results Page" %}</a>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <h1>{% trans "Success!" %}</h1>
 
-<p>{% trans "If you want to edit your list later on, remember the following access token:" %}</p>
+        <h3>{% trans "Your scan has been added to our scanning queue." %}</h3>
+        <p>We are running multiple scanning machines that perform periodic rescans of all existing lists. If the queue is empty, the first results are 1–2 minutes after submitting the scan.</p>
 
-<p class="group-box" style="width:auto;">
-    <strong>{{ scan_list.token }}</strong>
-</p>
+        <div class="spacer"></div>
+        <hr>
 
-<p>
-    <a class="btn btn-primary" href="{% url 'frontend:view_scan_list' scan_list.pk %}">{% trans "Go to list" %}</a>
-</p>
+        <p>{% trans "If you want to edit your list later on, remember the following access token:" %}</p>
+
+        <p class="group-box" style="width:auto;">
+            <strong>{{ scan_list.token }}</strong>
+        </p>
+    </div>
+</div>
+
 {% endblock %}
