@@ -682,6 +682,7 @@ CHECKS['ssl']['web_vuln_secure_client_renego'] = {
     'rating': lambda **keys: {
         'description': _('The server may be vulnerable to the Secure Client Re-Negotiation attack.'),
         'classification': Rating('bad'),
+        'finding': keys["web_vulnerabilities"].get('sec_client_renego')['finding']
     } if keys["web_vulnerabilities"].get('sec_client_renego') else {
         'description': _('The server is secure against the Secure Client Re-Negotiation attack.'),
         'classification': Rating('good'),
@@ -699,6 +700,7 @@ CHECKS['ssl']['web_vuln_crime'] = {
     'rating': lambda **keys: {
         'description': _('The server may be vulnerable to the CRIME attack.'),
         'classification': Rating('bad'),
+        'finding': keys["web_vulnerabilities"].get('drown')['finding']
     } if keys["web_vulnerabilities"].get('crime') else {
         'description': _('The server is secure against the CRIME attack.'),
         'classification': Rating('good'),
@@ -716,6 +718,7 @@ CHECKS['ssl']['web_vuln_breach'] = {
     'rating': lambda **keys: {
         'description': _('The server may be vulnerable to the BREACH attack.'),
         'classification': Rating('bad'),
+        'finding': keys["web_vulnerabilities"].get('breach')['finding']
     } if keys["web_vulnerabilities"].get('breach') else {
         'description': _('The server is secure against the BREACH attack.'),
         'classification': Rating('good'),
@@ -733,6 +736,7 @@ CHECKS['ssl']['web_vuln_poodle'] = {
     'rating': lambda **keys: {
         'description': _('The server may be vulnerable to the POODLE attack.'),
         'classification': Rating('bad'),
+        'finding': keys["web_vulnerabilities"].get('poodle_ssl')['finding']
     } if keys["web_vulnerabilities"].get('poodle_ssl') else {
         'description': _('The server is secure against the POODLE attack.'),
         'classification': Rating('good'),
@@ -750,6 +754,7 @@ CHECKS['ssl']['web_vuln_sweet32'] = {
     'rating': lambda **keys: {
         'description': _('The server may be vulnerable to the SWEET32 attack.'),
         'classification': Rating('bad'),
+        'finding': keys["web_vulnerabilities"].get('sweet32')['finding']
     } if keys["web_vulnerabilities"].get('sweet32') else {
         'description': _('The server is secure against the SWEET32 attack.'),
         'classification': Rating('good'),
@@ -767,6 +772,7 @@ CHECKS['ssl']['web_vuln_freak'] = {
     'rating': lambda **keys: {
         'description': _('The server may be vulnerable to the FREAK attack.'),
         'classification': Rating('bad'),
+        'finding': keys["web_vulnerabilities"].get('freak')['finding']
     } if keys["web_vulnerabilities"].get('freak') else {
         'description': _('The server is secure against the FREAK attack.'),
         'classification': Rating('good'),
@@ -784,6 +790,7 @@ CHECKS['ssl']['web_vuln_drown'] = {
     'rating': lambda **keys: {
         'description': _('The server may be vulnerable to the DROWN attack.'),
         'classification': Rating('bad'),
+        'finding': keys["web_vulnerabilities"].get('drown')['finding']
     } if keys["web_vulnerabilities"].get('drown') else {
         'description': _('The server is secure against the DROWN attack.'),
         'classification': Rating('good'),
@@ -801,6 +808,7 @@ CHECKS['ssl']['web_vuln_logjam'] = {
     'rating': lambda **keys: {
         'description': _('The server may be vulnerable to the LOGJAM attack.'),
         'classification': Rating('bad'),
+        'finding': keys["web_vulnerabilities"].get('logjam')['finding']
     } if keys["web_vulnerabilities"].get('logjam') else {
         'description': _('The server is secure against the LOGJAM attack.'),
         'classification': Rating('good'),
@@ -818,6 +826,7 @@ CHECKS['ssl']['web_vuln_beast'] = {
     'rating': lambda **keys: {
         'description': _('The server may be vulnerable to the BEAST attack.'),
         'classification': Rating('bad'),
+        'finding': keys["web_vulnerabilities"].get('beast')['finding']
     } if keys["web_vulnerabilities"].get('beast') else {
         'description': _('The server is secure against the BEAST attack.'),
         'classification': Rating('good'),
@@ -835,6 +844,7 @@ CHECKS['ssl']['web_vuln_lucky13'] = {
     'rating': lambda **keys: {
         'description': _('The server may be vulnerable to the LUCKY13 attack.'),
         'classification': Rating('bad'),
+        'finding': keys["web_vulnerabilities"].get('lucky13')['finding']
     } if keys["web_vulnerabilities"].get('lucky13') else {
         'description': _('The server is secure against the LUCKY13 attack.'),
         'classification': Rating('good'),
@@ -852,6 +862,7 @@ CHECKS['ssl']['web_vuln_rc4'] = {
     'rating': lambda **keys: {
         'description': _('The server supports the outdated and insecure RC4 cipher.'),
         'classification': Rating('bad'),
+        'finding': keys["web_vulnerabilities"].get('rc4')['finding']
     } if keys["web_vulnerabilities"].get('rc4') else {
         'description': _('The server does not support the outdated and insecure RC4 cipher.'),
         'classification': Rating('good'),
