@@ -700,7 +700,7 @@ CHECKS['ssl']['web_vuln_crime'] = {
     'rating': lambda **keys: {
         'description': _('The server may be vulnerable to the CRIME attack.'),
         'classification': Rating('bad'),
-        'finding': keys["web_vulnerabilities"].get('drown')['finding']
+        'finding': keys["web_vulnerabilities"].get('crime')['finding']
     } if keys["web_vulnerabilities"].get('crime') else {
         'description': _('The server is secure against the CRIME attack.'),
         'classification': Rating('good'),
