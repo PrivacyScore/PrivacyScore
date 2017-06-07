@@ -30,10 +30,11 @@ class ScanListQuerySet(models.QuerySet):
         return self.annotate(
             last_scan__end=RawSQL('''
                 SELECT
-                    MAX({Scan}."end")
-                FROM {Scan}, {Site_ScanLists}
+                    MAX("{Scan}"."end")
+                FROM "{Scan}", "{Site_ScanLists}"
                 WHERE
-                    {Scan}."site_id" = {Site_ScanLists}."site_id"
+                    "{Scan}"."site_id" = "{Site_ScanLists}"."site_id" AND
+                    "{Site_ScanLists}"."scanlist_id" = "{ScanList}"."id"
                 '''.format(
                     Scan=Scan._meta.db_table,
                     Site_ScanLists=Site.scan_lists.through._meta.db_table,
