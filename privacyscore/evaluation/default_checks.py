@@ -329,8 +329,8 @@ CHECKS['ssl']['site_redirects_to_https'] = {
         'classification': Rating('neutral'),
         'details_list': None,
     } if keys["https"] else {
-        'description': _('The webserver does not offer a well-configured HTTPS.'),
-        'classification': Rating('critical'),
+        'description': _('Not testing for forward to HTTPS, as the webserver does not offer a well-configured HTTPS.'),
+        'classification': Rating('neutral'),
         'details_list': None,
     },
     'missing': {
