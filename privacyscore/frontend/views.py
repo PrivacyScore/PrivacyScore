@@ -1,5 +1,6 @@
 from collections import Counter, defaultdict
 from typing import Union
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib import messages
@@ -197,6 +198,14 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
             category_order.append(category)
     if len(category_order) != 4:
         category_order = ['ssl', 'mx', 'privacy', 'security']
+    if ','.join(category_order) != request.GET.get('categories'):
+        url_params = request.GET.copy()
+        url_params.update({
+            'categories': ','.join(category_order),
+        })
+        return redirect('{}?{}'.format(
+            reverse('frontend:view_scan_list', args=(scan_list_id,)),
+            urlencode(url_params)))
     category_names = [{
         'short_name': RESULT_GROUPS[category]['short_name'],
         'long_name': RESULT_GROUPS[category]['long_name'],
