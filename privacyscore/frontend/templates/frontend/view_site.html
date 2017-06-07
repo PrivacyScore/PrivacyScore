@@ -50,7 +50,7 @@ table.dataTable thead .sorting_desc_disabled
 
 {% block content %}
 
-<div class="row" style="margin-top:40px">
+<div class="row" style="margin-top:20px">
     <div class="col-xs-12">
         <div>
             <h2><small>SHOWING RESULTS FOR</small><br>
@@ -68,20 +68,28 @@ table.dataTable thead .sorting_desc_disabled
             <span class="pull-right"><span>LAST SCAN</span>&nbsp; <span style="color: white">{{ site.last_scan.start|date:"Y-m-d @ H:i:s" }} – {{ site.last_scan.end|date:"H:i:s" }}</span></span></div>
         
         <div class="group-box" style="border: 2px solid #888; background: #eee">
+            <p>TODO RATINGS NOT APPLIED YET</p>
             <div class="row">
-                <div class="col-xs-6 col-sm-3 text-center bg-warning">
-                    1
+                <div class="col-xs-6 col-sm-3 text-center">
+                    <img class="img img-responsive centered"
+                    style="max-width: 70px; border-radius: 3px; background-color: #E02C2C; display: inline-block;" src="{% static 'frontend/img/security2.png' %}" alt="">
+                    <p style="font-size: 1em; line-height: 1.2em; font-weight: 700; color: #E02C2C;"><small>WEB TRAFFIC</small><br>INSECURE CONFIG</p>
                 </div>
-                <div class="col-xs-6 col-sm-3 text-center bg-warning">
-                    1
+                <div class="col-xs-6 col-sm-3 text-center">
+                    <img class="img img-responsive centered"
+                    style="max-width: 70px; border-radius: 3px; background-color: #E02C2C; display: inline-block;" src="{% static 'frontend/img/security2.png' %}" alt="">
+                    <p style="font-size: 1em; line-height: 1.2em; font-weight: 700; color: #E02C2C;"><small>WEB TRACKING</small><br>DETECTED</p>
                 </div>
-                <div class="col-xs-6 col-sm-3 text-center bg-warning">
-                    1
+                <div class="col-xs-6 col-sm-3 text-center">
+                    <img class="img img-responsive centered"
+                    style="max-width: 70px; border-radius: 3px; background-color: #E02C2C; display: inline-block;" src="{% static 'frontend/img/security2.png' %}" alt="">
+                    <p style="font-size: 1em; line-height: 1.2em; font-weight: 700; color: #E02C2C;"><small>WEB ATTACKS</small><br>NOT PREVENTED</p>
                 </div>
-                <div class="col-xs-6 col-sm-3 text-center bg-warning">
-                    1
+                <div class="col-xs-6 col-sm-3 text-center">
+                    <img class="img img-responsive centered"
+                    style="max-width: 70px; border-radius: 3px; background-color: #E02C2C; display: inline-block;" src="{% static 'frontend/img/security2.png' %}" alt="">
+                    <p style="font-size: 1em; line-height: 1.2em; font-weight: 700; color: #E02C2C;"><small>MAIL TRAFFIC</small><br>SECURE CONFIG</p>
                 </div>
-                
             </div>
             
         </div>
@@ -123,6 +131,7 @@ table.dataTable thead .sorting_desc_disabled
             </div>
             <div class="col-sm-12">
                 
+                
                 {% for group, descriptions in groups_descriptions %}
                   <h3>{{ group }}</h3>
 
@@ -134,10 +143,6 @@ table.dataTable thead .sorting_desc_disabled
                 
             </div>
         </div>
-        
-        
-        
-        
     </div>
     <div class="col-xs-12 col-sm-4 col-md-4 text-center">
         

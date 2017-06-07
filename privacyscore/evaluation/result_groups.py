@@ -13,14 +13,14 @@ from django.utils.translation import ugettext_lazy as _
 # TODO: Replace by dynamic user-defined groups
 RESULT_GROUPS = OrderedDict()
 RESULT_GROUPS['ssl'] = {
-    'name': _('Encryption of Web Traffic'),
+    'name': _('EncWeb: Encryption of Web Traffic'),
 }
 RESULT_GROUPS['mx'] = {
-    'name': _('Encryption of Mail Traffic'),
+    'name': _('EncMail: Encryption of Mail Traffic'),
 }
 RESULT_GROUPS['privacy'] = {
-    'name': _('Tracking by Website and Third Parties'),
+    'name': _('NoTrack: No Tracking by Website and Third Parties'),
 }
 RESULT_GROUPS["security"] = {
-	'name': _('Protection Against Various Attacks')
+	'name': _('Attacks: Protection Against Various Attacks')
 }
