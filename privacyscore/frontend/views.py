@@ -144,14 +144,18 @@ def scan_list(request: HttpRequest) -> HttpResponse:
 
 def scan_list_created(request: HttpRequest, token: str) -> HttpResponse:
     scan_list = get_object_or_404(ScanList, token=token)
+    num_scanning_sites = Scan.objects.filter(end__isnull=True).count()
     return render(request, 'frontend/scan_list_created.html', {
-        'scan_list': scan_list
+        'scan_list': scan_list,
+        'num_scanning_sites': num_scanning_sites
     })
 
 def scan_site_created(request: HttpRequest, site_id: int) -> HttpResponse:
     site = get_object_or_404(Site, pk=site_id)
+    num_scanning_sites = Scan.objects.filter(end__isnull=True).count()
     return render(request, 'frontend/scan_site_created.html', {
-        'site': site
+        'site': site,
+        'num_scanning_sites': num_scanning_sites
     })
 
 
@@ -166,8 +170,11 @@ def scan_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         pk=scan_list_id)
     was_any_site_scannable = scan_list.scan()
     if was_any_site_scannable:
+        num_scanning_sites = Scan.objects.filter(end__isnull=True).count()
         messages.success(request,
-            _('Scans for the sites on this list have been scheduled.'))
+            _("Scans for this list have been scheduled. "+ \
+              "The total number of sites in the scanning queue "+ \
+              "is %i (including yours)." % num_scanning_sites))
     else:
         messages.warning(request,
             _('All sites have been scanned recently. Please wait 30 minutes and try again.'))
@@ -477,8 +484,11 @@ def scan_site(request: HttpRequest, site_id: Union[int, None] = None) -> HttpRes
         if not site_id: # if the site is new we want to show the dog
             return redirect(reverse('frontend:scan_site_created', args=(site.pk,)))
         else:
+            num_scanning_sites = Scan.objects.filter(end__isnull=True).count()
             messages.success(request,
-                _('Scan of the site has been scheduled.'))
+                _("Scan of the site has been scheduled. "+ \
+                  "The total number of sites in the scanning queue "+ \
+                  "is %i (including yours)." % num_scanning_sites))
             return redirect(reverse('frontend:view_site', args=(site.pk,)))
     else:
         messages.warning(request,

@@ -18,8 +18,16 @@
 
         <h3>{% trans "Your scan has been added to our scanning queue." %}</h3>
         <p>We are running multiple scanning machines that perform periodic re-scans of all sites in our database. If the queue is empty, you can expect the first results to arrive after 1–2 minutes.</p>
+        
+        <p>Currently, there
+            {% blocktrans count counter=num_scanning_sites %}
+                is <strong> {{ counter }} site</strong>
+            {% plural %}
+                are <strong> {{ counter }} sites</strong>
+            {% endblocktrans %}
+             in the scanning queue (including yours).
+         </p>
 
-        <div class="spacer"></div>
         <hr>
 
         <p class="text-center">{% trans "If you want to edit your list later on, remember the following access token:" %}</p>
