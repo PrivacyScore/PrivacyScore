@@ -66,14 +66,21 @@
             
             <form method="POST" action="{% url 'frontend:scan_scan_list' scan_list.pk %}">
                 {% csrf_token %}
-                <button type="submit"
-                    class="btn btn-default btn-primary btn-lg" role="button"
-                    id="scan_again" style="width:100%; margin-top:40px">
-                    Re-scan all sites now
-                </button>
+                <p>
+                    <button type="submit"
+                        class="btn btn-default btn-primary btn-lg" role="button"
+                        id="scan_again" style="width:100%; margin-top:40px">
+                        Re-scan all sites now
+                    </button>
+                </p>
             </form>
-            
-            
+
+            <p>
+                <a class="btn btn-default" href="{% url 'frontend:scan_list_csv' scan_list.pk %}" style="width:100%;">
+                    {% trans "Download List as CSV" %}
+                </a>
+            </p>
+
             {% if scan_list.running_scans__count > 0 %}
             <h3 class="text-center"><small>SCAN IN PROGRESS</small></h3>
             <p class="text-center">
