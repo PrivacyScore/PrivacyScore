@@ -228,18 +228,16 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     sites = cache.get('scan_list_{}:evaluated_sites'.format(scan_list.pk))
     if sites is None:
         sites = scan_list.sites.annotate_most_recent_scan_end() \
-            .annotate_most_recent_scan_error_count().prefetch_last_scan() \
+            .annotate_most_recent_scan_error_count().annotate_most_recent_scan_result() \
             .prefetch_column_values(scan_list)
+
         # add evaluations to sites
         for site in sites:
             site.evaluated = UnrateableSiteEvaluation()
-            if not site.last_scan:
+            if not site.last_scan__result:
                 continue
-            result = site.last_scan.result_or_none
-            if not result:
-                continue
-            site.result = result
-            site.evaluated = result.evaluate(category_order)[0]
+            site.result = site.last_scan__result
+            site.evaluated = site.evaluate(category_order)[0]
 
         cache.set(
             'scan_list_{}:evaluated_sites'.format(scan_list.pk),
@@ -364,8 +362,9 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     """View a site and its most recent scan result (if any)."""
     site = get_object_or_404(
         Site.objects.annotate_most_recent_scan_end_or_null() \
-        .annotate_most_recent_scan_end().annotate_most_recent_scan_start(). \
-        prefetch_last_scan(), pk=site_id)
+        .annotate_most_recent_scan_end().annotate_most_recent_scan_start() \
+        .annotate_most_recent_scan_result(),
+        pk=site_id)
     site.views = F('views') + 1
     site.save(update_fields=('views',))
     
@@ -375,11 +374,10 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     # evaluate site
     site.evaluated = UnrateableSiteEvaluation()
     results = {}
-    if site.last_scan and site.last_scan.result_or_none:
-        the_result = site.last_scan.result_or_none
-        results = the_result.result
+    if site.last_scan__result:
+        results = site.last_scan__result
         category_order = ['ssl', 'mx', 'privacy', 'security']
-        site.evaluated = the_result.evaluate(category_order)[0]
+        site.evaluated = site.evaluate(category_order)[0]
     
     # store other attributes needed to show
     res = {}
@@ -403,8 +401,8 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
         # TODO: groups not statically
         'groups_descriptions': (
             (RESULT_GROUPS[group]['name'], val) for group, val in
-            site.last_scan.result_or_none.evaluate(['privacy', 'security', 'ssl', 'mx'])[1].items()
-        ) if site.last_scan and site.last_scan.result_or_none else None,
+            site.evaluate(['privacy', 'security', 'ssl', 'mx'])[1].items()
+        ) if site.last_scan__result else None,
     })
 
 
