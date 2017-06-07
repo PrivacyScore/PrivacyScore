@@ -13,7 +13,7 @@ def test_site(url: str, previous_results: dict, remote_host: str = None) -> Dict
     # test first mx
     try:
         hostname = previous_results['mx_records'][0][1]
-    except KeyError:
+    except KeyError, IndexError:
         return {
             'jsonresult': {
                 'mime_type': 'application/json',
