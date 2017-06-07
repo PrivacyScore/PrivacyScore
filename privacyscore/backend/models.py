@@ -196,7 +196,7 @@ class SiteQuerySet(models.QuerySet):
                 FROM "{Scan}"
                 WHERE
                     site_id={Site}."id"
-                ORDER BY "site_id", "end" NULLS FIRST
+                ORDER BY "site_id", "end" DESC NULLS FIRST
                 '''.format(
                     Scan=Scan._meta.db_table,
                     Site=Site._meta.db_table,
