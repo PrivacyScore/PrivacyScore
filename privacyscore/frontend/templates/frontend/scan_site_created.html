@@ -10,7 +10,7 @@
     <div class="col-lg-push-0 col-lg-3 col-md-3 col-md-push-0 col-sm-4 col-sm-push-0 col-xs-6 col-xs-push-3 text-center">
         <img style="margin-top:17px; width:80%" src="{% static 'frontend/img/privacy-rex-cropped.png' %}">
         
-        <div style="margin-top:2px; width:100%"><a class="btn btn-primary" href="{% url 'frontend:view_scan_list' scan_list.pk %}">{% trans "Go to the Scan Results Page" %}</a>
+        <div style="margin-top:2px; width:100%"><a class="btn btn-primary" href="{% url 'frontend:view_site' site.pk %}">{% trans "Go to the Scan Results Page" %}</a>
         </div>
     </div>
     <div class="col-lg-6 col-lg-push-0 col-md-6 col-md-push-0 col-sm-8 col-sm-push-0 col-xs-10 col-xs-push-1">
@@ -19,14 +19,6 @@
         <h3>{% trans "Your scan has been added to our scanning queue." %}</h3>
         <p>We are running multiple scanning machines that perform periodic re-scans of all sites in our database. If the queue is empty, you can expect the first results to arrive after 1–2 minutes.</p>
 
-        <div class="spacer"></div>
-        <hr>
-
-        <p class="text-center">{% trans "If you want to edit your list later on, remember the following access token:" %}</p>
-
-        <p class="group-box text-center" style="width:100%;  word-wrap:break-word;">
-            <strong>{{ scan_list.token }}</strong>
-        </p>
     </div>
 </div>
 

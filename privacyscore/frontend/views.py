@@ -141,6 +141,12 @@ def scan_list_created(request: HttpRequest, token: str) -> HttpResponse:
         'scan_list': scan_list
     })
 
+def scan_site_created(request: HttpRequest, site_id: int) -> HttpResponse:
+    site = get_object_or_404(Site, pk=site_id)
+    return render(request, 'frontend/scan_site_created.html', {
+        'site': site
+    })
+
 
 def scan_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     """Schedule the scan of a scan list."""
@@ -410,8 +416,12 @@ def scan_site(request: HttpRequest, site_id: Union[int, None] = None) -> HttpRes
                 'form': form,
             })
     if site.scan():
-        messages.success(request,
-            _('Scan of the site has been scheduled.'))
+        if not site_id: # if the site is new we want to show the dog
+            return redirect(reverse('frontend:scan_site_created', args=(site.pk,)))
+        else:
+            messages.success(request,
+                _('Scan of the site has been scheduled.'))
+            return redirect(reverse('frontend:view_site', args=(site.pk,)))
     else:
         messages.warning(request,
             _('The site has been scanned recently. No scan was scheduled.'))
