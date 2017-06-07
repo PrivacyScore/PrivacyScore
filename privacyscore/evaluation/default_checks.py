@@ -294,7 +294,7 @@ CHECKS['ssl']['https_scan_failed'] = {
     'keys': {'web_scan_failed'},
     'rating': lambda **keys: {
         'description': _('The SSL scan experienced an unexpected error. Please rescan and contact us if the problem persists.'),
-        'classification': Rating('neutral'),
+        'classification': Rating('neutral', devaluates_group=True),
         'details_list': None,
     } if keys['web_scan_failed'] else None,
     'missing': None,
@@ -311,7 +311,7 @@ CHECKS['ssl']['https_scan_finished'] = {
     } if keys['web_ssl_finished'] and not keys['web_has_ssl'] else None,
     'missing': {
         'description': _('The SSL scan experienced a problem and had to be aborted, some SSL checks were not performed.'),
-        'classification': Rating('neutral'),
+        'classification': Rating('neutral', devaluates_group=True),
         'details_list': None
     },
 }
