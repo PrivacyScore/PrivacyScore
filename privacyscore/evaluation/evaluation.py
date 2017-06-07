@@ -57,6 +57,7 @@ def evaluate_group(group: str, result: dict) -> GroupEvaluation:
             res = data['missing']
         if not res:
             continue
+        
         classifications.append(res['classification'])
-        descriptions.append((res['description'], res['classification']))
+        descriptions.append((res['description'], data.get('title'), data.get('longdesc'), res['classification']))
     return GroupEvaluation(classifications), descriptions # sorted(descriptions, key=lambda k: k[1])

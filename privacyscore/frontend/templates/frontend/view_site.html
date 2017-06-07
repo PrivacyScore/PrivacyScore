@@ -5,13 +5,17 @@
 {% block title %}Results for {{ site.url }}{% endblock title %}
 
 {% block additional_js %}
-  <script src="{% static 'frontend/js/buttons.colVis.js' %}"></script>
-  <script src="{% static 'frontend/js/buttons.html5.js' %}"></script>
-  <script src="{% static 'frontend/js/pdfmake.min.js' %}"></script>
-  <script src="{% static 'frontend/js/jszip.min.js' %}"></script>
-  <script src="{% static 'frontend/js/vfs_fonts.js' %}"></script>
-  <script src="{% static 'frontend/js/d3.v4.min.js' %}" type="text/javascript"></script>
-  <script src="{% static 'frontend/js/diagram.js' %}" type="text/javascript"></script>
+  <!-- TODO -->
+  <script>
+      function toggleIcon(e) {
+          $(e.target)
+              .prev('.panel-heading')
+              .find(".more-less")
+              .toggleClass('glyphicon-plus glyphicon-minus');
+      }
+      $('.panel-group').on('hidden.bs.collapse', toggleIcon);
+      $('.panel-group').on('shown.bs.collapse', toggleIcon);
+  </script>
 {% endblock additional_js %}
 
 {% block additional_css %}
@@ -191,11 +195,49 @@ table.dataTable thead .sorting_desc_disabled
                 
                 
                 {% for group, descriptions in groups_descriptions %}
-                  <h3>{{ group }}</h3>
-
-                  {% for description, classification in descriptions %}
-                    <p class="description-{{ classification }}">{{ description }}</p>
-                  {% endfor %}
+                {% with forloop.counter as outerCounter %}
+                
+                <h3>{{ group }} {{ outerCounter }}</h3>
+                
+                <!-- panel group begin -->
+                <div class="panel-group" id="accordion{{ outerCounter }}" role="tablist" aria-multiselectable="true">
+                    <!-- panel group end -->
+                
+                    {% for description, title, longdesc, classification in descriptions %}
+                    {% with forloop.counter as innerCounter %}
+                    <!--<p class="description-{{ classification }}">{{ description }}</p>-->
+                    
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="heading{{ outerCounter }}_{{ innerCounter }}">
+                            <h3 class="panel-title">
+                                <a role="button" data-toggle="collapse" data-parent="#accordion{{ outerCounter }}" href="#collapse{{ outerCounter }}_{{ innerCounter }}" aria-expanded="true" aria-controls="collapse{{ outerCounter }}_{{ innerCounter }}">
+                                    
+                                    <div class="row" style="display: flex;    align-items: center;">
+                                        <div class="col col-xs-1">
+                                            <span class="glyphicon glyphicon-ok-sign" style="color:#44AF69;font-size:1.0em;" aria-hidden="true"></span>
+                                        </div>
+                                        <div class="col col-xs-9">
+                                            <p><strong>{{ title }}</strong> <span class="badge badge-info" style="background-color: #dddddd; color: #888888;">shallow</span></p>
+                                            <p>{{ classification }}: {{ description }}</p>
+                                        </div>
+                                        <div style="vborder: 1px solid green" class="col col-xs-1"><i class="more-less glyphicon glyphicon-plus"></i></div>
+                                    </div>
+                                    
+                                </a>
+                            </h3>
+                        </div>
+                        <div id="collapse{{ outerCounter }}_{{ innerCounter }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{ outerCounter }}_{{ innerCounter }}">
+                            <div class="panel-body">
+                                {{ longdesc|safe }}
+                                <button class="btn pull-right" style="background-color: #ffffff; color:#aaaaaa" data-toggle="modal" data-target=".bd-example-modal-lg">Feedback</button>.
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                    {% endfor %}
+                  
+                </div>
+                {% endwith %}
                 {% endfor %}
                 
                 

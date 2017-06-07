@@ -1129,3 +1129,22 @@ CHECKS['mx']['mx_secure_protocols_tls1_2'] = {
     },
     'missing': None,
 }
+
+
+CHECKS['ssl']['web_insecure_protocols_sslv2']['title']=\
+CHECKS['mx']['mx_insecure_protocols_sslv2']['title']=\
+    'HTTPS-SSL20: Check that insecure SSL 2.0 is not offered'
+
+CHECKS['ssl']['web_insecure_protocols_sslv2']['longdesc']=\
+CHECKS['mx']['mx_insecure_protocols_sslv2']['longdesc']=\
+    '''
+    <p>SSL 2.0 is a deprecated encryption protocol with known vulnerabilities. For instance, it uses the MD5 hash algorithm, whose collision resistance has been broken.</p>
+
+    <p><strong>Conditions for passing:</strong> Test passes if the server does not offer the SSL 2.0 protocol. Neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+
+    <p><strong>Reliability:</strong> reliable.</p>
+
+    <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+
+    <p>Scan Module: testssl</p>
+    '''
