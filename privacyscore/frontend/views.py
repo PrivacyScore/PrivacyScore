@@ -382,12 +382,12 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     # store other attributes needed to show
     res = {}
     
-    res['final_url'] = results.get('final_url', _('(error during scan)'))
+    res['final_url'] = results.get('final_url', '–')
 
     if results.get('mx_records') and results.get('mx_records')[0] and results.get('mx_records')[0][1]:
         mxrec = results.get('mx_records')[0][1]
     else:
-        mxrec = _('(no mx records found)')
+        mxrec = _('(no mx records found or scan not finished)')
      
     res['mx_record'] = mxrec
     
