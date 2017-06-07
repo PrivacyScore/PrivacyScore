@@ -190,35 +190,16 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     else:
         config_form = ConfigurationForm(initial=config_initial)
 
-    categories = {
-        'ssl': {
-            'short_name': _('EncWeb'),
-            'long_name': _('Encryption of Web Traffic')
-        },
-        'mx': {
-            'short_name': _('EncMail'),
-            'long_name': _('Encryption of Mail Traffic'),
-        },
-        'privacy': {
-            'short_name': _('NoTrack'),
-            'long_name': _('No Tracking by Website and Third Parties')
-        },
-        'security': {
-            'short_name': _('Attacks'),
-            'long_name': _('Protections Against Various Attacks'),
-        }
-    }
-
     category_order = []
     for category in request.GET.get('categories', '').split(','):
         category = category.strip()
-        if category in categories:
+        if category in RESULT_GROUPS:
             category_order.append(category)
     if len(category_order) != 4:
         category_order = ['ssl', 'mx', 'privacy', 'security']
     category_names = [{
-        'short_name': categories[category]['short_name'],
-        'long_name': categories[category]['long_name'],
+        'short_name': RESULT_GROUPS[category]['short_name'],
+        'long_name': RESULT_GROUPS[category]['long_name'],
         'left': ','.join(_move_element(category_order, category, -1)),
         'right': ','.join(_move_element(category_order, category, 1))
     } for category in category_order]
