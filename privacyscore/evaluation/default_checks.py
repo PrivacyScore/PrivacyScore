@@ -362,20 +362,20 @@ CHECKS['ssl']['web_cert'] = {
 # no: neutral (as it may still happen, we're not yet explicitly checking the HTTP version)
 # TODO Explicitly check http://-version and see if we are being forwarded, even if user provided https://-version
 CHECKS['ssl']['site_redirects_to_https'] = {
-    'keys': {'redirected_to_https', 'https', 'final_https_url', 'web_has_ssl', 'web_cert_trusted'},
+    'keys': {'redirected_to_https', 'https', 'final_https_url', 'web_has_ssl', 'web_cert_trusted', 'url'},
     'rating': lambda **keys: {
         'description': _('The website redirects visitors to the secure (HTTPS) version.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['redirected_to_https'] else {
+        'description': _('Not checking if websites automatically redirects to HTTPS version, as the provided URL already was HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None,
+    } if keys["url"].startswith('https') else{
         'description': _('The website does not redirect visitors to the secure (HTTPS) version, even though one is available.'),
         'classification': Rating('critical'),
         'details_list': None,
     } if not keys['redirected_to_https'] and keys["web_has_ssl"] and keys['web_cert_trusted'] else {
-        'description': _('Not checking if websites automatically redirects to HTTPS version, as the provided URL already was HTTPS.'),
-        'classification': Rating('neutral'),
-        'details_list': None,
-    } if keys["https"] else {
         'description': _('Not testing for forward to HTTPS, as the webserver does not offer a well-configured HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None,
