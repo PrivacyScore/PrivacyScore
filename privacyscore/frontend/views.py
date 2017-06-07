@@ -1,20 +1,25 @@
 import csv
+import json
+import re
 from collections import Counter, defaultdict
 from typing import Iterable, Union
 from urllib.parse import urlencode
 
-import re
 from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.db.models import Count, F, Prefetch, Q
-from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
+from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 from django import forms
+from pygments import highlight
+from pygments.lexers import JsonLexer
+from pygments.formatters import HtmlFormatter
 
 from privacyscore.backend.models import ListColumn, ListColumnValue, ListTag,  Scan, ScanList, Site, ScanResult
 from privacyscore.evaluation.result_groups import DEFAULT_GROUP_ORDER, RESULT_GROUPS
@@ -489,6 +494,20 @@ def scan_list_csv(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     for site in scan_list.sites.prefetch_column_values(scan_list):
         writer.writerow([site.url] + [col.value for col in site.ordered_column_values])
     return resp
+
+
+def site_result_json(request: HttpRequest, site_id: int) -> HttpResponse:
+    site = get_object_or_404(Site.objects.annotate_most_recent_scan_result(),
+                             pk=site_id)
+    scan_result = site.last_scan__result if site.last_scan__result else {}
+    if 'raw' in request.GET:
+        return JsonResponse(scan_result)
+    code = json.dumps(scan_result, indent=2)
+    highlighted_code = mark_safe(highlight(code, JsonLexer(), HtmlFormatter()))
+    return render(request, 'frontend/site_result_json.html', {
+        'site': site,
+        'highlighted_code': highlighted_code
+    })
 
 
 def third_parties(request: HttpRequest) -> HttpResponse:

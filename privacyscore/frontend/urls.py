@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^site/(?P<site_id>\d+)/$', views.view_site, name='view_site'),
     url(r'^site/(?P<site_id>\d+)/created/$', views.scan_site_created, name='scan_site_created'),
     url(r'^site/(?P<site_id>\d+)/screenshot/$', views.site_screenshot, name='site_screenshot'),
+    url(r'^site/(?P<site_id>\d+)/json/$', views.site_result_json, name='site_result_json'),
     url(r'^site/scan/$', views.scan_site, name='scan_site'),
     url(r'^site/(?P<site_id>\d+)/scan/$', views.scan_site, name='scan_site'),
     url(r'^lookup/$', views.lookup, name='lookup'),

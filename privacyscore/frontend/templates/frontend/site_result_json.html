@@ -1,0 +1,21 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block additional_css %}
+    <link href="{% static 'frontend/css/pygments.css' %}" type="text/css" rel="stylesheet">
+{% endblock %}
+
+{% block title %}JSON: {{ site.url }}{% endblock %}
+
+{% block content %}
+    <h2>JSON result object for "{{ site.url }}"</h2>
+
+    <p>
+        <strong>Note: </strong> This is not an stable API during the beta.
+        Providing highlighted JSON instead of raw JSON data is therefore intentional.
+    </p>
+
+    {{ highlighted_code }}
+
+{% endblock %}
