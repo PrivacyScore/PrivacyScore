@@ -198,7 +198,7 @@ table.dataTable thead .sorting_desc_disabled
                     role="tablist" aria-multiselectable="true">
                     <!-- panel group end -->
                 
-                    {% for description, title, longdesc, rating in descriptions %}
+                    {% for description, title, longdesc, details_list, rating in descriptions %}
                     {% with forloop.counter as innerCounter %}
                     <!--<p class="description-{{ classification }}">{{ description }}</p>-->
                     
@@ -286,6 +286,24 @@ table.dataTable thead .sorting_desc_disabled
                                 </div>
                             </div>
                         </div>
+                        {% if details_list %}
+                        <div class="spacer"></div>
+                        <div>
+                            <div class="row">
+                                <div class="col col-sm-1">
+                                </div>
+                                <div class="col col-sm-10">
+                                    <div style="margin:0; margin-bottom: 0.5em; font-size: 80%;">
+                                    {% for elem in details_list %}
+                                        <div class="details-list-label">
+                                            {{ elem.0 }}
+                                        </div>
+                                    {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                     {% endwith %}
                     {% endfor %}

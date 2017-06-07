@@ -359,3 +359,12 @@ panel-group .panel {
 .panel-default > .panel-heading + .panel-collapse > .panel-body {
     border-top-color: #EEEEEE;
 }
+
+.details-list-label {
+    display: inline-block;
+    padding: 0.3em 0.7em;
+    background-color:#eee;
+    color: #777;
+    margin: 0em 0.5em 1em 0.5em;
+    border: 1px solid #ccc;
+}
