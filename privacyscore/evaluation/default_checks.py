@@ -324,8 +324,12 @@ CHECKS['ssl']['https_scan_failed'] = {
 # no: Nothing
 # yes: notify, neutral
 CHECKS['ssl']['https_scan_finished'] = {
-    'keys': {'web_ssl_finished'},
-    'rating': lambda **keys: None,
+    'keys': {'web_ssl_finished', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The website does not offer an encrypted (HTTPS) version.'),
+        'classification': Rating('critical'),
+        'details_list': None,
+    } if keys['web_ssl_finished'] and not keys['web_has_ssl'] else None,
     'missing': {
         'description': _('The SSL scan experienced a problem and had to be aborted, some SSL checks were not performed.'),
         'classification': Rating('neutral'),
@@ -335,7 +339,7 @@ CHECKS['ssl']['https_scan_finished'] = {
 # Check if website does not redirect to HTTPS, but offers HTTPS on demand and serves the same content
 # HTTPS available and serving same content: good
 # HTTPS available but different content: bad
-# We only scanned the HTTPS version: neutral
+# We only scanned the HTTPS version: neutral (does not influence rating)
 CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
     'keys': {'final_url','final_https_url','same_content_via_https'},
     'rating': lambda **keys: {
@@ -354,7 +358,7 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
           keys['final_https_url'].startswith('https') and
           not keys['same_content_via_https']) else {
         'description': _('Not comparing between HTTP and HTTPS version, as the website was scanned only over HTTPS.'),
-        'classification': Rating('neutral'),
+        'classification': Rating('neutral', influences_ranking=False),
         'details_list': None,
     } if (keys["final_url"].startswith("https:")) else None,
     'missing': None,
