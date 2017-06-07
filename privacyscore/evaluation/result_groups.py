@@ -32,3 +32,5 @@ RESULT_GROUPS['mx'] = {
     'short_name': _('EncMail'),
     'long_name': _('Encryption of Mail Traffic'),
 }
+
+DEFAULT_GROUP_ORDER = list(RESULT_GROUPS.keys())

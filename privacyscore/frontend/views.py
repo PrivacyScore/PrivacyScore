@@ -15,7 +15,7 @@ from django.views.decorators.http import require_POST
 from django import forms
 
 from privacyscore.backend.models import ListColumn, ListColumnValue, ListTag,  Scan, ScanList, Site, ScanResult
-from privacyscore.evaluation.result_groups import RESULT_GROUPS
+from privacyscore.evaluation.result_groups import DEFAULT_GROUP_ORDER, RESULT_GROUPS
 from privacyscore.evaluation.site_evaluation import UnrateableSiteEvaluation
 from privacyscore.frontend.forms import SingleSiteForm, CreateListForm
 from privacyscore.frontend.models import Spotlight
@@ -209,7 +209,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
             category_order.append(category)
     if (set(category_order) != set(RESULT_GROUPS.keys()) or
             len(category_order) != len(RESULT_GROUPS)):
-        category_order = ['privacy', 'ssl', 'security', 'mx']
+        category_order = DEFAULT_GROUP_ORDER
     if ','.join(category_order) != request.GET.get('categories'):
         url_params = request.GET.copy()
         url_params.update({
@@ -376,7 +376,7 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     results = {}
     if site.last_scan__result:
         results = site.last_scan__result
-        category_order = ['privacy', 'ssl', 'security', 'mx']
+        category_order = DEFAULT_GROUP_ORDER
         site.evaluated = site.evaluate(category_order)[0]
     
     # store other attributes needed to show
@@ -401,7 +401,7 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
         # TODO: groups not statically
         'groups_descriptions': (
             (RESULT_GROUPS[group]['name'], val) for group, val in
-            site.evaluate(['privacy', 'security', 'ssl', 'mx'])[1].items()
+            site.evaluate(DEFAULT_GROUP_ORDER)[1].items()
         ) if site.last_scan__result else None,
     })
 
