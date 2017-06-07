@@ -308,12 +308,34 @@ CHECKS['security']['header_xcto'] = {
 ##########################
 ## Webserver SSL Checks ##
 ##########################
-
+# Check if server scan failed in an unexpected way
+# yes: notify, neutral
+# no: Nothing
+CHECKS['ssl']['https_scan_failed'] = {
+    'keys': {'web_scan_failed'},
+    'rating': lambda **keys: {
+        'description': _('The SSL scan experienced an unexpected error. Please rescan and contact us if the problem persists.'),
+        'classification': Rating('neutral'),
+        'details_list': None,
+    } if keys['web_scan_failed'] else None,
+    'missing': None,
+}
+# Check if server scan timed out
+# no: Nothing
+# yes: notify, neutral
+CHECKS['ssl']['https_scan_finished'] = {
+    'keys': {'web_ssl_finished'},
+    'rating': lambda **keys: None,
+    'missing': {
+        'description': _('The SSL scan experienced a problem and had to be aborted, some SSL checks were not performed.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+}
 # Check if server forwarded us to HTTPS version
 # yes: good
 # no: neutral (as it may still happen, we're not yet explicitly checking the HTTP version)
 # TODO Explicitly check http://-version and see if we are being forwarded, even if user provided https://-version
-# TODO CRITICAL Rework based on talks with Dominik
 CHECKS['ssl']['site_redirects_to_https'] = {
     'keys': {'redirected_to_https', 'https', 'final_https_url', 'web_has_ssl', 'web_cert_trusted'},
     'rating': lambda **keys: {
@@ -334,31 +356,7 @@ CHECKS['ssl']['site_redirects_to_https'] = {
         'details_list': None,
     },
     'missing': {
-        'description': _('The website does not appear to offer a well-configured HTTPS, or the SSL test timed out. If this seems wrong to you, please rescan and contact us if the problem persists.'),
-        'classification': Rating('critical'),
-        'details_list': None
-    },
-}
-# Check if server scan failed in an unexpected way
-# yes: notify, neutral
-# no: Nothing
-CHECKS['ssl']['https_scan_failed'] = {
-    'keys': {'web_scan_failed'},
-    'rating': lambda **keys: {
-        'description': _('The SSL scan experienced an unexpected error. Please rescan and contact us if the problem persists.'),
-        'classification': Rating('neutral'),
-        'details_list': None,
-    } if keys['web_scan_failed'] else None,
-    'missing': None,
-}
-# Check if server scan failed in an unexpected way
-# yes: notify, neutral
-# no: Nothing
-CHECKS['ssl']['https_scan_finished'] = {
-    'keys': {'web_ssl_finished'},
-    'rating': lambda **keys: None,
-    'missing': {
-        'description': _('The SSL scan experienced a problem and had to be aborted, some SSL checks were not performed.'),
+        'description': _('No functional HTTPS version found, so not checking for automated forwarding to HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
