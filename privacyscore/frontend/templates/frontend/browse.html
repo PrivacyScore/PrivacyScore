@@ -70,7 +70,7 @@
             <div class="spacer visible-lg-block visible-md-block"></div>
             <div class="spacer visible-lg-block visible-md-block"></div>
             <div class="spacer visible-lg-block visible-md-block"></div>
-            Popular tags:
+            <p><strong>Popular Tags</strong></p>
             {% for tag in popular_tags %}
             <div class="visible-lg-block visible-md-block visible-sm-inline visible-xs-inline" style="padding: 0.6em; padding-left: 0;"><a class="btn btn-default btn-xs"
             href="{{ request.path }}?tags={{ tag }}">{{ tag }}</a> </div>
@@ -111,10 +111,7 @@
                                 LAST SCAN<br>
                                 <strong>
                                     {{ scan_list.last_scan_datetime|humanize_datetime }}
-                                </strong><br>
-                                <span>
-                                    {{ scan_list.last_scan_datetime|humanize_datetime }}
-                                </span>
+                                </strong>
                             </small>
                         </h4>
                         <h4>
