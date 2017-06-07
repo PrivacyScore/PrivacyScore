@@ -33,8 +33,9 @@ def test_site(url: str, previous_results: dict, remote_host: str = None) -> Dict
 
 def process_test_data(raw_data: list, previous_results: dict, remote_host: str = None) -> Dict[str, Dict[str, object]]:
     """Process the raw data of the test."""
+    result = {"mx_ssl_finished": True}
     if raw_data['jsonresult']['data'] == b'':
-        return {}
+        return result
 
     data = json.loads(
         raw_data['jsonresult']['data'].decode())
@@ -49,9 +50,10 @@ def process_test_data(raw_data: list, previous_results: dict, remote_host: str =
 
     if not data['scanResult'] or not data['scanResult'][0]:
         # something went wrong with this test.
-        raise Exception('no scan result in raw data')
+        result['mx_scan_failed'] = True
+        return result
 
     # TODO: Parse mx result -- there are no http headers to analyze here ...
 
-    return parse_common_testssl(data, "mx")
-
+    result.update(parse_common_testssl(data, "mx"))
+    return result

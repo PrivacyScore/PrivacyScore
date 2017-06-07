@@ -309,29 +309,11 @@ CHECKS['security']['header_xcto'] = {
 ## Webserver SSL Checks ##
 ##########################
 
-# Check if final URL is https
-# yes: good
-# no: critical
-# Integrated into 
-# CHECKS['ssl']['site_has_https'] = {
-#     'keys': {'https', 'final_url', 'final_https_url', 'same_content_via_https'},
-#     'rating': lambda **keys: {
-#         'description': _('The website offers HTTPS.'),
-#         'classification': Rating('good'),
-#     } if keys['https'] or (not keys['final_url'].startswith('https') and 
-#           keys['final_https_url'] and
-#           keys['final_https_url'].startswith('https') and
-#           keys['same_content_via_https']) else {
-#         'description': _('The web server does not offer https.'),
-#         'classification': Rating('critical'),
-#     },
-#     'missing': None,
-# }
 # Check if server forwarded us to HTTPS version
 # yes: good
 # no: neutral (as it may still happen, we're not yet explicitly checking the HTTP version)
 # TODO Explicitly check http://-version and see if we are being forwarded, even if user provided https://-version
-# TODO Rework based on talks with Dominik
+# TODO CRITICAL Rework based on talks with Dominik
 CHECKS['ssl']['site_redirects_to_https'] = {
     'keys': {'redirected_to_https', 'https', 'final_https_url', 'web_has_ssl', 'web_cert_trusted'},
     'rating': lambda **keys: {
@@ -1034,6 +1016,17 @@ CHECKS['mx']['has_mx'] = {
     } if not keys['mx_records'] else None,
     'missing': None,
 }
+# Check if mail server check actually finished
+# Result is informational
+CHECKS['mx']['mx_scan_finished'] = {
+    'keys': {'mx_ssl_finished'},
+    'rating': lambda **keys: None,
+    'missing': {
+        'description': _('The SSL scan of the mail server timed out.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+}
 # Check for insecure SSLv2 protocol
 # No SSLv2: Good
 # No HTTPS at all: neutral
@@ -1053,11 +1046,7 @@ CHECKS['mx']['mx_insecure_protocols_sslv2'] = {
         'classification': Rating('neutral'),
         'details_list': None
     },
-    'missing': {
-        'description': _('Something went wrong during the SSL check, and it did not complete. Please run a rescan and contact us if the problem persists.'),
-        'classification': Rating('neutral'),
-        'details_list': None,
-    },
+    'missing': None
 }
 # Check for insecure SSLv3 protocol
 # No SSLv3: Good
