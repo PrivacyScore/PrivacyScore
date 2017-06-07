@@ -193,7 +193,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         group_by = forms.ChoiceField(choices=column_choices, required=False)
 
     config_initial = {
-        'categories': 'ssl,mx,privacy,security',
+        'categories': 'privacy,ssl,security,mx',
         'sort_by': None,
         'group_by': None,
     }
