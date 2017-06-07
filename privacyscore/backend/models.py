@@ -194,11 +194,17 @@ class ScanList(models.Model):
 
     def scan(self):
         """Schedule a scan of the list if requirements are fulfilled."""
+
+        res = False
         for site in self.sites.all():
-            site.scan()
+            if site.scan():
+                res = True
+        
         if self.editable:
             self.editable = False
             self.save(update_fields=('editable',))
+        
+        return res
 
 
 class SiteQuerySet(models.QuerySet):
@@ -325,6 +331,19 @@ class Site(models.Model):
         Returns whether the scan has been scheduled or the last scan is not
         long enough ago.
         """
+        
+        if not self.scannable():
+            return False
+        
+        # create Scan
+        scan = Scan.objects.create(site=self)
+
+        from privacyscore.scanner.tasks import schedule_scan
+        schedule_scan.delay(scan.pk)
+
+        return True
+
+    def scannable(self) -> bool:
         now = timezone.now()
 
         last_start = None
@@ -338,20 +357,14 @@ class Site(models.Model):
                 # at least one scan has been scheduled previously.
                 last_start = most_recent_scan.start
                 last_end = most_recent_scan.end
+        
         if ((last_end and
                 now - last_end < settings.SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN) or
                 (not last_end and last_start)):
-            # rate limit scan
             return False
-
-        # create Scan
-        scan = Scan.objects.create(site=self)
-
-        from privacyscore.scanner.tasks import schedule_scan
-        schedule_scan.delay(scan.pk)
-
+        
         return True
-
+    
     @cached_property
     def last_scan_datetime(self) -> Union[datetime, None]:
         """Get most recent scan end time. """

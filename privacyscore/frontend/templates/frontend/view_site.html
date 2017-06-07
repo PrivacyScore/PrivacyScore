@@ -139,20 +139,32 @@ table.dataTable thead .sorting_desc_disabled
         </div>
     </div>
     <div class="col-sm-4">
+        
+        {% if site.scannable %}
         <form method="POST" action="{% url 'frontend:scan_site' site.pk %}">
             {% csrf_token %}
-            <button type="submit" class="btn btn-default btn-primary btn-lg" role="button" id="scan_again" style="width:100%; margin-top:5px; margin-bottom:10px">
+        {% endif %}
+            <button type="submit" class="btn btn-default btn-primary btn-lg" role="button" id="scan_again" style="width:100%; margin-top:5px; margin-bottom:10px"
+            {% if scan_running %}
+                disabled="disabled"
+            {% endif %}>
                 {% trans 'Re-scan site now' %}
             </button>
+        {% if site.scannable %}
         </form>
+        {% endif %}
     
-        <p class="text-center">
-            {% if site.last_scan__start and site.last_scan__end_or_null is None %}
-                <strong class="text-primary">scheduled for scanning</strong>
+        {% if scan_running %}
+            <h3 class="text-center"><small class="text-primary">SCAN IN PROGRESS</small></h3>
+        {% else %}
+            {% if site.scannable %}
+                <h3 class="text-center color-primary"><smalL>AVAILABLE FOR RE-SCAN</small></h3>
             {% else %}
-                <small class="text-muted">not scanning at the moment</small>
+                <h3 class="text-center color-neutral"><smalL>RE-SCAN NOT AVAILABLE YET</small></h3>
             {% endif %}
-        </p>
+        {% endif %}
+        
+        
     </div>
 </div>
 

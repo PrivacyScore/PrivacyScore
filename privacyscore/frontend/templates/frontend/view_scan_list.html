@@ -60,26 +60,18 @@
         </div>
         <div class="col-md-4">
             
-            {% if scan_list.running_scans__count == 0 %}
             <form method="POST" action="{% url 'frontend:scan_scan_list' scan_list.pk %}">
                 {% csrf_token %}
-            {% endif %}
-                <button type="submit" class="btn btn-default btn-primary btn-lg" role="button" id="scan_again" style="width:100%; margin-top:40px"
-                {% if scan_list.running_scans__count > 0 %}
-                disabled="disabled"
-                {% endif %}>
-                    Re-scan this list now
+                <button type="submit"
+                    class="btn btn-default btn-primary btn-lg" role="button"
+                    id="scan_again" style="width:100%; margin-top:40px">
+                    Re-scan all sites now
                 </button>
-                {% if scan_list.running_scans__count > 0 %}
-                    <div class="text-center "><small>{% trans '(not available during a scan)' %}</small></div>
-                {% endif %}
-
-            {% if scan_list.running_scans__count == 0 %}
             </form>
-            {% endif %}
+            
             
             {% if scan_list.running_scans__count > 0 %}
-            <h3 class="text-center">Scan Running</h3>
+            <h3 class="text-center"><small>SCAN IN PROGRESS</small></h3>
             <p class="text-center">
             {% blocktrans count counter=scan_list.running_scans__count %}
                 {{ counter }} site of this list is being scanned at the moment
@@ -88,7 +80,7 @@
             {% endblocktrans %}
             </p>
             {% else %}
-            <h3 class="text-center color-neutral">No Scan Running</h3>
+            <h3 class="text-center color-neutral"><smalL>NO SCANS RUNNING</small></h3>
             {% endif %}
             
             <div class="spacer"></div>

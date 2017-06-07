@@ -150,9 +150,14 @@ def scan_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
                  queryset=Site.objects.annotate_most_recent_scan_start() \
                                       .annotate_most_recent_scan_end_or_null())),
         pk=scan_list_id)
-    scan_list.scan()
-    messages.success(request,
-        _('Scans for the sites on this list have been scheduled.'))
+    was_any_site_scannable = scan_list.scan()
+    if was_any_site_scannable:
+        messages.success(request,
+            _('Scans for the sites on this list have been scheduled.'))
+    else:
+        messages.warning(request,
+            _('All sites have been scanned recently. Please wait 30 minutes and try again.'))
+
     return redirect(reverse('frontend:view_scan_list', args=(scan_list_id,)))
 
 
@@ -351,16 +356,12 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
      
     res['mx_record'] = mxrec
     
-    # this may be useful, but not now
-    #cats = {}
-    #for group in category_order:
-    #    cats[group] = RESULT_GROUPS[group]['name']
     
     return render(request, 'frontend/view_site.html', {
         'site': site,
         'res': res,
         'scan_lists': scan_lists,
-        #'cats': cats,
+        'scan_running': site.last_scan__start and (site.last_scan__end_or_null is None),
         'num_scans': num_scans,
         # TODO: groups not statically
         'groups_descriptions': (
