@@ -28,7 +28,7 @@ CHECKS = {
 # 0 parties: good
 # else: bad
 CHECKS['privacy']['third_parties'] = {
-    'keys': {'third_parties_count',},
+    'keys': {'third_parties_count', 'third_parties'},
     'rating': lambda **keys: {
         'description': _('The site does not use any third parties.'),
         'classification': Rating('good'),
@@ -40,7 +40,7 @@ CHECKS['privacy']['third_parties'] = {
             keys['third_parties_count']) % {
                 'count': keys['third_parties_count']},
         'classification':  Rating('bad'),
-        'details_list': None},
+        'details_list': keys['third_parties']},
     'missing': None,
 }
 # Check for embedded known trackers
