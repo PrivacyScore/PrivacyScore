@@ -12,7 +12,7 @@
           $(e.target)
               .prev('.panel-heading')
               .find(".more-less")
-              .toggleClass('glyphicon-plus glyphicon-minus');
+              .toggleClass('glyphicon-menu-down glyphicon-menu-up');
       }
       $('.panel-group').on('hidden.bs.collapse', toggleIcon);
       $('.panel-group').on('shown.bs.collapse', toggleIcon);
@@ -198,39 +198,84 @@ table.dataTable thead .sorting_desc_disabled
                 {% for group, descriptions in groups_descriptions %}
                 {% with forloop.counter as outerCounter %}
                 
-                <h3>{{ group }} {{ outerCounter }}</h3>
+                <h3>{{ group }}</h3>
                 
                 <!-- panel group begin -->
-                <div class="panel-group" id="accordion{{ outerCounter }}" role="tablist" aria-multiselectable="true">
+                <div class="panel-group" id="accordion{{ outerCounter }}"
+                    role="tablist" aria-multiselectable="true">
                     <!-- panel group end -->
                 
-                    {% for description, title, longdesc, classification in descriptions %}
+                    {% for description, title, longdesc, rating in descriptions %}
                     {% with forloop.counter as innerCounter %}
                     <!--<p class="description-{{ classification }}">{{ description }}</p>-->
                     
                     <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="heading{{ outerCounter }}_{{ innerCounter }}">
+                        <div class="panel-heading" role="tab"
+                            id="heading{{ outerCounter }}_{{ innerCounter }}">
                             <h3 class="panel-title">
-                                <a role="button" data-toggle="collapse" data-parent="#accordion{{ outerCounter }}" href="#collapse{{ outerCounter }}_{{ innerCounter }}" aria-expanded="true" aria-controls="collapse{{ outerCounter }}_{{ innerCounter }}">
+                                <a role="button" data-toggle="collapse"
+                                    data-parent="#accordion{{ outerCounter }}"
+                                    href="#collapse{{ outerCounter }}_{{ innerCounter }}"
+                                    aria-expanded="true"
+                                    aria-controls="collapse{{ outerCounter }}_{{ innerCounter }}">
                                     
-                                    <div class="row" style="display: flex;    align-items: center;">
-                                        <div class="col col-xs-1">
-                                            <span class="glyphicon glyphicon-ok-sign" style="color:#44AF69;font-size:1.0em;" aria-hidden="true"></span>
+                                    <div class="row" style="display: flex; align-items: center;">
+                                        <div class="col col-xs-1" style="text-align:center">
+                                {% if rating.rating == 'doubleplusgood' %}
+                                    <i class="fa fa-3x fa-star-o color-{{ rating }}"></i>
+                                {% elif rating.rating == 'good' %}
+                                    <i class="fa fa-3x fa-check-circle color-{{ rating }}"></i>
+                                {% elif rating.rating == 'warning' %}
+                                    <i class="fa fa-3x fa-minus-circle color-{{ rating }}"></i>
+                                {% elif rating.rating == 'bad' %}
+                                    <i class="fa fa-3x fa-times-circle color-{{ rating }}"></i>
+                                {% elif rating.rating == 'neutral' %}
+                                    <i class="fa fa-3x fa-question-circle color-{{ rating }}"></i>
+                                {% endif %}
+
                                         </div>
-                                        <div class="col col-xs-9">
-                                            <p><strong>{{ title }}</strong> <span class="badge badge-info" style="background-color: #dddddd; color: #888888;">shallow</span></p>
-                                            <p>{{ classification }}: {{ description }}</p>
+                                        <div class="col col-xs-10">
+<!--                                            <span class="label pull-right label-info">
+                                                shallow
+                                            </span>
+                                            <span class="pull-right">&nbsp;</span>
+                                            <span class="label pull-right label-danger">
+                                                unreliable
+                                            </span>
+-->
+                                            {% if title %}
+                                            <p><strong>{{ title }}</strong>
+                                            </p>
+                                            {% endif %}
+                                            <p>
+                                            {% if not title %}
+                                            <strong>
+                                            {% endif %}
+                                            {{ description }}
+                                            {% if not title %}
+                                            <strong>
+                                            {% endif %}
+                                            
+                                            </p>
                                         </div>
-                                        <div style="vborder: 1px solid green" class="col col-xs-1"><i class="more-less glyphicon glyphicon-plus"></i></div>
+                                        <div class="col col-xs-1 text-center">
+                                            <i class="more-less glyphicon glyphicon-menu-down" style="color:gray"></i>
+                                        </div>
                                     </div>
                                     
                                 </a>
                             </h3>
                         </div>
-                        <div id="collapse{{ outerCounter }}_{{ innerCounter }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{ outerCounter }}_{{ innerCounter }}">
+                        <div id="collapse{{ outerCounter }}_{{ innerCounter }}"
+                             class="panel-collapse collapse" role="tabpanel"
+                             aria-labelledby="heading{{ outerCounter }}_{{ innerCounter }}">
                             <div class="panel-body">
                                 {{ longdesc|safe }}
-                                <button class="btn pull-right" style="background-color: #ffffff; color:#aaaaaa" data-toggle="modal" data-target=".bd-example-modal-lg">Feedback</button>.
+                                <button class="btn pull-right"
+                                    style="background-color: #fff; color:#aaa" data-toggle="modal"
+                                    data-target=".bd-example-modal-lg">
+                                        mark as bogus
+                                </button>.
                             </div>
                         </div>
                     </div>
