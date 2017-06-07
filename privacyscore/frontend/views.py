@@ -176,7 +176,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
 
     column_choices = [(None, _('None'))] + list(enumerate(x.name for x in scan_list.ordered_columns))
     class ConfigurationForm(forms.Form):
-        categories = forms.CharField(required=False)
+        categories = forms.CharField(required=False, widget=forms.HiddenInput)
         sort_by = forms.ChoiceField(choices=column_choices, required=False)
         group_by = forms.ChoiceField(choices=column_choices, required=False)
 
