@@ -50,7 +50,7 @@
 
             <div class="spacer"></div>
             
-            <h3>{% trans "Result overview" %}</h3>
+            <h3 id="results">{% trans "Result overview" %}</h3>
             {% include 'frontend/ranking_summary.html' with sites_count=sites_count sites_failures_count=sites_failures_count ratings_count=ratings_count %}
         </div>
         <div class="col-md-4">

@@ -214,9 +214,14 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         category = category.strip()
         if category in categories:
             category_order.append(category)
-    if not category_order:
+    if len(category_order) != 4:
         category_order = ['ssl', 'mx', 'privacy', 'security']
-    category_names = [categories[category] for category in category_order]
+    category_names = [{
+        'short_name': categories[category]['short_name'],
+        'long_name': categories[category]['long_name'],
+        'left': ','.join(_move_element(category_order, category, -1)),
+        'right': ','.join(_move_element(category_order, category, 1))
+    } for category in category_order]
 
     sites = scan_list.sites.annotate_most_recent_scan_end() \
         .annotate_most_recent_scan_error_count().prefetch_last_scan() \
@@ -293,6 +298,18 @@ def _get_column_index(param, scan_list):
     except ValueError:
         pass
     return column_index
+
+
+def _move_element(lst, el, direction):
+    lst = lst[:]
+    try:
+        index = lst.index(el)
+    except ValueError:
+        return lst
+    if not (0 <= index + direction < len(lst)):
+        return lst
+    lst[index], lst[index + direction] = lst[index + direction], lst[index]
+    return lst
 
 
 def _calculate_ratings_count(sites):
