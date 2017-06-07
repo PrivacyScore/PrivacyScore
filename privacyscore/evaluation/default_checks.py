@@ -202,22 +202,6 @@ CHECKS['privacy']['server_locations'] = {
     },
     'missing': None,
 }
-# Check for Referrer policy header
-# Present: good
-# Not present: bad
-CHECKS['privacy']['header_ref'] = {
-    'keys': {'headerchecks',},
-    'rating': lambda **keys: {
-        'description': _('The site sets a Referrer-Policy header.'),
-        'classification': Rating('good'),
-        'details_list': None
-    } if keys['headerchecks'].get('referrer-policy') is not None and 
-        keys['headerchecks']['referrer-policy']['status'] != "MISSING" else {
-        'description': _('The site does not set a referrer-policy header.'),
-        'classification':  Rating('bad'),
-        'details_list': None},
-    'missing': None,
-}
 
 #####################
 ## Security Checks ##
@@ -303,6 +287,22 @@ CHECKS['security']['header_xcto'] = {
     'missing': None,
 }
 
+# Check for Referrer policy header
+# Present: good
+# Not present: bad
+CHECKS['security']['header_ref'] = {
+    'keys': {'headerchecks',},
+    'rating': lambda **keys: {
+        'description': _('The site sets a Referrer-Policy header.'),
+        'classification': Rating('good'),
+        'details_list': None
+    } if keys['headerchecks'].get('referrer-policy') is not None and 
+        keys['headerchecks']['referrer-policy']['status'] != "MISSING" else {
+        'description': _('The site does not set a referrer-policy header.'),
+        'classification':  Rating('bad'),
+        'details_list': None},
+    'missing': None,
+}
 
 
 ##########################
