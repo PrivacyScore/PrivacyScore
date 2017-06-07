@@ -29,6 +29,44 @@ CHECKS = {
 ####################
 ## Privacy Checks ##
 ####################
+# Check for embedded third parties
+# 0 parties: good
+# else: bad
+CHECKS['privacy']['third_parties'] = {
+    'keys': {'third_parties_count',},
+    'rating': lambda **keys: {
+        'description': _('The site does not use any third parties.'),
+        'classification': Rating('good'),
+        'details_list': None
+    } if keys['third_parties_count'] == 0 else {
+        'description': ungettext_lazy(
+            'The site is using one third party.',
+            'The site is using %(count)d third parties.',
+            keys['third_parties_count']) % {
+                'count': keys['third_parties_count']},
+        'classification':  Rating('bad'),
+        'details_list': None},
+    'missing': None,
+}
+# Check for embedded known trackers
+# 0 parties: good
+# else: bad
+CHECKS['privacy']['third_party-trackers'] = {
+    'keys': {'tracker_requests',},
+    'rating': lambda **keys: {
+        'description': _('The site does not use any known tracking- or advertising companies.'),
+        'classification': Rating('good'),
+        'details_list': [],
+    } if len(keys['tracker_requests']) == 0 else {
+        'description': ungettext_lazy(
+            'The site is using one known tracking- or advertising company.',
+            'The site is using %(count)d known tracking- or advertising companies.',
+            len(keys['tracker_requests'])) % {
+                'count': len(keys['tracker_requests'])},
+        'classification':  Rating('bad'),
+        'details_list': [(key,) for key in keys['tracker_requests']]},
+    'missing': None,
+}
 # Check for presence of first-party cookies
 # 0 cookies: good
 # else: neutral
@@ -66,65 +104,6 @@ CHECKS['privacy']['cookies_3rd_party'] = {
                 "flash": keys['cookie_stats']["third_party_flash"]},
         'classification':  Rating('bad'),
         'details_list': [(element,) for element in keys['cookie_stats']["third_party_track_domains"]] if "third_party_track_domains" in keys['cookie_stats'] else None},
-    'missing': None,
-}
-
-# Checks for presence of flash cookies
-# 0 cookies: good
-# else: bad
-# TODO: can we differentiate between first and third parties here as well?
-# if not => don't care for now
-# CHECKS['general']['flashcookies'] = {
-#     'keys': {'flashcookies_count',},
-#     'rating': lambda **keys: {
-#         'description': _('The site is not using flash cookies.'),
-#         'classification': Rating('good')
-#     } if keys['flashcookies_count'] == 0 else {
-#         'description': ungettext_lazy(
-#             'The site is using one flash cookie.',
-#             'The site is using %(count)d flash cookies.',
-#             keys['flashcookies_count']) % {
-#                 'count': keys['flashcookies_count']},
-#         'classification':  Rating('bad')},
-#     'missing': None,
-# }
-
-# Check for embedded third parties
-# 0 parties: good
-# else: bad
-CHECKS['privacy']['third_parties'] = {
-    'keys': {'third_parties_count',},
-    'rating': lambda **keys: {
-        'description': _('The site does not use any third parties.'),
-        'classification': Rating('good'),
-        'details_list': None
-    } if keys['third_parties_count'] == 0 else {
-        'description': ungettext_lazy(
-            'The site is using one third party.',
-            'The site is using %(count)d third parties.',
-            keys['third_parties_count']) % {
-                'count': keys['third_parties_count']},
-        'classification':  Rating('bad'),
-        'details_list': None},
-    'missing': None,
-}
-# Check for embedded known trackers
-# 0 parties: good
-# else: bad
-CHECKS['privacy']['third_party-trackers'] = {
-    'keys': {'tracker_requests',},
-    'rating': lambda **keys: {
-        'description': _('The site does not use any known tracking- or advertising companies.'),
-        'classification': Rating('good'),
-        'details_list': [],
-    } if len(keys['tracker_requests']) == 0 else {
-        'description': ungettext_lazy(
-            'The site is using one known tracking- or advertising company.',
-            'The site is using %(count)d known tracking- or advertising companies.',
-            len(keys['tracker_requests'])) % {
-                'count': len(keys['tracker_requests'])},
-        'classification':  Rating('bad'),
-        'details_list': [(key,) for key in keys['tracker_requests']]},
     'missing': None,
 }
 # Checks for presence of Google Analytics code
