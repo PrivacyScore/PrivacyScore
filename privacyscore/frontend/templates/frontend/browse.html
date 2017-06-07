@@ -1,6 +1,7 @@
 {% extends 'frontend/base.html' %}
 {% load static %}
 {% load i18n %}
+{% load arrow %}
 
 {% block title %}Browse Lists{% endblock title %}
 
@@ -109,10 +110,10 @@
                             <small>
                                 LAST SCAN<br>
                                 <strong>
-                                    {{ scan_list.last_scan_datetime|date:"Y-m-d" }}
+                                    {{ scan_list.last_scan_datetime|humanize_datetime }}
                                 </strong><br>
                                 <span>
-                                    {{ scan_list.last_scan_datetime|date:"H:i:s" }}
+                                    {{ scan_list.last_scan_datetime|humanize_datetime }}
                                 </span>
                             </small>
                         </h4>
