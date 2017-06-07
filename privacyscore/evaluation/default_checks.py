@@ -371,7 +371,7 @@ CHECKS['ssl']['site_redirects_to_https'] = {
         'description': _('Not checking if websites automatically redirects to HTTPS version, as the provided URL already was HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None,
-    } if keys["url"].startswith('https') else{
+    } if keys["url"].startswith('https') else {
         'description': _('The website does not redirect visitors to the secure (HTTPS) version, even though one is available.'),
         'classification': Rating('critical'),
         'details_list': None,
@@ -994,12 +994,12 @@ CHECKS['mx']['has_mx'] = {
 # Check if mail server check actually finished
 # Result is informational
 CHECKS['mx']['mx_scan_finished'] = {
-    'keys': {'mx_ssl_finished', 'mx_has_ssl'},
+    'keys': {'mx_ssl_finished', 'mx_has_ssl', 'mx_records'},
     'rating': lambda **keys: {
         'description': _('The mail server does not seem to support encryption.'),
         'classification': Rating('critical'),
         'details_list': None,
-    } if keys['mx_ssl_finished'] and not keys['mx_has_ssl'] else None,
+    } if keys['mx_ssl_finished'] and not keys['mx_has_ssl'] and keys['mx_records'] else None,
     'missing': {
         'description': _('The SSL scan of the mail server timed out.'),
         'classification': Rating('neutral'),
