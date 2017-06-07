@@ -282,6 +282,10 @@ div.improvements {
  */
 
 .color-bad {
+    color: #fcab10;
+}
+
+.color-critical {
     color: #e02c2c;
 }
 
