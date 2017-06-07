@@ -71,7 +71,7 @@
                     <td class="rating-{{ rating.group_rating }} text-center">
                         {% with group_rating=rating.group_rating.rating %}
                             {% if rating.devaluating %}
-                            (
+                            <i class="fa fa-lg fa-angle-left"></i>
                             {% endif %}
                             {% if group_rating == 'doubleplusgood' %}
                                 <i class="fa fa-lg fa-star-o color-{{ group_rating }}"></i>
@@ -87,7 +87,7 @@
                                 <i class="fa fa-lg fa-question-circle color-{{ group_rating }}"></i>
                             {% endif %}
                             {% if rating.devaluating %}
-                            )
+                            <i class="fa fa-3x fa-angle-right"></i>
                             {% endif %}
 
                         {% endwith %}

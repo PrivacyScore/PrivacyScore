@@ -105,7 +105,7 @@ table.dataTable thead .sorting_desc_disabled
                 {% if rating %}
                         {% with group_rating=rating.group_rating.rating %}
                             {% if rating.devaluating %}
-                            (
+                            <i class="fa fa-3x fa-angle-left"></i>
                             {% endif %}
                             {% if group_rating == 'doubleplusgood' %}
                                 <i class="fa fa-3x fa-star-o color-{{ group_rating }}"></i>
@@ -121,7 +121,7 @@ table.dataTable thead .sorting_desc_disabled
                                 <i class="fa fa-3x fa-question-circle color-{{ group_rating }}"></i>
                             {% endif %}
                             {% if rating.devaluating %}
-                            )
+                            <i class="fa fa-3x fa-angle-right"></i>
                             {% endif %}
                             <br>{{ group|group_short_name }}
                         {% endwith %}
