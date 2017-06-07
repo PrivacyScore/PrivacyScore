@@ -329,7 +329,7 @@ CHECKS['ssl']['https_scan_finished'] = {
         'description': _('The website does not offer an encrypted (HTTPS) version.'),
         'classification': Rating('critical'),
         'details_list': None,
-    } if keys['web_ssl_finished'] and keys['web_has_ssl'] else None,
+    } if keys['web_ssl_finished'] and not keys['web_has_ssl'] else None,
     'missing': {
         'description': _('The SSL scan experienced a problem and had to be aborted, some SSL checks were not performed.'),
         'classification': Rating('neutral'),
