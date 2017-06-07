@@ -27,7 +27,7 @@
             {% endif %}
         </th>
         {% endfor %}
-        <th class="category-header">
+        <th class="category-header text-center bg-info">
             Rating
         </th>
     </tr>
@@ -78,7 +78,7 @@
                             {% elif group_rating == 'good' %}
                                 <i class="fa fa-lg fa-check-circle color-{{ group_rating }}"></i>
                             {% elif group_rating == 'warning' %}
-                                <i class="fa fa-lg fa-minus-circle color-{{ group_rating }}"></i>
+                                <i class="fa fa-lg fa-exclamation-circle color-{{ group_rating }}"></i>
                             {% elif group_rating == 'bad' %}
                                 <i class="fa fa-lg fa-times-circle color-{{ group_rating }}"></i>
                             {% elif group_rating == 'neutral' %}
@@ -106,7 +106,7 @@
             {% empty %}
                 <td class="text-center" colspan="{{ result_groups|length }}">{% trans 'n/a' %}</td>
             {% endfor %}
-            <td class="text-center">
+            <td class="text-center bg-info">
                 
                 {% with r=site.evaluated.rating.rating %}
                     {% if r == 'doubleplusgood' %}
@@ -116,7 +116,7 @@
                     {% elif r == 'warning' %}
                         <i class="fa fa-lg fa-minus-circle color-{{ r }}"></i>
                     {% elif r == 'bad' %}
-                        <i class="fa fa-lg fa-times-circle color-{{ r }}"></i>
+                        <i class="fa fa-lg fa-exclamation-circle color-{{ r }}"></i>
                     {% elif r == 'neutral' %}
                         <i class="fa fa-lg fa-question-circle color-{{ r }}"></i>
                     {% else  %}
