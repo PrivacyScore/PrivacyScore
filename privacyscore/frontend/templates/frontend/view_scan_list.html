@@ -34,10 +34,10 @@
                 <strong>{% trans "Author" %}:</strong> {{ scan_list.pseudonym }}
             </p>
 
-            <p><a id="configure-link" href="#">&raquo; {% trans "Configure ranking" %}</a></p>
+            <p><a id="configure-link" href="#">&raquo; {% trans "Configure sorting and grouping" %}</a></p>
 
             <div id="configuration">
-                <h3>{% trans "Configuration" %}</h3>
+                <h3>{% trans "Sorting and grouping" %}</h3>
                 <form method="get">
                     <input type="hidden" name="configure" value="">
                     {% render_field config_form.categories class+="form-control" %}

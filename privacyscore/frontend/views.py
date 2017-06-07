@@ -294,6 +294,8 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         'category_names': category_names,
         'category_order': ','.join(category_order),
         'config_form': config_form,
+        'sort_by': sort_by,
+        'group_by': group_by,
     })
 
 
