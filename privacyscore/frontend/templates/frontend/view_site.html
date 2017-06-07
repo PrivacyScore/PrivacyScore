@@ -95,7 +95,7 @@ table.dataTable thead .sorting_desc_disabled
             </div>
             {% endwith %}
             <div class="spacer"></div>
-{{ site.evaluated.ssl }}
+
             <div class="row">
                 
             {% for group, rating in site.evaluated %}
@@ -122,39 +122,16 @@ table.dataTable thead .sorting_desc_disabled
                             <br>{{ group|group_short_name }}
                         {% endwith %}
                 {% else %}
-                        {% trans 'No Rating' %}
+                        {% trans 'No rating' %}
                 {% endif %}
                 </div>
             {% empty %}
-                {% trans 'No Rating' %}
+                <div class="col text-center" style="font-size: 1em; line-height: 1.2em; font-weight: 700;">
+                {% trans 'The ratings are not available yet.' %}
                 </div>
             {% endfor %}
             </div>
-<!--
-            <p>TODO RATINGS NOT APPLIED YET</p>
-            <div class="row">
-                <div class="col-xs-6 col-sm-3 text-center">
-                    <img class="img img-responsive centered"
-                    style="max-width: 70px; border-radius: 3px; background-color: #E02C2C; display: inline-block;" src="{% static 'frontend/img/security2.png' %}" alt="">
-                    <p style="font-size: 1em; line-height: 1.2em; font-weight: 700; color: #E02C2C;"><small>WEB TRAFFIC</small><br>INSECURE CONFIG</p>
-                </div>
-                <div class="col-xs-6 col-sm-3 text-center">
-                    <img class="img img-responsive centered"
-                    style="max-width: 70px; border-radius: 3px; background-color: #E02C2C; display: inline-block;" src="{% static 'frontend/img/security2.png' %}" alt="">
-                    <p style="font-size: 1em; line-height: 1.2em; font-weight: 700; color: #E02C2C;"><small>WEB TRACKING</small><br>DETECTED</p>
-                </div>
-                <div class="col-xs-6 col-sm-3 text-center">
-                    <img class="img img-responsive centered"
-                    style="max-width: 70px; border-radius: 3px; background-color: #E02C2C; display: inline-block;" src="{% static 'frontend/img/security2.png' %}" alt="">
-                    <p style="font-size: 1em; line-height: 1.2em; font-weight: 700; color: #E02C2C;"><small>WEB ATTACKS</small><br>NOT PREVENTED</p>
-                </div>
-                <div class="col-xs-6 col-sm-3 text-center">
-                    <img class="img img-responsive centered"
-                    style="max-width: 70px; border-radius: 3px; background-color: #E02C2C; display: inline-block;" src="{% static 'frontend/img/security2.png' %}" alt="">
-                    <p style="font-size: 1em; line-height: 1.2em; font-weight: 700; color: #E02C2C;"><small>MAIL TRAFFIC</small><br>SECURE CONFIG</p>
-                </div>
-            </div>
--->
+
         </div>
     </div>
     <div class="col-sm-4">
@@ -232,6 +209,10 @@ table.dataTable thead .sorting_desc_disabled
                                     <i class="fa fa-3x fa-times-circle color-{{ rating }}"></i>
                                 {% elif rating.rating == 'neutral' %}
                                     <i class="fa fa-3x fa-question-circle color-{{ rating }}"></i>
+                                {% else %}
+                                    <i class="fa fa-3x fa-circle-o"></i>
+                                    <!-- {{ rating.rating }}-->
+
                                 {% endif %}
                                             
                                         </div>
@@ -271,11 +252,12 @@ table.dataTable thead .sorting_desc_disabled
                                     </div>
                                     <div class="col col-sm-11">
 
-                                        {{ longdesc|safe }}
+                                        {{ longdesc|default:'<p>The explanation for this check is not available yet. Sorry!</p><p><span class="label label-warning">coming soon!</span></p>'|safe }}
                                         
-                                        <a class="pull-right btn btn-default btn-sm">
-                                                mark result as bogus
-                                        </a>
+                                        <span class="pull-right">Result wrong?&nbsp;
+                                        <a class="btn btn-default btn-sm">
+                                                Mark as Bogus
+                                        </a></span>
                                     </div>
                                 </div>
                             </div>
