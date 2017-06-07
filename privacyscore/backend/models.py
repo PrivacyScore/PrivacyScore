@@ -34,10 +34,9 @@ class ScanListQuerySet(models.QuerySet):
                 WHERE
                     "{Scan}"."end" IS NOT NULL AND
                     "{Scan}"."site_id" IN
-                        (SELECT "{Site_ScanLists}"."site_id"
+                        (SELECT DISTINCT "{Site_ScanLists}"."site_id"
                          FROM "{Site_ScanLists}"
-                         WHERE "{Site_ScanLists}"."scanlist_id" = "{ScanList}"."id"
-                         GROUP BY "{Site_ScanLists}"."site_id")
+                         WHERE "{Site_ScanLists}"."scanlist_id" = "{ScanList}"."id")
                 ORDER BY "{Scan}"."end" DESC
                 LIMIT 1
                 '''.format(
@@ -450,7 +449,7 @@ class Scan(models.Model):
         Site, on_delete=models.CASCADE, related_name='scans')
 
     start = models.DateTimeField(default=timezone.now)
-    end = models.DateTimeField(null=True, blank=True)
+    end = models.DateTimeField(null=True, blank=True, db_index=True)
 
     def __str__(self) -> str:
         return '{}: {}'.format(str(self.site), self.start)
