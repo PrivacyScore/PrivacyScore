@@ -34,16 +34,20 @@
                 <strong>{% trans "Author" %}:</strong> {{ scan_list.pseudonym }}
             </p>
 
-            <p><a id="configure-link" href="#">&raquo; {% trans "Configure ranking" %}</a></p>
+            <p><a id="configure-link" href="#">&raquo; {% trans "Configure sorting and grouping" %}</a></p>
 
             <div id="configuration">
-                <h3>{% trans "Configuration" %}</h3>
+                <h3>{% trans "Sorting and grouping" %}</h3>
                 <form method="get">
                     <input type="hidden" name="configure" value="">
                     {% render_field config_form.categories class+="form-control" %}
                     <div class="form-group">
                         {{ config_form.sort_by.label_tag }}
                         {% render_field config_form.sort_by class+="form-control" %}
+                    </div>
+                    <div class="form-group">
+                        {{ config_form.sort_dir.label_tag }}
+                        {% render_field config_form.sort_dir class+="form-control" %}
                     </div>
                     <div class="form-group">
                         {{ config_form.group_by.label_tag }}
@@ -62,14 +66,21 @@
             
             <form method="POST" action="{% url 'frontend:scan_scan_list' scan_list.pk %}">
                 {% csrf_token %}
-                <button type="submit"
-                    class="btn btn-default btn-primary btn-lg" role="button"
-                    id="scan_again" style="width:100%; margin-top:40px">
-                    Re-scan all sites now
-                </button>
+                <p>
+                    <button type="submit"
+                        class="btn btn-default btn-primary btn-lg" role="button"
+                        id="scan_again" style="width:100%; margin-top:40px">
+                        Re-scan all sites now
+                    </button>
+                </p>
             </form>
-            
-            
+
+            <p>
+                <a class="btn btn-default" href="{% url 'frontend:scan_list_csv' scan_list.pk %}" style="width:100%;">
+                    {% trans "Download List as CSV" %}
+                </a>
+            </p>
+
             {% if scan_list.running_scans__count > 0 %}
             <h3 class="text-center"><small>SCAN IN PROGRESS</small></h3>
             <p class="text-center">

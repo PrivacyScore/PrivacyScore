@@ -1,3 +1,6 @@
+import csv
+import json
+import re
 from collections import Counter, defaultdict
 from typing import Iterable, Union
 from urllib.parse import urlencode
@@ -8,11 +11,15 @@ from django.core.cache import cache
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.db.models import Count, F, Prefetch, Q
-from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
+from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 from django import forms
+from pygments import highlight
+from pygments.lexers import JsonLexer
+from pygments.formatters import HtmlFormatter
 
 from privacyscore.backend.models import ListColumn, ListColumnValue, ListTag,  Scan, ScanList, Site, ScanResult
 from privacyscore.evaluation.result_groups import DEFAULT_GROUP_ORDER, RESULT_GROUPS
@@ -186,15 +193,19 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     scan_list.views = F('views') + 1
     scan_list.save(update_fields=('views',))
 
-    column_choices = [(None, _('None'))] + list(enumerate(x.name for x in scan_list.ordered_columns))
+    column_choices = [(None, _('- None -'))] + list(enumerate(x.name for x in scan_list.ordered_columns))
+
     class ConfigurationForm(forms.Form):
         categories = forms.CharField(required=False, widget=forms.HiddenInput)
         sort_by = forms.ChoiceField(choices=column_choices, required=False)
+        sort_dir = forms.ChoiceField(label=_('Sorting direction'),
+                                     choices=(('asc', _('Ascending')), ('desc', _('Descending'))))
         group_by = forms.ChoiceField(choices=column_choices, required=False)
 
     config_initial = {
         'categories': 'privacy,ssl,security,mx',
         'sort_by': None,
+        'sort_dir': 'asc',
         'group_by': None,
     }
     if 'configure' in request.GET:
@@ -257,10 +268,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
 
     if sort_by is not None:
         sites = list(sites)
-
-        def sort_fn(site):
-            return site.ordered_column_values[sort_by].value if sort_by else None
-        sites.sort(key=sort_fn, reverse=sort_dir == 'desc')
+        sites.sort(key=_get_sorting_fn(sites, sort_by), reverse=sort_dir == 'desc')
 
     groups = None
     group_attr = None
@@ -294,6 +302,9 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         'category_names': category_names,
         'category_order': ','.join(category_order),
         'config_form': config_form,
+        'sort_by': sort_by,
+        'sort_dir': sort_dir,
+        'group_by': group_by,
     })
 
 
@@ -332,6 +343,48 @@ def _move_element(lst, el, direction):
         return lst
     lst[index], lst[index + direction] = lst[index + direction], lst[index]
     return lst
+
+
+def _get_sorting_fn(sites, column_index):
+    sorting_type = 'string'
+    for site in sites:
+        value = site.ordered_column_values[column_index].value
+        if not value:
+            continue
+        if re.match('^[\d+.]+$', value):
+            if value.count('.') > 1:
+                sorting_type = 'integer'
+                break
+            sorting_type = 'float'
+        else:
+            sorting_type = 'string'
+            break
+
+    def _sort_integer(value):
+        if value:
+            try:
+                return False, int(value.replace('.', ''))
+            except ValueError:
+                pass
+        return True, 0
+
+    def _sort_float(value):
+        if value:
+            try:
+                return False, float(value)
+            except ValueError:
+                pass
+        return True, 0
+
+    def _sort_str(value):
+        return (value is None, value)
+
+    return lambda site: {
+        'integer': _sort_integer,
+        'float': _sort_float,
+        'string': _sort_str
+    }[sorting_type](site.ordered_column_values[column_index].value)
+
 
 
 def _calculate_ratings_count(sites):
@@ -431,6 +484,30 @@ def scan_site(request: HttpRequest, site_id: Union[int, None] = None) -> HttpRes
         messages.warning(request,
             _('The site has been scanned recently. No scan was scheduled.'))
     return redirect(reverse('frontend:view_site', args=(site.pk,)))
+
+
+def scan_list_csv(request: HttpRequest, scan_list_id: int) -> HttpResponse:
+    scan_list = get_object_or_404(ScanList.objects.prefetch_columns(), pk=scan_list_id)
+    resp = HttpResponse(content_type='text/csv')
+    writer = csv.writer(resp, dialect='excel')
+    writer.writerow(['URL'] + [col.name for col in scan_list.ordered_columns])
+    for site in scan_list.sites.prefetch_column_values(scan_list):
+        writer.writerow([site.url] + [col.value for col in site.ordered_column_values])
+    return resp
+
+
+def site_result_json(request: HttpRequest, site_id: int) -> HttpResponse:
+    site = get_object_or_404(Site.objects.annotate_most_recent_scan_result(),
+                             pk=site_id)
+    scan_result = site.last_scan__result if site.last_scan__result else {}
+    if 'raw' in request.GET:
+        return JsonResponse(scan_result)
+    code = json.dumps(scan_result, indent=2)
+    highlighted_code = mark_safe(highlight(code, JsonLexer(), HtmlFormatter()))
+    return render(request, 'frontend/site_result_json.html', {
+        'site': site,
+        'highlighted_code': highlighted_code
+    })
 
 
 def third_parties(request: HttpRequest) -> HttpResponse:

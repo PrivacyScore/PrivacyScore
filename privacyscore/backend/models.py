@@ -109,22 +109,6 @@ class ScanList(models.Model):
         """Get the ordered column values of this site."""
         return self.sorted_columns
 
-    @cached_property
-    def last_scan_datetime(self) -> Union[datetime, None]:
-        """
-        Get date and time of most recent scan.
-
-        The most recent date from all sites is returned.
-        """
-        if hasattr(self, 'last_scan__end'):
-            return self.last_scan__end
-        scans = Scan.objects.filter(
-            site__scan_lists=self, end__isnull=False).order_by(
-                'end')
-        last_scan = scans.last()
-        if last_scan:
-            return last_scan.end
-
     def tags_as_str(self) -> str:
         """Get a comma separated list of the tags."""
         if hasattr(self, 'ordered_tags'):
@@ -212,7 +196,7 @@ class SiteQuerySet(models.QuerySet):
                 FROM "{Scan}"
                 WHERE
                     site_id={Site}."id"
-                ORDER BY "site_id", "end" NULLS FIRST
+                ORDER BY "site_id", "end" DESC NULLS FIRST
                 '''.format(
                     Scan=Scan._meta.db_table,
                     Site=Site._meta.db_table,
@@ -351,18 +335,6 @@ class Site(models.Model):
         
         return True
     
-    @cached_property
-    def last_scan_datetime(self) -> Union[datetime, None]:
-        """Get most recent scan end time. """
-        if hasattr(self, 'last_scan__end'):
-            return self.last_scan__end
-        scans = Scan.objects.filter(
-            site__scan_lists=self, end__isnull=False).order_by(
-                'end').select_related('result')
-        last_scan = scans.last()
-        if last_scan:
-            return last_scan.end
-
     def evaluate(self, group_order: list) -> SiteEvaluation:
         """Evaluate the result of the last scan."""
         if not self.last_scan__result:
