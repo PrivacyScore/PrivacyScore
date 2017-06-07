@@ -15,8 +15,12 @@
         {% for category in category_names %}
         <th class="category-header">
             <abbr title="{{ category.long_name }}">{{ category.short_name }}</abbr><br />
-            <a class="pull-left" href="?categories={{ category.left }}#results"><i class="fa fa-angle-left"></i></a>
-            <a class="pull-right" href="?categories={{ category.right }}#results"><i class="fa fa-angle-right"></i></a>
+            <a class="pull-left" href="?categories={{ category.left }}{% if group_by is not None %}&amp;group_by={{ group_by }}{% endif %}{% if sort_by is not None %}&amp;sort_by={{ sort_by }}{% endif %}#results">
+                <i class="fa fa-angle-left"></i>
+            </a>
+            <a class="pull-right" href="?categories={{ category.right }}{% if group_by is not None %}&amp;group_by={{ group_by }}{% endif %}{% if sort_by is not None %}&amp;sort_by={{ sort_by }}{% endif %}#results">
+                <i class="fa fa-angle-right"></i>
+            </a>
         </th>
         {% endfor %}
         <th class="category-header">
