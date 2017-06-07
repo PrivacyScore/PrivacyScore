@@ -332,7 +332,7 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     scan_lists = ScanList.objects.filter(sites=site.pk)
 
     # evaluate site
-    site.evaluated = UnrateableSiteEvaluation()    
+    site.evaluated = UnrateableSiteEvaluation()
     if site.last_scan and site.last_scan.result_or_none:
         the_result = site.last_scan.result_or_none
         results = the_result.result
@@ -342,7 +342,7 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     # store other attributes needed to show
     res = {}
     
-    if not results:
+    if results is None:
         results = {}
     
     res['final_url'] = results.get('final_url', _('(error during scan)'))
