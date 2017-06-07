@@ -53,8 +53,8 @@
                             </span>
                         {% endif %}
                     {% endwith %}
-                    {% if site.last_scan_datetime is not None %}
-                        / {{ site.last_scan_datetime|date:"Y-m-d @ H:i:s" }}
+                    {% if site.last_scan__end is not None %}
+                        / {{ site.last_scan__end|date:"Y-m-d @ H:i:s" }}
                     {% else %}
                         –
                     {% endif %}
