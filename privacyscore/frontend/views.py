@@ -2,6 +2,7 @@ from collections import Counter, defaultdict
 from typing import Iterable, Union
 from urllib.parse import urlencode
 
+import re
 from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
@@ -257,10 +258,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
 
     if sort_by is not None:
         sites = list(sites)
-
-        def sort_fn(site):
-            return site.ordered_column_values[sort_by].value if sort_by else None
-        sites.sort(key=sort_fn, reverse=sort_dir == 'desc')
+        sites.sort(key=_get_sorting_fn(sites, sort_by), reverse=sort_dir == 'desc')
 
     groups = None
     group_attr = None
@@ -334,6 +332,48 @@ def _move_element(lst, el, direction):
         return lst
     lst[index], lst[index + direction] = lst[index + direction], lst[index]
     return lst
+
+
+def _get_sorting_fn(sites, column_index):
+    sorting_type = 'string'
+    for site in sites:
+        value = site.ordered_column_values[column_index].value
+        if not value:
+            continue
+        if re.match('^[\d+.]+$', value):
+            if value.count('.') > 1:
+                sorting_type = 'integer'
+                break
+            sorting_type = 'float'
+        else:
+            sorting_type = 'string'
+            break
+
+    def _sort_integer(value):
+        if value:
+            try:
+                return False, int(value.replace('.', ''))
+            except ValueError:
+                pass
+        return True, 0
+
+    def _sort_float(value):
+        if value:
+            try:
+                return False, float(value)
+            except ValueError:
+                pass
+        return True, 0
+
+    def _sort_str(value):
+        return (value is None, value)
+
+    return lambda site: {
+        'integer': _sort_integer,
+        'float': _sort_float,
+        'string': _sort_str
+    }[sorting_type](site.ordered_column_values[column_index].value)
+
 
 
 def _calculate_ratings_count(sites):
