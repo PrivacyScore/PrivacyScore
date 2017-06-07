@@ -1,5 +1,5 @@
 from collections import Counter, defaultdict
-from typing import Union
+from typing import Iterable, Union
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -256,7 +256,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         for column_value, group_sites in lookup.items():
             groups.append({
                 'name': column_value,
-                'sites': enumerate(group_sites, start=1),
+                'sites': _enumerate_sites(group_sites, start=1),
                 'sites_count': len(group_sites),
                 'sites_failures_count': _calculate_failures_count(group_sites),
                 'ratings_count': _calculate_ratings_count(group_sites)
@@ -271,7 +271,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         'sites_count': len(sites),
         'ratings_count': ratings_count,
         'sites_failures_count': _calculate_failures_count(sites),
-        'sites': enumerate(sites, start=1),
+        'sites': _enumerate_sites(sites, start=1),
         'result_groups': [group['name'] for group in RESULT_GROUPS.values()],
         'groups': groups,
         'group_attr': group_attr,
@@ -279,6 +279,20 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         'category_order': ','.join(category_order),
         'config_form': config_form,
     })
+
+
+def _enumerate_sites(sites: Iterable, start: int = 1) -> Iterable:
+    """Enumerate sites an return same number for equal sites."""
+    num = start
+    previous_evaluation = None
+    for site in sites:
+        if (previous_evaluation is not None and
+                previous_evaluation == site.evaluated):
+            # Has same rank as previous site
+            num -= 1
+        previous_evaluation = site.evaluated
+        yield num, site
+        num += 1
 
 
 def _get_column_index(param, scan_list):
