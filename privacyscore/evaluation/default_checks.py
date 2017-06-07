@@ -988,6 +988,7 @@ CHECKS['ssl']['web_vuln_fallback_scsv'] = {
 # Check if mail server exists at all
 # No mailserver: Good
 # Else: None
+
 CHECKS['mx']['has_mx'] = {
     'keys': {'mx_records'},
     'rating': lambda **keys: {
@@ -1000,8 +1001,12 @@ CHECKS['mx']['has_mx'] = {
 # Check if mail server check actually finished
 # Result is informational
 CHECKS['mx']['mx_scan_finished'] = {
-    'keys': {'mx_ssl_finished'},
-    'rating': lambda **keys: None,
+    'keys': {'mx_ssl_finished', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The mail server does not seem to support encryption.'),
+        'classification': Rating('critical'),
+        'details_list': None,
+    } if keys['web_ssl_finished'] and not keys['web_has_ssl'] else None,
     'missing': {
         'description': _('The SSL scan of the mail server timed out.'),
         'classification': Rating('neutral'),
