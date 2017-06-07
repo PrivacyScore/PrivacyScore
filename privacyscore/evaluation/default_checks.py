@@ -21,11 +21,6 @@ CHECKS = {
     'mx': OrderedDict(),
 }
 
-###################################
-############ IMPORTANT ############
-###################################
-# TODO Check uses of same_content_via_https in relation to final_url_is_https and final_url - they can sometimes be unexpected
-
 ####################
 ## Privacy Checks ##
 ####################
@@ -984,11 +979,9 @@ CHECKS['ssl']['web_vuln_fallback_scsv'] = {
 ###########################
 ## Mailserver TLS Checks ##
 ###########################
-# TODO Also add a timeout canary here
 # Check if mail server exists at all
 # No mailserver: Good
 # Else: None
-
 CHECKS['mx']['has_mx'] = {
     'keys': {'mx_records'},
     'rating': lambda **keys: {
