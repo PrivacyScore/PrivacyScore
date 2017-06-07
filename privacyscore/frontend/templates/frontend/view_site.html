@@ -1,6 +1,7 @@
 {% extends 'frontend/base.html' %}
 {% load static %}
 {% load i18n %}
+{% load result_groups %}
 
 {% block title %}Results for {{ site.url }}{% endblock title %}
 
@@ -114,7 +115,7 @@ table.dataTable thead .sorting_desc_disabled
                             {% if rating.devaluating %}
                             )
                             {% endif %}
-                            <br>{{ group }}
+                            <br>{{ group|group_short_name }}
                         {% endwith %}
                 {% else %}
                         {% trans 'No Rating' %}
