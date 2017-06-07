@@ -29,16 +29,11 @@ class ScanListQuerySet(models.QuerySet):
     def annotate_most_recent_scan_end(self) -> 'ScanListQuerySet':
         return self.annotate(
             last_scan__end=RawSQL('''
-                SELECT "{Scan}"."end"
-                FROM "{Scan}"
+                SELECT
+                    MAX({Scan}."end")
+                FROM {Scan}, {Site_ScanLists}
                 WHERE
-                    "{Scan}"."end" IS NOT NULL AND
-                    "{Scan}"."site_id" IN
-                        (SELECT DISTINCT "{Site_ScanLists}"."site_id"
-                         FROM "{Site_ScanLists}"
-                         WHERE "{Site_ScanLists}"."scanlist_id" = "{ScanList}"."id")
-                ORDER BY "{Scan}"."end" DESC
-                LIMIT 1
+                    {Scan}."site_id" = {Site_ScanLists}."site_id"
                 '''.format(
                     Scan=Scan._meta.db_table,
                     Site_ScanLists=Site.scan_lists.through._meta.db_table,
