@@ -63,12 +63,7 @@ table.dataTable thead .sorting_desc_disabled
     <div class="col-sm-8">
         
         <div style="background-color: #888; width: 100%; padding: 8px 12px 6px 12px; color: #ccc; font-size: 90%">
-            <span>
-                {% blocktrans count counter=num_scans %}
-                    <span style="color:white">{{ counter }}</span>&nbsp; SCAN
-                {% plural %}
-                    <span style="color:white">{{ counter }}</span>&nbsp; SCANS
-                {% endblocktrans %}
+            <span>SCAN <span style="color:white">#{{ num_scans }}</span>
             </span>
             <span class="pull-right"><span>LAST SCAN</span>&nbsp; <span style="color: white">{{ site.last_scan.start|date:"Y-m-d @ H:i:s" }} – {{ site.last_scan.end|date:"H:i:s" }}</span></span></div>
         
@@ -94,79 +89,88 @@ table.dataTable thead .sorting_desc_disabled
     <div class="col-sm-4">
         <form method="POST" action="{% url 'frontend:scan_site' site.pk %}">
             {% csrf_token %}
-            <button type="submit" class="btn btn-default btn-primary btn-lg" role="button" id="scan_again" style="width:100%">
+            <button type="submit" class="btn btn-default btn-primary btn-lg" role="button" id="scan_again" style="width:100%; margin-top:5px; margin-bottom:10px">
                 {% trans 'Re-scan site now' %}
             </button>
         </form>
-        
-        <div class="spacer"></div>
     
         <p class="text-center">
             {% if site.last_scan__start and site.last_scan__end_or_null is None %}
-                <strong>scheduled for scanning</strong>
+                <strong class="text-primary">scheduled for scanning</strong>
             {% else %}
-                not scheduled for scanning
+                <small class="text-muted">not scanning at the moment</small>
             {% endif %}
-        </p>
-        <p class="text-center">
-            on PrivacyScore since {{ site.created|date:"Y-m-d" }}
         </p>
     </div>
 </div>
 
-
-<div class="spacer"></div>
 <div class="spacer"></div>
 
 <div class="row">
-    <div class="col-xs-6 col-sm-3 col-md-3">
-        <div class="group-box" style="padding:5px; margin-bottom: 20px">
-        {% if site.has_screenshot %}
-        <img src="{% url 'frontend:site_screenshot' site.pk %}" class="screenshot" style="width:100%; " />
-        {% else %}
-        <img src="" class="screenshot" style="width:100%; background-color: silver; width:320px; height: 240px;" />
-        {% endif %}
-        </div>
-    </div>
-    <div class="col-xs-6 col-sm-5 col-md-5" style="paddin-left: 2em">
-        <p><small>URL after fully loading the page:</small><br>
-            <span style="word-wrap: break-word;">
-                {{ res.final_url }}
-            </span></p>
+    <div class="col-sm-8">
+        <div class="row">
+            <div class="col-sm-6">
+                <p><small>ANALYZED URL AFTER LOADING:</small><br>
+                    <span style="word-wrap: break-word;">
+                        {{ res.final_url }}
+                    </span></p>
+                </p>
+            </div>
+            <div class="col-sm-6">
+                <p><small>ANALYZED MAIL SERVER:</small><br>
+                        {{ res.mx_record }}
+                </p>
+            </div>
+            <div class="col-sm-12">
+                
+                {% for group, descriptions in groups_descriptions %}
+                  <h3>{{ group }}</h3>
 
-        <p><small>Analyzed mail server:</small><br>
-                {{ res.mx_record }}
-        </p>
+                  {% for description, classification in descriptions %}
+                    <p class="description-{{ classification }}">{{ description }}</p>
+                  {% endfor %}
+                {% endfor %}
+                
+                
+            </div>
+        </div>
+        
+        
+        
+        
     </div>
     <div class="col-xs-12 col-sm-4 col-md-4 text-center">
         
+        <p class="text-center">
+            <small>ON PRIVACYSCORE SINCE</small><br>{{ site.created|date:"Y-m-d" }}
+        </p>
+        
+        
+        <div class="group-box" style="padding:5px; margin-bottom: 20px; width:70%; margin-left:auto;margin-right:auto;">
+        {% if site.has_screenshot %}
+        <img src="{% url 'frontend:site_screenshot' site.pk %}" class="screenshot" style="width:100%; " />
+        {% endif %}
+        </div>
+        
         <p>Referenced in 
             {% blocktrans count counter=scan_lists.count %}
-                {{ counter }} list
+                {{ counter }} list:
             {% plural %}
-                {{ counter }} lists
+                {{ counter }} lists:
             {% endblocktrans %}
         </p>
+        <div style="width:70%; margin-left:auto;margin-right:auto;">
             {% for list in scan_lists %}
             <a style="white-space: normal"
-                type="button" class="btn btn-sm btn-default btn-block"
+                type="button" class="btn btn-xs btn-default btn-block"
                 href="{% url 'frontend:view_scan_list' list.pk %}">
                 {{ list.name }}
             </a>
             {% endfor %}
+        </div>
+        
     </div>
 
 </div>
-
-  {% for group, descriptions in groups_descriptions %}
-    <h3>{{ group }}</h3>
-
-    {% for description, classification in descriptions %}
-      <p class="description-{{ classification }}">{{ description }}</p>
-    {% endfor %}
-  {% endfor %}
-
-  
-
 
 {% endblock content %}
