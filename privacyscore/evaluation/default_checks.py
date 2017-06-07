@@ -1444,21 +1444,237 @@ CHECKS['mx']['mx_vuln_fallback_scsv'] = {
     'missing': None,
 }
 
-
-CHECKS['ssl']['web_insecure_protocols_sslv2']['title']=\
-CHECKS['mx']['mx_insecure_protocols_sslv2']['title']=\
-    'HTTPS-SSL20: Check that insecure SSL 2.0 is not offered'
-
-CHECKS['ssl']['web_insecure_protocols_sslv2']['longdesc']=\
-CHECKS['mx']['mx_insecure_protocols_sslv2']['longdesc']=\
-    '''
-    <p>SSL 2.0 is a deprecated encryption protocol with known vulnerabilities. For instance, it uses the MD5 hash algorithm, whose collision resistance has been broken.</p>
-
-    <p><strong>Conditions for passing:</strong> Test passes if the server does not offer the SSL 2.0 protocol. Neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
-
-    <p><strong>Reliability:</strong> reliable.</p>
-
-    <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-
-    <p>Scan Module: testssl</p>
-    '''
+# Add textual descriptions and labels and stuff
+CHECKS['privacy']['third_parties']['title'] = "Check if 3rd party embeds are being used"
+CHECKS['privacy']['third_parties']['longdesc'] = '''<p>Many websites are using services provided by third parties to enhance their websites. However, this use of third parties has privacy implications for the users, as the information that they are visiting a particular website is also disclosed to all used third parties.</p>
+<p><strong>Conditions for passing:</strong> Test passes if no 3rd party resources are being embedded on the website.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan Module: openwpm</p>
+<p>Further reading:</p>
+<ul>
+<li>TODO</li>
+</ul>''' 
+CHECKS['privacy']['third_parties']['labels'] = ['reliable']
+CHECKS['privacy']['third_party-trackers']['title'] = 'Check if embedded 3rd parties are known trackers'
+CHECKS['privacy']['third_party-trackers']['longdesc'] = '''<p>Often, web tracking is done through embedding trackers and advertising companies as third parties in the website. This test checks if any of the 3rd parties are known trackers or advertisers, as determined by matching them against a number of blocking lists (see “conditions for passing”).</p>
+<p><strong>Conditions for passing:</strong> Test passes if none of the embedded 3rd parties is a known tracker, as determined by a combination of three common blocking rulesets for AdBlock Plus: the EasyList, EasyPrivacy and Fanboy’s Annoyance List (which covers social media embeds).</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> Due to modifications to the list to make them compatible with our system, false positives may be introduced in rare conditions (e.g., if rules were blocking only specific resource types).</p>
+<p>Scan Module: openwpm</p>
+<p>Further reading:</p>
+<ul>
+<li><a href="https://easylist.to/">https://easylist.to/</a></li>
+</ul>
+''' 
+CHECKS['privacy']['third_party-trackers']['labels'] = ['reliable']
+CHECKS['privacy']['cookies_1st_party']['title'] = None
+CHECKS['privacy']['cookies_1st_party']['longdesc'] = None 
+CHECKS['privacy']['cookies_1st_party']['labels'] = ['unreliable']
+CHECKS['privacy']['cookies_3rd_party']['title'] = None
+CHECKS['privacy']['cookies_3rd_party']['longdesc'] = None 
+CHECKS['privacy']['cookies_3rd_party']['labels'] = ['unreliable']
+CHECKS['privacy']['google_analytics_present']['title'] = None
+CHECKS['privacy']['google_analytics_present']['longdesc'] = None 
+CHECKS['privacy']['google_analytics_present']['labels'] = ['unreliable']
+CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['title'] = None
+CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['longdesc'] = None 
+CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['labels'] = ['unreliable']
+CHECKS['privacy']['webserver_locations']['title'] = None
+CHECKS['privacy']['webserver_locations']['longdesc'] = None 
+CHECKS['privacy']['webserver_locations']['labels'] = ['unreliable']
+CHECKS['privacy']['mailserver_locations']['title'] = None
+CHECKS['privacy']['mailserver_locations']['longdesc'] = None 
+CHECKS['privacy']['mailserver_locations']['labels'] = ['unreliable']
+CHECKS['privacy']['server_locations']['title'] = None
+CHECKS['privacy']['server_locations']['longdesc'] = None 
+CHECKS['privacy']['server_locations']['labels'] = ['unreliable']
+CHECKS['security']['leaks']['title'] = None
+CHECKS['security']['leaks']['longdesc'] = None 
+CHECKS['security']['leaks']['labels'] = ['unreliable']
+CHECKS['security']['header_csp']['title'] = None
+CHECKS['security']['header_csp']['longdesc'] = None 
+CHECKS['security']['header_csp']['labels'] = ['unreliable']
+CHECKS['security']['header_xfo']['title'] = None
+CHECKS['security']['header_xfo']['longdesc'] = None 
+CHECKS['security']['header_xfo']['labels'] = ['unreliable']
+CHECKS['security']['header_xssp']['title'] = None
+CHECKS['security']['header_xssp']['longdesc'] = None 
+CHECKS['security']['header_xssp']['labels'] = ['unreliable']
+CHECKS['security']['header_xcto']['title'] = None
+CHECKS['security']['header_xcto']['longdesc'] = None 
+CHECKS['security']['header_xcto']['labels'] = ['unreliable']
+CHECKS['security']['header_ref']['title'] = None
+CHECKS['security']['header_ref']['longdesc'] = None 
+CHECKS['security']['header_ref']['labels'] = ['unreliable']
+CHECKS['ssl']['https_scan_failed']['title'] = None
+CHECKS['ssl']['https_scan_failed']['longdesc'] = None 
+CHECKS['ssl']['https_scan_failed']['labels'] = ['unreliable']
+CHECKS['ssl']['https_scan_finished']['title'] = None
+CHECKS['ssl']['https_scan_finished']['longdesc'] = None 
+CHECKS['ssl']['https_scan_finished']['labels'] = ['unreliable']
+CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['title'] = None
+CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['longdesc'] = None 
+CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['labels'] = ['unreliable']
+CHECKS['ssl']['web_cert']['title'] = None
+CHECKS['ssl']['web_cert']['longdesc'] = None 
+CHECKS['ssl']['web_cert']['labels'] = ['unreliable']
+CHECKS['ssl']['site_redirects_to_https']['title'] = None
+CHECKS['ssl']['site_redirects_to_https']['longdesc'] = None 
+CHECKS['ssl']['site_redirects_to_https']['labels'] = ['unreliable']
+CHECKS['ssl']['redirects_from_https_to_http']['title'] = None
+CHECKS['ssl']['redirects_from_https_to_http']['longdesc'] = None 
+CHECKS['ssl']['redirects_from_https_to_http']['labels'] = ['unreliable']
+CHECKS['ssl']['web_pfs']['title'] = None
+CHECKS['ssl']['web_pfs']['longdesc'] = None 
+CHECKS['ssl']['web_pfs']['labels'] = ['unreliable']
+CHECKS['ssl']['web_hsts_header']['title'] = None
+CHECKS['ssl']['web_hsts_header']['longdesc'] = None 
+CHECKS['ssl']['web_hsts_header']['labels'] = ['unreliable']
+CHECKS['ssl']['web_hsts_preload_prepared']['title'] = None
+CHECKS['ssl']['web_hsts_preload_prepared']['longdesc'] = None 
+CHECKS['ssl']['web_hsts_preload_prepared']['labels'] = ['unreliable']
+CHECKS['ssl']['web_hsts_preload_listed']['title'] = None
+CHECKS['ssl']['web_hsts_preload_listed']['longdesc'] = None 
+CHECKS['ssl']['web_hsts_preload_listed']['labels'] = ['unreliable']
+CHECKS['ssl']['web_has_hpkp_header']['title'] = None
+CHECKS['ssl']['web_has_hpkp_header']['longdesc'] = None 
+CHECKS['ssl']['web_has_hpkp_header']['labels'] = ['unreliable']
+CHECKS['ssl']['web_insecure_protocols_sslv2']['title'] = \
+CHECKS['mx']['mx_insecure_protocols_sslv2']['title'] = None
+CHECKS['ssl']['web_insecure_protocols_sslv2']['longdesc'] = \
+CHECKS['mx']['mx_insecure_protocols_sslv2']['longdesc'] = None 
+CHECKS['ssl']['web_insecure_protocols_sslv2']['labels'] = \
+CHECKS['mx']['mx_insecure_protocols_sslv2']['labels'] = ['unreliable']
+CHECKS['ssl']['web_insecure_protocols_sslv3']['title'] = \
+CHECKS['mx']['mx_insecure_protocols_sslv3']['title'] = None
+CHECKS['ssl']['web_insecure_protocols_sslv3']['longdesc'] = \
+CHECKS['mx']['mx_insecure_protocols_sslv3']['longdesc'] = None 
+CHECKS['ssl']['web_insecure_protocols_sslv3']['labels'] = \
+CHECKS['mx']['mx_insecure_protocols_sslv3']['labels'] = ['unreliable']
+CHECKS['ssl']['web_secure_protocols_tls1']['title'] = \
+CHECKS['mx']['mx_secure_protocols_tls1']['title'] = None
+CHECKS['ssl']['web_secure_protocols_tls1']['longdesc'] = \
+CHECKS['mx']['mx_secure_protocols_tls1']['longdesc'] = None 
+CHECKS['ssl']['web_secure_protocols_tls1']['labels'] = \
+CHECKS['mx']['mx_secure_protocols_tls1']['labels'] = ['unreliable']
+CHECKS['ssl']['web_secure_protocols_tls1_1']['title'] = \
+CHECKS['mx']['mx_secure_protocols_tls1_1']['title'] = None
+CHECKS['ssl']['web_secure_protocols_tls1_1']['longdesc'] = \
+CHECKS['mx']['mx_secure_protocols_tls1_1']['longdesc'] = None 
+CHECKS['ssl']['web_secure_protocols_tls1_1']['labels'] = \
+CHECKS['mx']['mx_secure_protocols_tls1_1']['labels'] = ['unreliable']
+CHECKS['ssl']['web_secure_protocols_tls1_2']['title'] = \
+CHECKS['mx']['mx_secure_protocols_tls1_2']['title'] = None
+CHECKS['ssl']['web_secure_protocols_tls1_2']['longdesc'] = \
+CHECKS['mx']['mx_secure_protocols_tls1_2']['longdesc'] = None 
+CHECKS['ssl']['web_secure_protocols_tls1_2']['labels'] = \
+CHECKS['mx']['mx_secure_protocols_tls1_2']['labels'] = ['unreliable']
+CHECKS['ssl']['mixed_content']['title'] = \
+CHECKS['mx']['mx_d_content']['title'] = None
+CHECKS['ssl']['mixed_content']['longdesc'] = \
+CHECKS['mx']['mx_d_content']['longdesc'] = None 
+CHECKS['ssl']['mixed_content']['labels'] = \
+CHECKS['mx']['mx_d_content']['labels'] = ['unreliable']
+CHECKS['ssl']['web_vuln_heartbleed']['title'] = \
+CHECKS['mx']['mx_vuln_heartbleed']['title'] = None
+CHECKS['ssl']['web_vuln_heartbleed']['longdesc'] = \
+CHECKS['mx']['mx_vuln_heartbleed']['longdesc'] = None 
+CHECKS['ssl']['web_vuln_heartbleed']['labels'] = \
+CHECKS['mx']['mx_vuln_heartbleed']['labels'] = ['unreliable']
+CHECKS['ssl']['web_vuln_ccs']['title'] = \
+CHECKS['mx']['mx_vuln_ccs']['title'] = None
+CHECKS['ssl']['web_vuln_ccs']['longdesc'] = \
+CHECKS['mx']['mx_vuln_ccs']['longdesc'] = None 
+CHECKS['ssl']['web_vuln_ccs']['labels'] = \
+CHECKS['mx']['mx_vuln_ccs']['labels'] = ['unreliable']
+CHECKS['ssl']['web_vuln_ticketbleed']['title'] = \
+CHECKS['mx']['mx_vuln_ticketbleed']['title'] = None
+CHECKS['ssl']['web_vuln_ticketbleed']['longdesc'] = \
+CHECKS['mx']['mx_vuln_ticketbleed']['longdesc'] = None 
+CHECKS['ssl']['web_vuln_ticketbleed']['labels'] = \
+CHECKS['mx']['mx_vuln_ticketbleed']['labels'] = ['unreliable']
+CHECKS['ssl']['web_vuln_secure_renego']['title'] = \
+CHECKS['mx']['mx_vuln_secure_renego']['title'] = None
+CHECKS['ssl']['web_vuln_secure_renego']['longdesc'] = \
+CHECKS['mx']['mx_vuln_secure_renego']['longdesc'] = None 
+CHECKS['ssl']['web_vuln_secure_renego']['labels'] = \
+CHECKS['mx']['mx_vuln_secure_renego']['labels'] = ['unreliable']
+CHECKS['ssl']['web_vuln_secure_client_renego']['title'] = \
+CHECKS['mx']['mx_vuln_secure_client_renego']['title'] = None
+CHECKS['ssl']['web_vuln_secure_client_renego']['longdesc'] = \
+CHECKS['mx']['mx_vuln_secure_client_renego']['longdesc'] = None 
+CHECKS['ssl']['web_vuln_secure_client_renego']['labels'] = \
+CHECKS['mx']['mx_vuln_secure_client_renego']['labels'] = ['unreliable']
+CHECKS['ssl']['web_vuln_crime']['title'] = \
+CHECKS['mx']['mx_vuln_crime']['title'] = None
+CHECKS['ssl']['web_vuln_crime']['longdesc'] = \
+CHECKS['mx']['mx_vuln_crime']['longdesc'] = None 
+CHECKS['ssl']['web_vuln_crime']['labels'] = \
+CHECKS['mx']['mx_vuln_crime']['labels'] = ['unreliable']
+CHECKS['ssl']['web_vuln_breach']['title'] = \
+CHECKS['mx']['mx_vuln_breach']['title'] = None
+CHECKS['ssl']['web_vuln_breach']['longdesc'] = \
+CHECKS['mx']['mx_vuln_breach']['longdesc'] = None 
+CHECKS['ssl']['web_vuln_breach']['labels'] = \
+CHECKS['mx']['mx_vuln_breach']['labels'] = ['unreliable']
+CHECKS['ssl']['web_vuln_poodle']['title'] = \
+CHECKS['mx']['mx_vuln_poodle']['title'] = None
+CHECKS['ssl']['web_vuln_poodle']['longdesc'] = \
+CHECKS['mx']['mx_vuln_poodle']['longdesc'] = None 
+CHECKS['ssl']['web_vuln_poodle']['labels'] = \
+CHECKS['mx']['mx_vuln_poodle']['labels'] = ['unreliable']
+CHECKS['ssl']['web_vuln_sweet32']['title'] = \
+CHECKS['mx']['mx_vuln_sweet32']['title'] = None
+CHECKS['ssl']['web_vuln_sweet32']['longdesc'] = \
+CHECKS['mx']['mx_vuln_sweet32']['longdesc'] = None 
+CHECKS['ssl']['web_vuln_sweet32']['labels'] = \
+CHECKS['mx']['mx_vuln_sweet32']['labels'] = ['unreliable']
+CHECKS['ssl']['web_vuln_freak']['title'] = \
+CHECKS['mx']['mx_vuln_freak']['title'] = None
+CHECKS['ssl']['web_vuln_freak']['longdesc'] = \
+CHECKS['mx']['mx_vuln_freak']['longdesc'] = None 
+CHECKS['ssl']['web_vuln_freak']['labels'] = \
+CHECKS['mx']['mx_vuln_freak']['labels'] = ['unreliable']
+CHECKS['ssl']['web_vuln_drown']['title'] = \
+CHECKS['mx']['mx_vuln_drown']['title'] = None
+CHECKS['ssl']['web_vuln_drown']['longdesc'] = \
+CHECKS['mx']['mx_vuln_drown']['longdesc'] = None 
+CHECKS['ssl']['web_vuln_drown']['labels'] = \
+CHECKS['mx']['mx_vuln_drown']['labels'] = ['unreliable']
+CHECKS['ssl']['web_vuln_logjam']['title'] = \
+CHECKS['mx']['mx_vuln_logjam']['title'] = None
+CHECKS['ssl']['web_vuln_logjam']['longdesc'] = \
+CHECKS['mx']['mx_vuln_logjam']['longdesc'] = None 
+CHECKS['ssl']['web_vuln_logjam']['labels'] = \
+CHECKS['mx']['mx_vuln_logjam']['labels'] = ['unreliable']
+CHECKS['ssl']['web_vuln_beast']['title'] = \
+CHECKS['mx']['mx_vuln_beast']['title'] = None
+CHECKS['ssl']['web_vuln_beast']['longdesc'] = \
+CHECKS['mx']['mx_vuln_beast']['longdesc'] = None 
+CHECKS['ssl']['web_vuln_beast']['labels'] = \
+CHECKS['mx']['mx_vuln_beast']['labels'] = ['unreliable']
+CHECKS['ssl']['web_vuln_lucky13']['title'] = \
+CHECKS['mx']['mx_vuln_lucky13']['title'] = None
+CHECKS['ssl']['web_vuln_lucky13']['longdesc'] = \
+CHECKS['mx']['mx_vuln_lucky13']['longdesc'] = None 
+CHECKS['ssl']['web_vuln_lucky13']['labels'] = \
+CHECKS['mx']['mx_vuln_lucky13']['labels'] = ['unreliable']
+CHECKS['ssl']['web_vuln_rc4']['title'] = \
+CHECKS['mx']['mx_vuln_rc4']['title'] = None
+CHECKS['ssl']['web_vuln_rc4']['longdesc'] = \
+CHECKS['mx']['mx_vuln_rc4']['longdesc'] = None 
+CHECKS['ssl']['web_vuln_rc4']['labels'] = \
+CHECKS['mx']['mx_vuln_rc4']['labels'] = ['unreliable']
+CHECKS['ssl']['web_vuln_fallback_scsv']['title'] = \
+CHECKS['mx']['mx_vuln_fallback_scsv']['title'] = None
+CHECKS['ssl']['web_vuln_fallback_scsv']['longdesc'] = \
+CHECKS['mx']['mx_vuln_fallback_scsv']['longdesc'] = None 
+CHECKS['ssl']['web_vuln_fallback_scsv']['labels'] = \
+CHECKS['mx']['mx_vuln_fallback_scsv']['labels'] = ['unreliable']
+CHECKS['mx']['has_mx']['title'] = None
+CHECKS['mx']['has_mx']['longdesc'] = None 
+CHECKS['mx']['has_mx']['labels'] = ['unreliable']
+CHECKS['mx']['mx_scan_finished']['title'] = None
+CHECKS['mx']['mx_scan_finished']['longdesc'] = None 
+CHECKS['mx']['mx_scan_finished']['labels'] = ['unreliable']
