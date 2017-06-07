@@ -209,7 +209,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
             category_order.append(category)
     if (set(category_order) != set(RESULT_GROUPS.keys()) or
             len(category_order) != len(RESULT_GROUPS)):
-        category_order = ['ssl', 'mx', 'privacy', 'security']
+        category_order = ['privacy', 'ssl', 'security', 'mx']
     if ','.join(category_order) != request.GET.get('categories'):
         url_params = request.GET.copy()
         url_params.update({
@@ -376,7 +376,7 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     results = {}
     if site.last_scan__result:
         results = site.last_scan__result
-        category_order = ['ssl', 'mx', 'privacy', 'security']
+        category_order = ['privacy', 'ssl', 'security', 'mx']
         site.evaluated = site.evaluate(category_order)[0]
     
     # store other attributes needed to show
