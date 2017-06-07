@@ -298,7 +298,7 @@ def _calculate_ratings_count(sites):
     # TODO: use ordered dict and sort by rating ordering
     # for now, frontend template can just use static ordering of all available ratings
     ratings_count = dict(Counter(site.evaluated.rating.rating for site in sites))
-    for rating in ('good', 'bad', 'warning', 'neutral'):
+    for rating in ('good', 'bad', 'warning', 'critical', 'neutral'):
         if rating not in ratings_count:
             ratings_count[rating] = 0
     return ratings_count

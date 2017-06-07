@@ -21,14 +21,20 @@
         {% endblocktrans %}
     </li>
     <li class="color-warning">
-        <i class="fa fa-minus-circle color-warning"></i>
+        <i class="fa fa-exclamation-circle color-warning"></i>
         {% blocktrans with count=ratings_count.warning %}
         {{ count }} with one or more issues
         {% endblocktrans %}
     </li>
     <li class="color-bad">
-        <i class="fa fa-times-circle color-bad"></i>
+        <i class="fa fa-exclamation-triangle color-bad"></i>
         {% blocktrans with count=ratings_count.bad %}
+        {{ count }} that failed all tests in at least one group  
+        {% endblocktrans %}
+    </li>
+    <li class="color-critical">
+        <i class="fa fa-times-circle color-critical"></i>
+        {% blocktrans with count=ratings_count.critical %}
         {{ count }} with critical issues
         {% endblocktrans %}
     </li>
