@@ -80,6 +80,8 @@
                             {% elif group_rating == 'warning' %}
                                 <i class="fa fa-lg fa-exclamation-circle color-{{ group_rating }}"></i>
                             {% elif group_rating == 'bad' %}
+                                <i class="fa fa-lg fa-exclamation-triangle color-{{ group_rating }}"></i>
+                            {% elif group_rating == 'critical' %}
                                 <i class="fa fa-lg fa-times-circle color-{{ group_rating }}"></i>
                             {% elif group_rating == 'neutral' %}
                                 <i class="fa fa-lg fa-question-circle color-{{ group_rating }}"></i>
@@ -114,9 +116,11 @@
                     {% elif r == 'good' %}
                         <i class="fa fa-lg fa-check-circle color-{{ r }}"></i>
                     {% elif r == 'warning' %}
-                        <i class="fa fa-lg fa-minus-circle color-{{ r }}"></i>
-                    {% elif r == 'bad' %}
                         <i class="fa fa-lg fa-exclamation-circle color-{{ r }}"></i>
+                    {% elif r == 'bad' %}
+                        <i class="fa fa-lg fa-exclamation-triangle color-{{ r }}"></i>
+                    {% elif r == 'critical' %}
+                        <i class="fa fa-lg fa-times-circle color-{{ r }}"></i>
                     {% elif r == 'neutral' %}
                         <i class="fa fa-lg fa-question-circle color-{{ r }}"></i>
                     {% else  %}

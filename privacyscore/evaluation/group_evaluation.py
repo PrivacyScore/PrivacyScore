@@ -73,7 +73,7 @@ class GroupEvaluation:
         if self.devaluating > 0:
             return Rating('neutral', devaluates_group=True)
         if self.critical > 0:
-            return Rating('bad')
+            return Rating('critical')
         if 0 < self.overall_good == self.overall_total > self.good:
             return Rating('doubleplusgood')
         if self.bad == 0 < self.good:
