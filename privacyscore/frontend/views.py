@@ -196,7 +196,8 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         category = category.strip()
         if category in RESULT_GROUPS:
             category_order.append(category)
-    if len(category_order) != 4:
+    if (set(category_order) != set(RESULT_GROUPS.keys()) or
+            len(category_order) != len(RESULT_GROUPS)):
         category_order = ['ssl', 'mx', 'privacy', 'security']
     if ','.join(category_order) != request.GET.get('categories'):
         url_params = request.GET.copy()
