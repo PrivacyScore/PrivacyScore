@@ -114,9 +114,9 @@ table.dataTable thead .sorting_desc_disabled
                             {% elif group_rating == 'warning' %}
                                 <i class="fa fa-3x fa-exclamation-circle color-{{ group_rating }}"></i>
                             {% elif group_rating == 'bad' %}
-                                <i class="fa fa-3x fa-exclamation-triangle color-{{ r }}"></i>
+                                <i class="fa fa-3x fa-exclamation-triangle color-{{ group_rating }}"></i>
                             {% elif group_rating == 'critical' %}
-                                <i class="fa fa-3x fa-times-circle color-{{ r }}"></i>
+                                <i class="fa fa-3x fa-times-circle color-{{ group_rating }}"></i>
                             {% elif group_rating == 'neutral' %}
                                 <i class="fa fa-3x fa-question-circle color-{{ group_rating }}"></i>
                             {% endif %}
@@ -210,6 +210,12 @@ table.dataTable thead .sorting_desc_disabled
                                 {% elif rating.rating == 'warning' %}
                                     <i class="fa fa-3x fa-exclamation-circle color-{{ rating }}"></i>
                                 {% elif rating.rating == 'bad' %}
+                                {% comment %}
+                                     Making an exception and showing the circle (instead 
+                                     of exclamationamrk) here. This is intentional so that it
+                                     matches the group ratings above. Exclamation mark is only
+                                     used to convey "total failure in a category".
+                                {% endcomment %}
                                     <i class="fa fa-3x fa-exclamation-circle color-{{ rating }}"></i>
                                 {% elif rating.rating == 'critical' %}
                                     <i class="fa fa-3x fa-times-circle color-{{ rating }}"></i>
