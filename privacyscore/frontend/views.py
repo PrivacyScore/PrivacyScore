@@ -187,15 +187,19 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     scan_list.views = F('views') + 1
     scan_list.save(update_fields=('views',))
 
-    column_choices = [(None, _('None'))] + list(enumerate(x.name for x in scan_list.ordered_columns))
+    column_choices = [(None, _('- None -'))] + list(enumerate(x.name for x in scan_list.ordered_columns))
+
     class ConfigurationForm(forms.Form):
         categories = forms.CharField(required=False, widget=forms.HiddenInput)
         sort_by = forms.ChoiceField(choices=column_choices, required=False)
+        sort_dir = forms.ChoiceField(label=_('Sorting direction'),
+                                     choices=(('asc', _('Ascending')), ('desc', _('Descending'))))
         group_by = forms.ChoiceField(choices=column_choices, required=False)
 
     config_initial = {
         'categories': 'privacy,ssl,security,mx',
         'sort_by': None,
+        'sort_dir': 'asc',
         'group_by': None,
     }
     if 'configure' in request.GET:
@@ -293,6 +297,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         'category_order': ','.join(category_order),
         'config_form': config_form,
         'sort_by': sort_by,
+        'sort_dir': sort_dir,
         'group_by': group_by,
     })
 

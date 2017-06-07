@@ -16,12 +16,12 @@
         <th class="category-header">
             <abbr title="{{ category.long_name }}">{{ category.short_name }}</abbr><br />
             {% if category.left != category_order %}
-              <a class="pull-left" href="?categories={{ category.left }}{% if group_by is not None %}&amp;group_by={{ group_by }}{% endif %}{% if sort_by is not None %}&amp;sort_by={{ sort_by }}{% endif %}&configure#results">
+              <a class="pull-left" href="?categories={{ category.left }}{% if group_by is not None %}&amp;group_by={{ group_by }}{% endif %}{% if sort_by is not None %}&amp;sort_by={{ sort_by }}{% endif %}{% if sort_dir %}&amp;sort_dir={{ sort_dir }}{% endif %}&amp;configure#results">
                   <i class="fa fa-angle-left"></i>
               </a>
             {% endif %}
             {% if category.right != category_order %}
-              <a class="pull-right" href="?categories={{ category.right }}{% if group_by is not None %}&amp;group_by={{ group_by }}{% endif %}{% if sort_by is not None %}&amp;sort_by={{ sort_by }}{% endif %}&configure#results">
+              <a class="pull-right" href="?categories={{ category.right }}{% if group_by is not None %}&amp;group_by={{ group_by }}{% endif %}{% if sort_by is not None %}&amp;sort_by={{ sort_by }}{% endif %}{% if sort_dir %}&amp;sort_dir={{ sort_dir }}{% endif %}&amp;configure#results">
                   <i class="fa fa-angle-right"></i>
               </a>
             {% endif %}

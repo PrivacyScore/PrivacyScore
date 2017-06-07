@@ -46,6 +46,10 @@
                         {% render_field config_form.sort_by class+="form-control" %}
                     </div>
                     <div class="form-group">
+                        {{ config_form.sort_dir.label_tag }}
+                        {% render_field config_form.sort_dir class+="form-control" %}
+                    </div>
+                    <div class="form-group">
                         {{ config_form.group_by.label_tag }}
                         {% render_field config_form.group_by class+="form-control" %}
                     </div>
