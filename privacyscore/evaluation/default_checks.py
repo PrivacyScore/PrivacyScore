@@ -1006,7 +1006,7 @@ CHECKS['mx']['mx_scan_finished'] = {
         'description': _('The mail server does not seem to support encryption.'),
         'classification': Rating('critical'),
         'details_list': None,
-    } if keys['web_ssl_finished'] and not keys['mx_has_ssl'] else None,
+    } if keys['mx_ssl_finished'] and not keys['mx_has_ssl'] else None,
     'missing': {
         'description': _('The SSL scan of the mail server timed out.'),
         'classification': Rating('neutral'),
