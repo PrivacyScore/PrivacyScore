@@ -330,10 +330,16 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     
     num_scans = Scan.objects.filter(site_id=site.pk).count()
     scan_lists = ScanList.objects.filter(sites=site.pk)
-    
-    if site.last_scan and site.last_scan.result_or_none:
-        results = site.last_scan.result_or_none.result
 
+    # evaluate site
+    site.evaluated = UnrateableSiteEvaluation()    
+    if site.last_scan and site.last_scan.result_or_none:
+        the_result = site.last_scan.result_or_none
+        results = the_result.result
+        category_order = ['ssl', 'mx', 'privacy', 'security']
+        site.evaluated = the_result.evaluate(category_order)[0]
+    
+    # store other attributes needed to show
     res = {}
     
     if not results:
@@ -348,10 +354,16 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
      
     res['mx_record'] = mxrec
     
+    # this may be useful, but not now
+    #cats = {}
+    #for group in category_order:
+    #    cats[group] = RESULT_GROUPS[group]['name']
+    
     return render(request, 'frontend/view_site.html', {
         'site': site,
         'res': res,
         'scan_lists': scan_lists,
+        #'cats': cats,
         'num_scans': num_scans,
         # TODO: groups not statically
         'groups_descriptions': (

@@ -68,6 +68,64 @@ table.dataTable thead .sorting_desc_disabled
             <span class="pull-right"><span>LAST SCAN</span>&nbsp; <span style="color: white">{{ site.last_scan.start|date:"Y-m-d @ H:i:s" }} – {{ site.last_scan.end|date:"H:i:s" }}</span></span></div>
         
         <div class="group-box" style="border: 2px solid #888; background: #eee">
+            {% with r=site.evaluated.rating.rating %}
+            <div class="text-center" style="font-size: 1em; line-height: 1.2em; font-weight: 700;">
+                <div><small>OVERALL RATING</small><br>
+                
+                    {% if r == 'doubleplusgood' %}
+                        <i class="fa fa-5x fa-star-o color-{{ r }}"></i>
+                    {% elif r == 'good' %}
+                        <i class="fa fa-5x fa-check-circle color-{{ r }}"></i>
+                    {% elif r == 'warning' %}
+                        <i class="fa fa-5x fa-minus-circle color-{{ r }}"></i>
+                    {% elif r == 'bad' %}
+                        <i class="fa fa-5x fa-times-circle color-{{ r }}"></i>
+                    {% elif r == 'neutral' %}
+                        <i class="fa fa-5x fa-question-circle color-{{ r }}"></i>
+                    {% else  %}
+                        {{ r }}
+                    {% endif %}
+                
+                </div>
+            </div>
+            {% endwith %}
+            <div class="spacer"></div>
+{{ site.evaluated.ssl }}
+            <div class="row">
+                
+            {% for group, rating in site.evaluated %}
+                <div class="col-xs-6 col-sm-3 text-center" style="font-size: 1em; line-height: 1.2em; font-weight: 700;">
+                {% if rating %}
+                        {% with group_rating=rating.group_rating.rating %}
+                            {% if rating.devaluating %}
+                            (
+                            {% endif %}
+                            {% if group_rating == 'doubleplusgood' %}
+                                <i class="fa fa-lg fa-star-o color-{{ group_rating }}"></i>
+                            {% elif group_rating == 'good' %}
+                                <i class="fa fa-lg fa-check-circle color-{{ group_rating }}"></i>
+                            {% elif group_rating == 'warning' %}
+                                <i class="fa fa-lg fa-minus-circle color-{{ group_rating }}"></i>
+                            {% elif group_rating == 'bad' %}
+                                <i class="fa fa-lg fa-times-circle color-{{ group_rating }}"></i>
+                            {% elif group_rating == 'neutral' %}
+                                <i class="fa fa-lg fa-question-circle color-{{ group_rating }}"></i>
+                            {% endif %}
+                            {% if rating.devaluating %}
+                            )
+                            {% endif %}
+                            <br>{{ group }}
+                        {% endwith %}
+                {% else %}
+                        {% trans 'No Rating' %}
+                {% endif %}
+                </div>
+            {% empty %}
+                {% trans 'No Rating' %}
+                </div>
+            {% endfor %}
+            </div>
+<!--
             <p>TODO RATINGS NOT APPLIED YET</p>
             <div class="row">
                 <div class="col-xs-6 col-sm-3 text-center">
@@ -91,7 +149,7 @@ table.dataTable thead .sorting_desc_disabled
                     <p style="font-size: 1em; line-height: 1.2em; font-weight: 700; color: #E02C2C;"><small>MAIL TRAFFIC</small><br>SECURE CONFIG</p>
                 </div>
             </div>
-            
+-->
         </div>
     </div>
     <div class="col-sm-4">
