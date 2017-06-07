@@ -136,23 +136,67 @@
         {% endif %}
 
         <div class="spacer"></div>
-        <input type="hidden" name="csv_data" value="{{ csv_data }}">
-        <div class="form-group">
-            {{ scan_list_form.csv_file }}
+        
+        <div class="row">
+            <div class="col-md-4" >
+                <p><strong>Upload your CSV file:</strong></p>
+                <div>{{ scan_list_form.csv_file }}</div>
+                <div class="spacer"></div>
+            </div>
+                        
+            <div class="col-md-8">
+                <p><strong>… or paste your CSV data here:</strong></p>
+                <div><textarea class="form-control"
+                    style="width:100%; height: 6em;"
+                    name="csv_data"
+                    placeholder="URL;Country
+page1.example.de;DE
+page2.example.com;IT"
+                    >{{ csv_data }}</textarea></div>
+            </div>
         </div>
-        <button class="btn btn-default">
-            <i class="fa fa-upload"></i>
-            {% trans 'Upload CSV File' %}
-        </button>
+        
         <div class="spacer"></div>
-        <p>{% trans 'You can still make changes after the upload.' %}</p>
+        
+        <div style="display: flex; align-items: center;">
+            <div>
+                <button class="btn btn-primary">
+                    <i class="fa fa-upload"></i>
+                    {% trans 'Upload data and verify structure' %}
+                </button>
+            </div>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <div>
+                {% trans 'You can make changes after the upload.' %}
+            </div>
+        </div>
     </div>
 
     <div class="spacer"></div>
+
+
+    <div style="display: flex; align-items: center;">
+        <div>
+            {% if csv_data and not invalid_rows %}
+            <button class="btn btn-primary" name="start_scan">
+            {% else %}
+            <button class="btn btn-default" name="start_scan">
+            {% endif %}
+                {% trans "Submit List for Scanning" %}
+            </button>
+        </div>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <div>
+            {% if csv_data and not invalid_rows %}
+                {% trans 'Valid CSV data received. You are good to go!' %}
+            {% else %}
+                {% trans 'Please upload your CSV data before you submit the list.' %}
+            {% endif %}
+        </div>
+    </div>
+
+
     <p>
-        <button class="btn btn-primary" name="start_scan">
-            {% trans "Submit List for Scanning" %}
-        </button>
     </p>
     </form>
 {% endblock content %}
