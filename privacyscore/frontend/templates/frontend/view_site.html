@@ -241,9 +241,9 @@ table.dataTable thead .sorting_desc_disabled
                                             <p><strong>{{ title }}</strong>
                                             </p>
                                             {% endif %}
-                                            <p>
+                                            <div>
                                             {{ description }}
-                                            </p>
+                                            </div>
                                         </div>
                                         <div class="col col-xs-1 text-center">
                                             <i class="more-less glyphicon
@@ -267,8 +267,8 @@ table.dataTable thead .sorting_desc_disabled
                                         {{ longdesc|default:'<p>The explanation for this check is not available yet. Sorry!</p><p><span class="label label-warning">coming soon!</span></p>'|safe }}
                                         
                                         <span class="pull-right">Result wrong?&nbsp;
-                                        <a class="btn btn-default btn-sm">
-                                                Mark as Bogus
+                                        <a class="btn btn-default btn-sm" href="mailto:privacyscore@mailhost.informatik.uni-hamburg.de?subject=ERROR-REPORT&amp;body={{ "I want to report an error about the following scan and check: "|urlencode}}{{ site.url|urlencode }}{{ site.last_scan.end|date:" [Y-m-d H:i:s]"|urlencode }}{{ " - "|urlencode }}{{ description|urlencode }}">
+                                                report error
                                         </a></span>
                                     </div>
                                 </div>
@@ -280,6 +280,7 @@ table.dataTable thead .sorting_desc_disabled
                   
                 </div>
                 {% endwith %}
+                <div class="spacer"></div>
                 {% endfor %}
                 
                 
