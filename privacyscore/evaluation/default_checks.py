@@ -40,7 +40,7 @@ CHECKS['privacy']['third_parties'] = {
             keys['third_parties_count']) % {
                 'count': keys['third_parties_count']},
         'classification':  Rating('bad'),
-        'details_list': keys['third_parties']},
+        'details_list': [(key,) for key in keys['third_parties']]},
     'missing': None,
 }
 # Check for embedded known trackers
