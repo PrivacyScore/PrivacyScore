@@ -332,6 +332,53 @@ CHECKS['ssl']['https_scan_finished'] = {
         'details_list': None
     },
 }
+# Check if website does not redirect to HTTPS, but offers HTTPS on demand and serves the same content
+# HTTPS available and serving same content: good
+# HTTPS available but different content: bad
+# We only scanned the HTTPS version: neutral
+CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
+    'keys': {'final_url','final_https_url','same_content_via_https'},
+    'rating': lambda **keys: {
+        'description': _('The site does not use HTTPS by default but it makes available the same content via HTTPS upon request.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if (not keys['final_url'].startswith('https') and 
+          keys['final_https_url'] and
+          keys['final_https_url'].startswith('https') and
+          keys['same_content_via_https']) else {
+        'description': _('The web server does not support HTTPS by default. It hosts an HTTPS site, but it does not serve the same content over HTTPS that is offered via HTTP.'),
+        'classification': Rating('critical'),
+        'details_list': None,
+    } if (not keys['final_url'].startswith('https') and
+          keys['final_https_url'] and
+          keys['final_https_url'].startswith('https') and
+          not keys['same_content_via_https']) else {
+        'description': _('Not comparing between HTTP and HTTPS version, as the website was scanned only over HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None,
+    } if (keys["final_url"].startswith("https:")) else None,
+    'missing': None,
+}
+# Check if server cert is valid
+# yes: good
+# no: critical
+CHECKS['ssl']['web_cert'] = {
+    'keys': {'web_has_ssl', 'web_cert_trusted', 'web_cert_trusted_reason'},
+    'rating': lambda **keys: {
+        'description': _('The website uses a valid security certificate.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['web_has_ssl'] and keys['web_cert_trusted'] else {
+        'description': _('Not checking SSL certificate, as the server does not offer SSL'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    } if not keys['web_has_ssl'] else {
+        'description': _('Server uses an invalid SSL certificate.'),
+        'classification': Rating('critical'),
+        'details_list': [(keys['web_cert_trusted_reason'],)],
+    },
+    'missing': None
+}
 # Check if server forwarded us to HTTPS version
 # yes: good
 # no: neutral (as it may still happen, we're not yet explicitly checking the HTTP version)
@@ -361,26 +408,6 @@ CHECKS['ssl']['site_redirects_to_https'] = {
         'details_list': None
     },
 }
-# Check if server cert is valid
-# yes: good
-# no: critical
-CHECKS['ssl']['web_cert'] = {
-    'keys': {'web_has_ssl', 'web_cert_trusted', 'web_cert_trusted_reason'},
-    'rating': lambda **keys: {
-        'description': _('The website uses a valid security certificate.'),
-        'classification': Rating('good'),
-        'details_list': None,
-    } if keys['web_has_ssl'] and keys['web_cert_trusted'] else {
-        'description': _('Not checking SSL certificate, as the server does not offer SSL'),
-        'classification': Rating('neutral'),
-        'details_list': None
-    } if not keys['web_has_ssl'] else {
-        'description': _('Server uses an invalid SSL certificate.'),
-        'classification': Rating('critical'),
-        'details_list': [(keys['web_cert_trusted_reason'],)],
-    },
-    'missing': None
-}
 # Check if website explicitly redirected us from HTTPS to the HTTP version
 # yes: bad
 # no: good
@@ -399,33 +426,6 @@ CHECKS['ssl']['redirects_from_https_to_http'] = {
         'classification': Rating('good'),
         'details_list': None,
     },
-    'missing': None,
-}
-# Check if website does not redirect to HTTPS, but offers HTTPS on demand and serves the same content
-# HTTPS available and serving same content: good
-# HTTPS available but different content: bad
-# We only scanned the HTTPS version: neutral
-CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
-    'keys': {'final_url','final_https_url','same_content_via_https'},
-    'rating': lambda **keys: {
-        'description': _('The site does not use HTTPS by default but it makes available the same content via HTTPS upon request.'),
-        'classification': Rating('good'),
-        'details_list': None,
-    } if (not keys['final_url'].startswith('https') and 
-          keys['final_https_url'] and
-          keys['final_https_url'].startswith('https') and
-          keys['same_content_via_https']) else {
-        'description': _('The web server does not support HTTPS by default. It hosts an HTTPS site, but it does not serve the same content over HTTPS that is offered via HTTP.'),
-        'classification': Rating('critical'),
-        'details_list': None,
-    } if (not keys['final_url'].startswith('https') and
-          keys['final_https_url'] and
-          keys['final_https_url'].startswith('https') and
-          not keys['same_content_via_https']) else {
-        'description': _('Not comparing between HTTP and HTTPS version, as the website was scanned only over HTTPS.'),
-        'classification': Rating('neutral'),
-        'details_list': None,
-    } if (keys["final_url"].startswith("https:")) else None,
     'missing': None,
 }
 # Check for Perfect Forward Secrecy on Webserver
