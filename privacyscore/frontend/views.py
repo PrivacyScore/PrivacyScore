@@ -176,7 +176,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
 
     column_choices = [(None, _('None'))] + list(enumerate(x.name for x in scan_list.ordered_columns))
     class ConfigurationForm(forms.Form):
-        categories = forms.CharField(required=False)
+        categories = forms.CharField(required=False, widget=forms.HiddenInput)
         sort_by = forms.ChoiceField(choices=column_choices, required=False)
         group_by = forms.ChoiceField(choices=column_choices, required=False)
 
@@ -190,33 +190,19 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     else:
         config_form = ConfigurationForm(initial=config_initial)
 
-    categories = {
-        'ssl': {
-            'short_name': _('EncWeb'),
-            'long_name': _('Encryption of Web Traffic')
-        },
-        'mx': {
-            'short_name': _('EncMail'),
-            'long_name': _('Encryption of Mail Traffic'),
-        },
-        'privacy': {
-            'short_name': _('NoTrack'),
-            'long_name': _('No Tracking by Website and Third Parties')
-        },
-        'security': {
-            'short_name': _('Attacks'),
-            'long_name': _('Protections Against Various Attacks'),
-        }
-    }
-
     category_order = []
     for category in request.GET.get('categories', '').split(','):
         category = category.strip()
-        if category in categories:
+        if category in RESULT_GROUPS:
             category_order.append(category)
-    if not category_order:
+    if len(category_order) != 4:
         category_order = ['ssl', 'mx', 'privacy', 'security']
-    category_names = [categories[category] for category in category_order]
+    category_names = [{
+        'short_name': RESULT_GROUPS[category]['short_name'],
+        'long_name': RESULT_GROUPS[category]['long_name'],
+        'left': ','.join(_move_element(category_order, category, -1)),
+        'right': ','.join(_move_element(category_order, category, 1))
+    } for category in category_order]
 
     sites = scan_list.sites.annotate_most_recent_scan_end() \
         .annotate_most_recent_scan_error_count().prefetch_last_scan() \
@@ -280,7 +266,8 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         'groups': groups,
         'group_attr': group_attr,
         'category_names': category_names,
-        'config_form': config_form
+        'category_order': ','.join(category_order),
+        'config_form': config_form,
     })
 
 
@@ -293,6 +280,18 @@ def _get_column_index(param, scan_list):
     except ValueError:
         pass
     return column_index
+
+
+def _move_element(lst, el, direction):
+    lst = lst[:]
+    try:
+        index = lst.index(el)
+    except ValueError:
+        return lst
+    if not (0 <= index + direction < len(lst)):
+        return lst
+    lst[index], lst[index + direction] = lst[index + direction], lst[index]
+    return lst
 
 
 def _calculate_ratings_count(sites):
