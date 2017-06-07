@@ -221,6 +221,7 @@ table.dataTable thead .sorting_desc_disabled
                                     
                                     <div class="row" style="display: flex; align-items: center;">
                                         <div class="col col-xs-1" style="text-align:center">
+                                            
                                 {% if rating.rating == 'doubleplusgood' %}
                                     <i class="fa fa-3x fa-star-o color-{{ rating }}"></i>
                                 {% elif rating.rating == 'good' %}
@@ -232,7 +233,7 @@ table.dataTable thead .sorting_desc_disabled
                                 {% elif rating.rating == 'neutral' %}
                                     <i class="fa fa-3x fa-question-circle color-{{ rating }}"></i>
                                 {% endif %}
-
+                                            
                                         </div>
                                         <div class="col col-xs-10">
 <!--                                            <span class="label pull-right label-info">
@@ -248,18 +249,12 @@ table.dataTable thead .sorting_desc_disabled
                                             </p>
                                             {% endif %}
                                             <p>
-                                            {% if not title %}
-                                            <strong>
-                                            {% endif %}
                                             {{ description }}
-                                            {% if not title %}
-                                            <strong>
-                                            {% endif %}
-                                            
                                             </p>
                                         </div>
                                         <div class="col col-xs-1 text-center">
-                                            <i class="more-less glyphicon glyphicon-menu-down" style="color:gray"></i>
+                                            <i class="more-less glyphicon
+                                            glyphicon-menu-down" style="color:gray"></i>
                                         </div>
                                     </div>
                                     
@@ -270,12 +265,19 @@ table.dataTable thead .sorting_desc_disabled
                              class="panel-collapse collapse" role="tabpanel"
                              aria-labelledby="heading{{ outerCounter }}_{{ innerCounter }}">
                             <div class="panel-body">
-                                {{ longdesc|safe }}
-                                <button class="btn pull-right"
-                                    style="background-color: #fff; color:#aaa" data-toggle="modal"
-                                    data-target=".bd-example-modal-lg">
-                                        mark as bogus
-                                </button>.
+                                
+                                <div class="row" style="display: flex; align-items: center;">
+                                    <div class="col col-sm-1" style="text-align:center">
+                                    </div>
+                                    <div class="col col-sm-11">
+
+                                        {{ longdesc|safe }}
+                                        
+                                        <a class="pull-right btn btn-default btn-sm">
+                                                mark result as bogus
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
