@@ -132,6 +132,8 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
         # Get a new cursor to avoid confusing the old one
         cur = conn.cursor()
 
+        scantosave['initial_url'] = site_url
+
         # collect third parties (i.e. domains that differ in their second and third level domain
         third_parties = []
         third_party_requests = []
