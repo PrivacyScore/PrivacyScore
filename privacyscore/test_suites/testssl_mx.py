@@ -35,6 +35,7 @@ def process_test_data(raw_data: list, previous_results: dict, remote_host: str =
     """Process the raw data of the test."""
     result = {"mx_ssl_finished": True}
     if raw_data['jsonresult']['data'] == b'':
+        result['mx_has_ssl'] = False
         return result
 
     data = json.loads(
