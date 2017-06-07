@@ -93,6 +93,17 @@ if os.environ.get('NO_DB'):
     # do not enable database on this worker
     DATABASES = {}
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+        'OPTIONS': {
+            'server_max_value_length': 1024 * 1024 * 5,
+        }
+    }
+}
+CACHE_DEFAULT_TIMEOUT_SECONDS = 1800
+
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators

@@ -225,19 +225,26 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         'right': ','.join(_move_element(category_order, category, 1))
     } for category in category_order]
 
-    sites = scan_list.sites.annotate_most_recent_scan_end() \
-        .annotate_most_recent_scan_error_count().prefetch_last_scan() \
-        .prefetch_column_values(scan_list)
-    # add evaluations to sites
-    for site in sites:
-        site.evaluated = UnrateableSiteEvaluation()
-        if not site.last_scan:
-            continue
-        result = site.last_scan.result_or_none
-        if not result:
-            continue
-        site.result = result
-        site.evaluated = result.evaluate(category_order)[0]
+    sites = cache.get('scan_list_{}:evaluated_sites'.format(scan_list.pk))
+    if sites is None:
+        sites = scan_list.sites.annotate_most_recent_scan_end() \
+            .annotate_most_recent_scan_error_count().prefetch_last_scan() \
+            .prefetch_column_values(scan_list)
+        # add evaluations to sites
+        for site in sites:
+            site.evaluated = UnrateableSiteEvaluation()
+            if not site.last_scan:
+                continue
+            result = site.last_scan.result_or_none
+            if not result:
+                continue
+            site.result = result
+            site.evaluated = result.evaluate(category_order)[0]
+
+        cache.set(
+            'scan_list_{}:evaluated_sites'.format(scan_list.pk),
+            sites,
+            settings.CACHE_DEFAULT_TIMEOUT_SECONDS)
 
     sites = sorted(sites, key=lambda v: v.evaluated, reverse=True)
 
