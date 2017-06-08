@@ -185,6 +185,7 @@ class SiteQuerySet(models.QuerySet):
                 FROM "{Scan}"
                 WHERE
                     "{Scan}"."site_id" = "{Site}"."id"
+                    AND "{Scan}"."end" IS NOT NULL
                 '''.format(
                     Scan=Scan._meta.db_table,
                     Site=Site._meta.db_table), ()))
