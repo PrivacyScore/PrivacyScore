@@ -74,13 +74,7 @@
                     </button>
                 </p>
             </form>
-
-            <p>
-                <a class="btn btn-default" href="{% url 'frontend:scan_list_csv' scan_list.pk %}" style="width:100%;">
-                    {% trans "Download List as CSV" %}
-                </a>
-            </p>
-
+            
             {% if scan_list.running_scans__count > 0 %}
             <h3 class="text-center"><small>SCAN IN PROGRESS</small></h3>
             <p class="text-center">
@@ -93,6 +87,15 @@
             {% else %}
             <h3 class="text-center color-neutral"><smalL>NO SCANS RUNNING</small></h3>
             {% endif %}
+            
+            <div class="spacer"></div>
+            
+            <p>
+                <a class="btn btn-default"
+                href="{% url 'frontend:scan_list_csv' scan_list.pk %}" style="width:100%;">
+                    {% trans "Download List as CSV" %}
+                </a>
+            </p>
             
             <div class="spacer"></div>
             

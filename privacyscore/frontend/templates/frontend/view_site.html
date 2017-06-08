@@ -164,6 +164,16 @@ table.dataTable thead .sorting_desc_disabled
             {% endif %}
         {% endif %}
         
+        <div class="spacer"></div>
+        <div class="spacer"></div>
+        
+        <p>
+            <a class="btn btn-default"
+            href="{% url 'frontend:site_result_json' site.pk %}" style="width:100%;">
+                {% trans "Download Results as JSON" %}
+            </a>
+        </p>
+        
         
     </div>
 </div>

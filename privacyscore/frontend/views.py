@@ -9,9 +9,9 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db import connection
 from django.db import transaction
 from django.db.models import Count, F, Prefetch, Q
-from django.db.models.expressions import RawSQL
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.safestring import mark_safe
@@ -548,18 +548,20 @@ def team(request: HttpRequest):
 def faq(request: HttpRequest):
     num_scanned_sites  = Site.objects.filter(scans__isnull=False).count()
     num_scanning_sites = Scan.objects.filter(end__isnull=True).count()
+
+    query = '''SELECT DISTINCT
+        regexp_replace((backend_site.url || jsonb_array_elements(backend_scanresult.result->'leaks')::text), '"', '', 'g')
+        FROM backend_scanresult, backend_scan, backend_site
+        WHERE backend_scanresult.scan_id=backend_scan.id
+        AND backend_scan.site_id = backend_site.id
+        AND jsonb_array_length("result"->'leaks') > 0;'''
     
-    #sites_failing_serverleak = RawSQL('''SELECT DISTINCT
-    #    regexp_replace((backend_site.url || jsonb_array_elements(backend_scanresult.result->'leaks')::text), '"', '', 'g')
-    #    FROM backend_scanresult, backend_scan, backend_site
-    #    WHERE backend_scanresult.scan_id=backend_scan.id
-    #    AND backend_scan.site_id = backend_site.id
-    #    AND jsonb_array_length("result"->'leaks') > 0;
-    #    regexp_replace'''
-    
-    #num_sites_failing_serverleak = len(sites_failing_serverleak)
     num_sites_failing_serverleak = 0
-    
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        num_sites_failing_serverleak = len(rows)
+        
     return render(request, 'frontend/faq.html', {
         'num_scanning_sites': num_scanning_sites,
         'num_scanned_sites':  num_scanned_sites,
