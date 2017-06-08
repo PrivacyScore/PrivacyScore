@@ -6,9 +6,6 @@ from django.utils.translation import ungettext_lazy
 from privacyscore.evaluation.description import describe_locations
 from privacyscore.evaluation.rating import Rating
 
-
-# TODO: Cleaner solution? Inline lambdas are ugly and not flexible at all.
-
 # Checks are ordered in groups.
 # Each check defines a set of keys it takes, the rating function
 # and how to rate it (or not to rate it with None) when at least one key is
@@ -1564,7 +1561,15 @@ CHECKS['privacy']['server_locations']['longdesc'] = '''<p>Some site owners outso
 CHECKS['privacy']['server_locations']['labels'] = ['unreliable']
 
 CHECKS['security']['leaks']['title'] = "Check for unintentional information leaks"
-CHECKS['security']['leaks']['longdesc'] = '''<p>TODO</p>''' # TODO CRITICAL This needs content badly 
+CHECKS['security']['leaks']['longdesc'] = '''<p>Web servers may be configured incorrectly and expose private information on the public internet. This test looks for a series of common mistakes: Exposing the "server-status" or "server-info" pages of the web server, common debugging files that may have been forgotten on the server, and the presence of version control system files from the Git or SVN systems, which may contain private or security-critical information.</p>
+<p><strong>Conditions for passing:</strong> No leaks have been detected.</p>
+<p><strong>Reliability: unreliable.</strong> The detection is not completely reliable, as we can only check for certain indicators of problems. This test may result in both false positives (claiming that a website is insecure where it isn't) and false negatives (claiming that a website is secure where it isn't).</p>
+<p><strong>Potential scan errors:</strong> We only check for leaks at specific, pre-defined paths. If The website exposes information in other places, we may not detect it.</p>
+<p>Scan Module: openwpm</p>
+<p>Further reading:</p>
+<ul>
+<li>TODO/li>
+</ul>'''
 CHECKS['security']['leaks']['labels'] = ['unreliable']
 
 CHECKS['security']['header_csp']['title'] = 'Check for presence of Content Security Policy'
@@ -1633,13 +1638,26 @@ CHECKS['security']['header_ref']['longdesc'] = """<p>A secure referrer policy pr
 """
 CHECKS['security']['header_ref']['labels'] = ['unreliable']
 
-# TODO CRITICAL these two need descriptions and stuff
-CHECKS['ssl']['https_scan_failed']['title'] = None
-CHECKS['ssl']['https_scan_failed']['longdesc'] = None 
+CHECKS['ssl']['https_scan_failed']['title'] = "Check if the HTTPS scan completed successfully"
+CHECKS['ssl']['https_scan_failed']['longdesc'] = """<p>Due to various reasons, a detailed test of the HTTPS connections offered by the web server may have failed. This test indicates whether the scan completed successfully</p>
+<p><strong>Informational check:</strong> This is an informational check without influence on the rating.</p>
+<p><strong>Reliability: unreliable.</strong> </p>
+<p><strong>Potential scan errors:</strong> Sometimes, the check may fail even though the server offers encrypted connections. In that case, we will be unable to determine detailed information about the security of the server.</p>
+<p>Scan Module: testssl</p>
+<p>Further reading:</p>
+<ul>
+<li>TODO</li>
+</ul>
+""" 
 CHECKS['ssl']['https_scan_failed']['labels'] = ['unreliable']
 
-CHECKS['ssl']['https_scan_finished']['title'] = None
-CHECKS['ssl']['https_scan_finished']['longdesc'] = None 
+CHECKS['ssl']['https_scan_finished']['title'] = "Check if the Server offers HTTPS"
+CHECKS['ssl']['https_scan_finished']['longdesc'] = """<p>HTTPS is a critical building block in website security. This check tests if the web server offers users the option to connect via HTTPS.</p>
+<p><strong>Conditions for passing:</strong> Test fails if the server does not offer HTTPS.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan Module: openwpm</p>
+"""  
 CHECKS['ssl']['https_scan_finished']['labels'] = ['unreliable']
 
 CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['title'] = 'Check whether HTTP URL is also reachable via HTTPS'
@@ -1651,9 +1669,13 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['longdesc'] = ""
 """ 
 CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['labels'] = ['unreliable']
 
-# TODO CRITICAL need text
-CHECKS['ssl']['web_cert']['title'] = None
-CHECKS['ssl']['web_cert']['longdesc'] = None 
+CHECKS['ssl']['web_cert']['title'] = "Check whether the SSL certificate is valid"
+CHECKS['ssl']['web_cert']['longdesc'] = """<p>A secure HTTPS connection requires a valid SSL certificate on the server. This check tests if the certificate provided by the server is trusted.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server provides a valid SSL certificate.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> If website contents change significantly on each page load, this test may incorrectly fail.</p>
+<p>Scan Module: openwpm</p>
+""" 
 CHECKS['ssl']['web_cert']['labels'] = ['unreliable']
 
 
@@ -1664,19 +1686,27 @@ CHECKS['ssl']['site_redirects_to_https']['longdesc'] = """<p>To protect their us
 <p><strong>Potential scan errors:</strong> If users are redirected to the HTTPS version using JavaScript, this test may not detect it.<br>
 Scan Module: openwpm</p>
 """ 
-CHECKS['ssl']['site_redirects_to_https']['labels'] = ['unreliable']
+CHECKS['ssl']['site_redirects_to_https']['labels'] = ['reliable']
 
-# TODO CRITICAL need text
-CHECKS['ssl']['redirects_from_https_to_http']['title'] = None
-CHECKS['ssl']['redirects_from_https_to_http']['longdesc'] = None 
-CHECKS['ssl']['redirects_from_https_to_http']['labels'] = ['unreliable']
+CHECKS['ssl']['redirects_from_https_to_http']['title'] = "Check if the server prevents users from using the HTTPS version of the website"
+CHECKS['ssl']['redirects_from_https_to_http']['longdesc'] = """<p>Some servers offer HTTPS, but will forward users back to the insecure version of the website when they attempt to use it.</p>
+<p><strong>Conditions for passing:</strong> Test fails if the server automatically redirects the browser to an HTTP URL when the browser requests a HTTPS URL. Neutral if the server does not support HTTPS.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> If users are redirected to the HTTP version using JavaScript, this test may not detect it.<br>
+Scan Module: openwpm</p>
+""" 
+CHECKS['ssl']['redirects_from_https_to_http']['labels'] = ['reliable']
 
-# TODO CRITICAL need text
-CHECKS['ssl']['web_pfs']['title'] = None
-CHECKS['ssl']['web_pfs']['longdesc'] = None 
-CHECKS['ssl']['web_pfs']['labels'] = ['unreliable']
+CHECKS['ssl']['web_pfs']['title'] = "Check if the server offers Perfect Forward Secrecy"
+CHECKS['ssl']['web_pfs']['longdesc'] = """<p>Perfect forward secrecy protects the security of connections even if the long-term cryptographic keys of the server are disclosed at a later time.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server offers HTTPS with perfect forward secrecy. Neutral if the server does not support HTTPS.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.<br>
+Scan Module: openwpm</p>
+""" 
+CHECKS['ssl']['web_pfs']['labels'] = ['reliable']
 
-CHECKS['ssl']['web_hsts_header']['title'] = "Check for valid Strict-Transport-Security"
+CHECKS['ssl']['web_hsts_header']['title'] = "Check for valid Strict-Transport-Security (HSTS)"
 CHECKS['ssl']['web_hsts_header']['longdesc'] = """<p>This HTTP header prevents adversaries from eavesdropping on encrypted connections. HSTS allows a site to tell the browser that it should only be retrieved encryptedly via HTTPS. This decreases the risk of a so-called SSL Stripping attack.</p>
 <p><strong>Conditions for passing:</strong> The header is set on the HTTPS URL that is reached after following potential redirects. The max-age value is equivalent to 180 days or more, which is the recommended minimum by the author of testssl.</p>
 <p><strong>Reliability: unreliable.</strong> We only evaluate this header for the HTTPS URL to which a site redirects upon visit. We rely on the result of <a href="http://testssl.sh">testssl.sh</a> to evaluate the validity of the header. Under certain circumstances, a website may be protected without setting its own HSTS header, e.g. subdomains whose parent domain has a HSTS preloading directive covering subdomains - this will not be detected by this test, but will show up in the HSTS Preloading test.</p>
@@ -1690,9 +1720,17 @@ CHECKS['ssl']['web_hsts_header']['longdesc'] = """<p>This HTTP header prevents a
 """ 
 CHECKS['ssl']['web_hsts_header']['labels'] = ['unreliable']
 
-# TODO Need text
-CHECKS['ssl']['web_hsts_preload_prepared']['title'] = None
-CHECKS['ssl']['web_hsts_preload_prepared']['longdesc'] = None 
+CHECKS['ssl']['web_hsts_preload_prepared']['title'] = "Check if server is ready for HSTS preloading"
+CHECKS['ssl']['web_hsts_preload_prepared']['longdesc'] = """<p>HSTS Preloading further decreases the risk of SSL Stripping attacks. To this end the information that a site should only be retrieved via HTTPS is stored in a list that is preloaded with the browser. This prevents SSL Stripping attacks during the very first visit of a site. To allow inclusion in the HSTS preloading lists, the servers need to indicate that this inclusion is acceptable.</p>
+<p><strong>Conditions for passing:</strong> The Server indicates it is ready for HSTS preloading, or is already part of the HSTS preloading list.</p>
+<p><strong>Reliability: unreliable.</strong> We only evaluate this header for the HTTPS URL to which a site redirects upon visit. We will miss preloading indicators on higher-level domains (e.g. example.com if the provided domain was www2.example.com).</p>
+<p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to different servers in order to render the resulting page but forget to set the header in all responses. We may miss the presence of HSTS if redirection is not performed with the HTTP Location header but with JavaScript.</p>
+<p>Scan module: testssl, HSTS preloading database</p>
+<p>Further reading:</p>
+<ul>
+<li><a href="https://hstspreload.org">https://hstspreload.org</a></li>
+</ul>
+"""
 CHECKS['ssl']['web_hsts_preload_prepared']['labels'] = ['unreliable']
 
 CHECKS['ssl']['web_hsts_preload_listed']['title'] = "Check for HSTS Preloading"
@@ -1722,9 +1760,17 @@ CHECKS['ssl']['web_has_hpkp_header']['longdesc'] = """<p>This HTTP header ensure
 """ 
 CHECKS['ssl']['web_has_hpkp_header']['labels'] = ['unreliable']
 
-# TODO CRITICAL need description
-CHECKS['ssl']['mixed_content']['title'] = None
-CHECKS['ssl']['mixed_content']['longdesc'] = None
+CHECKS['ssl']['mixed_content']['title'] = "Check for Mixed Content on HTTPS sites"
+CHECKS['ssl']['mixed_content']['longdesc'] = """<p>If HTTPS websites include content from HTTP sites, this opens the website to additional attacks. This 'mixed content' will also be blocked by modern browsers, which may lead to problems in how the website is displayed.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the website does not use mixed content. If the server does not offer HTTPS, the test is neutral.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: OpenWPM</p>
+<p>Further reading:</p>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content">https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content</a></li>
+</ul>
+"""
 CHECKS['ssl']['mixed_content']['labels'] = ['unreliable']
 
 CHECKS['ssl']['web_insecure_protocols_sslv2']['title'] = \
@@ -2071,12 +2117,27 @@ CHECKS['mx']['mx_vuln_fallback_scsv']['longdesc'] = """<p>Description will be ad
 CHECKS['ssl']['web_vuln_fallback_scsv']['labels'] = \
 CHECKS['mx']['mx_vuln_fallback_scsv']['labels'] = ['reliable']
 
-# TODO CRITICAL need text
-CHECKS['mx']['has_mx']['title'] = None
-CHECKS['mx']['has_mx']['longdesc'] = None 
-CHECKS['mx']['has_mx']['labels'] = ['unreliable']
+CHECKS['mx']['has_mx']['title'] = "Check if the Domain has an eMail server"
+CHECKS['mx']['has_mx']['longdesc'] = """<p>Some websites may not have eMail servers associated with them. This test checks if the website advertises an eMail server.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan Module: DNS</p>
+<p>Further reading:</p>
+<ul>
+<li>TODO</li>
+</ul>
+"""
+CHECKS['mx']['has_mx']['labels'] = ['reliable']
 
-# TODO CRITICAL need text
-CHECKS['mx']['mx_scan_finished']['title'] = None
-CHECKS['mx']['mx_scan_finished']['longdesc'] = None 
+CHECKS['mx']['mx_scan_finished']['title'] = "Check if the Mail server supports encryption"
+CHECKS['mx']['mx_scan_finished']['longdesc'] = """<p>Many eMail servers do not allow encrypted connections. This test checks if the mail server associated with the domain supports encrypted connections.</p>
+<p><strong>Informational check:</strong> Test fails if the server does not offer encryption. The result is neutral if the encryption test did not complete with any results.</p>
+<p><strong>Reliability: unreliable.</strong> </p>
+<p><strong>Potential scan errors:</strong> Many eMail servers will slow down our test significantly, which may lead to it failing even though the server offers encrypted connections. In that case, we will be unable to determine any information about the security of the server, and will exempt the category from the rating.</p>
+<p>Scan Module: testssl</p>
+<p>Further reading:</p>
+<ul>
+<li>TODO</li>
+</ul>
+"""  
 CHECKS['mx']['mx_scan_finished']['labels'] = ['unreliable']
