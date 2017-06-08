@@ -500,7 +500,7 @@ def scan_site(request: HttpRequest, site_id: Union[int, None] = None) -> HttpRes
 def scan_list_csv(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     scan_list = get_object_or_404(ScanList.objects.prefetch_columns(), pk=scan_list_id)
     resp = HttpResponse(content_type='text/csv')
-    writer = csv.writer(resp, dialect='excel')
+    writer = csv.writer(resp, dialect='excel', delimiter=';')
     writer.writerow(['URL'] + [col.name for col in scan_list.ordered_columns])
     for site in scan_list.sites.prefetch_column_values(scan_list):
         writer.writerow([site.url] + [col.value for col in site.ordered_column_values])
