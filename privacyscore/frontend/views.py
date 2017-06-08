@@ -244,24 +244,24 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
         'right': ','.join(_move_element(category_order, category, 1))
     } for category in category_order]
 
-    sites = cache.get('scan_list_{}:evaluated_sites'.format(scan_list.pk))
-    if sites is None:
-        sites = scan_list.sites.annotate_most_recent_scan_end() \
-            .annotate_most_recent_scan_error_count().annotate_most_recent_scan_result() \
-            .prefetch_column_values(scan_list)
+    #sites = cache.get('scan_list_{}:evaluated_sites'.format(scan_list.pk))
+    #if sites is None:
+    sites = scan_list.sites.annotate_most_recent_scan_end() \
+        .annotate_most_recent_scan_error_count().annotate_most_recent_scan_result() \
+        .prefetch_column_values(scan_list)
 
-        # add evaluations to sites
-        for site in sites:
-            site.evaluated = UnrateableSiteEvaluation()
-            if not site.last_scan__result:
-                continue
-            site.result = site.last_scan__result
-            site.evaluated = site.evaluate(category_order)[0]
+    # add evaluations to sites
+    for site in sites:
+        site.evaluated = UnrateableSiteEvaluation()
+        if not site.last_scan__result:
+            continue
+        site.result = site.last_scan__result
+        site.evaluated = site.evaluate(category_order)[0]
 
-        cache.set(
-            'scan_list_{}:evaluated_sites'.format(scan_list.pk),
-            sites,
-            settings.CACHE_DEFAULT_TIMEOUT_SECONDS)
+    #cache.set(
+    #    'scan_list_{}:evaluated_sites'.format(scan_list.pk),
+    #    sites,
+    #    settings.CACHE_DEFAULT_TIMEOUT_SECONDS)
 
     sites = sorted(sites, key=lambda v: v.evaluated, reverse=True)
 
