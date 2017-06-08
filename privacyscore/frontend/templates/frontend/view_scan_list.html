@@ -26,7 +26,7 @@
                 <i class="fa fa-tags"></i> <strong>Tags:</strong>&nbsp; &nbsp;  
                 {% for tag in scan_list.tags.all %}
                     <a class="btn btn-default btn-xs" style="margin-right: 1em"
-                        href="{{ request.path }}?tags={{ tag }}">{{ tag }}</a>
+                        href="{% url 'frontend:browse' %}?tags={{ tag }}">{{ tag }}</a>
                 {% endfor %}
             </div>
             </p>
