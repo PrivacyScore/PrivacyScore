@@ -1568,7 +1568,7 @@ CHECKS['security']['leaks']['longdesc'] = '''<p>Web servers may be configured in
 <p>Scan Module: openwpm</p>
 <p>Further reading:</p>
 <ul>
-<li>TODO/li>
+<li>TODO</li>
 </ul>'''
 CHECKS['security']['leaks']['labels'] = ['unreliable']
 
