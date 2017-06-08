@@ -21,19 +21,32 @@
             </h2>
 
             <p>
-                <i class="fa fa-tags"></i> <strong>Tags: </strong>
+                
+            <div style="display: inline; padding: 0.6em; padding-top: 0; padding-left: 0;">
+                <i class="fa fa-tags"></i> <strong>Tags:</strong>&nbsp; &nbsp;  
                 {% for tag in scan_list.tags.all %}
-                    <span class="label label-default">{{ tag }}</span>
+                    <a class="btn btn-default btn-xs" style="margin-right: 1em"
+                        href="{{ request.path }}?tags={{ tag }}">{{ tag }}</a>
                 {% endfor %}
+            </div>
             </p>
-            
-            {{ scan_list.description|linebreaks }}
-            
             <p>
                 <i class="fa fa-user"></i>
                 <strong>{% trans "Author" %}:</strong> {{ scan_list.pseudonym }}
             </p>
-
+            
+            <div style="padding: 1em 1em; background-color: #f6f6f6; border: 1px solid #ddd">
+                {{ scan_list.description|linebreaks }}
+            </div>
+            
+            
+            <div class="spacer"></div>
+            
+            <h3 id="results">{% trans "Results Overview" %}</h3>
+            {% include 'frontend/ranking_summary.html' with sites_count=sites_count sites_failures_count=sites_failures_count ratings_count=ratings_count %}
+            
+            <div class="spacer"></div>
+            
             <p><a id="configure-link" href="#">&raquo; {% trans "Configure sorting and grouping" %}</a></p>
 
             <div id="configuration">
@@ -56,11 +69,7 @@
                     <p><button class="btn btn-primary">{% trans "Configure" %}</button></p>
                 </form>
             </div>
-
-            <div class="spacer"></div>
             
-            <h3 id="results">{% trans "Result overview" %}</h3>
-            {% include 'frontend/ranking_summary.html' with sites_count=sites_count sites_failures_count=sites_failures_count ratings_count=ratings_count %}
         </div>
         <div class="col-md-4">
             
@@ -100,19 +109,25 @@
             <div class="spacer"></div>
             
             <div class="improvements">
-                <h5>&mdash; MORE COMING SOON &mdash; </h5>
+                <h5>&mdash; INFLUENCING THE RANKING &mdash; </h5>
                 <hr>
-                <p><em>
-                    In the future we will offer more flexible tools that allow you to
-                    change the ranking according to your personal preferences.
-                </em>
-                <p><em>Estimated release: August 2017.</em></p>
+                <p>You can influence the ranking by your preferences. Use the <i class="fa  fa-angle-double-left"></i> and <i class="fa  fa-angle-double-right"></i> arrows to change the importance (left means more important).</p>
+                
+                <p>At the moment we only provide one ranking scheme that consists of the following categories: <em>NoTrack</em>, <em>EncWeb</em>, <em>Attacks</em>, and <em>EncMail</em>. We perform a priorized sort to obtain the ranking: We <em>start with the first category</em>, sorting the sites according to their rating:
+                <i class="fa fa-lg fa-check-circle color-good"></i>&nbsp; 
+                <i class="fa fa-lg fa-question-circle color-neutral"></i>&nbsp;
+                <i class="fa fa-lg  fa-exclamation-circle color-warning"></i>&nbsp; 
+                <i class="fa fa-lg  fa-exclamation-triangle color-bad"></i>&nbsp; 
+                <i class="fa fa-lg fa-times-circle color-critical"></i>.
+                Sites with an identical rating in a category are <em>further sorted considering the next category to  the right</em>. This procedure is repeated until all categories have been considered.
+                </p>
             </div>
         </div>
     </div>
 
+
     {% if group_attr %}
-    <h3>{% blocktrans %}Ranking by "{{ group_attr }}"{% endblocktrans %}</h3>
+    <h3>{% blocktrans %}Ranking by attribute “{{ group_attr }}”{% endblocktrans %}</h3>
     {% else %}
     <h3>{% trans "Ranking" %}</h3>
     {% endif %}
@@ -120,7 +135,8 @@
 
     {% if groups %}
         {% for group in groups %}
-        <h4>{{ group.name }}</h4>
+        <div class="spacer"></div>
+        <h4>Sites with attribute value “{{ group.name }}”</h4>
         {% include 'frontend/ranking_summary.html' with sites_count=group.sites_count sites_failures_count=group.sites_failures_count ratings_count=group.ratings_count %}
         {% include "frontend/ranking_list.html" with site_list=site_list sites=group.sites %}
         {% endfor %}
