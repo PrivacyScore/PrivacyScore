@@ -4,5 +4,66 @@
 {% block title %}{% trans 'FAQ' %}{% endblock %}
 
 {% block content %}
-<h2>{% trans 'Frequently asked questions' %}</h2>
+<h2>{% trans 'Frequently Asked Questions' %}</h2>
+
+<div class="row">
+    <div class="col-lg-8">
+        <h3>For Internet Users</h3>
+        <div class="hline"></div>
+        <br>
+        <b>Q:</b> Your scoring and ranking does not fit my preferences. Can I change the composition of test groups?
+        <br>
+        <b>A:</b> Unfortunately, this is not possible at the moment. This will be possible after the beta phase.
+        <br>
+        <br>
+        <h3>For Website Operators</h3>
+        <div class="hline"></div>
+        <br>
+        <b>Q:</b> My site has been scanned by PrivacyScore. I do not want to be scanned in the future.
+        <br>
+        <b>A:</b> Please <a href="mailto:privacyscore@mailhost.informatik.uni-hamburg.de">contact us via e-mail</a> and we will add you to our blacklist.
+        <br>
+        <br>
+        <b>Q:</b> My site has been scanned by PrivacyScore. The results are wrong.
+        <br>
+        <b>A:</b> We are sorry for this mistake. Please <a href="mailto:privacyscore@mailhost.informatik.uni-hamburg.de">contact us via e-mail</a>. We will amend the erroneous result and use your feedback to improve the corresponding test.
+        <br>
+        <br>
+        <h3>For Data Protection Officers, Privacy Activists and Researchers</h3>
+        <div class="hline"></div>
+        <br>
+        <b>Q:</b> Can we host a separate instance of PrivacyScore on our own servers?
+        <br>
+        <b>A:</b> Yes. We will publish our source code including scripts for simplified deployment.
+        <br>
+        <br>
+        <b>Q:</b> We have ideas for additional tests. Can you include those in PrivacyScore?
+        <br>
+        <b>A:</b> We are currently very busy improving the stability of our code. However, we are happy to include additional tests if they can be performed automatically with sufficient accuracy.
+        <br>
+        <br>
+        <h3>Trivia</h3>
+        <div class="hline"></div>
+        <br>
+        <b>Q:</b> How many sites are currently in the scanning queue?
+        <br>
+        <b>A:</b> {{ num_scanning_sites }}
+        <br>
+        <br>
+        <b>Q:</b> How many sites have been scanned so far?
+        <br>
+        <b>A:</b> {{ num_scanned_sites }}
+        <br>
+        <br>
+        <b>Q:</b> How many sites have you seen that fail the test that checks
+                 whether they disclose internal system information at usual paths?
+        <br>
+        <b>A:</b> {{ num_sites_failing_serverleak }}
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
+
 {% endblock %}
