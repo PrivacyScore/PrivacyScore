@@ -46,7 +46,7 @@
                     </li>
 -->
                     <li><a href="{% url 'frontend:browse' %}">Lists</a></li>
-                    <li><a href="{% url 'frontend:checks' %}">Checks</a></li>
+<!--                    <li><a href="{% url 'frontend:checks' %}">Checks</a></li> -->
 <!--                    <li><a href="{% url 'frontend:roadmap' %}">Roadmap</a></li> -->
                     <li><a href="{% url 'frontend:code' %}">Code</a></li>
                     <li><a href="{% url 'frontend:team' %}">Team</a></li>
@@ -73,16 +73,25 @@
     {% endblock fullcontent %}
 
     {% block footer %}
+    
+    
+    
     <div class="footer">
-        <div class="text-center"><small>All times are in UTC (GMT+0).</small></div>
+
+    {% if "/site/" in request.path %}
+    <div class="text-center">All times are shown in UTC (GMT+0).</div>
+    {% elif "/list/" in request.path %}
+    <div class="text-center">All times are shown in UTC (GMT+0).</div>
+    {% endif %}
+    
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
                     <h3>{% trans 'About' %}</h3>
                     <p>
                     {% trans "PrivacyScore is a website scanning tool that allows anyone to benchmark security and privacy features of websites." %}
-                    {% trans "Users will be able to control ranking and analysis parameters." %}
-                    {% trans "All collected data will be made available under an open license." %}
+                    {% trans "Rankings are public and can be configured to one's preferences." %}
+                    {% trans "PrivacyScore helps users, activists, and data protection authorities." %}
                     </p>
                 </div>
                 <div class="col-md-4">
@@ -97,9 +106,22 @@
                     {% trans "While we're giving our very best, we currently cannot guarantee the accuracy of the displayed results and rankings." %}
                 </div>
             </div>
-            <p class="imprint">
-                <a href="{% url 'frontend:imprint' %}">Imprint</a>
-            </p>
+
+            <div class="spacer"></spacer>
+
+            <div class="row">
+                <div class="col-md-4"></div>
+                <div class="col-md-4 text-center">
+                    <a href="https://twitter.com/privascore" style="padding-left: 40px;"><i class="fa fa-lg fa-twitter" style="color:white"></i></a> &nbsp; <a href="mailto:privacyscore@mailhost.informatik.uni-hamburg.de"><i class="fa fa-lg fa-envelope" style="color:white"></i>
+                </div>
+                
+                <div class="col-md-4 text-right">
+                    <p style="font-size:90%;">
+                        <a style="color: #ddd" href="{% url 'frontend:imprint' %}">Imprint / Impressum</a>
+                    </p>
+                </div>
+            </div>
+
         </div>
     </div>
     {% endblock footer %}
