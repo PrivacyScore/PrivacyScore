@@ -15,6 +15,7 @@ EU_STATES = [
     'Czech Republic',
     'Denmark',
     'Estonia',
+    'Europe', # This is actually very much debatable (Europe != EU), but EU organizations tend to be located in this "country". We don't want to punish them for that.
     'Finland',
     'France',
     'Germany',
