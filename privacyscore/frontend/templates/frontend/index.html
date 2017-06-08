@@ -64,13 +64,41 @@
                         </a>
                     </div>
                     <div class="panel-body">
-                        {% trans "Do you want to submit your own list of sites?" %}
-                        {% trans "You are just a click away!" %}
+                        {% trans "Do you want to submit your own list of websites?" %}
+                        {% trans "You are just one click away!" %}
                     </div>
                 </div>
             </div>
         </div>
         <div class="spotlight-clearfix"></div>
     </div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-push-3">
+                <h2>What is PrivacyScore?</h2>
+        
+                <p>PrivacyScore is an automated website scanner that allows you to investigate Websites for privacy and security issues. You can scan individual websites, or enter a list of related websites to see how they compare against each other. Our <em>beta release</em> of PrivacyScore tests the following aspects of websites:
+                </p>
+                
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <strong>Tracking and Privacy Checks</strong> test if the website is tracking you, or allowing others to do so.
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Website Encryption</strong> tests check if the webserver offers HTTPS connections, and how securely they are configured.
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Web Security Checks</strong> test if the website has any obvious security flaws.
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Mail Encryption</strong> is often overlooked. PrivacyScore checks whether the mail servers of a website support state-of-the-art transport encryption.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
 
 {% endblock fullcontent %}
