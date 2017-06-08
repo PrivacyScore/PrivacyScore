@@ -1529,7 +1529,7 @@ CHECKS['privacy']['webserver_locations']['longdesc'] = '''<p>We obtain the IP ad
 <p>Scan module: network</p>
 <p>Further reading:</p>
 <ul>
-<li>TODO</li>
+<li><a href="https://dev.maxmind.com/faq/what-are-the-eu-europe-and-ap-asia-pacific-entries/">Information regarding peculiarities regarding the country <em>Europe</em></a></li>
 </ul>
 ''' 
 CHECKS['privacy']['webserver_locations']['labels'] = ['unreliable']
@@ -1542,7 +1542,7 @@ CHECKS['privacy']['mailserver_locations']['longdesc'] = '''<p>We obtain the IP a
 <p>Scan module: network</p>
 <p>Further reading:</p>
 <ul>
-<li>TODO</li>
+<li><a href="https://dev.maxmind.com/faq/what-are-the-eu-europe-and-ap-asia-pacific-entries/">Information regarding peculiarities regarding the country <em>Europe</em></a></li>
 </ul>
 ''' 
 CHECKS['privacy']['mailserver_locations']['labels'] = ['unreliable']
@@ -1551,11 +1551,11 @@ CHECKS['privacy']['server_locations']['title'] = 'Check whether web and mail ser
 CHECKS['privacy']['server_locations']['longdesc'] = '''<p>Some site owners outsource hosting of mail or web servers to specialized operators that are located in a foreign country. Some users may find it surprising that web and mail traffic is not handled in the same fashion and in one of the two cases their traffic is transferred to a foreign country.</p>
 <p><strong>Conditions for passing:</strong> Test passes if the set of countries where the web servers are located matches the set of countries where the mail servers associated with the domain are located. If there are no MX records this test is neutral.</p>
 <p><strong>Reliability: unreliable.</strong> See GEOMAIL check.</p>
-<p><strong>Potential scan errors:</strong> See GEOMAIL check.</p>
+<p><strong>Potential scan errors:</strong> See GEOMAIL check. This check may wrongly be recorded as "failed", if one of the servers is found to be located in the country "Europe", which is due to peculiarities of how MaxMind records geolocations.</p>
 <p>Scan module: network</p>
 <p>Further reading:</p>
 <ul>
-<li>TODO</li>
+<li><a href="https://dev.maxmind.com/faq/what-are-the-eu-europe-and-ap-asia-pacific-entries/">Information regarding peculiarities regarding the country <em>Europe</em></a></li>
 </ul>
 ''' 
 CHECKS['privacy']['server_locations']['labels'] = ['unreliable']
