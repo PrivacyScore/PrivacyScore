@@ -1,38 +1,75 @@
 {% extends 'frontend/base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans 'Team' %}{% endblock %}
+{% block title %}{% trans 'Team and Contributors' %}{% endblock %}
 
 {% block content %}
-<h2>{% trans 'TODO – Team' %}</h2>
-    
 <div id="lists">
-    <div class="container mtb">
+    <div class="container">
         <div class="row">
-            <div class="col-lg-8 col-lg-offset-2">
-                <h4>Universität Hamburg, Germany</h3>
+            <div class="col-md-12">
                 
-                <p>Multiple researchers and students of the Security in Distributed Systems Group at Universität Hamburg are working on PrivacyScore:
+                <h2>{% trans 'Team and Contributors' %}</h2>
+                
+                <p>PrivacyScore is the result of the work of many contributors.</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-5">
+                <h3>Universität Hamburg, Germany</h3>
+                
+                <p>Multiple researchers and students of the
+                    <a href="https://svs.informatik.uni-hamburg.de/">
+                        Security in Distributed Systems Group</a>
+                        at Universität Hamburg have been working on
+                        the design and the implementation of PrivacyScore.
                     <ul>
-                        <li>Dominik Herrmann</li>
-                        <li>Henning Pridöhl</li>
-                        <li>Pascal Wichmann</li>
+                        <li><strong>Dominik Herrmann</strong> (research associate)</li>
+                        <li><strong>Henning Pridöhl</strong> (research assistant)</li>
+                        <li><strong>Pascal Wichmann</strong> (student assistant)</li>
+                        <li><strong>Rick Trojahn</strong> (student)</li>
+                        <li><strong>Kim-Otto Daetz</strong> (student)</li>
                     </ul>
                     
-                I do not really like this design so far.
+                <p>At the moment, most of the virtual machines that are
+                    being used for scanning are hosted in Hamburg.</p>
                     
-                <div class="hline"></div><br>
-                <h4>TU Darmstadt</h3>
-                <div class="hline"></div><br>
-                <h3>Marvin Hebisch (Uni Siegen)</h3>
-                <div class="hline"></div><br>
-                <h3>Nico Vitt (Uni Siegen)</h3>
-                <div class="hline"></div><br>
-                <h3>Sebastian Schinzel (FH Münster)</h3>
-                <div class="hline"></div><br>
-                <h3>Digitalcourage.de</h3>
-                <div class="hline"></div><br>
-                <br><br><br>
+                <h3>TU Darmstadt, Germany</h3>
+                
+                <p><strong>Max Maass</strong> contributes to PrivacyScore
+                    in various ways, for instance by implementing tests.
+                    He is a PhD student in the Doctoral College
+                    <a href="https://www.privacy-trust.tu-darmstadt.de/de/home/">
+                        “Privacy and Trust for Mobile Users”</a>.</p>
+                        
+            </div>
+            <div class="col-md-5 col-md-push-1">
+                <h3>Universität Kassel, Germany</h3>
+                
+                <p><strong>Anne Laubach</strong> contributes to PrivacyScore
+                    by sharing her expertise regarding legal implications.
+                    She is a PhD student in the Doctoral College
+                    <a href="https://www.privacy-trust.tu-darmstadt.de/de/home/">
+                        “Privacy and Trust for Mobile Users”</a>.</p>
+            </div>
+            <div class="col-md-5 col-md-push-1">
+                <h3>Fachhochschule Münster</h3>
+
+                <p><strong>Prof. Dr.-Ing. Sebastian Schinzel</strong> works
+                    at the <a href="https://www.fh-muenster.de/fb2/personen/professoren/schinzel/">
+                        Department of Electrical Engineering and Computer Science</a>
+                    and contributes to PrivacyScore by providing
+                    computing ressources for scanning.</p>
+            </div>
+            <div class="col-md-5 col-md-push-1">
+                <h3>Universität Siegen</h3>
+                <p><strong>Marvin Hebisch</strong> and <strong>Nico Vitt</strong>
+                    are business informatics students in the
+                    <a href="https://www.wiwi.uni-siegen.de">
+                        School of Economic Disciplines</a>.
+                    They have implemented the first
+                    working prototype of PrivacyScore.</p>
             </div>
         </div>
     </div>  

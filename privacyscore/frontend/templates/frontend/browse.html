@@ -24,12 +24,12 @@
 
 
     <div class="row">
-        <div class="col-sm-2 flex-last pull-right text-right">
+        <div class="col-sm-4 flex-last pull-right text-right">
             <h2>
-            <a style="width:100%;" class="btn btn-primary" href="{% url 'frontend:scan_list' %}">New List</a>
+            <a style="width:100%;" class="btn btn-default btn-primary btn-lg" href="{% url 'frontend:scan_list' %}">Submit New List</a>
             </h2>
         </div>
-        <div class="col-sm-10">
+        <div class="col-sm-8">
             <h2>{% trans 'Browse Lists' %}</h2>
 
             <p>PrivacyScore hosts lists of websites that are contributed by its users. You can browse our collection here.</p>
@@ -37,12 +37,11 @@
     </div>
     
     <div class="row">
-        <div class="col-sm-12 col-md-10">
+        <div class="col-sm-12 col-md-8">
             <div class="spacer"></div>
             <form method="get" action="{{ request.path }}">
                 <div class="input-group">
                     <input type="text" id="search" name="search" class="form-control" placeholder="{% trans 'Search in list descriptions and tags' %}" {% if request.GET.search %}value="{{ request.GET.search }}"{% endif %} />
-                    <!-- <input type="text" id="tags" name="tags" class="form-control" placeholder="{% trans 'Filter tags (i.e. banks german)' %}" {% if request.GET.tags %}value="{{ request.GET.tags }}"{% endif %} /> -->
                     <span class="input-group-btn">
                         <button class="btn btn-secondary btn-scan" type="submit">{% trans 'Search' %}</button>
                     </span>
@@ -65,7 +64,7 @@
     {% endif %}
     
     <div class="row">
-        <div class="col-md-2 col-md-push-10">
+        <div class="col-md-4 col-md-push-8">
             <div class="spacer visible-lg-block visible-md-block"></div>
             <div class="spacer visible-lg-block visible-md-block"></div>
             <div class="spacer visible-lg-block visible-md-block"></div>
@@ -78,7 +77,7 @@
             <div class="spacer"></div>
         </div>
         
-        <div class="col-md-10 col-md-pull-2">
+        <div class="col-md-8 col-md-pull-4">
             <div class="spacer"></div>
             <p>The listing is ordered according to the <strong>list popularity</strong>, i.e., the lists with the most views are shown at the top.</p>
             
