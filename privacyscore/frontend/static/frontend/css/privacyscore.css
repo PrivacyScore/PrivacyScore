@@ -367,3 +367,22 @@ panel-group .panel {
     margin: 0em 0.5em 1em 0.5em;
     border: 1px solid #ccc;
 }
+
+/*
+ *
+ */
+.label-color-reliable {
+    background-color: #5bc0de;
+}
+
+.label-color-unreliable {
+    background-color: #ff7777;
+}
+
+.label-color-informational {
+    background-color: #999;
+}
+
+.label-color-experimental {
+    background-color: #a0f;
+}
