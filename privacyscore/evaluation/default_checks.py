@@ -1447,7 +1447,7 @@ CHECKS['privacy']['third_parties']['longdesc'] = '''<p>Many websites are using s
 <p><strong>Conditions for passing:</strong> Test passes if no 3rd party resources are being embedded on the website.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li>TODO</li>
@@ -1459,7 +1459,7 @@ CHECKS['privacy']['third_party-trackers']['longdesc'] = '''<p>Often, web trackin
 <p><strong>Conditions for passing:</strong> Test passes if none of the embedded 3rd parties is a known tracker, as determined by a combination of three common blocking rulesets for AdBlock Plus: the EasyList, EasyPrivacy and Fanboy’s Annoyance List (which covers social media embeds).</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> Due to modifications to the list to make them compatible with our system, false positives may be introduced in rare conditions (e.g., if rules were blocking only specific resource types).</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://easylist.to/">https://easylist.to/</a></li>
@@ -1472,7 +1472,7 @@ CHECKS['privacy']['cookies_1st_party']['longdesc'] = '''<p>Cookies can be used t
 <p><strong>Conditions for passing:</strong> The test will pass if no cookies are set. Otherwise, it will be neutral.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li>TODO</li>
@@ -1485,7 +1485,7 @@ CHECKS['privacy']['cookies_3rd_party']['longdesc'] = """<p>Cookies can also be s
 <p><strong>Conditions for passing:</strong> The test will pass if no cookies are set by third parties.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li>TODO</li>
@@ -1498,7 +1498,7 @@ CHECKS['privacy']['google_analytics_present']['longdesc'] = """<p>Google Analyti
 <p><strong>Conditions for passing:</strong> Test is passes if Google Analytics is not being used.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li>TODO</li>
@@ -1511,7 +1511,7 @@ CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['longdesc'] = """<p>Go
 <p><strong>Conditions for passing:</strong> Test passes if Google Analytics is being used with the anonymizeIp extension. If Google Analytics is not being used, this test is neutral. Otherwise, the test fails, and the operation of the website may be illegal in certain juristictions.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li>TODO Find resource on legal issues surrounding GAnalytics in the EU</li>
@@ -1565,7 +1565,7 @@ CHECKS['security']['leaks']['longdesc'] = '''<p>Web servers may be configured in
 <p><strong>Conditions for passing:</strong> No leaks have been detected.</p>
 <p><strong>Reliability: unreliable.</strong> The detection is not completely reliable, as we can only check for certain indicators of problems. This test may result in both false positives (claiming that a website is insecure where it isn't) and false negatives (claiming that a website is secure where it isn't).</p>
 <p><strong>Potential scan errors:</strong> We only check for leaks at specific, pre-defined paths. If The website exposes information in other places, we may not detect it.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li>TODO</li>
@@ -1577,7 +1577,7 @@ CHECKS['security']['header_csp']['longdesc'] = '''<p>This HTTP header helps to p
 <p><strong>Conditions for passing:</strong> The Content-Security-Policy header is present.</p>
 <p><strong>Reliability: shallow.</strong> At the moment we only check for this header in the response that belongs to the first request for the final URL (after following potential redirects to other HTTP/HTTPS URLs). Furthermore, we only report whether the header is set or not, i.e., we do not analyze whether the content of the header makes sense.</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to render the resulting page but forget to set the header in all responses.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://content-security-policy.com">https://content-security-policy.com</a></li>
@@ -1591,7 +1591,7 @@ CHECKS['security']['header_xfo']['longdesc'] = '''<p>This HTTP header prevents a
 <p><strong>Conditions for passing:</strong> The X-Frame-Options header is present and set to “SAMEORIGIN” (as recommended by <a href="http://securityheaders.io">securityheaders.io</a>).</p>
 <p><strong>Reliability: shallow.</strong> At the moment we only check for this header in the response that belongs to the first request for the final URL (after following potential redirects to other HTTP/HTTPS URLs).</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to render the resulting page but forget to set the header in all responses.</p>
-<p>Scan module: openwpm</p>
+<p>Scan module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li>TODO</li>
@@ -1604,7 +1604,7 @@ CHECKS['security']['header_xssp']['longdesc'] = """<p>This HTTP header prevents 
 <p><strong>Conditions for passing:</strong> The X-XSS-Protection HTTP header is present and set to “1; mode=block” (which is the best policy and also recommended by the scan service <a href="http://securityheaders.io">securityheaders.io</a>).</p>
 <p><strong>Reliability: unreliable.</strong> At the moment we only check for this header in the response that belongs to the first request for the final URL (after following potential redirects to other HTTP/HTTPS URLs).</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to render the resulting page but forget to set the header in all responses.</p>
-<p>Scan module: openwpm</p>
+<p>Scan module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection</a></li>
@@ -1617,7 +1617,7 @@ CHECKS['security']['header_xcto']['longdesc'] = """<p>This HTTP header prevents 
 <p><strong>Conditions for passing:</strong> The X-Content-Type-Options HTTP header is present and set to “nosniff”.</p>
 <p><strong>Reliability: unreliable.</strong> At the moment we only check for this header in the response that belongs to the first request for the final URL (after following potential redirects to other HTTP/HTTPS URLs).</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to render the resulting page but forget to set the header in all responses.</p>
-<p>Scan module: openwpm</p>
+<p>Scan module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection</a></li>
@@ -1630,7 +1630,7 @@ CHECKS['security']['header_ref']['longdesc'] = """<p>A secure referrer policy pr
 <p><strong>Conditions for passing:</strong> Referrer-Policy header is present. Referrer-Policy is set to “no-referrer” (which is the only recommended policy recommended by <a href="http://dataskydd.net">dataskydd.net</a> in their Webbkoll scan service).</p>
 <p><strong>Reliability: unreliable.</strong> At the moment we only check for this header in the response that belongs to the first request for the final URL (after following potential redirects to other HTTP/HTTPS URLs).</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to render the resulting page but forget to set the header in all responses. We fail to detect a referrer policy that is set via the “referer” HTTP-EQUIV META tag in the HTML code.</p>
-<p>Scan module: openwpm</p>
+<p>Scan module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://w3c.github.io/webappsec-referrer-policy/">https://w3c.github.io/webappsec-referrer-policy/</a></li>
@@ -1656,7 +1656,7 @@ CHECKS['ssl']['https_scan_finished']['longdesc'] = """<p>HTTPS is a critical bui
 <p><strong>Conditions for passing:</strong> Test fails if the server does not offer HTTPS.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 """  
 CHECKS['ssl']['https_scan_finished']['labels'] = ['unreliable']
 
@@ -1665,7 +1665,7 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['longdesc'] = ""
 <p><strong>Conditions for passing:</strong> Test passes if the server outputs the same site when the given URL is requested via HTTPS. Test fails if no HTTPS connection can be established or the content (HTTP body) of the HTTPS response differs from the HTTP response. Neutral if the given URL is already an HTTPS URL.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> If website contents change significantly on each page load, this test may incorrectly fail.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 """ 
 CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['labels'] = ['unreliable']
 
@@ -1674,7 +1674,7 @@ CHECKS['ssl']['web_cert']['longdesc'] = """<p>A secure HTTPS connection requires
 <p><strong>Conditions for passing:</strong> Test passes if the server provides a valid SSL certificate.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> If website contents change significantly on each page load, this test may incorrectly fail.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 """ 
 CHECKS['ssl']['web_cert']['labels'] = ['unreliable']
 
@@ -1684,7 +1684,7 @@ CHECKS['ssl']['site_redirects_to_https']['longdesc'] = """<p>To protect their us
 <p><strong>Conditions for passing:</strong> Test passes if the server automatically redirects the browser to an HTTPS URL when the browser requests a HTTP URL. Neutral if the given URL is already an HTTPS URL.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> If users are redirected to the HTTPS version using JavaScript, this test may not detect it.<br>
-Scan Module: openwpm</p>
+Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 """ 
 CHECKS['ssl']['site_redirects_to_https']['labels'] = ['reliable']
 
@@ -1693,7 +1693,7 @@ CHECKS['ssl']['redirects_from_https_to_http']['longdesc'] = """<p>Some servers o
 <p><strong>Conditions for passing:</strong> Test fails if the server automatically redirects the browser to an HTTP URL when the browser requests a HTTPS URL. Neutral if the server does not support HTTPS.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> If users are redirected to the HTTP version using JavaScript, this test may not detect it.<br>
-Scan Module: openwpm</p>
+Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 """ 
 CHECKS['ssl']['redirects_from_https_to_http']['labels'] = ['reliable']
 
@@ -1702,7 +1702,7 @@ CHECKS['ssl']['web_pfs']['longdesc'] = """<p>Perfect forward secrecy protects th
 <p><strong>Conditions for passing:</strong> Test passes if the server offers HTTPS with perfect forward secrecy. Neutral if the server does not support HTTPS.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.<br>
-Scan Module: openwpm</p>
+Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 """ 
 CHECKS['ssl']['web_pfs']['labels'] = ['reliable']
 
@@ -1765,7 +1765,7 @@ CHECKS['ssl']['mixed_content']['longdesc'] = """<p>If HTTPS websites include con
 <p><strong>Conditions for passing:</strong> Test passes if the website does not use mixed content. If the server does not offer HTTPS, the test is neutral.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan module: OpenWPM</p>
+<p>Scan module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content">https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content</a></li>
