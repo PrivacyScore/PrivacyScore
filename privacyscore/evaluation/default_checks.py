@@ -1447,7 +1447,7 @@ CHECKS['privacy']['third_parties']['longdesc'] = '''<p>Many websites are using s
 <p><strong>Conditions for passing:</strong> Test passes if no 3rd party resources are being embedded on the website.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li>TODO</li>
@@ -1459,7 +1459,7 @@ CHECKS['privacy']['third_party-trackers']['longdesc'] = '''<p>Often, web trackin
 <p><strong>Conditions for passing:</strong> Test passes if none of the embedded 3rd parties is a known tracker, as determined by a combination of three common blocking rulesets for AdBlock Plus: the EasyList, EasyPrivacy and Fanboy’s Annoyance List (which covers social media embeds).</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> Due to modifications to the list to make them compatible with our system, false positives may be introduced in rare conditions (e.g., if rules were blocking only specific resource types).</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://easylist.to/">https://easylist.to/</a></li>
@@ -1472,7 +1472,7 @@ CHECKS['privacy']['cookies_1st_party']['longdesc'] = '''<p>Cookies can be used t
 <p><strong>Conditions for passing:</strong> The test will pass if no cookies are set. Otherwise, it will be neutral.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li>TODO</li>
@@ -1485,7 +1485,7 @@ CHECKS['privacy']['cookies_3rd_party']['longdesc'] = """<p>Cookies can also be s
 <p><strong>Conditions for passing:</strong> The test will pass if no cookies are set by third parties.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li>TODO</li>
@@ -1498,7 +1498,7 @@ CHECKS['privacy']['google_analytics_present']['longdesc'] = """<p>Google Analyti
 <p><strong>Conditions for passing:</strong> Test is passes if Google Analytics is not being used.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li>TODO</li>
@@ -1511,7 +1511,7 @@ CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['longdesc'] = """<p>Go
 <p><strong>Conditions for passing:</strong> Test passes if Google Analytics is being used with the anonymizeIp extension. If Google Analytics is not being used, this test is neutral. Otherwise, the test fails, and the operation of the website may be illegal in certain juristictions.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li>TODO Find resource on legal issues surrounding GAnalytics in the EU</li>
@@ -1565,10 +1565,10 @@ CHECKS['security']['leaks']['longdesc'] = '''<p>Web servers may be configured in
 <p><strong>Conditions for passing:</strong> No leaks have been detected.</p>
 <p><strong>Reliability: unreliable.</strong> The detection is not completely reliable, as we can only check for certain indicators of problems. This test may result in both false positives (claiming that a website is insecure where it isn't) and false negatives (claiming that a website is secure where it isn't).</p>
 <p><strong>Potential scan errors:</strong> We only check for leaks at specific, pre-defined paths. If The website exposes information in other places, we may not detect it.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: serverleaks</p>
 <p>Further reading:</p>
 <ul>
-<li>TODO/li>
+<li>TODO</li>
 </ul>'''
 CHECKS['security']['leaks']['labels'] = ['unreliable']
 
@@ -1577,7 +1577,7 @@ CHECKS['security']['header_csp']['longdesc'] = '''<p>This HTTP header helps to p
 <p><strong>Conditions for passing:</strong> The Content-Security-Policy header is present.</p>
 <p><strong>Reliability: shallow.</strong> At the moment we only check for this header in the response that belongs to the first request for the final URL (after following potential redirects to other HTTP/HTTPS URLs). Furthermore, we only report whether the header is set or not, i.e., we do not analyze whether the content of the header makes sense.</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to render the resulting page but forget to set the header in all responses.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://content-security-policy.com">https://content-security-policy.com</a></li>
@@ -1591,7 +1591,7 @@ CHECKS['security']['header_xfo']['longdesc'] = '''<p>This HTTP header prevents a
 <p><strong>Conditions for passing:</strong> The X-Frame-Options header is present and set to “SAMEORIGIN” (as recommended by <a href="http://securityheaders.io">securityheaders.io</a>).</p>
 <p><strong>Reliability: shallow.</strong> At the moment we only check for this header in the response that belongs to the first request for the final URL (after following potential redirects to other HTTP/HTTPS URLs).</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to render the resulting page but forget to set the header in all responses.</p>
-<p>Scan module: openwpm</p>
+<p>Scan module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li>TODO</li>
@@ -1604,7 +1604,7 @@ CHECKS['security']['header_xssp']['longdesc'] = """<p>This HTTP header prevents 
 <p><strong>Conditions for passing:</strong> The X-XSS-Protection HTTP header is present and set to “1; mode=block” (which is the best policy and also recommended by the scan service <a href="http://securityheaders.io">securityheaders.io</a>).</p>
 <p><strong>Reliability: unreliable.</strong> At the moment we only check for this header in the response that belongs to the first request for the final URL (after following potential redirects to other HTTP/HTTPS URLs).</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to render the resulting page but forget to set the header in all responses.</p>
-<p>Scan module: openwpm</p>
+<p>Scan module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection</a></li>
@@ -1617,7 +1617,7 @@ CHECKS['security']['header_xcto']['longdesc'] = """<p>This HTTP header prevents 
 <p><strong>Conditions for passing:</strong> The X-Content-Type-Options HTTP header is present and set to “nosniff”.</p>
 <p><strong>Reliability: unreliable.</strong> At the moment we only check for this header in the response that belongs to the first request for the final URL (after following potential redirects to other HTTP/HTTPS URLs).</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to render the resulting page but forget to set the header in all responses.</p>
-<p>Scan module: openwpm</p>
+<p>Scan module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection</a></li>
@@ -1630,7 +1630,7 @@ CHECKS['security']['header_ref']['longdesc'] = """<p>A secure referrer policy pr
 <p><strong>Conditions for passing:</strong> Referrer-Policy header is present. Referrer-Policy is set to “no-referrer” (which is the only recommended policy recommended by <a href="http://dataskydd.net">dataskydd.net</a> in their Webbkoll scan service).</p>
 <p><strong>Reliability: unreliable.</strong> At the moment we only check for this header in the response that belongs to the first request for the final URL (after following potential redirects to other HTTP/HTTPS URLs).</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to render the resulting page but forget to set the header in all responses. We fail to detect a referrer policy that is set via the “referer” HTTP-EQUIV META tag in the HTML code.</p>
-<p>Scan module: openwpm</p>
+<p>Scan module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://w3c.github.io/webappsec-referrer-policy/">https://w3c.github.io/webappsec-referrer-policy/</a></li>
@@ -1643,7 +1643,7 @@ CHECKS['ssl']['https_scan_failed']['longdesc'] = """<p>Due to various reasons, a
 <p><strong>Informational check:</strong> This is an informational check without influence on the rating.</p>
 <p><strong>Reliability: unreliable.</strong> </p>
 <p><strong>Potential scan errors:</strong> Sometimes, the check may fail even though the server offers encrypted connections. In that case, we will be unable to determine detailed information about the security of the server.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>TODO</li>
@@ -1656,7 +1656,7 @@ CHECKS['ssl']['https_scan_finished']['longdesc'] = """<p>HTTPS is a critical bui
 <p><strong>Conditions for passing:</strong> Test fails if the server does not offer HTTPS.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 """  
 CHECKS['ssl']['https_scan_finished']['labels'] = ['unreliable']
 
@@ -1665,7 +1665,7 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['longdesc'] = ""
 <p><strong>Conditions for passing:</strong> Test passes if the server outputs the same site when the given URL is requested via HTTPS. Test fails if no HTTPS connection can be established or the content (HTTP body) of the HTTPS response differs from the HTTP response. Neutral if the given URL is already an HTTPS URL.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> If website contents change significantly on each page load, this test may incorrectly fail.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 """ 
 CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['labels'] = ['unreliable']
 
@@ -1674,7 +1674,7 @@ CHECKS['ssl']['web_cert']['longdesc'] = """<p>A secure HTTPS connection requires
 <p><strong>Conditions for passing:</strong> Test passes if the server provides a valid SSL certificate.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> If website contents change significantly on each page load, this test may incorrectly fail.</p>
-<p>Scan Module: openwpm</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 """ 
 CHECKS['ssl']['web_cert']['labels'] = ['unreliable']
 
@@ -1684,7 +1684,7 @@ CHECKS['ssl']['site_redirects_to_https']['longdesc'] = """<p>To protect their us
 <p><strong>Conditions for passing:</strong> Test passes if the server automatically redirects the browser to an HTTPS URL when the browser requests a HTTP URL. Neutral if the given URL is already an HTTPS URL.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> If users are redirected to the HTTPS version using JavaScript, this test may not detect it.<br>
-Scan Module: openwpm</p>
+Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 """ 
 CHECKS['ssl']['site_redirects_to_https']['labels'] = ['reliable']
 
@@ -1693,7 +1693,7 @@ CHECKS['ssl']['redirects_from_https_to_http']['longdesc'] = """<p>Some servers o
 <p><strong>Conditions for passing:</strong> Test fails if the server automatically redirects the browser to an HTTP URL when the browser requests a HTTPS URL. Neutral if the server does not support HTTPS.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> If users are redirected to the HTTP version using JavaScript, this test may not detect it.<br>
-Scan Module: openwpm</p>
+Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 """ 
 CHECKS['ssl']['redirects_from_https_to_http']['labels'] = ['reliable']
 
@@ -1702,7 +1702,7 @@ CHECKS['ssl']['web_pfs']['longdesc'] = """<p>Perfect forward secrecy protects th
 <p><strong>Conditions for passing:</strong> Test passes if the server offers HTTPS with perfect forward secrecy. Neutral if the server does not support HTTPS.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.<br>
-Scan Module: openwpm</p>
+Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 """ 
 CHECKS['ssl']['web_pfs']['labels'] = ['reliable']
 
@@ -1711,7 +1711,7 @@ CHECKS['ssl']['web_hsts_header']['longdesc'] = """<p>This HTTP header prevents a
 <p><strong>Conditions for passing:</strong> The header is set on the HTTPS URL that is reached after following potential redirects. The max-age value is equivalent to 180 days or more, which is the recommended minimum by the author of testssl.</p>
 <p><strong>Reliability: unreliable.</strong> We only evaluate this header for the HTTPS URL to which a site redirects upon visit. We rely on the result of <a href="http://testssl.sh">testssl.sh</a> to evaluate the validity of the header. Under certain circumstances, a website may be protected without setting its own HSTS header, e.g. subdomains whose parent domain has a HSTS preloading directive covering subdomains - this will not be detected by this test, but will show up in the HSTS Preloading test.</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to different servers in order to render the resulting page but forget to set the header in all responses. We may miss the presence of HSTS if redirection is not performed with the HTTP Location header but with JavaScript.</p>
-<p>Scan module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security</a></li>
@@ -1725,7 +1725,7 @@ CHECKS['ssl']['web_hsts_preload_prepared']['longdesc'] = """<p>HSTS Preloading f
 <p><strong>Conditions for passing:</strong> The Server indicates it is ready for HSTS preloading, or is already part of the HSTS preloading list.</p>
 <p><strong>Reliability: unreliable.</strong> We only evaluate this header for the HTTPS URL to which a site redirects upon visit. We will miss preloading indicators on higher-level domains (e.g. example.com if the provided domain was www2.example.com).</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to different servers in order to render the resulting page but forget to set the header in all responses. We may miss the presence of HSTS if redirection is not performed with the HTTP Location header but with JavaScript.</p>
-<p>Scan module: testssl, HSTS preloading database</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a>, HSTS preloading database</p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://hstspreload.org">https://hstspreload.org</a></li>
@@ -1738,7 +1738,7 @@ CHECKS['ssl']['web_hsts_preload_listed']['longdesc'] = """<p>HSTS Preloading fur
 <p><strong>Conditions for passing:</strong> The final URL is part of the current Chromium HSTS preload list, or one of its parent domains is and has “include-subdomains” set to true.</p>
 <p><strong>Reliability: unreliable.</strong> We only evaluate this header for the HTTPS URL to which a site redirects upon visit. We also do not evaluate if the HSTS policy actually has force-https set to true.</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to different servers in order to render the resulting page but forget to set the header in all responses. We may miss the presence of HSTS if redirection is not performed with the HTTP Location header but with JavaScript.</p>
-<p>Scan module: testssl, HSTS preloading database</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a>, HSTS preloading database</p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://hstspreload.org">https://hstspreload.org</a></li>
@@ -1765,7 +1765,7 @@ CHECKS['ssl']['mixed_content']['longdesc'] = """<p>If HTTPS websites include con
 <p><strong>Conditions for passing:</strong> Test passes if the website does not use mixed content. If the server does not offer HTTPS, the test is neutral.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan module: OpenWPM</p>
+<p>Scan module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content">https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content</a></li>
@@ -1780,7 +1780,7 @@ CHECKS['mx']['mx_insecure_protocols_sslv2']['longdesc'] = """<p>SSL 2.0 is a dep
 <p><strong>Conditions for passing:</strong> Test passes if the server does not offer the SSL 2.0 protocol. Neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://tools.ietf.org/html/rfc6176">https://tools.ietf.org/html/rfc6176</a></li>
@@ -1797,7 +1797,7 @@ CHECKS['mx']['mx_insecure_protocols_sslv3']['longdesc'] = """<p>SSL 3.0 is a dep
 <p><strong>Conditions for passing:</strong> Test passes if the server does not offer the SSL 3.0 protocol. Neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="http://disablessl3.com">http://disablessl3.com</a></li>
@@ -1814,7 +1814,7 @@ CHECKS['mx']['mx_secure_protocols_tls1']['longdesc'] = """<p>TLS 1.0 is a legacy
 <p><strong>Informational check:</strong> As TLS 1.0 is neither desireable nor completely deprecated, this test is informational and will always be neutral.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://www.owasp.org/index.php/Transport_Layer_Protection_Cheat_Sheet#Rule_-_Only_Support_Strong_Protocols">https://www.owasp.org/index.php/Transport_Layer_Protection_Cheat_Sheet#Rule_-_Only_Support_Strong_Protocols</a></li>
@@ -1831,7 +1831,7 @@ CHECKS['mx']['mx_secure_protocols_tls1_1']['longdesc'] = """<p>TLS 1.1 is an out
 <p><strong>Informational check:</strong> At the moment, we show the result of this check for informational purposes only. The result of this check does not influence the rating and ranking.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://www.owasp.org/index.php/Transport_Layer_Protection_Cheat_Sheet#Rule_-_Only_Support_Strong_Protocols">https://www.owasp.org/index.php/Transport_Layer_Protection_Cheat_Sheet#Rule_-_Only_Support_Strong_Protocols</a></li>
@@ -1848,7 +1848,7 @@ CHECKS['mx']['mx_secure_protocols_tls1_2']['longdesc'] = """<p>TLS 1.2 is the a 
 <p><strong>Informational check:</strong> Test passes if the server does offer the SSL 3.0 protocol. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li><a href="https://www.owasp.org/index.php/Transport_Layer_Protection_Cheat_Sheet#Rule_-_Only_Support_Strong_Protocols">https://www.owasp.org/index.php/Transport_Layer_Protection_Cheat_Sheet#Rule_-_Only_Support_Strong_Protocols</a></li>
@@ -1865,7 +1865,7 @@ CHECKS['mx']['mx_vuln_heartbleed']['longdesc'] = """<p>The Heartbleed vulnerabil
 <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>CVE-2014-0160</li>
@@ -1881,7 +1881,7 @@ CHECKS['mx']['mx_vuln_ccs']['longdesc'] = """<p>The ChangeCipherSpec-Bug was a c
 <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>CVE-2014-0224</li>
@@ -1898,7 +1898,7 @@ CHECKS['mx']['mx_vuln_ticketbleed']['longdesc'] = """<p>The Ticketbleed-Bug was 
 <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>CVE-2016-9244</li>
@@ -1914,7 +1914,7 @@ CHECKS['mx']['mx_vuln_secure_renego']['longdesc'] = """<p>Description will be ad
 <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>CVE-2009-3555</li>
@@ -1930,7 +1930,7 @@ CHECKS['mx']['mx_vuln_secure_client_renego']['longdesc'] = """<p>Description wil
 <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>CVE-2009-3555</li>
@@ -1946,7 +1946,7 @@ CHECKS['mx']['mx_vuln_crime']['longdesc'] = """<p>Description will be added soon
 <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>CVE-2012-4929</li>
@@ -1962,7 +1962,7 @@ CHECKS['mx']['mx_vuln_breach']['longdesc'] = """<p>Description will be added soo
 <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>CVE-2013-3587</li>
@@ -1978,7 +1978,7 @@ CHECKS['mx']['mx_vuln_poodle']['longdesc'] = """<p>Description will be added soo
 <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>CVE-2014-3566</li>
@@ -1994,7 +1994,7 @@ CHECKS['mx']['mx_vuln_sweet32']['longdesc'] = """<p>Description will be added so
 <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>CVE-2016-2183</li>
@@ -2011,7 +2011,7 @@ CHECKS['mx']['mx_vuln_freak']['longdesc'] = """<p>Description will be added soon
 <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>CVE-2015-0204</li>
@@ -2027,7 +2027,7 @@ CHECKS['mx']['mx_vuln_drown']['longdesc'] = """<p>Description will be added soon
 <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>CVE-2016-0800</li>
@@ -2044,7 +2044,7 @@ CHECKS['mx']['mx_vuln_logjam']['longdesc'] = """<p>Description will be added soo
 <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: unreliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>CVE-2015-4000</li>
@@ -2060,7 +2060,7 @@ CHECKS['mx']['mx_vuln_beast']['longdesc'] = """<p>Description will be added soon
 <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>CVE-2011-3389</li>
@@ -2076,7 +2076,7 @@ CHECKS['mx']['mx_vuln_lucky13']['longdesc'] = """<p>Description will be added so
 <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>CVE-2013-0169</li>
@@ -2091,7 +2091,7 @@ CHECKS['ssl']['web_vuln_rc4']['longdesc'] = \
 CHECKS['mx']['mx_vuln_rc4']['longdesc'] = """<p><strong>Informational check:</strong> Test passes if the server is not using RC4. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>CVE-2013-2566</li>
@@ -2108,7 +2108,7 @@ CHECKS['mx']['mx_vuln_fallback_scsv']['longdesc'] = """<p>Description will be ad
 <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>RFC 7507</li>
@@ -2134,7 +2134,7 @@ CHECKS['mx']['mx_scan_finished']['longdesc'] = """<p>Many eMail servers do not a
 <p><strong>Informational check:</strong> Test fails if the server does not offer encryption. The result is neutral if the encryption test did not complete with any results.</p>
 <p><strong>Reliability: unreliable.</strong> </p>
 <p><strong>Potential scan errors:</strong> Many eMail servers will slow down our test significantly, which may lead to it failing even though the server offers encrypted connections. In that case, we will be unable to determine any information about the security of the server, and will exempt the category from the rating.</p>
-<p>Scan Module: testssl</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>TODO</li>
