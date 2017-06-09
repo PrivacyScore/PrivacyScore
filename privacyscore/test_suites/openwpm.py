@@ -179,8 +179,8 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
 
 
         # responses
-        for respurl, method, referrer, headers, response_status_text, time_stamp in cur.execute(
-                "SELECT url, method, referrer, headers, response_status_text, " +
+        for respurl, method, referrer, headers, response_status, response_status_text, time_stamp in cur.execute(
+                "SELECT url, method, referrer, headers, response_status, response_status_text, " +
                 "time_stamp FROM site_visits as s JOIN http_responses as h " +
                 "ON s.visit_id = h.visit_id WHERE s.site_url LIKE ? ORDER BY h.id;", (url,)):  # site["url"]
             scantosave["responses"].append({
@@ -188,6 +188,7 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
                 'method': method,
                 'referrer': referrer,
                 'headers': headers,
+                'response_status': response_status,
                 'response_status_text': response_status_text,
                 'time_stamp': time_stamp
             })
@@ -211,14 +212,14 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
                 # retrieve final URL (after potential redirects)
                 cur.execute("SELECT final_url FROM final_urls WHERE original_url = ?;", [site_url]);
                 res = cur.fetchone()
-                final_url = ""
+                openwpm_final_url = ""
                 if(not(res == None) and len(res)>0):
-                    final_url = res[0]
-                    scantosave['final_url'] = final_url
+                    openwpm_final_url = res[0]
+                    scantosave['openwpm_final_url'] = openwpm_final_url
 
                 # if we are redirected to an insecure http:// site we have to set https-flag
                 # to false even if the original URL used https://
-                redirected_to_https = final_url.startswith("https://")
+                redirected_to_https = openwpm_final_url.startswith("https://")
                 if(redirected_to_https and scantosave["success"]):
                     scantosave["https"] = True
                 else:
@@ -234,20 +235,25 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
                 scantosave["redirected_to_https"] = False
                 scantosave["https"] = False
                 scantosave["success"] = False
-                scantosave["final_url"] = site_url  # To ensure the next test does not crash and burn
+                scantosave["openwpm_final_url"] = site_url  # To ensure the next test does not crash and burn
 
             # HTTP Security Headers
-            # Iterate through responses in order until we have arrived at the final_url
+            # Iterate through responses in order until we have arrived at the openwpm_final_url
             # (i.e. the URL of the website after all redirects), as this is the one whose headers we want.
-            responses = scantosave["responses"]
-            found = False
-            for resp in responses:
-                if resp["url"] == scantosave["final_url"]:
-                    found = True
-                    break
-            if not found:
-                assert False
-            headers = json.loads(resp['headers']) # This is a list of lists: [ ['Server', 'nginx'], ['Date', '...'] ]
+            
+            response = find_matching_response(scantosave["openwpm_final_url"], scantosave["responses"])
+            # Javascript Hipster websites may have failed to find any matching request at this point.
+            # Backup solution to find at least some matching request.
+            if not response:
+                for resp in scantosave["responses"]:
+                    if resp["response_status"] > 300 or resp["response_status"] < 399:
+                        response = resp
+                        print(response["url"])
+            # Now we should finally have a response. Verify.
+            assert response
+
+
+            headers = json.loads(response['headers']) # This is a list of lists: [ ['Server', 'nginx'], ['Date', '...'] ]
             headers_dict = {d[0]: d[1] for d in headers} # This gets us { 'Server': 'nginx', 'Date': '...' }
             headers_lc = {k.lower():v for k,v in headers_dict.items()} # lowercase keys, allows for case-insensitive lookup
 
@@ -363,6 +369,19 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
     os.remove(temp_db_file)
 
     return scantosave
+
+
+def find_matching_response(url, responses):
+    """
+    Find a response that matches the provided URL
+
+    :param url: The URL to look for
+    :param responses: A List of responses
+    """
+    for resp in responses:
+        if resp["url"] == url:
+            return resp
+    return None
 
 
 def pixelize_screenshot(screenshot, screenshot_pixelized, target_width=390, pixelsize=3):
