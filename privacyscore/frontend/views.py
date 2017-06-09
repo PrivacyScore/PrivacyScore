@@ -546,7 +546,7 @@ def team(request: HttpRequest):
 
 
 def faq(request: HttpRequest):
-    num_scanned_sites  = Site.objects.filter(scans__isnull=False).count()
+    num_scans  = Site.objects.filter(scans__isnull=False).count()
     num_scanning_sites = Scan.objects.filter(end__isnull=True).count()
 
     query = '''SELECT DISTINCT
@@ -564,7 +564,7 @@ def faq(request: HttpRequest):
         
     return render(request, 'frontend/faq.html', {
         'num_scanning_sites': num_scanning_sites,
-        'num_scanned_sites':  num_scanned_sites,
+        'num_scans':  num_scans,
         'num_sites_failing_serverleak': num_sites_failing_serverleak
     })
 
