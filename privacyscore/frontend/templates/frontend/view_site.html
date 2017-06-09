@@ -131,11 +131,10 @@ table.dataTable thead .sorting_desc_disabled
                 </div>
             {% empty %}
                 <div class="col text-center" style="font-size: 1em; line-height: 1.2em; font-weight: 700;">
-                {% trans 'The ratings are not available yet.' %}
+                {% trans 'The ratings are not available yet. Please be patient.' %}
                 </div>
             {% endfor %}
             </div>
-
         </div>
         <p class="text-center"><small><strong>Take this with a grain of salt!</strong> Some of our checks may report wrong results. <span class="label label-warning">BETA</span> </small></p>
 
@@ -158,6 +157,12 @@ table.dataTable thead .sorting_desc_disabled
     
         {% if scan_running %}
             <h3 class="text-center"><small class="text-primary">SCAN IN PROGRESS</small></h3>
+            <div class="text-center">
+                <a class="btn btn-primary" href="{{ request.path }}">
+                    <i class="fa fa-refresh" aria-hidden="true"></i>&nbsp;
+                    {% trans 'Refresh Page' %}
+                </a>
+            </div>
         {% else %}
             {% if site.scannable %}
                 <h3 class="text-center color-primary"><smalL>AVAILABLE FOR RE-SCAN</small></h3>
@@ -203,6 +208,7 @@ table.dataTable thead .sorting_desc_disabled
                 {% for group, descriptions in groups_descriptions %}
                 {% with forloop.counter as outerCounter %}
                 
+                <div class="spacer"></div>
                 <h3>{{ group }}</h3>
                 
                 <!-- panel group begin -->

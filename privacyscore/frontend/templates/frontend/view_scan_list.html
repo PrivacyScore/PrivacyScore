@@ -95,6 +95,12 @@
                 {{ counter }} sites of this list are being scanned at the moment
             {% endblocktrans %}
             </p>
+            <div class="text-center">
+                <a class="btn btn-primary btn-small" href="{{ request.path }}">
+                <i class="fa fa-refresh" aria-hidden="true"></i>&nbsp;
+                {% trans 'Refresh Page' %}
+                </a>
+            </div>
             {% else %}
             <h3 class="text-center color-neutral"><smalL>NO SCANS RUNNING</small></h3>
             {% endif %}
