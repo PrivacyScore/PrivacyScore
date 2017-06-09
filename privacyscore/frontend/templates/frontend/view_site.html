@@ -70,7 +70,7 @@ table.dataTable thead .sorting_desc_disabled
         <div style="background-color: #888; width: 100%; padding: 8px 12px 6px 12px; color: #ccc; font-size: 90%">
             <span>SCAN <span style="color:white">#{{ num_scans }}</span>
             </span>
-            <span class="pull-right"><span>LAST SCAN</span>&nbsp; <span style="color: white">{{ site.last_scan__start|date:"Y-m-d @ H:i:s" }} – {{ site.last_scan__end|date:"H:i:s" }}</span></span></div>
+            <span class="pull-right"><span>LAST SCAN</span>&nbsp; <span style="color: white">{{ site.last_scan__start|date:"Y-m-d @ H:i" }} – {{ site.last_scan__end|date:"H:i" }}</span></span></div>
         
         <div class="group-box" style="border: 2px solid #888; background: #eee">
             {% with r=site.evaluated.rating.rating %}
