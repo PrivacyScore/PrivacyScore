@@ -22,14 +22,15 @@
 
 {% block content %}
 
-
+<div class="container">
     <div class="row">
-        <div class="col-sm-4 flex-last pull-right text-right">
+        <div class="col-xs-12 col-md-4 flex-last pull-right text-right">
             <h2>
-            <a style="width:100%;" class="btn btn-default btn-primary btn-lg" href="{% url 'frontend:scan_list' %}">Submit New List</a>
+                <a class="btn btn-primary btn-block"
+                href="{% url 'frontend:scan_list' %}">Submit new list</a>
             </h2>
         </div>
-        <div class="col-sm-8">
+        <div class="col-xs-12 col-md-8">
             <h2>{% trans 'Browse Lists' %}</h2>
 
             <p>PrivacyScore hosts lists of websites that are contributed by its users. You can browse our collection here.</p>
@@ -43,7 +44,7 @@
                 <div class="input-group">
                     <input type="text" id="search" name="search" class="form-control" placeholder="{% trans 'Search in list descriptions and tags' %}" {% if request.GET.search %}value="{{ request.GET.search }}"{% endif %} />
                     <span class="input-group-btn">
-                        <button class="btn btn-secondary btn-scan" type="submit">{% trans 'Search' %}</button>
+                        <button class="btn btn-default btn-scan" type="submit">{% trans 'Search' %}</button>
                     </span>
                 </div>
             </form>
@@ -157,4 +158,5 @@
         </div>
         
     </div>
+</div>
 {% endblock content %}
