@@ -34,7 +34,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="id_tags">{% trans "Tags" %}</label>
+                    <label for="id_tags">{% trans "Tags (separated by spaces)" %}</label>
                     {% render_field scan_list_form.tags class+="form-control" placeholder="ecommerce de" %}
                     
                     <p class="smallnotice">Popular tags:
@@ -102,15 +102,15 @@
             <tr>
                 <th>URL</th>
                 <th>State</th>
-                <th>Annual Sales</th>
+                <th>Sales</th>
             </tr>
             <tr>
-                <td>http://www.myunicorn.example.com/</td>
+                <td>http://www.example.de/</td>
                 <td>Bavaria</td>
                 <td>8500</td>
             </tr>
             <tr>
-                <td>unicorns.example.com</td>
+                <td>unicorn.example.com</td>
                 <td>Saxony</td>
                 <td>600</td>
             </tr>
@@ -162,7 +162,7 @@ page2.example.com;IT"
             <div>
                 <button class="btn btn-primary">
                     <i class="fa fa-upload"></i>
-                    {% trans 'Upload data and verify structure' %}
+                    {% trans 'Upload data' %}
                 </button>
             </div>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -188,9 +188,9 @@ page2.example.com;IT"
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <div>
             {% if csv_data and not invalid_rows %}
-                {% trans 'Valid CSV data received. You are good to go!' %}
+                {% trans 'Valid data received. You are good to go!' %}
             {% else %}
-                {% trans 'Please upload your CSV data before you submit the list.' %}
+                {% trans 'Please upload CSV data before submitting.' %}
             {% endif %}
         </div>
     </div>
