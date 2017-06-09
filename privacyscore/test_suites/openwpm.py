@@ -187,7 +187,7 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
                 'url': respurl,
                 'method': method,
                 'referrer': referrer,
-                'headers': headers,
+                'headers': json.loads(headers) if headers else [],
                 'response_status': response_status,
                 'response_status_text': response_status_text,
                 'time_stamp': time_stamp
@@ -246,14 +246,15 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
             # Backup solution to find at least some matching request.
             if not response:
                 for resp in scantosave["responses"]:
-                    if resp["response_status"] > 300 or resp["response_status"] < 399:
+                    if resp["response_status"] < 300 or resp["response_status"] > 399:
                         response = resp
                         print(response["url"])
+                        break
             # Now we should finally have a response. Verify.
             assert response
 
 
-            headers = json.loads(response['headers']) # This is a list of lists: [ ['Server', 'nginx'], ['Date', '...'] ]
+            headers = response['headers'] # This is a list of lists: [ ['Server', 'nginx'], ['Date', '...'] ]
             headers_dict = {d[0]: d[1] for d in headers} # This gets us { 'Server': 'nginx', 'Date': '...' }
             headers_lc = {k.lower():v for k,v in headers_dict.items()} # lowercase keys, allows for case-insensitive lookup
 
