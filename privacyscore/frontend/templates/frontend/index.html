@@ -11,20 +11,30 @@
             <h2>{% trans 'Compare Websites with PrivacyScore' %}</h2>
             <p>{% trans 'PrivacyScore allows you to test websites and rank them according to their security and privacy features.' %}</p>
 
-            <div class="well-form">
-                <a class="btn btn-lg btn-primary btn-well" href="{% url 'frontend:scan_list' %}">Create new site list</a>
-                <p class="scan-separator">— {% trans 'or scan a single site immediately' %} —</p>
-                <form method="post" action="{% url 'frontend:scan_site' %}">
-                    {% csrf_token %}
-                    <div class="input-group scan-single">
-                        {% with placeholder=_('URL of website, e.g. https://privacyscore.org/') %}
-                            {% render_field scan_form.url class+='form-control' placeholder=placeholder %}
-                        {% endwith %}
-                        <span class="input-group-btn">
-                            <button class="btn btn-secondary btn-scan" type="submit">{% trans 'Scan' %}</button>
-                        </span>
-                    </div>
-                </form>
+            <div class="row">
+                <div class="col-xs-10 col-xs-push-1 col-sm-6 col-sm-push-3 col-md-6 col-md-push-3">
+                    <a class="btn btn-lg btn-primary btn-well" href="{% url 'frontend:scan_list' %}">Create new site list</a>
+                    <p class="scan-separator">— {% trans 'or scan a single site immediately' %} —</p>
+                    <form method="post" action="{% url 'frontend:scan_site' %}">
+                        {% csrf_token %}
+                        <div class="input-group scan-single">
+                            {% with placeholder=_('URL, e.g. privacyscore.org') %}
+                                {% render_field scan_form.url class+='form-control' placeholder=placeholder %}
+                            {% endwith %}
+                            <span class="input-group-btn">
+                                <button class="btn btn-default btn-scan" type="submit">{% trans 'SCAN' %}</button>
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container text-muted text-center">
+        <div class="row">
+            <div class="col">
+                <strong>PrivacyScore is in Public Beta since June 8.</strong><br>We will inform you about changes and new features here.
             </div>
         </div>
     </div>
