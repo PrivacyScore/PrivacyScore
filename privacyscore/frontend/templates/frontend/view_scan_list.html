@@ -45,6 +45,8 @@
             <h3 id="results">{% trans "Results Overview" %}</h3>
             {% include 'frontend/ranking_summary.html' with sites_count=sites_count sites_failures_count=sites_failures_count ratings_count=ratings_count %}
             
+            <p><strong>Take this with a grain of salt!</strong> Some of our checks may report wrong results. <span class="label label-warning">BETA</span></p>
+            
             <div class="spacer"></div>
             
             <p><a id="configure-link" href="#">&raquo; {% trans "Configure sorting and grouping" %}</a></p>
