@@ -97,8 +97,13 @@ h2 {
     font-family: "Raleway", sans-serif;
 }
 
+.btn-well {
+    width:100%;
+    margin:10px 0 15px 0;
+}
+
 .btn-scan {
-    color:#333;
+    color:#000;
 }
 
 .scan-single {
