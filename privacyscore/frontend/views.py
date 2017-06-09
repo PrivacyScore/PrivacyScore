@@ -487,13 +487,13 @@ def scan_site(request: HttpRequest, site_id: Union[int, None] = None) -> HttpRes
         else:
             num_scanning_sites = Scan.objects.filter(end__isnull=True).count()
             messages.success(request,
-                _("Scan of the site has been scheduled. "+ \
+                _("A scan of the site has been scheduled. "+ \
                   "The total number of sites in the scanning queue "+ \
                   "is %i (including yours)." % num_scanning_sites))
             return redirect(reverse('frontend:view_site', args=(site.pk,)))
     else:
         messages.warning(request,
-            _('The site has been scanned recently. No scan was scheduled.'))
+            _('The site is already scheduled for scanning or it has been scanned recently. No scan was scheduled.'))
     return redirect(reverse('frontend:view_site', args=(site.pk,)))
 
 
