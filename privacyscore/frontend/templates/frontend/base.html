@@ -4,14 +4,15 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.5">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{% endblock title %} - PrivacyScore</title>
     <link rel="icon" type="image/png" href="{% static 'frontend/img/favicon.png' %}">
 
     <link rel="stylesheet" href="{% static 'frontend/css/bootstrap.min.css' %}" />
     <link rel="stylesheet" href="{% static 'frontend/css/font-awesome.min.css' %}" />
-      <link rel="stylesheet" href="{% static 'frontend/css/privacyscore.css' %}" />
-      <link rel="stylesheet" href="{% static 'frontend/fonts/font.css' %}" />
+    <link rel="stylesheet" href="{% static 'frontend/css/privacyscore.css' %}" />
+    <link rel="stylesheet" href="{% static 'frontend/fonts/font.css' %}" />
     {% block additional_css %}
     {% endblock additional_css %}
   </head>
@@ -76,8 +77,8 @@
 
     {% block footer %}
     
-    
-    <div style="height:150px" class="visible-xs visible-sm"><!-- more space before the footer needed --></div>
+    <div style="height:110px" class="visible-xs"><!-- more space before the footer needed --></div>
+    <div style="height:110px" class="visible-xs visible-sm"><!-- more space before the footer needed --></div>
     
     <div class="footer">
 
@@ -89,7 +90,7 @@
     
         <div class="container">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-sm-4">
                     <h3>{% trans 'About' %}</h3>
                     <p>
                     {% trans "PrivacyScore is a website scanning tool that allows anyone to benchmark security and privacy features of websites." %}
@@ -97,13 +98,13 @@
                     {% trans "PrivacyScore helps users, activists, and data protection authorities." %}
                     </p>
                 </div>
-                <div class="col-md-4">
+                <div class="col-sm-4">
                     <h3>{% trans 'Feedback' %}</h3>
                     {% trans "We are curious to receive your feedback." %}
                     {% trans "Please do not hesitate to contact us if you observe any errors." %}
                     {% trans "Site owners can request to exclude their sites from future scans." %}
                 </div>
-                <div class="col-md-4">
+                <div class="col-sm-4">
                     <h3>{% trans 'Beta Status' %}</h3>
                     {% trans "PrivacyScore is currently in public beta." %}
                     {% trans "While we're giving our very best, we currently cannot guarantee the accuracy of the displayed results and rankings." %}
@@ -115,7 +116,7 @@
             <div class="row">
                 <div class="col-xs-4"></div>
                 <div class="col-xs-4 text-center">
-                    <a href="https://twitter.com/privascore" style="padding-left: 40px;"><i class="fa fa-lg fa-twitter" style="color:white"></i></a> &nbsp; <a href="mailto:privacyscore@mailhost.informatik.uni-hamburg.de"><i class="fa fa-lg fa-envelope" style="color:white"></i>
+                    <a href="https://twitter.com/privascore"><i class="fa fa-lg fa-twitter" style="color:white"></i></a> &nbsp; <a href="mailto:privacyscore@mailhost.informatik.uni-hamburg.de"><i class="fa fa-lg fa-envelope" style="color:white"></i>
                 </div>
                 
                 <div class="col-xs-4 text-right">
