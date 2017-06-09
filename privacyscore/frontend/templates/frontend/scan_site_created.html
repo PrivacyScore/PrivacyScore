@@ -17,7 +17,9 @@
         <h1>{% trans "Success!" %}</h1>
 
         <h3>{% trans "Your scan has been added to our scanning queue." %}</h3>
-        <p>We are running multiple scanning machines that perform periodic re-scans of all sites in our database. If the queue is empty, you can expect the first results to arrive after 1–2 minutes.</p>
+        <p>We are running multiple scanning machines that perform periodic re-scans of all sites in our database. If the queue is empty, you can expect the results to arrive with 2–5 minutes.</p>
+        
+        <p>If the site has been scanned previously, we will show you the most recently obtained scan results until your scan has finished.</p>
 
         <p>Currently, there
             {% blocktrans count counter=num_scanning_sites %}
