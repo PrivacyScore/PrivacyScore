@@ -1535,7 +1535,7 @@ CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['longdesc'] = """<p>Go
 <li><a href="https://support.google.com/analytics/answer/2905384?hl=en">https://support.google.com/analytics/answer/2905384?hl=en</a></li>
 </ul>
 """ 
-CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['labels'] = ['unreliable']
+CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['labels'] = ['reliable']
 
 CHECKS['privacy']['webserver_locations']['title'] = 'Check whether web server is located in EU'
 CHECKS['privacy']['webserver_locations']['longdesc'] = '''<p>We obtain the IP addresses of the domain and look up their country in a GeoIP database. Given present and upcoming data protection regulations EU citizens may consider to be protected better if their data is hosted in the European Union. We will offer more flexible geo-location tests in the future.</p>
