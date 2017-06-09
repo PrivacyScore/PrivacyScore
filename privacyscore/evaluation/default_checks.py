@@ -21,6 +21,16 @@ CHECKS = {
 ####################
 ## Privacy Checks ##
 ####################
+# Check if OpenWPM died.
+CHECKS['privacy']['openwpm_scan_failed'] = {
+    'keys': {'final_url'},
+    'rating': None,
+    'missing': {
+        'description': _('The website scan has encountered an error. Please re-scan this site using the button above.'),
+        'classification': Rating('neutral', devaluates_group=True),
+        'details_list': None,
+    }
+}
 # Check for embedded third parties
 # 0 parties: good
 # else: bad
@@ -38,7 +48,7 @@ CHECKS['privacy']['third_parties'] = {
                 'count': keys['third_parties_count']},
         'classification':  Rating('bad'),
         'details_list': [(key,) for key in keys['third_parties']]},
-    'missing': None,
+    'missing': None
 }
 # Check for embedded known trackers
 # 0 parties: good
@@ -1442,6 +1452,12 @@ CHECKS['mx']['mx_vuln_fallback_scsv'] = {
 }
 
 # Add textual descriptions and labels and stuff
+CHECKS['privacy']['openwpm_scan_failed']['title'] = "Check if Website scan succeeded"
+CHECKS['privacy']['openwpm_scan_failed']['longdesc'] = '''<p>Sometimes, a scan can go wrong and not deliver any results. This check tests if the scan of the website using the OpenWPM tool succeeded.</p>
+<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
+<p>Further reading:</p>'''
+CHECKS['privacy']['openwpm_scan_failed']['labels'] = ['informational']
+
 CHECKS['privacy']['third_parties']['title'] = "Check if 3rd party embeds are being used"
 CHECKS['privacy']['third_parties']['longdesc'] = '''<p>Many websites are using services provided by third parties to enhance their websites. However, this use of third parties has privacy implications for the users, as the information that they are visiting a particular website is also disclosed to all used third parties.</p>
 <p><strong>Conditions for passing:</strong> Test passes if no 3rd party resources are being embedded on the website.</p>
