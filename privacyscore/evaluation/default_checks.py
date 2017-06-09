@@ -23,7 +23,7 @@ CHECKS = {
 ####################
 # Check if OpenWPM died.
 CHECKS['privacy']['openwpm_scan_failed'] = {
-    'keys': {'final_url'},
+    'keys': {'third_parties_count'},
     'rating': lambda **keys: None,
     'missing': {
         'description': _('The website scan has encountered an error. Please re-scan this site using the button above.'),
