@@ -105,6 +105,7 @@ def scan_list(request: HttpRequest) -> HttpResponse:
                     'csv_data': csv_data,
                 })
             csv_data = scan_list_form.cleaned_data['csv_data']
+            known_urls = set()
             # TODO: Hacky code ahead
             if not invalid_rows and 'start_scan' in request.POST:
                 with transaction.atomic():
@@ -112,21 +113,25 @@ def scan_list(request: HttpRequest) -> HttpResponse:
                     sites = []
                     for row in table:
                         url = normalize_url(row[0])
+                        if url in known_urls:
+                            break
+                        known_urls.add(url)
                         site, _created = Site.objects.get_or_create(url=url)
                         site.scan_lists.add(scan_list)
                         sites.append(site)
-                    for i, name in enumerate(table_header[1:]):
-                        column = ListColumn.objects.create(
-                            scan_list=scan_list, name=name, visible=True, sort_key=i)
-                        for row_no, row in enumerate(table):
-                            ListColumnValue.objects.create(column=column, site=sites[row_no], value=row[i + 1])
+                    else:
+                        for i, name in enumerate(table_header[1:]):
+                            column = ListColumn.objects.create(
+                                scan_list=scan_list, name=name, visible=True, sort_key=i)
+                            for row_no, row in enumerate(table):
+                                ListColumnValue.objects.create(column=column, site=sites[row_no], value=row[i + 1])
 
-                    # tags
-                    tags_to_add = set()
-                    for tag in request.POST.get('tags', '').split():
-                        tag = ListTag.objects.get_or_create(name=tag)[0]
-                        tags_to_add.add(tag)
-                    scan_list.tags.add(*tags_to_add)
+                        # tags
+                        tags_to_add = set()
+                        for tag in request.POST.get('tags', '').split():
+                            tag = ListTag.objects.get_or_create(name=tag)[0]
+                            tags_to_add.add(tag)
+                        scan_list.tags.add(*tags_to_add)
                 scan_list.scan()
                 return redirect(reverse('frontend:scan_list_created', args=(scan_list.token,)))
 
