@@ -5,6 +5,7 @@ import shutil
 import sqlite3
 import sys
 import tempfile
+import timeit
 
 from io import BytesIO
 from subprocess import call, DEVNULL
@@ -169,7 +170,10 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
         scantosave["third_parties_count"] = len(third_parties)
 
         # Identify known trackers
+        start_time = timeit.default_timer()
         scantosave["tracker_requests"] = detect_trackers(third_party_requests)
+        elapsed = timeit.default_timer() - start_time
+        scantosave["tracker_requests_elapsed_seconds"] = elapsed
 
         # Google Analytics detection
         (present, anonymized, not_anonymized) = detect_google_analytics(third_party_requests)
@@ -441,7 +445,9 @@ def detect_trackers(third_parties):
     lines = []
     rules = []
     result = []
-
+    
+    start_time = timeit.default_timer()
+    
     # Generate paths to files
     easylist_path = os.path.join(
         settings.SCAN_TEST_BASEPATH, 'vendor/EasyList', 'easylist.txt')
@@ -468,11 +474,20 @@ def detect_trackers(third_parties):
             print("Unexpected error:", sys.exc_info()[0])
 
     abr = AdblockRules(rules)
-
+    
+    elapsed = timeit.default_timer() - start_time
+    print("Elapsed: %i secs" % elapsed)
+    
+    i = 0
+    
     for url in third_parties:
         if abr.should_block(url):
             ext = tldextract.extract(url)
             result.append("{}.{}".format(ext.domain, ext.suffix))
+        i = i + 1
+        if i % 20 == 0:
+            elapsed = timeit.default_timer() - start_time
+            print("Checked %i domains, %i secs elapsed..." % (i, elapsed))
 
     return list(set(result))
 
