@@ -12,7 +12,6 @@ Environment=PATH="/opt/privacyscore/.pyenv/bin:/usr/local/bin:/usr/bin:/bin:/usr
 KillSignal=SIGQUIT
 PrivateTmp=true
 Restart=always
-MemoryLimit=200M
 
 [Install]
 WantedBy=multi-user.target

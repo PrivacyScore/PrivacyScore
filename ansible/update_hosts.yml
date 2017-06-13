@@ -112,6 +112,21 @@
       environment:
         PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
+    - name: Place systemd unit file for privacyscore-celery-master
+      when: is_master
+      template:
+        src: privacyscore-celery-master.service
+        dest: /etc/systemd/system/privacyscore-celery-master.service
+    - name: Place systemd unit file for privacyscore-celery-slave
+      when: is_slave
+      template:
+        src: privacyscore-celery-slave.service
+        dest: /etc/systemd/system/privacyscore-celery-slave.service
+    - name: Place systemd unit file for privacyscore
+      when: is_master
+      template:
+        src: privacyscore.service
+        dest: /etc/systemd/system/privacyscore.service
     - name: Restart privacyscore.service
       when: is_master
       service: name=privacyscore state=restarted
