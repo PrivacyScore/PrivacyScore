@@ -114,7 +114,7 @@ def scan_list(request: HttpRequest) -> HttpResponse:
                     for row in table:
                         url = normalize_url(row[0])
                         if url in known_urls:
-                            break
+                            continue
                         known_urls.add(url)
                         site, _created = Site.objects.get_or_create(url=url)
                         site.scan_lists.add(scan_list)
