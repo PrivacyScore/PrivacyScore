@@ -128,10 +128,13 @@
                 <div class="row">
                     <div class="col-xs-8">
                         <div style="margin-top:10px;">
-                            {% for tag in scan_list.ordered_tags %}
+                            {% for tag in scan_list.ordered_tags|slice:":10" %}
                             <a class="btn btn-default btn-xs"
                             href="{{ request.path }}?tags={{ tag }}">{{ tag }}</a>&nbsp;
                             {% endfor %}
+                            {% if scan_list.ordered_tags|length > 10 %}
+                            …
+                            {% endif %}
                         </div>
                     </div>
                 </div>
