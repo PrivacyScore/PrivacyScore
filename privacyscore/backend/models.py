@@ -26,20 +26,6 @@ def generate_random_token() -> str:
 
 
 class ScanListQuerySet(models.QuerySet):
-    def annotate_most_recent_scan_end(self) -> 'ScanListQuerySet':
-        return self.annotate(
-            last_scan__end=RawSQL('''
-                SELECT
-                    MAX("{Scan}"."end")
-                FROM "{Scan}", "{Site_ScanLists}"
-                WHERE
-                    "{Scan}"."site_id" = "{Site_ScanLists}"."site_id" AND
-                    "{Site_ScanLists}"."scanlist_id" = "{ScanList}"."id"
-                '''.format(
-                    Scan=Scan._meta.db_table,
-                    Site_ScanLists=Site.scan_lists.through._meta.db_table,
-                    ScanList=ScanList._meta.db_table), ()))
-
     def annotate_running_scans_count(self) -> 'ScanListQuerySet':
         return self.annotate(
             running_scans__count=RawSQL('''
@@ -91,6 +77,10 @@ class ScanList(models.Model):
     email = models.EmailField(null=True, blank=True)
 
     views = models.IntegerField(default=0)
+
+    last_scan = models.ForeignKey(
+        'Scan', on_delete=models.SET_NULL, blank=True, null=True,
+        related_name='+')
 
     created = models.DateTimeField(default=timezone.now)
 
@@ -178,17 +168,30 @@ class ScanList(models.Model):
 
 
 class SiteQuerySet(models.QuerySet):
+    def annotate_most_recent_scan_error_count(self) -> 'ScanListQuerySet':
+        return self.annotate(
+            last_scan__error_count=RawSQL('''
+                SELECT COUNT("id")
+                FROM "{ScanError}"
+                WHERE
+                    "{ScanError}"."scan_id" = "{Site}"."last_scan_id"
+                '''.format(
+                    Scan=Scan._meta.db_table,
+                    Site=Site._meta.db_table,
+                    ScanError=ScanError._meta.db_table), ()))
+
     def annotate_most_recent_scan_start(self) -> 'SiteQuerySet':
         return self.annotate(
             last_scan__start=RawSQL('''
-                SELECT MAX("{Scan}"."start")
+                SELECT DISTINCT ON (site_id) "start"
                 FROM "{Scan}"
                 WHERE
-                    "{Scan}"."site_id" = "{Site}"."id"
-                    AND "{Scan}"."end" IS NOT NULL
+                    site_id={Site}."id"
+                ORDER BY "site_id", "end" DESC NULLS FIRST
                 '''.format(
                     Scan=Scan._meta.db_table,
-                    Site=Site._meta.db_table), ()))
+                    Site=Site._meta.db_table,
+                    Site_ScanLists=Site.scan_lists.through._meta.db_table), ()))
 
     def annotate_most_recent_scan_end_or_null(self) -> 'SiteQuerySet':
         return self.annotate(
@@ -203,51 +206,16 @@ class SiteQuerySet(models.QuerySet):
                     Site=Site._meta.db_table,
                     Site_ScanLists=Site.scan_lists.through._meta.db_table), ()))
 
-    def annotate_most_recent_scan_end(self) -> 'SiteQuerySet':
-        return self.annotate(
-            last_scan__end=RawSQL('''
-                SELECT MAX("{Scan}"."end")
-                FROM "{Scan}"
-                WHERE
-                    "{Scan}"."site_id" = "{Site}"."id"
-                '''.format(
-                    Scan=Scan._meta.db_table,
-                    Site=Site._meta.db_table), ()))
-
-    def annotate_most_recent_scan_error_count(self) -> 'ScanListQuerySet':
-        return self.annotate(
-            last_scan__error_count=RawSQL('''
-                SELECT COUNT("id")
-                FROM "{ScanError}"
-                WHERE
-                    "{ScanError}"."scan_id" = (
-                        SELECT "{Scan}"."id"
-                        FROM "{Scan}"
-                        WHERE
-                            "{Scan}"."end" IS NOT NULL AND
-                            "{Scan}"."site_id" = "{Site}"."id"
-                        ORDER BY "{Scan}"."end" DESC
-                        LIMIT 1)
-                '''.format(
-                    Scan=Scan._meta.db_table,
-                    Site=Site._meta.db_table,
-                    ScanError=ScanError._meta.db_table), ()))
-
     def annotate_most_recent_scan_result(self) -> 'SiteQuerSet':
         return self.annotate(last_scan__result=RawSQL('''
         SELECT "{ScanResult}"."result"
-        FROM "{ScanResult}", "{Scan}"
+        FROM "{ScanResult}"
         WHERE
-            "{ScanResult}"."scan_id"="{Scan}"."id" AND
-            "{Scan}"."site_id"={Site}."id" AND
-            "{Scan}"."end" IS NOT NULL
-        ORDER BY "{Scan}"."end" DESC
+            "{ScanResult}"."scan_id"="{Site}"."last_scan_id"
         LIMIT 1
         '''.format(
-                Scan=Scan._meta.db_table,
                 ScanResult=ScanResult._meta.db_table,
-                Site=Site._meta.db_table,
-                ScanError=ScanError._meta.db_table), ()))
+                Site=Site._meta.db_table), ()))
 
     def prefetch_column_values(self, scan_list: ScanList) -> 'SiteQuerySet':
         return self.prefetch_related(Prefetch(
@@ -265,6 +233,10 @@ class Site(models.Model):
     scan_lists = models.ManyToManyField(ScanList, related_name='sites')
 
     views = models.IntegerField(default=0)
+
+    last_scan = models.OneToOneField(
+        'Scan', on_delete=models.SET_NULL, blank=True, null=True,
+        related_name='+')
 
     created = models.DateTimeField(default=timezone.now)
 
@@ -317,21 +289,9 @@ class Site(models.Model):
     def scannable(self) -> bool:
         now = timezone.now()
 
-        last_start = None
-        last_end = None
-        if hasattr(self, 'last_scan__end_or_null') and hasattr(self, 'last_scan__start'):
-            last_start = self.last_scan__start
-            last_end = self.last_scan__end_or_null
-        else:
-            most_recent_scan = self.scans.order_by('end').last()
-            if most_recent_scan:
-                # at least one scan has been scheduled previously.
-                last_start = most_recent_scan.start
-                last_end = most_recent_scan.end
-        
-        if ((last_end and
-                now - last_end < settings.SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN) or
-                (not last_end and last_start)):
+        if ((self.last_scan and 
+                now - self.last_scan.end < settings.SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN) or
+                (not self.last_scan__end_or_null and self.last_scan__start)):
             return False
         
         return True

@@ -11,6 +11,6 @@ register = template.Library()
 
 @register.filter
 def humanize_datetime(value: Union[datetime,None]) -> str:
-    if value is None:
+    if not value:
         return 'never'
     return Arrow.fromdatetime(value).humanize()

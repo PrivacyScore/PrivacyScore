@@ -43,7 +43,7 @@ def browse(request: HttpRequest) -> HttpResponse:
     scan_lists = ScanList.objects.annotate(sites__count=Count('sites')).filter(
         editable=False,
         private=False,
-    ) .order_by('-views', 'name').prefetch_tags().annotate_most_recent_scan_end()
+    ) .order_by('-views', 'name').prefetch_tags().select_related('last_scan')
 
     search = request.GET.get('search')
     if search:
@@ -171,12 +171,12 @@ def scan_site_created(request: HttpRequest, site_id: int) -> HttpResponse:
 def scan_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
     """Schedule the scan of a scan list."""
     scan_list = get_object_or_404(
-        ScanList.objects.prefetch_related(
-            Prefetch(
-                'sites',
-                 queryset=Site.objects.annotate_most_recent_scan_start() \
-                                      .annotate_most_recent_scan_end_or_null())),
-        pk=scan_list_id)
+        ScanList.objects.prefetch_related(Prefetch(
+            'sites',
+            queryset=Site.objects.select_related('last_scan') \
+                .annotate_most_recent_scan_start() \
+                .annotate_most_recent_scan_end_or_null())
+        ), pk=scan_list_id)
     was_any_site_scannable = scan_list.scan()
     if was_any_site_scannable:
         num_scanning_sites = Scan.objects.filter(end__isnull=True).count()
@@ -254,17 +254,21 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
 
     #sites = cache.get('scan_list_{}:evaluated_sites'.format(scan_list.pk))
     #if sites is None:
-    sites = scan_list.sites.annotate_most_recent_scan_end() \
-        .annotate_most_recent_scan_error_count().annotate_most_recent_scan_result() \
-        .prefetch_column_values(scan_list)
+    sites = scan_list.sites.annotate_most_recent_scan_error_count() \
+        .annotate_most_recent_scan_start().annotate_most_recent_scan_end_or_null() \
+        .annotate_most_recent_scan_result().prefetch_column_values(scan_list) \
+        .select_related('last_scan')
 
     # add evaluations to sites
     for site in sites:
         site.evaluated = UnrateableSiteEvaluation()
-        if not site.last_scan__result:
+        if not site.last_scan:
             continue
-        site.result = site.last_scan__result
-        site.evaluated = site.evaluate(category_order)[0]
+        site.evaluated = site.evaluate(category_order)
+        if site.evaluated:
+            site.evaluated = site.evaluated[0]
+        else:
+            site.evaluated = UnrateableSiteEvaluation()
 
     #cache.set(
     #    'scan_list_{}:evaluated_sites'.format(scan_list.pk),
@@ -430,10 +434,7 @@ def site_screenshot(request: HttpRequest, site_id: int) -> HttpResponse:
 def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     """View a site and its most recent scan result (if any)."""
     site = get_object_or_404(
-        Site.objects.annotate_most_recent_scan_end_or_null() \
-        .annotate_most_recent_scan_end().annotate_most_recent_scan_start() \
-        .annotate_most_recent_scan_result(),
-        pk=site_id)
+        Site.objects.annotate_most_recent_scan_result(), pk=site_id)
     site.views = F('views') + 1
     site.save(update_fields=('views',))
     
@@ -465,7 +466,7 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
         'site': site,
         'res': res,
         'scan_lists': scan_lists,
-        'scan_running': site.last_scan__start and (site.last_scan__end_or_null is None),
+        'scan_running': Scan.objects.filter(site=site, end__isnull=True).exists(),
         'num_scans': num_scans,
         # TODO: groups not statically
         'groups_descriptions': (
@@ -479,12 +480,20 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
 def scan_site(request: HttpRequest, site_id: Union[int, None] = None) -> HttpResponse:
     """Schedule the scan of a site."""
     if site_id:
-        site = get_object_or_404(Site, pk=site_id)
+        site = get_object_or_404(
+            Site.objects.annotate_most_recent_scan_start() \
+            .annotate_most_recent_scan_end_or_null(),
+            pk=site_id)
     else:
         # no site_id supplied
         form = SingleSiteForm(request.POST)
         if form.is_valid():
-            site = Site.objects.get_or_create(url=form.cleaned_data.get('url'))[0]
+            site, created = Site.objects.annotate_most_recent_scan_start() \
+            .annotate_most_recent_scan_end_or_null().get_or_create(
+                url=form.cleaned_data.get('url'))
+            if created:
+                site.last_scan__end_or_null = None
+                site.last_scan__start = None
         else:
             return render(request, 'frontend/create_site.html', {
                 'form': form,
@@ -516,8 +525,7 @@ def scan_list_csv(request: HttpRequest, scan_list_id: int) -> HttpResponse:
 
 
 def site_result_json(request: HttpRequest, site_id: int) -> HttpResponse:
-    site = get_object_or_404(Site.objects.annotate_most_recent_scan_result(),
-                             pk=site_id)
+    site = get_object_or_404(Site.objects.annotate_most_recent_scan_result(), pk=site_id)
     scan_result = site.last_scan__result if site.last_scan__result else {}
     if 'raw' in request.GET:
         return JsonResponse(scan_result)

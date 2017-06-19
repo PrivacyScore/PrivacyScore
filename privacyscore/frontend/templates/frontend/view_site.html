@@ -70,7 +70,7 @@ table.dataTable thead .sorting_desc_disabled
         <div style="background-color: #888; width: 100%; padding: 8px 12px 6px 12px; color: #ccc; font-size: 90%">
             <span>SCAN <span style="color:white">#{{ num_scans }}</span>
             </span>
-            <span class="pull-right"><span>LAST SCAN</span>&nbsp; <span style="color: white">{{ site.last_scan__start|date:"Y-m-d @ H:i" }} – {{ site.last_scan__end|date:"H:i" }}</span></span></div>
+            <span class="pull-right"><span>LAST SCAN</span>&nbsp; <span style="color: white">{{ site.last_scan.start|date:"Y-m-d @ H:i" }} – {{ site.last_scan.end|date:"H:i" }}</span></span></div>
         
         <div class="group-box" style="border: 2px solid #888; background: #eee">
             {% with r=site.evaluated.rating.rating %}
@@ -296,7 +296,7 @@ table.dataTable thead .sorting_desc_disabled
                                         {{ longdesc|default:'<p>The explanation for this check is not available yet. Sorry!</p><p><span class="label label-warning">coming soon!</span></p>'|safe }}
                                         
                                         <span class="pull-right">Result wrong?&nbsp;
-                                        <a class="btn btn-default btn-sm" href="mailto:privacyscore@mailhost.informatik.uni-hamburg.de?subject=ERROR-REPORT&amp;body={{ "I want to report an error about the following scan and check: "|urlencode}}{{ site.url|urlencode }}{{ site.last_scan__end|date:" [Y-m-d H:i:s]"|urlencode }}{{ " - "|urlencode }}{{ description|urlencode }}">
+                                        <a class="btn btn-default btn-sm" href="mailto:privacyscore@mailhost.informatik.uni-hamburg.de?subject=ERROR-REPORT&amp;body={{ "I want to report an error about the following scan and check: "|urlencode}}{{ site.url|urlencode }}{{ site.last_scan.end|date:" [Y-m-d H:i:s]"|urlencode }}{{ " - "|urlencode }}{{ description|urlencode }}">
                                                 report error
                                         </a></span>
                                     </div>
