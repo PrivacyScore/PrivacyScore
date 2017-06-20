@@ -289,6 +289,13 @@ class Site(models.Model):
     def scannable(self) -> bool:
         now = timezone.now()
 
+        # fetch missing attributes
+        if (not hasattr(self, 'last_scan__end_or_null') or
+                not hasattr(self, 'last_scan__start')):
+            last_scan = self.scans.order_by('end').last()
+            self.last_scan__end_or_null = last_scan.end if last_scan else None
+            self.last_scan__start = last_scan.start if last_scan else None
+
         if ((self.last_scan and 
                 now - self.last_scan.end < settings.SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN) or
                 (not self.last_scan__end_or_null and self.last_scan__start)):
