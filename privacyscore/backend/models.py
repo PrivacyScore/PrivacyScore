@@ -188,6 +188,7 @@ class SiteQuerySet(models.QuerySet):
                 WHERE
                     site_id={Site}."id"
                 ORDER BY "site_id", "end" DESC NULLS FIRST
+                LIMIT 1
                 '''.format(
                     Scan=Scan._meta.db_table,
                     Site=Site._meta.db_table,
@@ -201,6 +202,7 @@ class SiteQuerySet(models.QuerySet):
                 WHERE
                     site_id={Site}."id"
                 ORDER BY "site_id", "end" DESC NULLS FIRST
+                LIMIT 1
                 '''.format(
                     Scan=Scan._meta.db_table,
                     Site=Site._meta.db_table,
