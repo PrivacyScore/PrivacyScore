@@ -339,7 +339,7 @@ class ListColumn(models.Model):
     name = models.CharField(max_length=500)
     scan_list = models.ForeignKey(
         ScanList, on_delete=models.CASCADE, related_name='columns')
-    sort_key = models.PositiveSmallIntegerField()
+    sort_key = models.PositiveSmallIntegerField(db_index=True)
     visible = models.BooleanField(default=True)
 
     def __str__(self) -> str:
