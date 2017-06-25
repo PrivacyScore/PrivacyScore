@@ -32,7 +32,7 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
     #
     #hostname = urlparse(scan_url).hostname
 
-    hostname = urlparse(url).hostname
+    # hostname = urlparse(url).hostname
     jsonresult = run_testssl(hostname, False)
 
     return {
