@@ -56,7 +56,7 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
     if not 'scanResult' in data:
         # something went wrong with this test.
         # raise Exception('no scan result in raw data')
-        rv['web_scan_failed': True]
+        rv['web_scan_failed'] = True
         return rv
     if len(data['scanResult']) == 0:
         # The test terminated, but did not give any results => probably no HTTPS
