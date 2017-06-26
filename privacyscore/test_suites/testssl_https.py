@@ -32,7 +32,7 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
     #
     #hostname = urlparse(scan_url).hostname
 
-    hostname = urlparse(url).hostname
+    # hostname = urlparse(url).hostname
     jsonresult = run_testssl(hostname, False)
 
     return {
@@ -56,7 +56,7 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
     if not 'scanResult' in data:
         # something went wrong with this test.
         # raise Exception('no scan result in raw data')
-        rv['web_scan_failed': True]
+        rv['web_scan_failed'] = True
         return rv
     if len(data['scanResult']) == 0:
         # The test terminated, but did not give any results => probably no HTTPS
@@ -93,6 +93,9 @@ def _detect_hsts(data: dict) -> dict:
     hsts_item = get_list_item_by_dict_entry(
         data['scanResult'][0]['headerResponse'],
         'id', 'hsts')
+    hsts_time_item = get_list_item_by_dict_entry(
+        data['scanResult'][0]['headerResponse'],
+        'id', 'hsts_time')
     hsts_preload_item = get_list_item_by_dict_entry(
         data['scanResult'][0]['headerResponse'],
         'id', 'hsts_preload')
@@ -108,6 +111,10 @@ def _detect_hsts(data: dict) -> dict:
         result['web_has_hsts_header'] = True
     elif hsts_item is not None:
         result['web_has_hsts_header'] = hsts_item['severity'] == 'OK'
+    
+    if hsts_time_item is not None:
+        result['web_has_hsts_header'] = True
+        result["web_has_hsts_header_sufficient_time"] = hsts_time_item['severity'] == 'OK'
 
     # Check the HSTS Preloading database
     result["web_has_hsts_preload"] = False
@@ -133,8 +140,14 @@ def _detect_hpkp(data: dict) -> dict:
     hpkp_item = get_list_item_by_dict_entry(
         data['scanResult'][0]['headerResponse'],
         'id', 'hpkp')
+    hpkp_spkis = get_list_item_by_dict_entry(
+        data['scanResult'][0]['headerResponse'],
+        'id', 'hpkp_spkis')
+
     if hpkp_item is not None:
         return {'web_has_hpkp_header': not hpkp_item['finding'].startswith('No')}
+    elif hpkp_spkis is not None:
+        return {'web_has_hpkp_header': hpkp_spkis['severity'] == "OK"}
 
     hpkp_item = get_list_item_by_dict_entry(
         data['scanResult'][0]['headerResponse'],
