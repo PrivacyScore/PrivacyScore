@@ -201,7 +201,11 @@ CHECKS['security']['leaks'] = {
         'description': _('The site discloses internal system information that should not be available.'),
         'classification':  Rating('bad'),
         'details_list': [(leak,) for leak in keys['leaks']]},
-    'missing': None,
+    'missing': {
+        'description': _('The serverleaks check failed.'),
+        'classification': Rating("neutral"),
+        'details_list': None,
+    },
 }
 # Check for CSP header
 # Present: good
