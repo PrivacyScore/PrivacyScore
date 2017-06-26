@@ -34,9 +34,13 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
         try:
             response = requests.get('{}://{}/{}'.format(
                 parsed_url.scheme, parsed_url.netloc, trial), timeout=10)
+            
+            # we store only the top of the file because core dumps can become very large
+            # also: we do not want to store more potentially sensitive data than necessary
+            # to determine whether there is a leak or not
             raw_requests[trial] = {
                 'mime_type': 'application/json',
-                'data': _response_to_json(response),
+                'data': _response_to_json(response.text[0:50*1024]),
             }
         except ConnectionError:
             continue
