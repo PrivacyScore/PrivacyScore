@@ -202,7 +202,7 @@ CHECKS['security']['leaks'] = {
         'classification':  Rating('bad'),
         'details_list': [(leak,) for leak in keys['leaks']]},
     'missing': {
-        'description': _('The serverleaks check failed.'),
+        'description': _('The serverleaks check failed or timed out. Try a rescan.'),
         'classification': Rating("neutral"),
         'details_list': None,
     },
