@@ -45,8 +45,12 @@ def parse_common_testssl(json: str, prefix: str):
             trust_cert = default
         elif chain_pat.search(default['id']) is not None:
             trust_chain = default
+        elif default["id"] == "issuer" and default["severity"] == "CRITICAL":
+            trust_chain = default
+
     assert trust_cert is not None
     assert trust_chain is not None
+    
     reason = ""
     trusted = True
     if not trust_cert['severity'] in ['OK', "INFO"]:
