@@ -111,7 +111,8 @@ def _detect_hsts(data: dict) -> dict:
         result['web_has_hsts_header'] = True
     elif hsts_item is not None:
         result['web_has_hsts_header'] = hsts_item['severity'] == 'OK'
-    elif hsts_time_item is not None:
+    
+    if hsts_time_item is not None:
         result['web_has_hsts_header'] = True
         result["web_has_hsts_header_sufficient_time"] = hsts_time_item['severity'] == 'OK'
 

@@ -450,7 +450,28 @@ CHECKS['ssl']['web_hsts_header'] = {
     },
     'missing': None,
 }
-# Checks for HSTS preloading in list
+# Checks for HSTS Preload header duration
+# HSTS duration good: good
+# Too short: bad
+# No HTTPS at all: Neutral
+CHECKS['ssl']['web_hsts_header_duration'] = {
+    'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header', 'web_has_hsts_header_sufficient_time', 'web_has_ssl'},
+    'rating': lambda **keys: None if not keys['web_has_ssl'] else {
+        'description': _('The server is not using HSTS, so not checking HSTS validity duration.'),
+        'classification': Rating('neutral'),
+        'details_list': None,
+    } if not (keys['web_has_hsts_header'] or keys['web_has_hsts_preload']) else {
+        'description': _('The site uses HSTS with a sufficiently long duration.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['web_has_hsts_header_sufficient_time'] else {
+        'description': _('The validity of the HSTS header is too short.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+    },
+    'missing': None,
+}
+# Checks for HSTS preloading preparations
 # HSTS preloading prepared or already done: good
 # No HSTS preloading: bad
 # No HSTS / HTTPS: neutral
@@ -1724,7 +1745,7 @@ CHECKS['ssl']['web_pfs']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_hsts_header']['title'] = "Check for valid Strict-Transport-Security (HSTS)"
 CHECKS['ssl']['web_hsts_header']['longdesc'] = """<p>This HTTP header prevents adversaries from eavesdropping on encrypted connections. HSTS allows a site to tell the browser that it should only be retrieved encryptedly via HTTPS. This decreases the risk of a so-called SSL Stripping attack.</p>
-<p><strong>Conditions for passing:</strong> The header is set on the HTTPS URL that is reached after following potential redirects. The max-age value is equivalent to 180 days or more, which is the recommended minimum by the author of testssl.</p>
+<p><strong>Conditions for passing:</strong> The header is set on the HTTPS URL that is reached after following potential redirects.</p>
 <p><strong>Reliability: unreliable.</strong> We only evaluate this header for the HTTPS URL to which a site redirects upon visit. We rely on the result of <a href="http://testssl.sh">testssl.sh</a> to evaluate the validity of the header. Under certain circumstances, a website may be protected without setting its own HSTS header, e.g. subdomains whose parent domain has a HSTS preloading directive covering subdomains - this will not be detected by this test, but will show up in the HSTS Preloading test.</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to different servers in order to render the resulting page but forget to set the header in all responses. We may miss the presence of HSTS if redirection is not performed with the HTTP Location header but with JavaScript.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
@@ -1735,6 +1756,20 @@ CHECKS['ssl']['web_hsts_header']['longdesc'] = """<p>This HTTP header prevents a
 </ul>
 """ 
 CHECKS['ssl']['web_hsts_header']['labels'] = ['unreliable']
+
+CHECKS['ssl']['web_hsts_header_duration']['title'] = "Check for duration given in HSTS header"
+CHECKS['ssl']['web_hsts_header_duration']['longdesc'] = """<p>The HSTS header also states a certain time for which the HSTS instruction should be stored in the browser. This check tests if this time is considered sufficiently long.</p>
+<p><strong>Conditions for passing:</strong> The header is valid for 180 days or more, which is the recommended minimum by the author of testssl.</p>
+<p><strong>Reliability: unreliable.</strong> We only evaluate this header for the HTTPS URL to which a site redirects upon visit. We rely on the result of <a href="http://testssl.sh">testssl.sh</a> to evaluate the validity of the header. Under certain circumstances, a website may be protected without setting its own HSTS header, e.g. subdomains whose parent domain has a HSTS preloading directive covering subdomains - this will not be detected by this test, but will show up in the HSTS Preloading test.</p>
+<p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to different servers in order to render the resulting page but forget to set the header in all responses. We may miss the presence of HSTS if redirection is not performed with the HTTP Location header but with JavaScript.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+<p>Further reading:</p>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security</a></li>
+<li><a href="https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet">https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet</a></li>
+</ul>
+""" 
+CHECKS['ssl']['web_hsts_header_duration']['labels'] = ['unreliable']
 
 CHECKS['ssl']['web_hsts_preload_prepared']['title'] = "Check if server is ready for HSTS preloading"
 CHECKS['ssl']['web_hsts_preload_prepared']['longdesc'] = """<p>HSTS Preloading further decreases the risk of SSL Stripping attacks. To this end the information that a site should only be retrieved via HTTPS is stored in a list that is preloaded with the browser. This prevents SSL Stripping attacks during the very first visit of a site. To allow inclusion in the HSTS preloading lists, the servers need to indicate that this inclusion is acceptable.</p>
