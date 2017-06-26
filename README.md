@@ -1,5 +1,7 @@
 # Deployment
 
+This describes the steps that are necessary to deploy the code to a new machine.
+
 * Make sure to store a private ssh key which is allowed to fetch from the git repository at ansible/files/id_rsa.
 * Make sure you have the following values stored in your pass:
   * privacyscore.org/settings/SECRET_KEY
@@ -16,6 +18,16 @@ and update it (to add the relevant section to the settings) using
 
 You may want to create a separate inventory file for the initial deployment to just run against new hosts.
 
+
+# Distribution of Changes
+
+* Check in to repository
+* If the change only requires an update of the master:
+  * sudo -s
+  * cd /opt/privacyscore
+  * sudo -u privacyscore git pull && systemctl restart privacyscore
+* else
+  * Execute the following command on a development machine (with all hosts prepared in the ssh_config file): ansible-playbook -i ansible/inventory -K ansible/update_hosts.yml
 
 # Operations
 
