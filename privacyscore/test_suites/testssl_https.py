@@ -93,6 +93,9 @@ def _detect_hsts(data: dict) -> dict:
     hsts_item = get_list_item_by_dict_entry(
         data['scanResult'][0]['headerResponse'],
         'id', 'hsts')
+    hsts_time_item = get_list_item_by_dict_entry(
+        data['scanResult'][0]['headerResponse'],
+        'id', 'hsts_time')
     hsts_preload_item = get_list_item_by_dict_entry(
         data['scanResult'][0]['headerResponse'],
         'id', 'hsts_preload')
@@ -108,6 +111,9 @@ def _detect_hsts(data: dict) -> dict:
         result['web_has_hsts_header'] = True
     elif hsts_item is not None:
         result['web_has_hsts_header'] = hsts_item['severity'] == 'OK'
+    elif hsts_time_item is not None:
+        result['web_has_hsts_header'] = True
+        result["web_has_hsts_header_sufficient_time"] = hsts_time_item['severity'] == 'OK'
 
     # Check the HSTS Preloading database
     result["web_has_hsts_preload"] = False
@@ -133,8 +139,14 @@ def _detect_hpkp(data: dict) -> dict:
     hpkp_item = get_list_item_by_dict_entry(
         data['scanResult'][0]['headerResponse'],
         'id', 'hpkp')
+    hpkp_spkis = get_list_item_by_dict_entry(
+        data['scanResult'][0]['headerResponse'],
+        'id', 'hpkp_spkis')
+
     if hpkp_item is not None:
         return {'web_has_hpkp_header': not hpkp_item['finding'].startswith('No')}
+    elif hpkp_spkis is not None:
+        return {'web_has_hpkp_header': hpkp_spkis['severity'] == "OK"}
 
     hpkp_item = get_list_item_by_dict_entry(
         data['scanResult'][0]['headerResponse'],
