@@ -69,7 +69,7 @@ def _response_to_json(resp: Response) -> bytes:
     # to determine whether there is a leak or not
     
     return json.dumps({
-        'text': resp.text[0:50*1024],
+        'text': resp.content[0:50*1024].decode(errors='replace'),
         'status_code': resp.status_code,
         'headers': dict(resp.headers),
         'url': resp.url,
