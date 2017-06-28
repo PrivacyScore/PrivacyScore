@@ -21,7 +21,9 @@ from PIL import Image
 
 
 test_name = 'openwpm'
-test_dependencies = []
+test_dependencies = [
+    'network',
+]
 
 
 OPENWPM_WRAPPER_PATH = os.path.join(
@@ -135,11 +137,15 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
 
         scantosave['initial_url'] = site_url
 
+
         # collect third parties (i.e. domains that differ in their second and third level domain
         third_parties = []
         third_party_requests = []
-        extracted_visited_url = tldextract.extract(url)
+        extracted_visited_url = tldextract.extract(previous_results.get('final_url'))
         maindomain_visited_url = "{}.{}".format(extracted_visited_url.domain, extracted_visited_url.suffix)
+
+        # TODO: the following line results in urls starting with a dot
+        # TODO: the following line is not even used actually
         hostname_visited_url = '.'.join(extracted_visited_url)
 
         for requrl, method, referrer, headers in cur.execute("SELECT url, method, referrer, headers " +
