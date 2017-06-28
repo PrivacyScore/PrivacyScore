@@ -1,3 +1,4 @@
+import gzip
 import os
 import random
 import string
@@ -421,8 +422,16 @@ class RawScanResult(models.Model):
             # TODO: ensure uniqueness
             file_name = str(uuid4())
             path = os.path.join(settings.RAW_DATA_DIR, file_name)
-            with open(path, 'wb') as f:
-                f.write(data)
+            if mime_type in settings.RAW_DATA_UNCOMPRESSED_TYPES:
+                # do not compress
+                with open(path, 'wb') as f:
+                    f.write(data)
+            else:
+                file_name += '.gz'
+                path += '.gz'
+                # compress
+                with gzip.open(path, 'wb') as f:
+                    f.write(data)
 
             RawScanResult.objects.create(
                 scan_id=scan_pk,
@@ -445,6 +454,9 @@ class RawScanResult(models.Model):
         if self.in_db:
             return self.data
         path = os.path.join(settings.RAW_DATA_DIR, self.file_name)
+        if path.endswith('.gz'):
+            with gzip.open(path, 'rb') as f:
+                return f.read()
         with open(path, 'rb') as f:
             return f.read()
 

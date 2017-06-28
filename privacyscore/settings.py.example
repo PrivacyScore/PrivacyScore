@@ -191,6 +191,10 @@ SCAN_TEST_SUITES = [
     ('testssl_mx', {}),
 ]
 
+RAW_DATA_UNCOMPRESSED_TYPES = [
+    'image/png',
+    'image/jpeg',
+]
 RAW_DATA_DB_MAX_SIZE = 4000
 RAW_DATA_DIR = os.path.join(BASE_DIR, 'raw_data')
 
