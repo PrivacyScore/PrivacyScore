@@ -29,5 +29,14 @@ class Command(BaseCommand):
                 os.remove(os.path.join(
                     settings.RAW_DATA_DIR, file))
                 deleted += 1
-
         print('Deleted {} files from file system'.format(deleted))
+
+        # find files from db unknown to filesystem
+        known_files = os.listdir(settings.RAW_DATA_DIR)
+        to_delete = []
+        for elem in RawScanResult.objects.filter(
+                file_name__isnull=False).values('id', 'file_name'):
+            if elem['file_name'] not in known_files:
+                to_delete.append(elem['id'])
+        deleted = RawScanResult.objects.filter(id__in=to_delete).delete()[0]
+        print('Deleted {} db entries unknown in filesystem.'.format(deleted))
