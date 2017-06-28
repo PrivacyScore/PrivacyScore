@@ -1,0 +1,17 @@
+[Unit]
+Description=Privacyscore scheduling of rescans
+After=network.target postgresql.service redis-server.service rabbitmq-server.service
+
+[Service]
+User=privacyscore
+Group=privacyscore
+ExecStart=/opt/privacyscore/manage.py schedulerescans
+WorkingDirectory=/opt/privacyscore
+Environment=VIRTUAL_ENV="/opt/privacyscore/.pyenv"
+Environment=PATH="/opt/privacyscore/.pyenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"
+KillSignal=SIGQUIT
+PrivateTmp=true
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
