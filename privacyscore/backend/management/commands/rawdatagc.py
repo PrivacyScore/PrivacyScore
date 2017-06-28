@@ -20,8 +20,8 @@ class Command(BaseCommand):
         self.stdout.write('Deleted {} database entries'.format(deleted))
 
         # find files from file system unknown to db
-        known_files = RawScanResult.objects.filter(
-            file_name__isnull=False).values('file_name')
+        known_files = [v['file_name'] for v in RawScanResult.objects.filter(
+            file_name__isnull=False).values('file_name')]
 
         deleted = 0
         for file in os.listdir(settings.RAW_DATA_DIR):
