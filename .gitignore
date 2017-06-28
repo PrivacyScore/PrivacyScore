@@ -16,5 +16,6 @@ raw_data
 .ssh/
 .viminfo
 .ipython
+.idea
 
 ansible/files/id_rsa
