@@ -65,8 +65,15 @@
               }),
           ]
 
+          RAW_DATA_UNCOMPRESSED_TYPES = [
+              'image/png',
+              'image/jpeg',
+          ]
           RAW_DATA_DB_MAX_SIZE = 4000
           RAW_DATA_DIR = os.path.join(BASE_DIR, 'raw_data')
+          RAW_DATA_DELETE_AFTER = timedelta(days=30)
+
+          SCAN_SCHEDULE_DAEMON_SLEEP = 60
 
           SCAN_LISTS_PER_PAGE = 30
 
