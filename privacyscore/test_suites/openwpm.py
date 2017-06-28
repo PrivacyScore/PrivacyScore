@@ -146,7 +146,7 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
 
         # TODO: the following line results in urls starting with a dot
         # TODO: the following line is not even used actually
-        hostname_visited_url = '.'.join(extracted_visited_url)
+        hostname_visited_url = '.'.join(e for e in extracted_visited_url if e)
 
         for requrl, method, referrer, headers in cur.execute("SELECT url, method, referrer, headers " +
                 "FROM site_visits as s JOIN http_requests as h ON s.visit_id = h.visit_id " +
@@ -161,7 +161,7 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
             # extract domain name from request and check whether it is a 3rd party host
             extracted = tldextract.extract(requrl)
             maindomain = "{}.{}".format(extracted.domain, extracted.suffix)
-            hostname = '.'.join(extracted)
+            hostname = '.'.join(e for e in extracted if e)
             if(maindomain_visited_url != maindomain):
                 third_parties.append(hostname) # add full domain to list
                 third_party_requests.append(requrl) # add full domain to list
