@@ -2,6 +2,7 @@ from time import sleep
 
 import sys
 
+from django.conf import settings
 from django.core.management import BaseCommand
 
 from privacyscore.backend.models import Site
@@ -25,4 +26,4 @@ class Command(BaseCommand):
                 self.stdout.flush()
 
             # Wait a minute before next schedule
-            sleep(1)
+            sleep(settings.SCAN_SCHEDULE_DAEMON_SLEEP)

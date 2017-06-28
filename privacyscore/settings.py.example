@@ -194,6 +194,8 @@ SCAN_TEST_SUITES = [
 RAW_DATA_DB_MAX_SIZE = 4000
 RAW_DATA_DIR = os.path.join(BASE_DIR, 'raw_data')
 
+SCAN_SCHEDULE_DAEMON_SLEEP = 60
+
 
 
 # debug toolbar
