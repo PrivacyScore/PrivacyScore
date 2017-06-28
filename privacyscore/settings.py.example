@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -162,7 +163,6 @@ CELERY_QUEUES = (
 )
 
 
-from datetime import timedelta
 SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN = timedelta(minutes=28)
 SCAN_SUITE_TIMEOUT_SECONDS = 200
 SCAN_TOTAL_TIMEOUT = timedelta(hours=2)
@@ -197,6 +197,7 @@ RAW_DATA_UNCOMPRESSED_TYPES = [
 ]
 RAW_DATA_DB_MAX_SIZE = 4000
 RAW_DATA_DIR = os.path.join(BASE_DIR, 'raw_data')
+RAW_DATA_DELETE_AFTER = timedelta(days=10)
 
 SCAN_SCHEDULE_DAEMON_SLEEP = 60
 
