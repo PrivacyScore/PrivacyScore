@@ -172,18 +172,21 @@
         owner: privacyscore
         group: privacyscore
         dest: /opt/privacyscore/tests/vendor/EasyList/easylist.txt
+        force: yes
     - name: Download EasyPrivacy
       get_url:
         url: https://easylist.to/easylist/easyprivacy.txt
         owner: privacyscore
         group: privacyscore
         dest: /opt/privacyscore/tests/vendor/EasyList/easyprivacy.txt
+        force: yes
     - name: Download Fanboy Anti-Social-Media
       get_url:
         url: https://easylist.to/easylist/fanboy-annoyance.txt
         owner: privacyscore
         group: privacyscore
         dest: /opt/privacyscore/tests/vendor/EasyList/fanboy-annoyance.txt
+        force: yes
     - name: Create vendor/HSTSPreload if it does not exist
       file:
         path: /opt/privacyscore/tests/vendor/HSTSPreload/
