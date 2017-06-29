@@ -8,53 +8,40 @@ from django.core.management import BaseCommand
 from privacyscore.backend.models import Site
 
 
+MAX_TRIES = 5
+
+
 class Command(BaseCommand):
     help = 'Schedules a new scan every minute.'
 
     def handle(self, *args, **options):
         """Schedules a new scan regularly."""
         while True:
-            sites = Site.objects.annotate_most_recent_scan_end_or_null().order_by(
-                'last_scan__end')
-            # Sites that haven't been scanned yet will be
-            # *at the very end* of the sites list.
-            # If there are > 0 sites that haven't been scanned,
-            # we scan these with highest priority.
-            # 
-            # Otherwise we scan the first site, i.e., the one
-            # whose last scan has the oldest date.
+            # see if there are sites that have not been scanned yet
+            sites = Site.objects.annotate_most_recent_scan_start() \
+                .filter(last_scan__start__isnull=True, last_scan__isnull=True)
+            if not sites:
+                self.stdout.write('There are no unscanned sites.')
+                self.stdout.flush()
+                # There are no unscanned sites.
+                sites = Site.objects.annotate_most_recent_scan_start() \
+                    .annotate_most_recent_scan_end_or_null().filter(
+                    last_scan__end_or_null__isnull=False).order_by(
+                    'last_scan__end')
+            sites = list(sites[:MAX_TRIES])
             
-            result = False
-            tries = 1
-            num_sites = len(sites)
-            site = None
-            while(result == False and tries < 5):
-                # try last element with higher priority
-                try:
-                    last_site = sites[num_sites - tries]
-                except IndexError:
-                    last_site = None
+            # Try up to five times to find a scannable site
+            for i in range(min(MAX_TRIES, len(sites))):
+                site = sites.pop()
                 
-                if(last_site and last_site.last_scan == None):
-                    site = last_site
-                    print("Site hasn't been scanned yet. Scan it now.")
+                if site.scan():
+                    self.stdout.write('Scheduled scan of {}'.format(str(site)))
+                    self.stdout.flush()
+                    break
                 else:
-                    try:
-                        site = sites[tries - 1] # first element
-                    except IndexError:
-                        site = None
-                    print(site.last_scan.end)
-                
-                if(site):
-                    result = site.scan()
-                    if(result):
-                        self.stdout.write('Scheduling scan of {}'.format(str(site)))
-                    else:
-                        self.stdout.write('Not scheduling scan of {} -- too recent'.format(str(site)))
-                        tries = tries + 1
-                        sleep(5)
-                else:
-                    self.stdout.write('No scannable sites found.')
+                    self.stdout.write('Not scheduling scan of {} -- too recent or running'.format(str(site)))
+                    self.stdout.flush()
+                    sleep(0.5)
             
             self.stdout.flush()
             
