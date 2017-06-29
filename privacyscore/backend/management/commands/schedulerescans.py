@@ -25,24 +25,38 @@ class Command(BaseCommand):
             # whose last scan has the oldest date.
             
             result = False
-            max_tries = 5
-            while result == False and max_tries > 0:
-                if(sites.last().last_scan == None):
-                    site = sites.pop() # pop last element of list
+            tries = 1
+            num_sites = len(sites)
+            site = None
+            while(result == False and tries < 5):
+                # try last element with higher priority
+                try:
+                    last_site = sites[num_sites - tries]
+                except IndexError:
+                    last_site = None
+                
+                if(last_site and last_site.last_scan == None):
+                    site = last_site
                     print("Site hasn't been scanned yet. Scan it now.")
                 else:
-                    site = sites.pop(0) # pop first element of list
+                    try:
+                        site = sites[tries - 1] # first element
+                    except IndexError:
+                        site = None
                     print(site.last_scan.end)
                 
-                result = site.scan()
-                if result:
-                    self.stdout.write('Scheduling scan of {}'.format(str(site)))
-                    self.stdout.flush()
+                if(site):
+                    result = site.scan()
+                    if(result):
+                        self.stdout.write('Scheduling scan of {}'.format(str(site)))
+                    else:
+                        self.stdout.write('Not scheduling scan of {} -- too recent'.format(str(site)))
+                        tries = tries + 1
+                        sleep(5)
                 else:
-                    self.stdout.write('Not scheduling scan of {} -- too recent'.format(str(site)))
-                    self.stdout.flush()
-                    max_tries = max_tries - 1
-                    sleep(5)
+                    self.stdout.write('No scannable sites found.')
+            
+            self.stdout.flush()
             
             # Wait before queueing the next site
             sleep(settings.SCAN_SCHEDULE_DAEMON_SLEEP)
