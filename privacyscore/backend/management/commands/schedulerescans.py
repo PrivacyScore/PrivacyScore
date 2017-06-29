@@ -34,7 +34,8 @@ class Command(BaseCommand):
                     site = sites.pop(0) # pop first element of list
                     print(site.last_scan.end)
                 
-                if result = site.scan():
+                result = site.scan()
+                if result:
                     self.stdout.write('Scheduling scan of {}'.format(str(site)))
                     self.stdout.flush()
                 else:
