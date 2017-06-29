@@ -23,19 +23,25 @@ class Command(BaseCommand):
             # 
             # Otherwise we scan the first site, i.e., the one
             # whose last scan has the oldest date.
-            if(sites.last().last_scan == None):
-                site = sites.last()
-                print("Site hasn't been scanned yet. Scan it now.")
-            else:
-                site = sites.first()
-                print(site.last_scan.end)
             
-            if site.scan():
-                self.stdout.write('Scheduling scan of {}'.format(str(site)))
-                self.stdout.flush()
-            else:
-                self.stdout.write('Not scheduling scan of {} -- too recent'.format(str(site)))
-                self.stdout.flush()
-
+            result = False
+            max_tries = 5
+            while result == False and max_tries > 0:
+                if(sites.last().last_scan == None):
+                    site = sites.pop() # pop last element of list
+                    print("Site hasn't been scanned yet. Scan it now.")
+                else:
+                    site = sites.pop(0) # pop first element of list
+                    print(site.last_scan.end)
+                
+                if result = site.scan():
+                    self.stdout.write('Scheduling scan of {}'.format(str(site)))
+                    self.stdout.flush()
+                else:
+                    self.stdout.write('Not scheduling scan of {} -- too recent'.format(str(site)))
+                    self.stdout.flush()
+                    max_tries = max_tries - 1
+                    sleep(5)
+            
             # Wait before queueing the next site
             sleep(settings.SCAN_SCHEDULE_DAEMON_SLEEP)
