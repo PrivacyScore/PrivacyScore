@@ -12,12 +12,24 @@ class Command(BaseCommand):
     help = 'Schedules a new scan every minute.'
 
     def handle(self, *args, **options):
-        """Schedules a new scan every minute."""
+        """Schedules a new scan regularly."""
         while True:
-            site = Site.objects.annotate_most_recent_scan_end_or_null().filter(
-                last_scan__end_or_null__isnull=False).order_by(
-                'last_scan__end').first()
-            print(site.last_scan.end)
+            sites = Site.objects.annotate_most_recent_scan_end_or_null().order_by(
+                'last_scan__end')
+            # Sites that haven't been scanned yet will be
+            # *at the very end* of the sites list.
+            # If there are > 0 sites that haven't been scanned,
+            # we scan these with highest priority.
+            # 
+            # Otherwise we scan the first site, i.e., the one
+            # whose last scan has the oldest date.
+            if(sites.last().last_scan == None):
+                site = sites.last()
+                print("Site hasn't been scanned yet. Scan it now.")
+            else:
+                site = sites.first()
+                print(site.last_scan.end)
+            
             if site.scan():
                 self.stdout.write('Scheduling scan of {}'.format(str(site)))
                 self.stdout.flush()
@@ -25,5 +37,5 @@ class Command(BaseCommand):
                 self.stdout.write('Not scheduling scan of {} -- too recent'.format(str(site)))
                 self.stdout.flush()
 
-            # Wait a minute before next schedule
+            # Wait before queueing the next site
             sleep(settings.SCAN_SCHEDULE_DAEMON_SLEEP)
