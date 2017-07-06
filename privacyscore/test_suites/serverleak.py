@@ -20,7 +20,18 @@ TRIALS = [
     ('phpinfo.php', 'phpinfo()'),
     ('.git/HEAD', 'ref:'),
     ('.svn/wc.db', 'SQLite'),
-    ('core', 'ELF')
+    ('core', 'ELF'),
+    ### Check for Database dumps
+    # sqldump - mysql
+    ('dump.db', "TABLE"),
+    ('dump.sql', "TABLE"), 
+    ('sqldump.sql', "TABLE"),
+    ('sqldump.db', "TABLE"),
+    # SQLite
+    ('db.sqlite', 'SQLite'),
+    ('data.sqlite', 'SQLite'),
+    ('sqlite.db', 'SQLite'),
+    # TODO PostgreSQL etc., additional common names
 ]
 
 
