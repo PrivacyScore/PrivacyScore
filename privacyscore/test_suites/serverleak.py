@@ -47,9 +47,11 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
                 parsed_url.scheme, parsed_url.netloc, trial)
             response = requests.get(request_url, timeout=10)
 
-            #if response.url != request_url:
-            #    # There has been a redirect.
-            #    continue
+            match_url = '{}/{}'.format(parsed_url.netloc, trial)
+
+            if  match_url not in response.url:
+                # There has been a redirect.
+                continue
             
             raw_requests[trial] = {
                 'mime_type': 'application/json',
