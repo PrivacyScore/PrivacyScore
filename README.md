@@ -85,3 +85,6 @@ The Redis key-value store runs on the master. Large lists of websites will gener
 
 ## Acknowledgements
 The creation of PrivacyScore was funded in part by the DFG as part of project C.1 and C.2 within the RTG 2050 "[Privacy and Trust for Mobile Users](https://www.privacy-trust.tu-darmstadt.de/)".
+
+## License
+PrivacyScore is licensed GPLv3, see LICENSE for more information.
