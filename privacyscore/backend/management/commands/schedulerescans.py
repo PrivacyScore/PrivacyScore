@@ -28,6 +28,13 @@ MAX_TRIES = 5
 class Command(BaseCommand):
     help = 'Schedules a new scan every minute.'
 
+    def add_arguments(self, parser):
+        parser.add_argument('--oneshot',
+                            action='store_true',
+                            dest='oneshot',
+                            default=False,
+                            help='Do not run as daemon')
+
     def handle(self, *args, **options):
         """Schedules a new scan regularly."""
         while True:
@@ -59,5 +66,8 @@ class Command(BaseCommand):
             
             self.stdout.flush()
             
+            if options['oneshot']:
+                print('Oneshot mode enabled.')
+                break
             # Wait before queueing the next site
             sleep(settings.SCAN_SCHEDULE_DAEMON_SLEEP)
