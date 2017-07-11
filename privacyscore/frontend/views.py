@@ -94,7 +94,7 @@ def scan_list(request: HttpRequest) -> HttpResponse:
         scan_list_form = CreateListForm(request.POST, request.FILES)
         if scan_list_form.is_valid():
             table_header, table, invalid_rows = scan_list_form.get_table()
-            if len(table) > 500:
+            if len(table) > 500 and not (request.user.is_authenticated and request.user.is_superuser):
                 messages.warning(
                     request, _('For now, lists may not contain more than 500 sites.'))
                 return render(request, 'frontend/list.html', {
