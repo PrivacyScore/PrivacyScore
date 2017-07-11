@@ -124,7 +124,8 @@ def scan_list(request: HttpRequest) -> HttpResponse:
                             scan_list=scan_list, name=name, visible=True, sort_key=i)
                         known_urls = set()
                         for row_no, row in enumerate(table):
-                            if row[0] in known_urls:
+                            url = normalize_url(row[0])
+                            if url in known_urls:
                                 continue
                             known_urls.add(row[0])
                             ListColumnValue.objects.create(column=column, site=sites[row_no], value=row[i + 1])
