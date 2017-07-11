@@ -114,6 +114,8 @@ def scan_list(request: HttpRequest) -> HttpResponse:
                     for row in table:
                         url = normalize_url(row[0])
                         if url in known_urls:
+                            # Append to sites to prevent index errors
+                            sites.append(None)
                             continue
                         known_urls.add(url)
                         site, _created = Site.objects.get_or_create(url=url)
@@ -127,8 +129,10 @@ def scan_list(request: HttpRequest) -> HttpResponse:
                             url = normalize_url(row[0])
                             if url in known_urls:
                                 continue
-                            known_urls.add(row[0])
-                            ListColumnValue.objects.create(column=column, site=sites[row_no], value=row[i + 1])
+                            known_urls.add(url)
+                            ListColumnValue.objects.create(column=column,
+                                site=sites[row_no],
+                                value=row[i + 1])
 
                     # tags
                     tags_to_add = set()
