@@ -572,8 +572,8 @@ def faq(request: HttpRequest):
     num_scans  = Site.objects.filter(scans__isnull=False).count()
     num_scanning_sites = Scan.objects.filter(end__isnull=True).count()
 
-    query = '''SELECT DISTINCT
-        COUNT(backend_scanresult.scan_id)
+    query = '''SELECT
+        COUNT(jsonb_array_length("result"->'leaks'))
         FROM backend_scanresult
         WHERE backend_scanresult.scan_id IN (
             SELECT backend_site.last_scan_id
@@ -581,11 +581,9 @@ def faq(request: HttpRequest):
             WHERE backend_site.last_scan_id IS NOT NULL)
         AND jsonb_array_length("result"->'leaks') > 0'''
     
-    num_sites_failing_serverleak = 0
     with connection.cursor() as cursor:
         cursor.execute(query)
-        rows = cursor.fetchall()
-        num_sites_failing_serverleak = len(rows)
+        num_sites_failing_serverleak = cursor.fetchone()[0]
         
     return render(request, 'frontend/faq.html', {
         'num_scanning_sites': num_scanning_sites,
