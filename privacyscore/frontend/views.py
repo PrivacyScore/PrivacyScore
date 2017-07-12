@@ -573,11 +573,13 @@ def faq(request: HttpRequest):
     num_scanning_sites = Scan.objects.filter(end__isnull=True).count()
 
     query = '''SELECT DISTINCT
-        regexp_replace((backend_site.url || jsonb_array_elements(backend_scanresult.result->'leaks')::text), '"', '', 'g')
-        FROM backend_scanresult, backend_scan, backend_site
-        WHERE backend_scanresult.scan_id=backend_scan.id
-        AND backend_scan.site_id = backend_site.id
-        AND jsonb_array_length("result"->'leaks') > 0;'''
+        COUNT(backend_scanresult.scan_id)
+        FROM backend_scanresult
+        WHERE backend_scanresult.scan_id IN (
+            SELECT backend_site.last_scan_id
+            FROM backend_site
+            WHERE backend_site.last_scan_id IS NOT NULL)
+        AND jsonb_array_length("result"->'leaks') > 0'''
     
     num_sites_failing_serverleak = 0
     with connection.cursor() as cursor:
