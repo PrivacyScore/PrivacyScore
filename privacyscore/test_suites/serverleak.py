@@ -32,6 +32,14 @@ TRIALS = [
     ('data.sqlite', 'SQLite'),
     ('sqlite.db', 'SQLite'),
     # TODO PostgreSQL etc., additional common names
+
+    # TLS Certs
+    ('server.key', '-----BEGIN'),
+    ('privatekey.key', '-----BEGIN'),
+    ('private.key', '-----BEGIN'),
+    ('myserver.key', '-----BEGIN'),
+    ('key.pem', '-----BEGIN'),
+    # TODO Add [domainname].key, [domainname].pem
 ]
 
 
