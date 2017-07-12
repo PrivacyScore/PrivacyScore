@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 import requests
 from requests.exceptions import ConnectionError
 from requests.models import Response
+from concurrent.futures import ThreadPoolExecutor
 
 
 test_name = 'serverleak'
@@ -43,30 +44,45 @@ TRIALS = [
 ]
 
 
+def _get(url, timeout):
+    try:
+        response = requests.get(url, timeout=timeout)
+        return response
+    except ConnectionError:
+        return None
+
 def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str, bytes]]]:
     raw_requests = {}
 
     # determine hostname
     parsed_url = urlparse(url)
 
-    for trial, pattern in TRIALS:
-        try:
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        url_to_future = {}
+        for trial, pattern in TRIALS:
             request_url = '{}://{}/{}'.format(
                 parsed_url.scheme, parsed_url.netloc, trial)
-            response = requests.get(request_url, timeout=10)
+            url_to_future[trial] = executor.submit(_get, request_url, 10)
 
-            match_url = '{}/{}'.format(parsed_url.netloc, trial)
+        for trial in url_to_future:
+            try:
+                # response = requests.get(request_url, timeout=10)
+                response = url_to_future[trial].result()
+                if response is None:
+                    continue
 
-            if  match_url not in response.url:
-                # There has been a redirect.
+                match_url = '{}/{}'.format(parsed_url.netloc, trial)
+
+                if  match_url not in response.url:
+                    # There has been a redirect.
+                    continue
+                
+                raw_requests[trial] = {
+                    'mime_type': 'application/json',
+                    'data': _response_to_json(response),
+                }
+            except Exception:
                 continue
-            
-            raw_requests[trial] = {
-                'mime_type': 'application/json',
-                'data': _response_to_json(response),
-            }
-        except ConnectionError:
-            continue
 
     return raw_requests
 
