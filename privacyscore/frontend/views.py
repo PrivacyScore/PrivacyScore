@@ -588,6 +588,7 @@ def faq(request: HttpRequest):
     return render(request, 'frontend/faq.html', {
         'num_scanning_sites': num_scanning_sites,
         'num_scans':  num_scans,
+        'num_sites': Site.objects.count(),
         'num_sites_failing_serverleak': num_sites_failing_serverleak
     })
 
