@@ -124,7 +124,7 @@ def _get(url, timeout):
         return None
 
 def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str, bytes]]]:
-    raw_requests = {}
+    raw_requests = {"url": url}
 
     # determine hostname
     parsed_url = urlparse(url)
@@ -138,7 +138,6 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
                 trial_t = trial(url)
                 if trial_t is None:
                     continue
-                print(trial_t)
             request_url = '{}://{}/{}'.format(
                 parsed_url.scheme, parsed_url.netloc, trial_t)
             url_to_future[trial_t] = executor.submit(_get, request_url, 10)
@@ -170,7 +169,15 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
     leaks = []
     result = {}
     
+    url = raw_data.get("url", None)
+
     for trial, pattern in TRIALS:
+        if url:
+            if callable(trial):
+                trial = trial(url)
+                if trial is None:
+                    continue
+                print(trial)
         if trial not in raw_data:
             # Test raw data too old or particular request failed.
             continue
