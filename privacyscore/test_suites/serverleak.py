@@ -2,6 +2,7 @@
 Test for common server leaks.
 """
 import json
+import re
 from typing import Dict, Union
 from urllib.parse import urlparse
 import requests
@@ -14,6 +15,13 @@ test_name = 'serverleak'
 test_dependencies = []
 
 
+def _match_db_dump(content):
+    targets = ["SQLite", "CREATE TABLE", "INSERT INTO", "DROP TABLE"]
+    matched = False
+    for target in targets:
+        matched |= target in content
+    return matched
+
 TRIALS = [
     ('server-status/', 'Apache Server Status'),
     ('server-info/', 'Apache Server Information'),
@@ -24,14 +32,14 @@ TRIALS = [
     ('core', 'ELF'),
     ### Check for Database dumps
     # sqldump - mysql
-    ('dump.db', "TABLE"),
-    ('dump.sql', "TABLE"), 
-    ('sqldump.sql', "TABLE"),
-    ('sqldump.db', "TABLE"),
+    ('dump.db', _match_db_dump),
+    ('dump.sql', _match_db_dump),
+    ('sqldump.sql', _match_db_dump),
+    ('sqldump.db', _match_db_dump),
     # SQLite
-    ('db.sqlite', 'SQLite'),
-    ('data.sqlite', 'SQLite'),
-    ('sqlite.db', 'SQLite'),
+    ('db.sqlite', _match_db_dump),
+    ('data.sqlite', _match_db_dump),
+    ('sqlite.db', _match_db_dump),
     # TODO PostgreSQL etc., additional common names
 
     # TLS Certs
@@ -42,7 +50,6 @@ TRIALS = [
     ('key.pem', '-----BEGIN'),
     # TODO Add [domainname].key, [domainname].pem
 ]
-
 
 def _get(url, timeout):
     try:
@@ -97,8 +104,19 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
             continue
         response = json.loads(raw_data[trial]['data'].decode())
         if response['status_code'] == 200:
-            if pattern in response['text']:
-                leaks.append(trial)
+            # The pattern can have three different types.
+            # - If it is a simple string, we only check if it is contained in the response
+            if type(pattern) is str:
+                if pattern in response['text']:
+                    leaks.append(trial)
+            # - If it is a RegEx object, we perform a pattern match
+            elif type(pattern) is re._pattern_type:
+                if re.match(response['text']):
+                    leaks.append(trial)
+            # - If it is callable, we call it with the response text and check the return value
+            elif callable(pattern):
+                if pattern(response['text']):
+                    leaks.append(trial)
 
     result['leaks'] = leaks
     return result
