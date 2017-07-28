@@ -5,6 +5,7 @@ import json
 import re
 from typing import Dict, Union
 from urllib.parse import urlparse
+from tldextract import extract
 import requests
 from requests.exceptions import ConnectionError
 from requests.models import Response
@@ -21,6 +22,56 @@ def _match_db_dump(content):
     for target in targets:
         matched |= target in content
     return matched
+
+def _concat_sub(url, suffix):
+    url_extract = extract(url)
+    if url_extract.subdomain == "":
+        return None
+    site = url_extract.subdomain + "." + url_extract.domain
+    return site + suffix
+
+def _concat_full(url, suffix):
+    url_extract = extract(url)
+    site = url_extract.domain + "." + url_extract.suffix
+    if url_extract.subdomain != "":
+        site = url_extract.subdomain + "." + site
+    return site + suffix
+
+def _gen_db_domain_sql(url):
+    return extract(url).domain + ".sql"
+
+def _gen_db_sub_domain_sql(url):
+    return _concat_sub(url, ".sql")
+
+def _gen_db_full_domain_sql(url):
+    return _concat_full(url, ".sql")
+
+def _gen_db_domain_db(url):
+    return extract(url).domain + ".db"
+
+def _gen_db_sub_domain_db(url):
+    return _concat_sub(url, ".db")
+
+def _gen_db_full_domain_db(url):
+    return _concat_full(url, ".db")
+
+def _gen_db_domain_key(url):
+    return extract(url).domain + ".key"
+
+def _gen_db_sub_domain_key(url):
+    return _concat_sub(url, ".key")
+
+def _gen_db_full_domain_key(url):
+    return _concat_full(url, ".key")
+
+def _gen_db_domain_pem(url):
+    return extract(url).domain + ".sql"
+
+def _gen_db_sub_domain_pem(url):
+    return _concat_sub(url, ".pem")
+
+def _gen_db_full_domain_pem(url):
+    return _concat_full(url, ".pem")
 
 TRIALS = [
     ('server-status/', 'Apache Server Status'),
@@ -40,6 +91,13 @@ TRIALS = [
     ('db.sqlite', _match_db_dump),
     ('data.sqlite', _match_db_dump),
     ('sqlite.db', _match_db_dump),
+    (_gen_db_domain_sql, _match_db_dump),
+    (_gen_db_sub_domain_sql, _match_db_dump),
+    (_gen_db_full_domain_sql, _match_db_dump),
+    (_gen_db_domain_db, _match_db_dump),
+    (_gen_db_sub_domain_db, _match_db_dump),
+    (_gen_db_full_domain_db, _match_db_dump),
+
     # TODO PostgreSQL etc., additional common names
 
     # TLS Certs
@@ -48,6 +106,13 @@ TRIALS = [
     ('private.key', '-----BEGIN'),
     ('myserver.key', '-----BEGIN'),
     ('key.pem', '-----BEGIN'),
+    ('privkey.pem', '-----BEGIN'),
+    (_gen_db_domain_key, '-----BEGIN'),
+    (_gen_db_sub_domain_key, '-----BEGIN'),
+    (_gen_db_full_domain_key, '-----BEGIN'),
+    (_gen_db_domain_pem, '-----BEGIN'),
+    (_gen_db_sub_domain_pem, '-----BEGIN'),
+    (_gen_db_full_domain_pem, '-----BEGIN'),
     # TODO Add [domainname].key, [domainname].pem
 ]
 
@@ -67,9 +132,16 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
     with ThreadPoolExecutor(max_workers=8) as executor:
         url_to_future = {}
         for trial, pattern in TRIALS:
+            trial_t = trial
+            # Check if trial is callable. If so, call it and save the result
+            if callable(trial):
+                trial_t = trial(url)
+                if trial_t is None:
+                    continue
+                print(trial_t)
             request_url = '{}://{}/{}'.format(
-                parsed_url.scheme, parsed_url.netloc, trial)
-            url_to_future[trial] = executor.submit(_get, request_url, 10)
+                parsed_url.scheme, parsed_url.netloc, trial_t)
+            url_to_future[trial_t] = executor.submit(_get, request_url, 10)
 
         for trial in url_to_future:
             try:
