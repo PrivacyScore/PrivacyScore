@@ -185,11 +185,11 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
         if response['status_code'] == 200:
             # The pattern can have three different types.
             # - If it is a simple string, we only check if it is contained in the response
-            if type(pattern) is str:
+            if isinstance(pattern, str):
                 if pattern in response['text']:
                     leaks.append(trial)
             # - If it is a RegEx object, we perform a pattern match
-            elif type(pattern) is re._pattern_type:
+            elif isinstance(pattern, re._pattern_type):
                 if re.match(response['text']):
                     leaks.append(trial)
             # - If it is callable, we call it with the response text and check the return value
