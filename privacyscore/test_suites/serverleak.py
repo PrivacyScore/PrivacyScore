@@ -177,7 +177,6 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
                 trial = trial(url)
                 if trial is None:
                     continue
-                print(trial)
         if trial not in raw_data:
             # Test raw data too old or particular request failed.
             continue
