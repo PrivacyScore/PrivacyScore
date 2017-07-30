@@ -124,7 +124,12 @@ def _get(url, timeout):
         return None
 
 def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str, bytes]]]:
-    raw_requests = {"url": url}
+    raw_requests = {
+        'url': {
+            'mime_type': 'text/plain',
+            'data': url.encode(),
+        }
+    }
 
     # determine hostname
     parsed_url = urlparse(url)
@@ -169,7 +174,9 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
     leaks = []
     result = {}
     
-    url = raw_data.get("url", None)
+    url = None
+    if 'url' in raw_data:
+        url = raw_data['url']['data'].decode()
 
     for trial, pattern in TRIALS:
         if url:
