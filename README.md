@@ -25,7 +25,7 @@ PrivacyScore relies on the following libraries and frameworks:
 - [Requests](http://docs.python-requests.org/en/master/) (Apache v2)
 - [tldextract](https://github.com/john-kurkowski/tldextract) (BSD)
 - [toposort](https://bitbucket.org/ericvsmith/toposort) (Apache)
-- [url_normalize](https://github.com/niksite/url-normalize) ([unknown license](https://github.com/niksite/url-normalize/issues/5))
+- [url_normalize](https://github.com/niksite/url-normalize) (PSF)
 - [pygments](http://pygments.org/) (BSD)
 
 We are grateful to the maintainers and contributors of the respective projects.
