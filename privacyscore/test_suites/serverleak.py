@@ -2,8 +2,10 @@
 Test for common server leaks.
 """
 import json
+import re
 from typing import Dict, Union
 from urllib.parse import urlparse
+from tldextract import extract
 import requests
 from requests.exceptions import ConnectionError
 from requests.models import Response
@@ -13,6 +15,63 @@ from concurrent.futures import ThreadPoolExecutor
 test_name = 'serverleak'
 test_dependencies = []
 
+
+def _match_db_dump(content):
+    targets = ["SQLite", "CREATE TABLE", "INSERT INTO", "DROP TABLE"]
+    matched = False
+    for target in targets:
+        matched |= target in content
+    return matched
+
+def _concat_sub(url, suffix):
+    url_extract = extract(url)
+    if url_extract.subdomain == "":
+        return None
+    site = url_extract.subdomain + "." + url_extract.domain
+    return site + suffix
+
+def _concat_full(url, suffix):
+    url_extract = extract(url)
+    site = url_extract.domain + "." + url_extract.suffix
+    if url_extract.subdomain != "":
+        site = url_extract.subdomain + "." + site
+    return site + suffix
+
+def _gen_db_domain_sql(url):
+    return extract(url).domain + ".sql"
+
+def _gen_db_sub_domain_sql(url):
+    return _concat_sub(url, ".sql")
+
+def _gen_db_full_domain_sql(url):
+    return _concat_full(url, ".sql")
+
+def _gen_db_domain_db(url):
+    return extract(url).domain + ".db"
+
+def _gen_db_sub_domain_db(url):
+    return _concat_sub(url, ".db")
+
+def _gen_db_full_domain_db(url):
+    return _concat_full(url, ".db")
+
+def _gen_db_domain_key(url):
+    return extract(url).domain + ".key"
+
+def _gen_db_sub_domain_key(url):
+    return _concat_sub(url, ".key")
+
+def _gen_db_full_domain_key(url):
+    return _concat_full(url, ".key")
+
+def _gen_db_domain_pem(url):
+    return extract(url).domain + ".sql"
+
+def _gen_db_sub_domain_pem(url):
+    return _concat_sub(url, ".pem")
+
+def _gen_db_full_domain_pem(url):
+    return _concat_full(url, ".pem")
 
 TRIALS = [
     ('server-status/', 'Apache Server Status'),
@@ -24,14 +83,21 @@ TRIALS = [
     ('core', 'ELF'),
     ### Check for Database dumps
     # sqldump - mysql
-    ('dump.db', "TABLE"),
-    ('dump.sql', "TABLE"), 
-    ('sqldump.sql', "TABLE"),
-    ('sqldump.db', "TABLE"),
+    ('dump.db', _match_db_dump),
+    ('dump.sql', _match_db_dump),
+    ('sqldump.sql', _match_db_dump),
+    ('sqldump.db', _match_db_dump),
     # SQLite
-    ('db.sqlite', 'SQLite'),
-    ('data.sqlite', 'SQLite'),
-    ('sqlite.db', 'SQLite'),
+    ('db.sqlite', _match_db_dump),
+    ('data.sqlite', _match_db_dump),
+    ('sqlite.db', _match_db_dump),
+    (_gen_db_domain_sql, _match_db_dump),
+    (_gen_db_sub_domain_sql, _match_db_dump),
+    (_gen_db_full_domain_sql, _match_db_dump),
+    (_gen_db_domain_db, _match_db_dump),
+    (_gen_db_sub_domain_db, _match_db_dump),
+    (_gen_db_full_domain_db, _match_db_dump),
+
     # TODO PostgreSQL etc., additional common names
 
     # TLS Certs
@@ -40,9 +106,15 @@ TRIALS = [
     ('private.key', '-----BEGIN'),
     ('myserver.key', '-----BEGIN'),
     ('key.pem', '-----BEGIN'),
+    ('privkey.pem', '-----BEGIN'),
+    (_gen_db_domain_key, '-----BEGIN'),
+    (_gen_db_sub_domain_key, '-----BEGIN'),
+    (_gen_db_full_domain_key, '-----BEGIN'),
+    (_gen_db_domain_pem, '-----BEGIN'),
+    (_gen_db_sub_domain_pem, '-----BEGIN'),
+    (_gen_db_full_domain_pem, '-----BEGIN'),
     # TODO Add [domainname].key, [domainname].pem
 ]
-
 
 def _get(url, timeout):
     try:
@@ -52,7 +124,12 @@ def _get(url, timeout):
         return None
 
 def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str, bytes]]]:
-    raw_requests = {}
+    raw_requests = {
+        'url': {
+            'mime_type': 'text/plain',
+            'data': url.encode(),
+        }
+    }
 
     # determine hostname
     parsed_url = urlparse(url)
@@ -60,9 +137,15 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
     with ThreadPoolExecutor(max_workers=8) as executor:
         url_to_future = {}
         for trial, pattern in TRIALS:
+            trial_t = trial
+            # Check if trial is callable. If so, call it and save the result
+            if callable(trial):
+                trial_t = trial(url)
+                if trial_t is None:
+                    continue
             request_url = '{}://{}/{}'.format(
-                parsed_url.scheme, parsed_url.netloc, trial)
-            url_to_future[trial] = executor.submit(_get, request_url, 10)
+                parsed_url.scheme, parsed_url.netloc, trial_t)
+            url_to_future[trial_t] = executor.submit(_get, request_url, 10)
 
         for trial in url_to_future:
             try:
@@ -91,14 +174,34 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
     leaks = []
     result = {}
     
+    url = None
+    if 'url' in raw_data:
+        url = raw_data['url']['data'].decode()
+
     for trial, pattern in TRIALS:
+        if url:
+            if callable(trial):
+                trial = trial(url)
+                if trial is None:
+                    continue
         if trial not in raw_data:
             # Test raw data too old or particular request failed.
             continue
         response = json.loads(raw_data[trial]['data'].decode())
         if response['status_code'] == 200:
-            if pattern in response['text']:
-                leaks.append(trial)
+            # The pattern can have three different types.
+            # - If it is a simple string, we only check if it is contained in the response
+            if isinstance(pattern, str):
+                if pattern in response['text']:
+                    leaks.append(trial)
+            # - If it is a RegEx object, we perform a pattern match
+            elif isinstance(pattern, re._pattern_type):
+                if re.match(response['text']):
+                    leaks.append(trial)
+            # - If it is callable, we call it with the response text and check the return value
+            elif callable(pattern):
+                if pattern(response['text']):
+                    leaks.append(trial)
 
     result['leaks'] = leaks
     return result
