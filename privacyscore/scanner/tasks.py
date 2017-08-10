@@ -120,7 +120,6 @@ def run_test(test_suite: str, url: str, previous_results: dict) -> bool:
         return ':'.join([getfqdn(), test_suite.test_name, traceback.format_exc()])
 
 
-# TODO: configure beat or similar to run this task frequently.
 @shared_task(queue='master')
 def handle_aborted_scans():
     """
@@ -130,7 +129,7 @@ def handle_aborted_scans():
     now = timezone.now()
     Scan.objects.filter(
         start__lt=now - settings.SCAN_TOTAL_TIMEOUT,
-        end__isnull=True).update(end=now)
+        end__isnull=True).delete()
 
 
 def _parse_new_results(previous_results: List[Tuple[list, dict]]) -> tuple:
