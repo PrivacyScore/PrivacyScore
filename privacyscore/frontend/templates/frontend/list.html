@@ -78,7 +78,7 @@
                             <h5>&mdash; IMPROVEMENTS UNDERWAY &mdash; </h5>
                             <hr>
                             <p><em>We plan to increase the maximum number of websites that can be contained in a list. We will also offer the possibility to create and edit lists directly in the browser.</em>
-                            <p><em>Estimated release: July 2017.</em></p>
+                            <p><em>Estimated release: Fall 2017.</em></p>
                         </div>
                     </div>
                 </div>
@@ -149,9 +149,7 @@
                 <div><textarea class="form-control"
                     style="width:100%; height: 6em;"
                     name="csv_data"
-                    placeholder="URL;Country
-page1.example.de;DE
-page2.example.com;IT"
+                    placeholder="URL;Country [newline] page1.example.de;DE [newline] page2.example.com;IT"
                     >{{ csv_data }}</textarea></div>
             </div>
         </div>
@@ -196,7 +194,10 @@ page2.example.com;IT"
     </div>
 
 
-    <p>
+    <div class="spacer"></div>
+
+    <p>By clicking submit you grant us a non-exclusive right to publish
+       the provided information on our website (open data).
     </p>
     </form>
 {% endblock content %}
