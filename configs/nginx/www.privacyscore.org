@@ -4,7 +4,7 @@ server {
 
   server_name www.privacyscore.org;
 
-  #include acme.conf;
+  include acme.conf;
 
   return 301 https://$server_name$request_uri;
 
@@ -22,11 +22,14 @@ server {
   ssl_certificate /etc/letsencrypt/certs/privacyscore.org/fullchain.pem;
   ssl_certificate_key /etc/letsencrypt/certs/privacyscore.org/privkey.pem;
 
-  #include acme.conf;
+  include acme.conf;
   #include security.conf;
 
   return 301 https://privacyscore.org$request_uri;
 
   access_log /var/log/nginx/www.privacyscore.org.access.log;
   error_log /var/log/nginx/www.privacyscore.org.error.log;
+
+  # HSTS (15768000 seconds = 6 months)
+  add_header Strict-Transport-Security "max-age=15768000; includeSubDomains; preload";
 }
