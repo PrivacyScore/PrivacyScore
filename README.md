@@ -37,7 +37,7 @@ We are grateful to the maintainers and contributors of the respective projects.
 This describes the steps that are necessary to deploy the code to a new machine.
 
 * Make sure to store a private ssh key which is allowed to fetch from the git repository at ansible/files/id_rsa.
-* Make sure you have the following values stored in your pass:
+* Make sure you have the following values stored in your [pass](https://www.passwordstore.org/):
   * privacyscore.org/settings/SECRET_KEY
   * svs/svs-ps01/rabbitmq/privacyscore
   * privacyscore.org/sentry
