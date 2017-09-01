@@ -1695,10 +1695,10 @@ CHECKS['ssl']['https_scan_failed']['labels'] = ['unreliable']
 CHECKS['ssl']['https_scan_finished']['title'] = "Check if the Server offers HTTPS"
 CHECKS['ssl']['https_scan_finished']['longdesc'] = """<p>HTTPS is a critical building block in website security. This check tests if the web server offers users the option to connect via HTTPS.</p>
 <p><strong>Conditions for passing:</strong> Test fails if the server does not offer HTTPS.</p>
-<p><strong>Reliability: reliable.</strong></p>
-<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p><strong>Reliability: unreliable.</strong></p>
+<p><strong>Potential scan errors:</strong> If the server employs tarpitting the testssl check fails.</p>
 <p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
-"""  
+"""
 CHECKS['ssl']['https_scan_finished']['labels'] = ['unreliable']
 
 CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['title'] = 'Check whether HTTP URL is also reachable via HTTPS'
