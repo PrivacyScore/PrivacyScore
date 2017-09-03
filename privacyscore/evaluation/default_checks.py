@@ -1729,7 +1729,7 @@ Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a>
 """ 
 CHECKS['ssl']['site_redirects_to_https']['labels'] = ['reliable']
 
-CHECKS['ssl']['redirects_from_https_to_http']['title'] = "Check if the server prevents users from using the HTTPS version of the website"
+CHECKS['ssl']['redirects_from_https_to_http']['title'] = "Check if the server prevents users from using the HTTP version of the website"
 CHECKS['ssl']['redirects_from_https_to_http']['longdesc'] = """<p>Some servers offer HTTPS, but will forward users back to the insecure version of the website when they attempt to use it.</p>
 <p><strong>Conditions for passing:</strong> Test fails if the server automatically redirects the browser to an HTTP URL when the browser requests a HTTPS URL. Neutral if the server does not support HTTPS.</p>
 <p><strong>Reliability: reliable.</strong></p>
