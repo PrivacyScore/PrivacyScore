@@ -44,10 +44,6 @@ class SiteEvaluation:
         if not self.rateable and other.rateable:
             return True
         for group in self.group_order:
-            if self.evaluations[group].devaluating > 0:
-                # group not relevant
-                continue
-
             if self.evaluations[group] < other.evaluations[group]:
                 return True
             elif self.evaluations[group] > other.evaluations[group]:
@@ -55,10 +51,6 @@ class SiteEvaluation:
 
         # All group ratings were equal -- compare good ratios
         for group in self.group_order:
-            if self.evaluations[group].devaluating > 0:
-                # group not relevant
-                continue
-
             if self.evaluations[group].good_ratio < other.evaluations[group].good_ratio:
                 # less
                 return True
@@ -83,10 +75,6 @@ class SiteEvaluation:
         if not self.rateable and other.rateable:
             return False
         for group in self.group_order:
-            if self.evaluations[group].devaluating > 0:
-                # group not relevant
-                continue
-
             if self.evaluations[group] > other.evaluations[group]:
                 return True
             elif self.evaluations[group] < other.evaluations[group]:
@@ -94,10 +82,6 @@ class SiteEvaluation:
 
         # All group ratings were equal -- compare good ratios
         for group in self.group_order:
-            if self.evaluations[group].devaluating > 0:
-                # group not relevant
-                continue
-
             if self.evaluations[group].good_ratio > other.evaluations[group].good_ratio:
                 # greater
                 return True

@@ -103,13 +103,23 @@ class GroupEvaluation:
         return self.group_rating == other.group_rating
 
     def __lt__(self, other) -> bool:
-        return self.group_rating < other.group_rating
+        return (
+            self.group_rating < other.group_rating or
+            (
+                self.group_rating == other.group_rating and
+                self.devaluating < other.devaluating
+            ))
 
     def __le__(self, other) -> bool:
         return self.group_rating <= other.group_rating
 
     def __gt__(self, other) -> bool:
-        return self.group_rating > other.group_rating
+        return (
+            self.group_rating > other.group_rating or
+            (
+                self.group_rating == other.group_rating and
+                self.devaluating > other.devaluating
+            ))
 
     def __ge__(self, other) -> bool:
         return self.group_rating >= other.group_rating
