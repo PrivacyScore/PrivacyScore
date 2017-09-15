@@ -329,10 +329,16 @@ def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html'
         resp = HttpResponse(content_type='text/plain; charset=utf-8')
         writer = csv.writer(resp, delimiter=';',
                             quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        header = ['Position', 'URL']
+        header += [column.name for column in scan_list.ordered_columns]
+        header += [category['short_name'] for category in category_names]
+        writer.writerow(header)
+
         for site_no, site in _enumerate_sites(sites, start=1):
             columns = [site_no, site.url]
             columns += [x.value for x in site.ordered_column_values]
             columns += [rating.group_rating.rating for group, rating in site.evaluated]
+            columns += [''] * (len(header) - len(columns))
             writer.writerow(columns)
         return resp
     elif format == 'html':
