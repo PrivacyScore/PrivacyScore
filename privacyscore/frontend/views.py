@@ -327,7 +327,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html'
             })
         return HttpResponse(json.dumps(output), content_type='application/json')
     elif format == 'csv':
-        resp = HttpResponse(content_type='text/plain')
+        resp = HttpResponse(content_type='text/plain; charset=utf-8')
         writer = csv.writer(resp, delimiter=';',
                             quotechar='"', quoting=csv.QUOTE_MINIMAL)
         for site_no, site in _enumerate_sites(sites, start=1):
