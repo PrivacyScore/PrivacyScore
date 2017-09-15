@@ -208,7 +208,7 @@ def scan(request: HttpRequest) -> HttpResponse:
     return render(request, 'frontend/scan.html')
 
 
-def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
+def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html') -> HttpResponse:
     scan_list = get_object_or_404(
         ScanList.objects.annotate_running_scans_count().prefetch_columns(), pk=scan_list_id)
     scan_list.views = F('views') + 1
@@ -315,22 +315,44 @@ def view_scan_list(request: HttpRequest, scan_list_id: int) -> HttpResponse:
 
     ratings_count = _calculate_ratings_count(sites)
 
-    return render(request, 'frontend/view_scan_list.html', {
-        'scan_list': scan_list,
-        'sites_count': len(sites),
-        'ratings_count': ratings_count,
-        'sites_failures_count': _calculate_failures_count(sites),
-        'sites': _enumerate_sites(sites, start=1),
-        'result_groups': [group['name'] for group in RESULT_GROUPS.values()],
-        'groups': groups,
-        'group_attr': group_attr,
-        'category_names': category_names,
-        'category_order': ','.join(category_order),
-        'config_form': config_form,
-        'sort_by': sort_by,
-        'sort_dir': sort_dir,
-        'group_by': group_by,
-    })
+    print('format', format)
+    if format == 'json':
+        output = {'sites': []}
+        for site_no, site in _enumerate_sites(sites, start=1):
+            output['sites'].append({
+                'position': site_no,
+                'url': site.url,
+                'columns': [x.value for x in site.ordered_column_values],
+                'ratings': {group: rating.group_rating.rating for group, rating in site.evaluated}
+            })
+        return HttpResponse(json.dumps(output), content_type='application/json')
+    elif format == 'csv':
+        resp = HttpResponse(content_type='text/plain')
+        writer = csv.writer(resp, delimiter=';',
+                            quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        for site_no, site in _enumerate_sites(sites, start=1):
+            columns = [site_no, site.url]
+            columns += [x.value for x in site.ordered_column_values]
+            columns += [rating.group_rating.rating for group, rating in site.evaluated]
+            writer.writerow(columns)
+        return resp
+    elif format == 'html':
+        return render(request, 'frontend/view_scan_list.html', {
+            'scan_list': scan_list,
+            'sites_count': len(sites),
+            'ratings_count': ratings_count,
+            'sites_failures_count': _calculate_failures_count(sites),
+            'sites': _enumerate_sites(sites, start=1),
+            'result_groups': [group['name'] for group in RESULT_GROUPS.values()],
+            'groups': groups,
+            'group_attr': group_attr,
+            'category_names': category_names,
+            'category_order': ','.join(category_order),
+            'config_form': config_form,
+            'sort_by': sort_by,
+            'sort_dir': sort_dir,
+            'group_by': group_by,
+        })
 
 
 def _enumerate_sites(sites: Iterable, start: int = 1) -> Iterable:
