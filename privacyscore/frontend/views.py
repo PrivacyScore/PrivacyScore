@@ -315,7 +315,6 @@ def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html'
 
     ratings_count = _calculate_ratings_count(sites)
 
-    print('format', format)
     if format == 'json':
         output = {'sites': []}
         for site_no, site in _enumerate_sites(sites, start=1):
