@@ -473,7 +473,7 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     site.save(update_fields=('views',))
     
     num_scans = Scan.objects.filter(site_id=site.pk).count()
-    scan_lists = ScanList.objects.filter(sites=site.pk)
+    scan_lists = ScanList.objects.filter(private=False, sites=site.pk)
 
     # evaluate site
     site.evaluated = UnrateableSiteEvaluation()
