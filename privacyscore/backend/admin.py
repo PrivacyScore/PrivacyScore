@@ -43,6 +43,11 @@ class ScanErrorAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(ScanList)
+@admin.register(ScanList)
+class ScanListAdmin(admin.ModelAdmin):
+    raw_id_fields = (
+        'last_scan',
+    )
+
 admin.site.register(ScanResult)
 admin.site.register(Site)
