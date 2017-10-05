@@ -65,7 +65,7 @@ def _gen_db_full_domain_key(url):
     return _concat_full(url, ".key")
 
 def _gen_db_domain_pem(url):
-    return extract(url).domain + ".sql"
+    return extract(url).domain + ".pem"
 
 def _gen_db_sub_domain_pem(url):
     return _concat_sub(url, ".pem")
