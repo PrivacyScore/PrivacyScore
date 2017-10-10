@@ -233,7 +233,7 @@ class SiteQuerySet(models.QuerySet):
 class Site(models.Model):
     """A site."""
     url = models.CharField(max_length=500, unique=True)
-    scan_lists = models.ManyToManyField(ScanList, related_name='sites')
+    scan_lists = models.ManyToManyField(ScanList, related_name='sites', blank=True)
 
     views = models.IntegerField(default=0)
 
