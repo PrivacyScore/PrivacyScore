@@ -50,4 +50,9 @@ class ScanListAdmin(admin.ModelAdmin):
     )
 
 admin.site.register(ScanResult)
-admin.site.register(Site)
+
+@admin.register(Site)
+class SiteAdmin(admin.ModelAdmin):
+    raw_id_fields = (
+        'last_scan',
+    )
