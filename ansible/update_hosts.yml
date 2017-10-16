@@ -8,7 +8,7 @@
       become: yes
       become_user: privacyscore
       git:
-        repo: gogs@svs.informatik.uni-hamburg.de:svs/privacyscore.git
+        repo: https://github.com/PrivacyScore/PrivacyScore.git
         dest: /opt/privacyscore
         version: master
     - name: Update settings

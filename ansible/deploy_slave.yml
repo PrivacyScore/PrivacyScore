@@ -38,23 +38,10 @@
         name: ntp
         state: started
         enabled: yes
-    - name: Create root .ssh directory
-      file:
-        path: /root/.ssh
-        owner: root
-        group: root
-        mode: 0700
-        state: directory
-    - name: Store ssh key for root
-      copy:
-        src: id_rsa
-        dest: /root/.ssh/id_rsa
-        owner: root
-        group: root
-        mode: 0400
     - name: Clone git repository
       git:
-        repo: gogs@svs.informatik.uni-hamburg.de:svs/privacyscore.git
+        repo: https://github.com/PrivacyScore/PrivacyScore.git
+        depth: 1
         dest: /opt/privacyscore
         version: master
         accept_hostkey: yes
@@ -108,25 +95,12 @@
         name: privacyscore-celery-slave
         state: started
         enabled: yes
-    - name: Create privacyscore .ssh directory
-      file:
-        path: /opt/privacyscore/.ssh
-        owner: privacyscore
-        group: privacyscore
-        mode: 0700
-        state: directory
-    - name: Store ssh key for privacyscore
-      copy:
-        src: id_rsa
-        dest: /opt/privacyscore/.ssh/id_rsa
-        owner: privacyscore
-        group: privacyscore
-        mode: 0400
     - name: Pull git repository as privacyscore user to accept hostkey initially
       become: yes
       become_user: privacyscore
       git:
-        repo: gogs@svs.informatik.uni-hamburg.de:svs/privacyscore.git
+        repo: https://github.com/PrivacyScore/PrivacyScore.git
+        depth: 1
         dest: /opt/privacyscore
         version: master
         accept_hostkey: yes
