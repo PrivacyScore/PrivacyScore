@@ -49,6 +49,7 @@
       user:
         name: privacyscore
         home: /opt/privacyscore
+        shell: /bin/bash
         system: yes
     - name: Set owner of privacyscore directory
       file:
