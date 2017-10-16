@@ -14,9 +14,9 @@
       apt: name={{ item }} update_cache=yes
       with_items:
         - build-essential
-        - firefox-esr
-        - flashplugin-nonfree
+        ## We surely need git to check out PrivacyScore
         - git
+        ## FIXME: What do we need all the headers for?
         - libboost-python-dev
         - libffi-dev
         - libjpeg-dev
@@ -32,7 +32,35 @@
         - python3-six
         - python-dev
         - virtualenv
+        ## This is probably needed by OpenWPM
+        - firefox-esr
+        - flashplugin-nonfree
         - xvfb
+        ## We seem to require postgresql for the Django app
+        - postgresql
+        ## And we need psycopg2 for ansible to interact with postgres
+        - python-psycopg2
+
+
+    - name: Add PrivacyScore Database 
+      become: yes
+      # FIXME: We assume the "postgres" user exists. It's probably better to soft-code that
+      become_user: postgres
+      # FIXME: Soft code database name
+      postgresql_db:
+        name: privacyscore
+        state: present
+        # Dunno what that does: owner: privacyscore
+
+    - name: Add PrivacyScore Database user
+      become: yes
+      become_user: postgres
+      # FIXME: Soft code credentials
+      postgresql_user:
+        name: privacyscore
+        state: present
+        password: privacyscore
+        
     - name: Enable NTP service
       service:
         name: ntp
