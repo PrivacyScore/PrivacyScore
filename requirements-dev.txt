@@ -1,1 +1,3 @@
 django_debug_toolbar
+# For nicer mange.py shell
+ipython
