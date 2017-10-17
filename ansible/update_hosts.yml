@@ -129,6 +129,66 @@
       environment:
         PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
+
+
+    - name: Install master packages
+      become: yes
+      when: is_master
+      apt:
+        name: "{{item}}"
+        update_cache: yes
+        cache_valid_time: 3600
+      with_items:
+        ## The master uses celery to communicate with the slaves.
+        ## Celery in turn uses rabbitmq.
+        - rabbitmq-server
+        - celeryd
+        ## Slaves dump their results via redis
+        - redis-server
+
+        
+    # FIXME: Softcode vhost name
+    - name: Configure RabbitMQ vhost
+      become: yes
+      # We assume Debian to have created this rabbitmq user...
+      become_user: rabbitmq
+      when: is_master
+      rabbitmq_vhost:
+        # FIXME: Softcode queue name
+        name: privacyscore/
+        state: present
+
+    # FIXME: Softcode credentials
+    - name: Configure RabbitMQ user
+      become: yes
+      # We assume Debian to have created this rabbitmq user...
+      become_user: rabbitmq
+      when: is_master
+      rabbitmq_user:
+        user: privacyscore
+        state: present
+        password: privacyscore
+        vhost: privacyscore/
+        configure_priv: .*
+        read_priv: .*
+        write_priv: .*
+
+    # You probably want to have nginx and everything in your production environment.
+    # For your test environment, you can try something like
+    # ssh testhost   sudo -u privacyscore -i env PATH="/opt/privacyscore/.pyenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"  VIRTUAL_ENV="/opt/privacyscore/.pyenv"  /opt/privacyscore/manage.py runserver 0:8000
+    - name: Install uWSGI
+      become: yes
+      become_user: privacyscore
+      when: is_master
+      pip:
+        name: uWSGI
+      environment:
+        PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        VIRTUAL_ENV: /opt/privacyscore/.pyenv
+
+
+#FIXME: We might as well want to check whether the rabbitmq service is running
+
     - name: Place systemd unit file for privacyscore-celery-master
       when: is_master
       template:
