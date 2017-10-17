@@ -222,3 +222,16 @@
       shell: wget https://chromium.googlesource.com/chromium/src/net/+/master/http/transport_security_state_static.json?format=TEXT -O - | base64 -d | egrep -v "^([ ]*\/\/|$)" > "/opt/privacyscore/tests/vendor/HSTSPreload/transport_security_state_static"
       args:
         executable: /bin/bash
+
+
+    - name: Checking whether we can access the message queue
+      become: yes
+      become_user: privacyscore
+      # FIXME: I think that we'd be better off having a switch for disabling this test
+      # when: ps__test_for_message_queue
+      shell:  /opt/privacyscore/.pyenv/bin/celery -A privacyscore status
+      args:
+          chdir:  /opt/privacyscore/
+      environment:
+        PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        VIRTUAL_ENV: /opt/privacyscore/.pyenv
