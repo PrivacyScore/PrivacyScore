@@ -35,6 +35,7 @@ ALLOWED_HOSTS = [
 INSTALLED_APPS = [
     'privacyscore.api',
     'privacyscore.backend',
+    'privacyscore.evaluation',
     'privacyscore.frontend',
     'privacyscore.scanner',
     'django.contrib.admin',
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -80,7 +82,29 @@ WSGI_APPLICATION = 'privacyscore.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'HOST': 'localhost',
+        'USER': 'privacyscore',
+        'PASSWORD': 'privacyscore',
+        'NAME': 'privacyscore',
+    }
+}
+if os.environ.get('NO_DB'):
+    # do not enable database on this worker
+    DATABASES = {}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+        'OPTIONS': {
+            'server_max_value_length': 1024 * 1024 * 5,
+        }
+    }
+}
+CACHE_DEFAULT_TIMEOUT_SECONDS = 1800
 
 
 # Password validation
