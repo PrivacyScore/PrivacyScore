@@ -283,6 +283,13 @@
       args:
         executable: /bin/bash
 
+    - name: Ensure that the raw_data directory exists
+      file:
+        path: /opt/privacyscore/raw_data
+        owner: privacyscore
+        group: privacyscore
+        mode: 0700
+        state: directory
 
     - name: Checking whether we can access the message queue
       become: yes
