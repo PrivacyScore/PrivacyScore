@@ -95,6 +95,16 @@
       environment:
         PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
+    - name: Install pip dev requirements
+      # FIXME: I don't think "hosts: " works. We better put that in group_vars somewhere and do the is_development check
+      hosts: development
+      become: yes
+      become_user: privacyscore
+      pip:
+        requirements: /opt/privacyscore/requirements-dev.txt
+      environment:
+        PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        VIRTUAL_ENV: /opt/privacyscore/.pyenv
     - name: Install raven
       become: yes
       become_user: privacyscore
