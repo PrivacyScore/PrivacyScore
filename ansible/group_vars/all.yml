@@ -14,3 +14,7 @@ privacyscore__secret_key: 'MAKE SURE YOU UPDATE THIS FOR PRODUCTION USE'
 
 # privacyscore__deploy_mode: To be set in the groups, e.g. testing or production
 privacyscore__deploy_mode: None
+
+
+# privacyscore__install_memcache: Determines whether we want to run memcached
+privacyscore__install_memcache: "{{ privacyscore__deploy_mode != 'testing' }}"

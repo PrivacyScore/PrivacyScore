@@ -146,6 +146,16 @@
         ## Slaves dump their results via redis
         - redis-server
 
+    - name: Install memcached
+      when: privacyscore__install_memcache
+      tags: ['privacyscore::memcache,privacyscore::memcached']
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - memcached
+        - python-memcache
+
         
     # FIXME: Softcode vhost name
     - name: Configure RabbitMQ vhost

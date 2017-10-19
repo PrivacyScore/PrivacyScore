@@ -93,7 +93,11 @@ if os.environ.get('NO_DB'):
     # do not enable database on this worker
     DATABASES = {}
 
+{% if privacyscore__install_memcache %}
+# We want to run memcache: {{ privacyscore__install_memcache }}
 CACHES = {
+    # If we defined CACHES, we need to have a "default".
+    # Otherwise Django complains.
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': '127.0.0.1:11211',
@@ -102,6 +106,12 @@ CACHES = {
         }
     }
 }
+
+{% else %}
+# No memcache for us: {{ privacyscore__install_memcache }}
+CACHES = {}
+{% endif %}
+
 CACHE_DEFAULT_TIMEOUT_SECONDS = 1800
 
 
