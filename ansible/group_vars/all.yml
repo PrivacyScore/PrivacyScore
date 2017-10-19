@@ -1,3 +1,8 @@
 # privacyscore__allowed_hosts: This will configure Django's ALLOWED_HOSTS setting.
 #                              Defaults to the empty list
 privacyscore__allowed_hosts: []
+
+# privacyscore__debug: This will configure Django's DEBUG setting and probably
+#                      cause relevant debug packages to be installed.
+#                      Defaults to True
+privacyscore__debug: True

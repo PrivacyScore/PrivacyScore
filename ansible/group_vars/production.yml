@@ -1,2 +1,4 @@
 privacyscore__allowed_hosts:
     - privacyscore.org
+
+privacyscore__debug: False
