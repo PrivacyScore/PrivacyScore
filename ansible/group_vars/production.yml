@@ -3,5 +3,5 @@ privacyscore__allowed_hosts:
 
 privacyscore__debug: False
 
-privacyscore__secret_key: lookup('passwordstore', 'privacyscore.org/settings/SECRET_KEY') }
+privacyscore__secret_key: "{{ lookup('passwordstore', 'privacyscore.org/settings/SECRET_KEY') }}"
 
