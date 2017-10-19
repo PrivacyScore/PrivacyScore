@@ -1,15 +1,62 @@
+## This is an ansible inventory file <http://docs.ansible.com/ansible/latest/intro_inventory.html>
+## 
+## 1) We first have the general section to describe the hosts that we want to provision.
+## 2) Then we have group definitions. Your host should be in either master or slave  and then in either of
+##    production, staging, or testing.  Although your host can also be both master and slave.
+## 3) Finally, some variable definitions for the groups which haven't (yet) been migrated to separate files.
+##
+## In order to run ansible against a certain group, run it with, e.g. --limit testing:
+##      ansible-playbook --inventory ansible/inventory  --limit testing   ansible/update_hosts.yml
+##
+
+
+#####
+# 1) Host definitions
+###################
+
+# An example host.
+testhost  ansible_user=ubuntu ansible_port=22222 ansible_host=localhost
+
+
+
+#####
+# 2) Group definitions
+###################
+
+## A master is where the Web interface is hosted and from where scan-requests are
+## put into the queue.
 [master]
 ps01  testssl_mx_remote_host=None
+testhost
 
+## Slaves are the actual Web scanners who connect to the queue to get new jobs.
+## They run the scanners and return the results to the master.
 [slave]
+testhost
 ps[02:11]  testssl_mx_remote_host='privscore@fb02itshh.fh-muenster.de'
 
 ps[13:42]  testssl_mx_remote_host=None
 
 
 
+## Testing hosts have more relaxed settings and debug output.
+[testing]
+testhost
+
+## If we ever have a staging area to test the software in a
+## production-like environment, we'd add the hosts here
+[staging]
+
+## Finally, these are the hosts which is expect to be part
+## of the end user facing deployment.
+[production]
+ps[01:42]
+
+
+## Some variables for the groups. We might as well migrate that off to separate files in group_vars/
 [master:vars]
 is_master=True
 
 [slave:vars]
 is_slave=True
+
