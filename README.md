@@ -52,6 +52,39 @@ and update it (to add the relevant section to the settings) using
 You may want to create a separate inventory file for the initial deployment to just run against new hosts.
 
 
+## Development
+
+The above mentioned playbooks can be used to set up a development environment.
+You will need a machine to run the playbook against. In order to run ansible
+you will need to have SSH access. The machine needs access to the Internet in order to download
+the software. You will then need to run a Web server in order to access the Web UI.
+Once you have such a host, you can try to do the following:
+
+    1) Check that you can SSH into the machine.
+       Note that we check whether Python works. Ansible need a Python interpreter.
+
+        ssh -p 22222  -l ubuntu  localhost  "python -c 'print 23'"
+
+    2) Edit your inventory so that Ansible knows about your machine,
+       e.g. add your host to master, slave, and testing.
+       You probably also want to configure ansible_user, ansible_port, and
+       ansible_host.
+
+        
+    3) Now, you can run Ansible against your VM. In this example, the VM was
+        named "testhost". You need to change it to the name you've just configures
+        in the Ansible inventory.
+
+        ansible-playbook --inventory ansible/inventory --limit testhost  ansible/deploy_slave.yml  ansible/update_hosts.yml 
+
+    4) If all went well you should have a running instance of PrivacyScore. If you haven't forwarded another port yet,
+        you can use SSH to both forward a port and start Django in runserver mode:
+
+            ssh -p 22222  -l ubuntu  -L8888:localhost:8000  localhost  sudo -u privacyscore -i env PATH="/opt/privacyscore/.pyenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"  VIRTUAL_ENV="/opt/privacyscore/.pyenv"  /opt/privacyscore/manage.py runserver 0:8000
+
+    5) You should be able to visit http://localhost:8000 or http://localhost:8888 and see the Web UI.
+
+
 ## Distribution of Changes
 
 * Check in to repository
