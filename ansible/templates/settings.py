@@ -168,7 +168,8 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_SERIALIZER = 'msgpack'
 CELERY_RESULT_SERIALIZER = 'msgpack'
 CELERY_ACCEPT_CONTENT = ['msgpack']
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_BROKER_URL = '{{ privacyscore__celery_broker_url }}'
+CELERY_RESULT_BACKEND = '{{ privacyscore__celery_result_backend }}'
 CELERY_DEFAULT_QUEUE = 'master'
 CELERY_QUEUES = (
     Queue('master', Exchange('master'), routing_key='master'),
@@ -176,6 +177,7 @@ CELERY_QUEUES = (
 )
 
 
+# FIXME: Soft-code these time related settings
 SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN = timedelta(minutes=28)
 SCAN_SUITE_TIMEOUT_SECONDS = 200
 SCAN_TOTAL_TIMEOUT = timedelta(hours=8)
@@ -201,7 +203,12 @@ SCAN_TEST_SUITES = [
     }),
     ('serverleak', {}),
     ('testssl_https', {}),
-    ('testssl_mx', {}),
+    ('testssl_mx', {
+         {% if testssl_mx_remote_host %}
+              'remote_host': '{{ testssl_mx_remote_host }}',
+         {% endif %}
+      },
+    ),
 ]
 
 RAW_DATA_UNCOMPRESSED_TYPES = [
@@ -213,6 +220,22 @@ RAW_DATA_DIR = os.path.join(BASE_DIR, 'raw_data')
 RAW_DATA_DELETE_AFTER = timedelta(days=10)
 
 SCAN_SCHEDULE_DAEMON_SLEEP = 60
+
+{% if privacyscore__raven_dsn_url %}
+INSTALLED_APPS.append('raven.contrib.django.raven_compat')
+
+import raven
+
+RAVEN_CONFIG = {
+    'dsn': '{{ privacyscore__raven_dsn_url }}',
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    # FIXME: Soft-code the git repository path
+    'release': raven.fetch_git_sha('/opt/privacyscore'),
+}
+{% else %}
+# no privacyscore__raven_dsn_url:  {{ privacyscore__raven_dsn_url }}
+{% endif %}
 
 
 
