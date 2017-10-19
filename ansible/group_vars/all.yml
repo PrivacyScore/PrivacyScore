@@ -11,3 +11,6 @@ privacyscore__debug: True
 #                           this value in production settings.
 #                           Defaults to a fixed string.
 privacyscore__secret_key: 'MAKE SURE YOU UPDATE THIS FOR PRODUCTION USE'
+
+# privacyscore__deploy_mode: To be set in the groups, e.g. testing or production
+privacyscore__deploy_mode: None
