@@ -40,3 +40,9 @@ privacyscore__celery_broker_url: 'amqp://privacyscore:privacyscore@localhost:567
 privacyscore__celery_result_backend: 'redis://localhost:6379/0'
 
 
+
+# privacyscore__raven_dsn_url: If you want to use sentry, you can define the DSN URL.
+#                              It will be used to add raven to settings.py and configure it
+#                              accordingly.
+#                              Defaults to None.
+privacyscore__raven_dsn_url: None

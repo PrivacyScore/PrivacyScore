@@ -79,16 +79,21 @@
 
           SCAN_LISTS_PER_PAGE = 30
 
+          {% if privacyscore__raven_dsn_url %}
           INSTALLED_APPS.append('raven.contrib.django.raven_compat')
 
           import raven
 
           RAVEN_CONFIG = {
-              'dsn': 'https://{{ lookup('passwordstore', 'privacyscore.org/sentry') }}@sentry.mafiasi.de/16',
+              'dsn': '{{ privacyscore__raven_dsn_url }}',
               # If you are using git, you can also automatically configure the
               # release based on the git info.
+              # FIXME: Soft-code the git repository path
               'release': raven.fetch_git_sha('/opt/privacyscore'),
           }
+          {% else %}
+          # no privacyscore__raven_dsn_url:  {{ privacyscore__raven_dsn_url }}
+          {% endif %}
     - name: Install pip requirements
       become: yes
       become_user: privacyscore
