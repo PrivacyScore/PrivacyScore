@@ -6,3 +6,8 @@ privacyscore__allowed_hosts: []
 #                      cause relevant debug packages to be installed.
 #                      Defaults to True
 privacyscore__debug: True
+
+# privacyscore__secret_key: Django's SECRET_KEY setting. Make sure you double check
+#                           this value in production settings.
+#                           Defaults to a fixed string.
+privacyscore__secret_key: 'MAKE SURE YOU UPDATE THIS FOR PRODUCTION USE'

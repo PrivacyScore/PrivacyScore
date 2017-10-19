@@ -2,3 +2,6 @@ privacyscore__allowed_hosts:
     - privacyscore.org
 
 privacyscore__debug: False
+
+privacyscore__secret_key: lookup('passwordstore', 'privacyscore.org/settings/SECRET_KEY') }
+
