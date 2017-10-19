@@ -24,3 +24,8 @@ privacyscore__collect_static: "{{ privacyscore__deploy_mode != 'testing' }}"
 
 # privacyscore__static_root: Django's STATIC_ROOT configuration
 privacyscore__static_root: '/var/www/privacyscore.org'
+
+# privacyscore__celery_broker_url: Django's CELERY_BROKER_URL setting.
+#                                  You will want to change in your production settings.
+#                                  Defaults to localhost to just make it work™.
+privacyscore__celery_broker_url: 'amqp://privacyscore:privacyscore@localhost:5672/privacyscore/'
