@@ -235,6 +235,7 @@
         repo: https://github.com/drwetter/testssl.sh.git
         dest: /opt/privacyscore/tests/vendor/testssl.sh
         version: HEAD
+        depth: 1
     - name: Refresh vendor/OpenWPM
       when: is_slave
       become: yes
@@ -243,6 +244,7 @@
         repo: https://github.com/citp/OpenWPM
         dest: /opt/privacyscore/tests/vendor/OpenWPM
         version: HEAD
+        depth: 1
     - name: Create vendor/EasyList if it does not exist
       file:
         path: /opt/privacyscore/tests/vendor/EasyList/
