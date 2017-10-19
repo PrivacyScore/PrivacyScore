@@ -8,3 +8,5 @@ privacyscore__secret_key: "{{ lookup('passwordstore', 'privacyscore.org/settings
 privacyscore__deploy_mode: 'production'
 
 privacyscore__celery_broker_url: 'amqp://privacyscore:{{ lookup('passwordstore', 'svs/svs-ps01/rabbitmq/privacyscore') }}@134.100.14.111:5672//'
+
+privacyscore__celery_result_backend: 'redis://134.100.14.111:6379/0'

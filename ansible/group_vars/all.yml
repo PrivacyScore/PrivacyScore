@@ -33,3 +33,10 @@ privacyscore__static_root: '/var/www/privacyscore.org'
 #                                  Defaults to localhost to just make it work™.
 privacyscore__celery_broker_url: 'amqp://privacyscore:privacyscore@localhost:5672/privacyscore/'
 
+# privacyscore__celery_result_backend: Django's CELERY_RESULT_BACKEND setting.
+#                                      You want to update this in your production settings.
+#                                      Maybe we can infer that from ansible somehow in the future.
+#                                      Defaults to localhost.
+privacyscore__celery_result_backend: 'redis://localhost:6379/0'
+
+

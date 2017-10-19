@@ -24,9 +24,9 @@
           CELERY_TASK_SERIALIZER = 'msgpack'
           CELERY_RESULT_SERIALIZER = 'msgpack'
           CELERY_ACCEPT_CONTENT = ['msgpack']
-          CELERY_RESULT_BACKEND = 'redis://134.100.14.111:6379/0'
           # FIXME: Move to setting.py template
           CELERY_BROKER_URL = '{{ privacyscore__celery_broker_url }}'
+          CELERY_RESULT_BACKEND = '{{ privacyscore__celery_result_backend }}'
           CELERY_DEFAULT_QUEUE = 'master'
           CELERY_QUEUES = (
               Queue('master', Exchange('master'), routing_key='master'),
