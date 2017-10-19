@@ -121,10 +121,12 @@
       environment:
         PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
+
     - name: Collect static files
-      when: is_master
+      when: is_master and privacyscore__collect_static
       become: yes
       become_user: privacyscore
+      tags: ['privacyscore::collectstatic']
       command: /opt/privacyscore/manage.py collectstatic --no-input
       environment:
         PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
