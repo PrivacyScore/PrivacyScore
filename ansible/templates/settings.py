@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -155,6 +156,65 @@ STATIC_URL = '/static/'
 {% if privacyscore__collect_static %}
 STATIC_ROOT = '{{ privacyscore__static_root }}'
 {% endif %}
+
+MEDIA_URL = '/media/'
+
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+from kombu import Exchange, Queue
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_SERIALIZER = 'msgpack'
+CELERY_RESULT_SERIALIZER = 'msgpack'
+CELERY_ACCEPT_CONTENT = ['msgpack']
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_DEFAULT_QUEUE = 'master'
+CELERY_QUEUES = (
+    Queue('master', Exchange('master'), routing_key='master'),
+    Queue('slave', Exchange('slave'), routing_key='slave'),
+)
+
+
+SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN = timedelta(minutes=28)
+SCAN_SUITE_TIMEOUT_SECONDS = 200
+SCAN_TOTAL_TIMEOUT = timedelta(hours=8)
+SCAN_TEST_BASEPATH = os.path.join(BASE_DIR, 'tests')
+SCAN_LISTS_PER_PAGE = 30
+
+# The base modules containing the test suites. You usually do not want to
+# change this.
+TEST_SUITES_BASEMODULES = [
+    'privacyscore.test_suites',
+]
+
+# The list of the test names to use. Test names may not be used multiple times.
+# See the example test suite for documentation of the test module interface.
+SCAN_TEST_SUITES = [
+    ('network', {
+        'country_database_path': os.path.join(
+            SCAN_TEST_BASEPATH, 'vendor/geoip/GeoLite2-Country.mmdb'),
+    }),
+    ('openwpm', {
+        'scan_basedir': '/tmp/openwpm-scans',
+        'virtualenv_path': os.path.join(BASE_DIR, 'tests/vendor/OpenWPM/.pyenv'),
+    }),
+    ('serverleak', {}),
+    ('testssl_https', {}),
+    ('testssl_mx', {}),
+]
+
+RAW_DATA_UNCOMPRESSED_TYPES = [
+    'image/png',
+    'image/jpeg',
+]
+RAW_DATA_DB_MAX_SIZE = 4000
+RAW_DATA_DIR = os.path.join(BASE_DIR, 'raw_data')
+RAW_DATA_DELETE_AFTER = timedelta(days=10)
+
+SCAN_SCHEDULE_DAEMON_SLEEP = 60
+
+
 
 # debug toolbar
 if DEBUG:
