@@ -12,6 +12,7 @@
         dest: /opt/privacyscore
         version: master
     - name: Update settings
+      tags: ['privacyscore::settings']
       blockinfile:
         path: /opt/privacyscore/privacyscore/settings.py
         block: |
