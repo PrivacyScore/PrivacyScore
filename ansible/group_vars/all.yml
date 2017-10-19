@@ -29,3 +29,6 @@ privacyscore__static_root: '/var/www/privacyscore.org'
 #                                  You will want to change in your production settings.
 #                                  Defaults to localhost to just make it work™.
 privacyscore__celery_broker_url: 'amqp://privacyscore:privacyscore@localhost:5672/privacyscore/'
+
+# testssl_mx_remote_host:  FIXME: setting for testssl. But I don't currently know what exactly.
+testssl_mx_remote_host:
