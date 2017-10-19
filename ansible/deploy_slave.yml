@@ -34,7 +34,10 @@
         - python-dev
         - virtualenv
         ## This is probably needed by OpenWPM
-        - firefox-esr
+        ## But install.sh seems to take care of Firefox.
+        ## Which is great, because there is no firefox-esr
+        ## in Ubuntu.
+        # - firefox-esr
         - flashplugin-nonfree
         - xvfb
         ## We seem to require postgresql for the Django app
