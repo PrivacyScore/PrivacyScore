@@ -113,6 +113,7 @@
 
         ./install-tests.sh
     - name: Place settings
+      tags: ['privacyscore::settings']
       template:
         src: settings.py
         dest: /opt/privacyscore/privacyscore/settings.py
