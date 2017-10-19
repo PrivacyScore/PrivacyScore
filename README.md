@@ -52,6 +52,119 @@ and update it (to add the relevant section to the settings) using
 You may want to create a separate inventory file for the initial deployment to just run against new hosts.
 
 
+## Development
+
+The above mentioned playbooks can be used to set up a development environment.
+You will need a machine to run the playbook against. In order to run ansible
+you will need to have SSH access. The machine needs access to the Internet in order to download
+the software. You will then need to run a Web server in order to access the Web UI.
+
+A setup with an [Ubuntu cloud-image](https://cloud-images.ubuntu.com/)
+running under QEMU with libvirt's user sessions could look like this:
+
+    1) Run virt-manager and connect to the user session in order to make
+       libvirt set the directories up. This can probably also be done
+       through virsh:
+
+            virt-manager qemu:///session
+           
+
+    2) Download the image in your user's libvirt image directory, i.e.
+
+        cd ~/.local/share/libvirt/images
+        wget https://cloud-images.ubuntu.com/daily/server/artful/current/artful-server-cloudimg-amd64.img
+
+
+    3) Optionally make it read-only and create working copy:
+
+        chmod a-w artful-server-cloudimg-amd64.img
+        cp --reflink=auto artful-server-cloudimg-amd64.img privacyscore.img
+
+    
+    4) Resize the image. We need about 3GB. And then you don't have scan results yet.
+
+        qemu-img resize privacyscore.img +10G
+
+
+    5) Create a suitable [cloud-init](cloudinit.readthedocs.io/) medium.
+       Because you want to SSH into the cloud-image, we need to provision it
+       with our credentials.  When the image is booted, cloud-init looks for
+       a [cloud config](http://cloudinit.readthedocs.io/en/latest/topics/examples.html)
+       on various media, including CD-ROMs.  In order to create such a CD-ROM, you can
+       use [Cloud-Init-ISO](https://github.com/frederickding/Cloud-Init-ISO) with your
+       user-data.
+
+           git clone https://github.com/frederickding/Cloud-Init-ISO.git
+           cd Cloud-Init-ISO
+           cat > user-data <<EOF
+           # replace with your own public key (e.g. ~/.ssh/id_rsa.pub)
+           ssh_authorized_keys:
+             - ssh-rsa ...
+
+           apt_upgrade: true
+           packages:
+              - python
+
+           EOF
+
+           ./build.sh
+
+    6) Add the resized cloud-image to libvirt, possibly through virt-manager.
+       File → New Virtual Machine. Select your user-session, Importing disk image, Forward.
+       Then Browse... and optionally refresh your storage.
+       Select the privacyscore.img and optionally select a GNU/Linux flavour.
+       After you have created the VM, make sure to add the ISO as CD-ROM.
+       Finally, you need to get access to SSH.
+       You can make QEMU forward ports.  Ony way to do it to edit libvirt's
+       XML. First, get the ID of the machine you've just created:
+
+           virsh --connect qemu:///session list
+
+       Then you can edit the XML:
+
+           virsh --connect qemu:///session edit <ID>
+
+       In the first line, make it look like:
+    
+           <domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
+
+       The end needs to look something like:
+
+              <qemu:commandline>
+                <qemu:arg value='-redir'/>
+                <qemu:arg value='tcp:22222::22'/>
+                <qemu:arg value='-redir'/>
+                <qemu:arg value='tcp:8000::8000'/>
+              </qemu:commandline>
+            </domain>
+                               
+    7) Make sure you re-start the machine with the new configuration.
+
+    8) Check that you can SSH into the machine.
+       Note that we check whether Python works. Ansible need a Python interpreter.
+
+        ssh -p 22222  -l ubuntu  localhost  "python -c 'print 23'"
+
+    9) Edit your inventory so that Ansible knows about your machine,
+       e.g. add your host to master, slave, and testing.
+       You probably also want to configure ansible_user, ansible_port, and
+       ansible_host.
+
+        
+    10) Now, you can run Ansible against your VM. In this example, the VM was
+        named "testhost". You need to change it to the name you've just configures
+        in the Ansible inventory.
+
+        ansible-playbook --inventory ansible/inventory --limit testhost  ansible/deploy_slave.yml  ansible/update_hosts.yml 
+
+    11) If all went well you should have a running instance of PrivacyScore. If you haven't forwarded another port yet,
+        you can use SSH to both forward a port and start Django in runserver mode:
+
+            ssh -p 22222  -l ubuntu  -L8888:localhost:8000  localhost  sudo -u privacyscore -i env PATH="/opt/privacyscore/.pyenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"  VIRTUAL_ENV="/opt/privacyscore/.pyenv"  /opt/privacyscore/manage.py runserver 0:8000
+
+    12) You should be able to visit http://localhost:8000 or http://localhost:8888 and see the Web UI.
+
+
 ## Distribution of Changes
 
 * Check in to repository
