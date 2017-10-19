@@ -9,5 +9,7 @@ ps[13:42]  testssl_mx_remote_host=None
 
 
 [master:vars]
-is_master=False
+is_master=True
+
+[slave:vars]
 is_slave=True
