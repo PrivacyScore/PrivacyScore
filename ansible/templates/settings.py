@@ -25,9 +25,7 @@ SECRET_KEY = '{{ lookup('passwordstore', 'privacyscore.org/settings/SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [
-    'privacyscore.org',
-]
+ALLOWED_HOSTS = {{ privacyscore__allowed_hosts | default([]) }}
 
 
 # Application definition

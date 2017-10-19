@@ -1,0 +1,3 @@
+# privacyscore__allowed_hosts: This will configure Django's ALLOWED_HOSTS setting.
+#                              Defaults to the empty list
+privacyscore__allowed_hosts: []
