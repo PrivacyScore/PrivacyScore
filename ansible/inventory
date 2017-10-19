@@ -26,7 +26,7 @@ testhost  ansible_user=ubuntu ansible_port=22222 ansible_host=localhost
 ## A master is where the Web interface is hosted and from where scan-requests are
 ## put into the queue.
 [master]
-ps01  testssl_mx_remote_host=None
+ps01
 testhost
 
 ## Slaves are the actual Web scanners who connect to the queue to get new jobs.
@@ -35,7 +35,7 @@ testhost
 testhost
 ps[02:11]  testssl_mx_remote_host='privscore@fb02itshh.fh-muenster.de'
 
-ps[13:42]  testssl_mx_remote_host=None
+ps[13:42]
 
 
 
