@@ -60,3 +60,10 @@ privacyscore__celery_result_backend: 'redis://localhost:6379/0'
 #                              accordingly.
 #                              Defaults to None.
 privacyscore__raven_dsn_url: None
+
+
+# privacyscore__test_for_message_queue: Whether the playbook should conduct a basic for
+#                                       the message queue.  This should really work in order
+#                                       for PrivacyScore to operate properly.
+#                                       Defaults to True.
+privacyscore__test_for_message_queue: True
