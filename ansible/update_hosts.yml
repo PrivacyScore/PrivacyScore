@@ -48,7 +48,7 @@
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
 
     - name: Collect static files
-      when: is_master and privacyscore__collect_static
+      when: privacyscore__collect_static | bool
       become: yes
       become_user: privacyscore
       tags: ['privacyscore::collectstatic']
