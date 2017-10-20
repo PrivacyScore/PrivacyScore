@@ -51,12 +51,3 @@ testhost
 ## of the end user facing deployment.
 [production]
 ps[01:42]
-
-
-## Some variables for the groups. We might as well migrate that off to separate files in group_vars/
-[master:vars]
-is_master=True
-
-[slave:vars]
-is_slave=True
-
