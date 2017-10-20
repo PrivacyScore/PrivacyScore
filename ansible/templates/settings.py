@@ -110,7 +110,6 @@ CACHES = {
 
 {% else %}
 # No memcache for us: {{ privacyscore__install_memcache }}
-CACHES = {}
 {% endif %}
 
 CACHE_DEFAULT_TIMEOUT_SECONDS = 1800
