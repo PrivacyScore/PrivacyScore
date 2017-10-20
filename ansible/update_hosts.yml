@@ -74,7 +74,7 @@
         - redis-server
 
     - name: Install memcached
-      when: privacyscore__install_memcache
+      when: privacyscore__install_memcache | bool
       tags: ['privacyscore::memcache,privacyscore::memcached']
       apt:
         name: "{{ item }}"
