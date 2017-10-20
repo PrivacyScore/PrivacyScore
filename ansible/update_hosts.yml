@@ -233,8 +233,7 @@
     - name: Checking whether we can access the message queue
       become: yes
       become_user: privacyscore
-      # FIXME: I think that we'd be better off having a switch for disabling this test
-      # when: ps__test_for_message_queue
+      when: privacyscore__test_for_message_queue | default(False)
       shell:  /opt/privacyscore/.pyenv/bin/celery -A privacyscore status
       args:
           chdir:  /opt/privacyscore/
