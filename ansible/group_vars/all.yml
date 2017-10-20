@@ -37,7 +37,7 @@ privacyscore__deploy_mode: None
 privacyscore__install_memcache: "{{ is_master and privacyscore__deploy_mode != 'testing' }}"
 
 # privacyscore__collect_static: Determines whether to run django's collect static command
-privacyscore__collect_static: "{{ privacyscore__deploy_mode != 'testing' }}"
+privacyscore__collect_static: "{{ is_master | bool  and  privacyscore__deploy_mode != 'testing' }}"
 
 # privacyscore__static_root: Django's STATIC_ROOT configuration
 privacyscore__static_root: '/var/www/privacyscore.org'
