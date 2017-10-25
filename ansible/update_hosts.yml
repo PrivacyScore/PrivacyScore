@@ -39,7 +39,7 @@
         PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
     - name: Migrate database
-      when: is_master | bool
+      when: privacyscore__is_master | bool
       become: yes
       become_user: privacyscore
       command: /opt/privacyscore/manage.py migrate
@@ -60,7 +60,7 @@
 
     - name: Install master packages
       become: yes
-      when: is_master | bool
+      when: privacyscore__is_master | bool
       apt:
         name: "{{item}}"
         update_cache: yes
@@ -89,7 +89,7 @@
       become: yes
       # We assume Debian to have created this rabbitmq user...
       become_user: rabbitmq
-      when: is_master | bool
+      when: privacyscore__is_master | bool
       rabbitmq_vhost:
         # FIXME: Softcode queue name
         name: privacyscore/
@@ -100,7 +100,7 @@
       become: yes
       # We assume Debian to have created this rabbitmq user...
       become_user: rabbitmq
-      when: is_master | bool
+      when: privacyscore__is_master | bool
       rabbitmq_user:
         user: privacyscore
         state: present
@@ -116,7 +116,7 @@
     - name: Install uWSGI
       become: yes
       become_user: privacyscore
-      when: is_master
+      when: privacyscore__is_master
       pip:
         name: uWSGI
       environment:
@@ -127,7 +127,7 @@
 #FIXME: We might as well want to check whether the rabbitmq service is running
 
     - name: Place systemd unit file for privacyscore-celery-master
-      when: is_master | bool
+      when: privacyscore__is_master | bool
       template:
         src: privacyscore-celery-master.service
         dest: /etc/systemd/system/privacyscore-celery-master.service
@@ -137,13 +137,13 @@
         src: privacyscore-celery-slave.service
         dest: /etc/systemd/system/privacyscore-celery-slave.service
     - name: Place systemd unit file for privacyscore
-      when: is_master | bool
+      when: privacyscore__is_master | bool
       template:
         src: privacyscore.service
         dest: /etc/systemd/system/privacyscore.service
 
     - name: Restart privacyscore.service
-      when: is_master | bool
+      when: privacyscore__is_master | bool
       systemd:
         name: privacyscore
         state: restarted
@@ -151,7 +151,7 @@
         daemon_reload: True
 
     - name: Restart privacyscore-celery-master.service
-      when: is_master | bool
+      when: privacyscore__is_master | bool
       systemd:
         name: privacyscore-celery-master
         state: restarted

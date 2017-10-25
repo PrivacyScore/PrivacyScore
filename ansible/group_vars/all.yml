@@ -1,9 +1,9 @@
-# is_master: Determines whether a host is to be deployed as a master.
+# privacyscore__is_master: Determines whether a host is to be deployed as a master.
 #            The master is showing the Web interface and running the job queue.
 #            It also runs a redis for the clients to put their results in.
 #            Defaults to None to indicate that it hasn't been set yet.
 #            The value should be set for the master group.
-is_master: None
+privacyscore__is_master: None
 
 # is_slave: Determines whether a host is to be deployed as a slave.
 #           Slaves connect to the job queue, run the actual scans, and
@@ -34,10 +34,10 @@ privacyscore__deploy_mode: None
 
 
 # privacyscore__install_memcache: Determines whether we want to run memcached
-privacyscore__install_memcache: "{{ is_master | bool  and  privacyscore__deploy_mode != 'testing' }}"
+privacyscore__install_memcache: "{{ privacyscore__is_master | bool  and  privacyscore__deploy_mode != 'testing' }}"
 
 # privacyscore__collect_static: Determines whether to run django's collect static command
-privacyscore__collect_static: "{{ is_master | bool  and  privacyscore__deploy_mode != 'testing' }}"
+privacyscore__collect_static: "{{ privacyscore__is_master | bool  and  privacyscore__deploy_mode != 'testing' }}"
 
 # privacyscore__static_root: Django's STATIC_ROOT configuration
 privacyscore__static_root: '/var/www/privacyscore.org'
