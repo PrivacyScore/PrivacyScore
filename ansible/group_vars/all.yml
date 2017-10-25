@@ -5,12 +5,12 @@
 #            The value should be set for the master group.
 privacyscore__is_master: None
 
-# is_slave: Determines whether a host is to be deployed as a slave.
+# privacyscore__is_slave: Determines whether a host is to be deployed as a slave.
 #           Slaves connect to the job queue, run the actual scans, and
 #           return their results to the master's redis database.
 #           Defaults to None. You should probably not set this value yourself,
 #           but rather have it set by putting your host into the slave group.
-is_slave: None
+privacyscore__is_slave: None
 
 # testssl_mx_remote_host:  FIXME: setting for testssl. But I don't currently know what exactly.
 testssl_mx_remote_host:

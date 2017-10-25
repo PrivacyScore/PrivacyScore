@@ -132,7 +132,7 @@
         src: privacyscore-celery-master.service
         dest: /etc/systemd/system/privacyscore-celery-master.service
     - name: Place systemd unit file for privacyscore-celery-slave
-      when: is_slave | bool
+      when: privacyscore__is_slave | bool
       template:
         src: privacyscore-celery-slave.service
         dest: /etc/systemd/system/privacyscore-celery-slave.service
@@ -159,13 +159,13 @@
         daemon_reload: True
 
     - name: Restart privacyscore-celery-slave.service
-      when: is_slave | bool
+      when: privacyscore__is_slave | bool
       systemd:
         name: privacyscore-celery-slave
         state: restarted
 
     - name: Refresh vendor/testssl
-      when: is_slave
+      when: privacyscore__is_slave
       become: yes
       become_user: privacyscore
       git:
@@ -174,7 +174,7 @@
         version: HEAD
         depth: 1
     - name: Refresh vendor/OpenWPM
-      when: is_slave
+      when: privacyscore__is_slave
       become: yes
       become_user: privacyscore
       git:
