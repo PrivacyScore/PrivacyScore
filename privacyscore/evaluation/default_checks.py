@@ -537,11 +537,11 @@ CHECKS['ssl']['web_has_hpkp_header'] = {
     'keys': {'web_has_hpkp_header', 'web_has_ssl'},
     'rating': lambda **keys: {
         'description': _('The site uses Public Key Pinning to prevent attackers from using invalid certificates.'),
-        'classification': Rating('good', influences_ranking=False),
+        'classification': Rating('neutral', influences_ranking=False),
         'details_list': None,
     } if keys['web_has_hpkp_header'] else {
         'description': _('The site is not using Public Key Pinning to prevent attackers from using invalid certificates.'),
-        'classification': Rating('bad', influences_ranking=False),
+        'classification': Rating('neutral', influences_ranking=False),
         'details_list': None,
     } if keys['web_has_ssl'] else {
         'description': _('Not checking for HPKP support, as the server does not offer HTTPS.'),
@@ -1802,7 +1802,7 @@ CHECKS['ssl']['web_hsts_preload_listed']['longdesc'] = """<p>HSTS Preloading fur
 CHECKS['ssl']['web_hsts_preload_listed']['labels'] = ['unreliable']
 
 CHECKS['ssl']['web_has_hpkp_header']['title'] = 'Check for valid Public Key Pins'
-CHECKS['ssl']['web_has_hpkp_header']['longdesc'] = """<p>This HTTP header ensures that outsiders cannot tamper with encrypted transmissions. With HPKP sites can announce that the cryptographic keys used by their servers are tied to certain certificates. This decreases the risk of man-in-the-middle attacks of adversaries who use a forged certificates. [link]</p>
+CHECKS['ssl']['web_has_hpkp_header']['longdesc'] = """<p>This HTTP header ensures that outsiders cannot tamper with encrypted transmissions. With HPKP sites can announce that the cryptographic keys used by their servers are tied to certain certificates. This decreases the risk of man-in-the-middle attacks of adversaries who use a forged certificates. However, opinions about the usefulness and risks of this functionality differ widely among experts. This check is informational only and does not influence the ranking of the website.</p>
 <p><strong>Conditions for passing:</strong> The Public-Key-Pins header is present and the certificate hashes in the header can be matched against the certificate presented during the TLS handshake.</p>
 <p><strong>Reliability: unreliable.</strong> We only evaluate this header for the HTTPS URL to which a site redirects upon visit. We rely on the result of <a href="http://testssl.sh">testssl.sh</a> to evaluate the validity of the pins.</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may miss the presence of HPKP if redirection is not performed with the HTTP Location header but with JavaScript.</p>
@@ -1813,7 +1813,7 @@ CHECKS['ssl']['web_has_hpkp_header']['longdesc'] = """<p>This HTTP header ensure
 <li><a href="https://www.owasp.org/index.php/Certificate_and_Public_Key_Pinning">https://www.owasp.org/index.php/Certificate_and_Public_Key_Pinning</a></li>
 </ul>
 """ 
-CHECKS['ssl']['web_has_hpkp_header']['labels'] = ['unreliable']
+CHECKS['ssl']['web_has_hpkp_header']['labels'] = ['informational']
 
 CHECKS['ssl']['mixed_content']['title'] = "Check for Mixed Content on HTTPS sites"
 CHECKS['ssl']['mixed_content']['longdesc'] = """<p>If HTTPS websites include content from HTTP sites, this opens the website to additional attacks. This 'mixed content' will also be blocked by modern browsers, which may lead to problems in how the website is displayed.</p>
