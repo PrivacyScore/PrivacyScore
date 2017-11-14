@@ -50,7 +50,20 @@ def parse_common_testssl(json: str, prefix: str):
             trust_chain = default
         elif default["id"] == "issuer" and default["severity"] == "CRITICAL":
             trust_chain = default
-
+        elif default["id"] == "crl":
+            result['{}_crl_available'.format(prefix)] = "Certificate Revocation List : " in default["finding"]
+        elif default["id"] == "ocsp_uri":
+            result['{}_ocsp_available'.format(prefix)] = default["finding"] != "OCSP URI : --"
+        elif default["id"] == "ocsp_stapling":
+            result['{}_ocsp_stapling'.format(prefix)] = default["severity"] == "OK"
+            result['{}_ocsp_stapling_unknown_error'.format(prefix)] = default["severity"] == "WARN"
+        elif default["id"] == "ocsp_must_staple":
+            result['{}_ocsp_must_staple'.format(prefix)] = default["severity"] != "INFO"
+        elif default["id"] == "CAA_record":
+            result['{}_caa_record'.format(prefix)] = default["severity"] == "OK"
+        elif default["id"] == "certificate_transparency":
+            result['{}_certificate_transparency'.format(prefix)] = default["severity"] == "OK"
+            
     assert trust_cert is not None
     assert trust_chain is not None
     
