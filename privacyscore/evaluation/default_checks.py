@@ -368,6 +368,34 @@ CHECKS['ssl']['web_cert'] = {
     },
     'missing': None
 }
+
+# Check if server has crl
+# yes: good
+# no: critical
+CHECKS['ssl']['web_cert'] = {
+    'keys': {'web_has_ssl', 'web_crl', 'web_ocsp'},
+    'rating': lambda **keys: {
+        'description': _('The certificate of the website contains a link to a certificate revocation list.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['web_has_ssl'] and keys['web_crl'] else {
+        'description': _('Not checking for certificate revocation list as the server does not offer SSL.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    } if not keys['web_has_ssl'] else {
+        'description': _('The certificate of the website does not contain a link to a certificate revocation list.'),
+        'classification': Rating('neutral'),
+        'details_list': None,
+    } if keys['web_ocsp'] else {
+        'description': _('The certificate of the website does not contain a link to a certificate revocation list (which is a problem, because it does not offer OCSP either).'),
+        'classification': Rating('bad'),
+        'details_list': None,
+    }
+    'missing': None
+}
+# TODO: do everything also for mx
+# TODO: ocsp (other way round like crl), stapling, must staple, caa, cert-transparency
+
 # Check if server forwarded us to HTTPS version
 # yes: good
 # no: neutral (as it may still happen, we're not yet explicitly checking the HTTP version)
