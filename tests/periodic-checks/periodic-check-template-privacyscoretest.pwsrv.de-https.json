@@ -1,0 +1,35 @@
+          {
+                    "service"         : "Service detected: HTTP",
+                    "ip"              : "188.68.38.65",
+                    "protocols"         : [
+
+                    ],
+                    "ciphers"           : [
+
+                    ],
+                    "pfs"               : [
+
+                    ],
+                    "serverPreferences" : [
+
+                    ],
+                    "serverDefaults"    : [
+
+                    ],
+                    "vulnerabilities"   : [
+                            {
+                                "id"           : "fallback_scsv",
+                                "severity"     : "OK",
+                                "finding"      : "TLS_FALLBACK_SCSV (RFC 7507) (experimental) : Downgrade attack prevention supported"
+                           }
+                    ],
+                    "cipherTests"       : [
+
+                    ],
+                    "browserSimulations": [
+
+                    ],
+                    "grease"            : [
+
+                    ]
+          }
