@@ -61,47 +61,50 @@ truncate -s 0 "$tmpfile"
 
 
 
-testssl="$testssl -t smtp"
-
-
-$testssl $host1:25 >/dev/null 2>/dev/null
-
-#cp $tmpfile periodic-check-template-$host1-starttls.json 
-
-problem1=0
-
-#difference1=`diff <(tail -n +9 $tmpfile | head -n -2) <(tail -n +9 periodic-check-template-$host1-starttls.json | head -n -2)`
-difference1=`diff $tmpfile $DIR/periodic-check-template-$host1-starttls.json`
-
-if [ $? -ne 0 ]; then
-    problem1=1
-fi
-
-
-truncate -s 0 "$tmpfile"
-
-$testssl $host2:25 >/dev/null 2>/dev/null
-
-#cp $tmpfile periodic-check-template-$host2-starttls.json 
-
-problem2=0
-
-#difference2=`diff <(tail -n +9 $tmpfile | head -n -2) <(tail -n +9 periodic-check-template-$host2-starttls.json | head -n -2)`
-difference2=`diff $tmpfile $DIR/periodic-check-template-$host2-starttls.json`
-
-if [ $? -ne 0 ]; then
-    problem2=1
-fi
-
-
-if [ $problem1 -ne 0 ] && [ $problem2 -ne 0 ]
+if [ "$2" != "nostarttls" ]
 then
-    echo "Test results for SMTP/STARTTLS differ from expectation for both hosts!"
-    echo "Host 1: $host1"
-    echo $difference1
-    echo ""
-    echo "Host 2: $host2"
-    echo $difference2
+  testssl="$testssl -t smtp"
+
+
+  $testssl $host1:25 >/dev/null 2>/dev/null
+
+  #cp $tmpfile periodic-check-template-$host1-starttls.json 
+
+  problem1=0
+
+  #difference1=`diff <(tail -n +9 $tmpfile | head -n -2) <(tail -n +9 periodic-check-template-$host1-starttls.json | head -n -2)`
+  difference1=`diff $tmpfile $DIR/periodic-check-template-$host1-starttls.json`
+
+  if [ $? -ne 0 ]; then
+      problem1=1
+  fi
+
+
+  truncate -s 0 "$tmpfile"
+
+  $testssl $host2:25 >/dev/null 2>/dev/null
+
+  #cp $tmpfile periodic-check-template-$host2-starttls.json 
+
+  problem2=0
+
+  #difference2=`diff <(tail -n +9 $tmpfile | head -n -2) <(tail -n +9 periodic-check-template-$host2-starttls.json | head -n -2)`
+  difference2=`diff $tmpfile $DIR/periodic-check-template-$host2-starttls.json`
+
+  if [ $? -ne 0 ]; then
+      problem2=1
+  fi
+
+
+  if [ $problem1 -ne 0 ] && [ $problem2 -ne 0 ]
+  then
+      echo "Test results for SMTP/STARTTLS differ from expectation for both hosts!"
+      echo "Host 1: $host1"
+      echo $difference1
+      echo ""
+      echo "Host 2: $host2"
+      echo $difference2
+  fi
 fi
 
 rm "$tmpfile"
