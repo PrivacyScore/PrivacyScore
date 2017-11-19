@@ -1,7 +1,8 @@
 #!/bin/bash
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 tmpfile=`mktemp`
-testssl="../vendor/testssl.sh/testssl.sh -Z --warnings=batch --quiet --jsonfile-pretty $tmpfile --append"
+testssl="$DIR/../vendor/testssl.sh/testssl.sh -Z --warnings=batch --quiet --jsonfile-pretty $tmpfile --append"
 
 
 host1="ssl.exoneon.de"
@@ -21,7 +22,7 @@ problem1=0
 
 # the commented alternative must be used if --quiet is not used with testssl.sh
 #difference1=`diff <(tail -n +9 $tmpfile | head -n -2) <(tail -n +9 periodic-check-template-$host1-https.json | head -n -2)`
-difference1=`diff $tmpfile periodic-check-template-$host1-https.json`
+difference1=`diff $tmpfile $DIR/periodic-check-template-$host1-https.json`
 
 if [ $? -ne 0 ]; then
     problem1=1
@@ -38,7 +39,7 @@ $testssl $host2 >/dev/null 2>/dev/null
 problem2=0
 
 #difference2=`diff <(tail -n +9 $tmpfile | head -n -2) <(tail -n +9 periodic-check-template-$host2-https.json | head -n -2)`
-difference2=`diff $tmpfile periodic-check-template-$host2-https.json`
+difference2=`diff $tmpfile $DIR/periodic-check-template-$host2-https.json`
 
 if [ $? -ne 0 ]; then
     problem2=1
@@ -70,7 +71,7 @@ $testssl $host1:25 >/dev/null 2>/dev/null
 problem1=0
 
 #difference1=`diff <(tail -n +9 $tmpfile | head -n -2) <(tail -n +9 periodic-check-template-$host1-starttls.json | head -n -2)`
-difference1=`diff $tmpfile periodic-check-template-$host1-starttls.json`
+difference1=`diff $tmpfile $DIR/periodic-check-template-$host1-starttls.json`
 
 if [ $? -ne 0 ]; then
     problem1=1
@@ -86,7 +87,7 @@ $testssl $host2:25 >/dev/null 2>/dev/null
 problem2=0
 
 #difference2=`diff <(tail -n +9 $tmpfile | head -n -2) <(tail -n +9 periodic-check-template-$host2-starttls.json | head -n -2)`
-difference2=`diff $tmpfile periodic-check-template-$host2-starttls.json`
+difference2=`diff $tmpfile $DIR/periodic-check-template-$host2-starttls.json`
 
 if [ $? -ne 0 ]; then
     problem2=1
