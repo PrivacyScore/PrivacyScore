@@ -26,7 +26,7 @@ difference1=`diff $tmpfile $DIR/periodic-check-template-$host1-https.json`
 
 if [ $? -ne 0 ]; then
     problem1=1
-    echo "PROBLEM1=1"
+    #echo "PROBLEM1=1"
 fi
 
 truncate -s 0 "$tmpfile"
@@ -43,7 +43,7 @@ difference2=`diff $tmpfile $DIR/periodic-check-template-$host2-https.json`
 
 if [ $? -ne 0 ]; then
     problem2=1
-    echo "PROBLEM2=1"
+    #echo "PROBLEM2=1"
 fi
 
 
