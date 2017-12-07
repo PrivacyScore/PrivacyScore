@@ -18,7 +18,7 @@ from time import sleep
 from django.core.management import BaseCommand
 from django.utils import timezone
 
-from privacyscore.backend.models import Site
+from privacyscore.backend.models import Site, ScanList
 from privacyscore.utils import normalize_url
 
 
@@ -28,22 +28,33 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('file_path')
         parser.add_argument('-s', '--sleep-between-scans', type=float, default=0)
+        parser.add_argument('-c', '--create-list-name')
 
     def handle(self, *args, **options):
         if not os.path.isfile(options['file_path']):
             raise ValueError('file does not exist!')
+        scan_list = None
+
+        if options['create_list_name']:
+            if ScanList.objects.filter(name=options['create_list_name']).exists():
+                raise ValueError('Scan List already exists!')
+
+            self.stdout.write('Creating ScanList {}'.format(options['create_list_name']))
+            scan_list = ScanList.objects.create(name=options['create_list_name'])
+            scan_list.private = True
+            scan_list.save()
+
         self.stdout.write('Reading from file {}'.format(options['file_path']))
-
-        start = timezone.now()
-
+        sites = []
         with open(options['file_path'], 'r') as fdes:
-            # TODO: use bulk create for db optimization?
-            sites = {
-                Site.objects.get_or_create(
-                    url=normalize_url(url))[0]
-                for url in fdes.readlines()
-                if '.' in url
-            }
+            for url in fdes.readlines():
+                if '.' in url:
+                    url = normalize_url(url)
+                    site = Site.objects.get_or_create(url=url)[0]
+                    if scan_list:
+                        site.scan_lists.add(scan_list)
+                    sites.append(site)
+
         scan_count = 0
         for site in sites:
             status_code = site.scan()
