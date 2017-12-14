@@ -159,7 +159,7 @@ class ScanList(models.Model):
 
         res = False
         for site in self.sites.all():
-            if site.scan() == Site.SCAN_SCHEDULED:
+            if site.scan() == Site.SCAN_OK:
                 res = True
         
         if self.editable:
@@ -331,7 +331,7 @@ class Site(models.Model):
         """
         Schedule a scan of this site if requirements are fulfilled.
 
-        Returns a status code from the list SCAN_SCHEDULED, SCAN_COOLDOWN,
+        Returns a status code from the list SCAN_OK, SCAN_COOLDOWN,
         SCAN_BLACKLISTED.
         """
 
