@@ -4,6 +4,7 @@ import random
 import string
 from collections import OrderedDict
 from datetime import datetime
+from tldextract import extract
 from typing import Iterable, Tuple, Union
 from uuid import uuid4
 
@@ -230,6 +231,55 @@ class SiteQuerySet(models.QuerySet):
         )
 
 
+class BlacklistEntry(models.Model):
+    TYPE_DOMAIN = "DOM"
+    TYPE_SUBDOMAIN = "SUB"
+
+    TYPE_CHOICES = [
+        (TYPE_DOMAIN, "Entire Domain"),
+        (TYPE_SUBDOMAIN, "Subdomain only"),
+    ]
+
+    """A site that has requested not to be scanned anymore."""
+    url = models.CharField(max_length=500, unique=True)
+    # When was this entry created?
+    created = models.DateTimeField(default=timezone.now)
+    # What was the reason given?
+    reason = models.CharField(max_length=500, blank=True, null=True)
+    # Type of blacklist entry
+    match_type = models.CharField(max_length=3, choices=TYPE_CHOICES,
+                                  default=TYPE_DOMAIN)
+    # Who is the responsible contact at the website?
+    contact = models.CharField(max_length=500, blank=True, null=True)
+
+    def __str__(self) -> str:
+        return self.url
+
+    def as_dict(self) -> dict:
+        return {
+            'id': self.pk,
+            'url': self.url,
+            'match_type': self.match_type,
+            'reason': self.reason,
+            'contact': self.contact,
+        }
+
+    def match(self, target_url) -> bool:
+        # Split into URL parts
+        extract_target = extract(target_url)
+        extract_self = extract(self.url)
+
+        if self.match_type == TYPE_DOMAIN:
+            return (extract_target.domain == extract_self.domain and
+                    extract_target.suffix == extract_self.suffix)
+        elif self.match_type == TYPE_SUBDOMAIN:
+            return (extract_target.domain == extract_self.domain and
+                    extract_target.suffix == extract_self.suffix and
+                    extract_target.subdomain == extract_self.subdomain)
+        else:
+            assert False, "Unknown BlacklistEntry match_type"
+
+
 class Site(models.Model):
     """A site."""
     url = models.CharField(max_length=500, unique=True)
@@ -303,9 +353,13 @@ class Site(models.Model):
                 now - self.last_scan.end < settings.SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN) or
                 (not self.last_scan__end_or_null and self.last_scan__start)):
             return False
-        
+
+        for entry in BlacklistEntry.objects.all():
+            if entry.match(self.url):
+                return False
+
         return True
-    
+
     def evaluate(self, group_order: list) -> SiteEvaluation:
         """Evaluate the result of the last scan."""
         if not self.last_scan__result:
