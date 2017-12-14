@@ -159,7 +159,7 @@ class ScanList(models.Model):
 
         res = False
         for site in self.sites.all():
-            if site.scan():
+            if site.scan() == Site.SCAN_SCHEDULED:
                 res = True
         
         if self.editable:
@@ -295,6 +295,13 @@ class Site(models.Model):
 
     objects = models.Manager.from_queryset(SiteQuerySet)()
 
+    # Site is scannable
+    SCAN_OK = 0
+    # Cooldown period has not expired, no scan scheduled
+    SCAN_COOLDOWN = 1
+    # Website is blacklisted, not scanned
+    SCAN_BLACKLISTED = 2
+
     def __str__(self) -> str:
         return self.url
 
@@ -320,26 +327,27 @@ class Site(models.Model):
         """Check whether a screenshot for this site exists."""
         return self.get_screenshot() is not None
 
-    def scan(self) -> bool:
+    def scan(self) -> int:
         """
         Schedule a scan of this site if requirements are fulfilled.
 
-        Returns whether the scan has been scheduled or the last scan is not
-        long enough ago.
+        Returns a status code from the list SCAN_SCHEDULED, SCAN_COOLDOWN,
+        SCAN_BLACKLISTED.
         """
-        
-        if not self.scannable():
-            return False
-        
+
+        scan_status = self.scannable()
+        if scan_status != Site.SCAN_OK:
+            return scan_status
+
         # create Scan
         scan = Scan.objects.create(site=self)
 
         from privacyscore.scanner.tasks import schedule_scan
         schedule_scan.delay(scan.pk)
 
-        return True
+        return Site.SCAN_OK
 
-    def scannable(self) -> bool:
+    def scannable(self) -> int:
         now = timezone.now()
 
         # fetch missing attributes
@@ -352,13 +360,13 @@ class Site(models.Model):
         if ((self.last_scan and 
                 now - self.last_scan.end < settings.SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN) or
                 (not self.last_scan__end_or_null and self.last_scan__start)):
-            return False
+            return Site.SCAN_COOLDOWN
 
         for entry in BlacklistEntry.objects.all():
             if entry.match(self.url):
-                return False
+                return Site.SCAN_BLACKLISTED
 
-        return True
+        return Site.SCAN_OK
 
     def evaluate(self, group_order: list) -> SiteEvaluation:
         """Evaluate the result of the last scan."""
