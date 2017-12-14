@@ -182,6 +182,9 @@ table.dataTable thead .sorting_desc_disabled
 <div class="row">
     <div class="col-sm-8">
         <div class="row">
+            { % if site.scannable == site.SCAN_BLACKLISTED % }
+                <div class="alert alert-danger">This website has requested not to be scanned anymore. No more scans are possible.</div>
+            {% endif % }
             <div class="col-sm-6">
                 <p><small>ANALYZED URL AFTER LOADING:</small><br>
                     <span style="word-wrap: break-word;">
