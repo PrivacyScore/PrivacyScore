@@ -1,13 +1,16 @@
 from django.contrib import admin
 
 
-from privacyscore.backend.models import ScanList, Site, ListTag, ListColumn, \
-    ListColumnValue, Scan, RawScanResult, ScanResult, ScanError
+from privacyscore.backend.models import BlacklistEntry, ScanList, Site, \
+    ListTag, ListColumn, ListColumnValue, Scan, RawScanResult, ScanResult, \
+    ScanError
 
 
 admin.site.register(ListColumn)
 admin.site.register(ListColumnValue)
 admin.site.register(ListTag)
+
+admin.site.register(BlacklistEntry)
 
 @admin.register(RawScanResult)
 class RawScanResultAdmin(admin.ModelAdmin):
