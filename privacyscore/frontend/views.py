@@ -532,7 +532,8 @@ def scan_site(request: HttpRequest, site_id: Union[int, None] = None) -> HttpRes
             return render(request, 'frontend/create_site.html', {
                 'form': form,
             })
-    if site.scan():
+    status_code = site.scan()
+    if status_code == Site.SCAN_OK:
         if not site_id: # if the site is new we want to show the dog
             return redirect(reverse('frontend:scan_site_created', args=(site.pk,)))
         else:
@@ -542,9 +543,12 @@ def scan_site(request: HttpRequest, site_id: Union[int, None] = None) -> HttpRes
                   "The total number of sites in the scanning queue "+ \
                   "is %i (including yours)." % num_scanning_sites))
             return redirect(reverse('frontend:view_site', args=(site.pk,)))
-    else:
+    elif status_code == Site.SCAN_COOLDOWN:
         messages.warning(request,
             _('The site is already scheduled for scanning or it has been scanned recently. No scan was scheduled.'))
+    elif status_code == Site.SCAN_BLACKLISTED:
+        messages.warning(request,
+            _('The operator of this website requested to be blacklisted, scanning this website is not possible, sorry.'))
     return redirect(reverse('frontend:view_site', args=(site.pk,)))
 
 
