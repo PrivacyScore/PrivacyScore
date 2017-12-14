@@ -269,10 +269,10 @@ class BlacklistEntry(models.Model):
         extract_target = extract(target_url)
         extract_self = extract(self.url)
 
-        if self.match_type == TYPE_DOMAIN:
+        if self.match_type == BlacklistEntry.TYPE_DOMAIN:
             return (extract_target.domain == extract_self.domain and
                     extract_target.suffix == extract_self.suffix)
-        elif self.match_type == TYPE_SUBDOMAIN:
+        elif self.match_type == BlacklistEntry.TYPE_SUBDOMAIN:
             return (extract_target.domain == extract_self.domain and
                     extract_target.suffix == extract_self.suffix and
                     extract_target.subdomain == extract_self.subdomain)
