@@ -55,12 +55,13 @@ class Command(BaseCommand):
             for i in range(min(MAX_TRIES, len(sites))):
                 site = sites.pop()
                 
-                if site.scan():
+                status_code = site.scan()
+                if status_code == Site.SCAN_OK:
                     self.stdout.write('Scheduled scan of {}'.format(str(site)))
                     self.stdout.flush()
                     break
                 else:
-                    self.stdout.write('Not scheduling scan of {} -- too recent or running'.format(str(site)))
+                    self.stdout.write('Not scheduling scan of {} -- Reason: {}'.format(str(site), str(status_code)))
                     self.stdout.flush()
                     sleep(0.5)
             
