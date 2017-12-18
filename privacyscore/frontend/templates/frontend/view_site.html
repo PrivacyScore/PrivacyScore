@@ -182,9 +182,14 @@ table.dataTable thead .sorting_desc_disabled
 <div class="row">
     <div class="col-sm-8">
         <div class="row">
-            { % if site.scannable == site.SCAN_BLACKLISTED % }
-                <div class="alert alert-danger">This website has requested not to be scanned anymore. No more scans are possible.</div>
-            {% endif % }
+            {% if site.scannable == site.SCAN_BLACKLISTED %}
+	    <div class="alert alert-danger"><b>This site has been blacklisted.</b>
+		The owner of this website has asked us to not perform further scans.
+		For reasons of transparency we display
+	       	the results of the last scan before the site was blacklisted. The owner may have
+		implemented changes in the meantime, which are not visible in the results below.
+		</div>
+            {% endif %}
             <div class="col-sm-6">
                 <p><small>ANALYZED URL AFTER LOADING:</small><br>
                     <span style="word-wrap: break-word;">
