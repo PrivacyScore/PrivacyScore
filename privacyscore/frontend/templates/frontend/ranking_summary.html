@@ -44,4 +44,10 @@
         <strong>{{ count }} could not be judged due to missing data</strong>
         {% endblocktrans %}
     </li>
+    <li class="list-group-item">
+        <i class="fa fa-lg fa-flag"></i>&nbsp; 
+        {% blocktrans with count=blacklisted_sites_count %}
+	<strong>{{ count }} have been blacklisted by site owner <a href="#blacklisted-sites-anchor">(jump to list)</a></strong>
+        {% endblocktrans %}
+    </li>
 </ul>
