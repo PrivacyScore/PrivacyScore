@@ -152,11 +152,21 @@
         {% include "frontend/ranking_list.html" with site_list=site_list sites=sites %}
     {% endif %}
 
-    {% if blacklisted_sites %}
-        <h3 id="blacklisted-sites-anchor">Blacklisted sites</h3>
-	<div class="col-md-8" style="padding-left:0"><p>The following sites have been blacklisted. The owners of these sites have asked us to not perform further scans. For reasons of transparency we display the results of the last scan before the sites were blacklisted. The owners may have implemented changes in the meantime, which are not visible in the results below.</p></div>
+    <h3 id="blacklisted-sites-anchor">Blacklisted sites</h3>
 
+
+    {% if blacklisted_sites_count %}
+	<div class="col-md-8" style="padding-left:0">
+        <p>The following sites have been blacklisted. The owners of these sites have asked us to not perform further scans. For reasons of transparency we display the results of the last scan before the sites were blacklisted. The owners may have implemented changes in the meantime, which are not visible in the results below.</p>
+        </div>
         {% include "frontend/ranking_list.html" with site_list=site_list sites=blacklisted_sites %}
+
+    {% else %}
+
+	<div class="col-md-8" style="padding-left:0">
+        <p>Site owners can ask us to not perform further scans. For reasons of transparency we display the results of the last scan before the blacklisting here.</p>
+        <p><em>No sites of this list have been blacklisted so far.</em></p>
+        </div>
     {% endif %}
 
 {% endblock content %}
