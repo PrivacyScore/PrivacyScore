@@ -30,7 +30,7 @@ CHECKS['privacy']['openwpm_scan_failed'] = {
         'details_list': None
     } if not keys['success'] else None,
     'missing': {
-        'description': _('The website scan has encountered an error: openwpm_success is missing. Please re-scan this site using the button above.'),
+        'description': _('The website scan has encountered an error: "success" is missing. Please re-scan this site using the button above.'),
         'classification': Rating('neutral', devaluates_group=True),
         'details_list': None,
     }

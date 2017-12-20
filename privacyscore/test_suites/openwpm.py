@@ -227,7 +227,7 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
             # Note that this is not "our" timeout that kills the scan worker, but OpenWPM terminates on its own..
             # As a result, the final_urls table will not have been created.
             # In this case redirected_to_https cannot be determined accurately here.
-            # This issue must be handled in the evaluation by looking at openwpm_success, which will be
+            # This issue must be handled in the evaluation by looking at 'success', which will be
             # false if final_urls table is missing.
             try:
                 # retrieve final URL (after potential redirects) - will throw an exception if final_urls table
