@@ -382,7 +382,7 @@ CHECKS['ssl']['site_redirects_to_https'] = {
         'description': _('Not checking if website automatically redirects visitors to the HTTPS version, as OpenWPM scan failed (e.g., because the site blocked our request).'),
         'classification': Rating('neutral'),
         'details_list': None,
-    } if not keys['openwpm'] else {
+    } if not keys['success'] else {
         'description': _('The website redirects visitors to the secure (HTTPS) version.'),
         'classification': Rating('good'),
         'details_list': None,
