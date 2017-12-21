@@ -41,7 +41,7 @@ def retrieve_url_with_wget(url):
         raise
     
     # we do error handling this way so that error handling in the caller is already compatible with subprocess.run
-    if not proc.returncode == 0
+    if not proc.returncode == 0:
         raise subprocess.CalledProcessError(proc.returncode, " ".join(cmd))
     
     # wget output looks like this:
