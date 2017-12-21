@@ -32,7 +32,7 @@ def retrieve_url_with_wget(url):
     # wget output looks like this:
     # '2017-12-21 10:34:51 URL:https://www.example.com/foo/bar [64407] -> "-" [1]\n'
     final_url = re.search('URL:([^ ]+)', proc.stderr.decode(errors='replace')).group(1)
-    content = proc.stdout
+    content = proc.stdout.decode(errors='replace')
     
     return final_url, content
     
