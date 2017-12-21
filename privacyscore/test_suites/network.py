@@ -8,6 +8,7 @@ import re
 import traceback
 from typing import Dict, List, Union
 from urllib.parse import urlparse
+import subprocess
 
 import requests
 from dns import resolver, reversename
@@ -19,6 +20,37 @@ from geoip2.errors import AddressNotFoundError
 test_name = 'network'
 test_dependencies = []
 
+
+def retrieve_url_with_wget(url):
+    """calls wget and extracts the final url and the http body from the response
+       IndexError or subprocess.CalledProcessError will be thrown if site is unreachable
+    """
+    
+    # this needs python 3.5, but some of our VMs still have Python 3.4
+    #proc = subprocess.run(['wget', '--no-verbose', url, '-O-', '--no-check-certificate',
+    #                      '--user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0"'],
+    #                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    cmd = ['wget', '--no-verbose', url, '-O-', '--no-check-certificate',
+           '--user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0"']
+    proc = subprocess.Popen(cmd,
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        (stdout, stderr) = proc.communicate(timeout=15)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        raise
+    
+    # we do error handling this way so that error handling in the caller is already compatible with subprocess.run
+    if not proc.returncode == 0
+        raise subprocess.CalledProcessError(proc.returncode, " ".join(cmd))
+    
+    # wget output looks like this:
+    # '2017-12-21 10:34:51 URL:https://www.example.com/foo/bar [64407] -> "-" [1]\n'
+    final_url = re.search('URL:([^ ]+)', stderr.decode(errors='replace')).group(1)
+    content = stdout
+    
+    return final_url, content
+    
 
 def test_site(url: str, previous_results: dict, country_database_path: str) -> Dict[str, Dict[str, Union[str, bytes]]]:
     """Test the specified url with geoip."""
@@ -55,15 +87,15 @@ def test_site(url: str, previous_results: dict, country_database_path: str) -> D
     # determine final url
     general_result['reachable'] = True
     try:
-        response = requests.get(url, headers={
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0',
-        }, verify=False, timeout=8)
-        general_result['final_url'] = response.url
+        wget_final_url, wget_content = retrieve_url_with_wget(url)
+        general_result['final_url'] = wget_final_url
         result['final_url_content'] = {
-            'mime_type': response.headers['content-type'],
-            'data': response.content,
+            'mime_type': 'text/html', # probably not always correct, leaving that for later ...
+            'data': wget_content,
         }
-    except Exception:
+    
+    # if subprocess.run failed OR re.search did not find anything suitable: raise an exception!
+    except (IndexError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
         # TODO: extend api to support registration of partial errors
         general_result['unreachable_exception'] = traceback.format_exc()
         general_result['reachable'] = False
@@ -73,18 +105,19 @@ def test_site(url: str, previous_results: dict, country_database_path: str) -> D
         }
         return result
 
+    # now let's check the https version again (unless we already have been redirected there)
     if not general_result['final_url'].startswith('https'):
         https_url = 'https:/' + general_result['final_url'].split('/', maxsplit=1)[1]
         try:
-            response = requests.get(https_url, headers={
-                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0',
-            }, verify=False, timeout=8)
-            general_result['final_https_url'] = response.url
+            
+            wget_final_url, wget_content = retrieve_url_with_wget(https_url)
+            
+            general_result['final_https_url'] = wget_final_url
             result['final_https_url_content'] = {
-                'mime_type': response.headers['content-type'],
-                'data': response.content,
+                'mime_type': 'text/html', # probably not always correct, leaving that for later ...
+                'data': wget_content,
             }
-        except Exception:
+        except (IndexError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
             general_result['final_https_url'] = False
     else:
         general_result['final_https_url'] = general_result['final_url']
