@@ -121,8 +121,8 @@ table.dataTable thead .sorting_desc_disabled
                 </div>
             {% empty %}
                 <div class="col text-center" style="font-size: 1em; line-height: 1.2em; font-weight: 700;">
-                    {% if res.unreachable_exception %}
-                        {% trans 'Our scanner failed to reach the website.' %}
+                    {% if scan_running == False %}
+                        {% trans 'The scan finished, but our scanners failed to reach the website.' %}
                     {% else %}
                         {% trans 'The ratings are not available yet. Please be patient.' %}
                     {% endif %}
