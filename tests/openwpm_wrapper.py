@@ -15,6 +15,7 @@ import re
 import sqlite3
 import sys
 import shutil
+import logging
 
 from vendor.OpenWPM.automation import TaskManager, CommandSequence
 from vendor.OpenWPM.automation.SocketInterface import clientsocket
@@ -25,12 +26,30 @@ from vendor.OpenWPM.automation.SocketInterface import clientsocket
 
 SCAN_DIR = sys.argv[2]
 
+# Logging
+
+logging.basicConfig(level=logging.INFO, filename=os.path.join(SCAN_DIR, "openwpm.log"), format='%(asctime)s %(funcName)s %(message)s')
+logger = logging.getLogger(__name__)
+
+def handle_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+
+    logger.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+sys.excepthook = handle_exception
+
+
+
 # Scan with only one browser
 NUM_BROWSERS = 1
 
 
 def determine_final_url(table_name, original_url, **kwargs):
     """ Determine (potentially HTTPS) URL that has been redirected to and store in `table_name` """
+    logger.info("entering")
+
     driver = kwargs['driver']
     manager_params = kwargs['manager_params']
     current_url = driver.current_url
@@ -57,7 +76,7 @@ def check_scan_succeeded(table_name, manager_params):
        whether table_name table (ideally our final_urls table) is present.
     """
 
-    print("Checking whether %s exists..." % table_name)
+    logger.info("Checking whether %s exists..." % table_name)
 
     db_file = os.path.join(manager_params['data_directory'], manager_params['database_name'])
     conn = sqlite3.connect(db_file)
@@ -69,15 +88,15 @@ def check_scan_succeeded(table_name, manager_params):
         # check whether we got at least one row
         res = cur.fetchone()
         if res == None:
-            print("... table does not contain any rows.")
+            logger.info("... table does not contain any rows.")
             return False
     except Exception:
         # this means the table does not exist at all
         conn.close()
-        print("... table does not exist")
+        logger.info("... table does not exist")
         return False
     
-    print("... yes, the table exists and contains at least one row.")
+    logger.info("... yes, the table exists and contains at least one row.")
     # table exists and contains at least one row
     conn.close()
     return True
@@ -85,6 +104,7 @@ def check_scan_succeeded(table_name, manager_params):
 
 def get_browser_log(table_name, original_url, **kwargs):
     """Write all logs to a new table. Used to later detect mixed content warnings."""
+    logger.info("entering")
     driver = kwargs['driver']
     manager_params = kwargs['manager_params']
 
@@ -109,6 +129,7 @@ def get_browser_log(table_name, original_url, **kwargs):
 
 def scan_site(site):
     # We will try several times, but only the first time we will attempt to save a screenshot
+
     max_tries = 2
     save_screenshot = True
     for current_try in range(2):
@@ -172,20 +193,15 @@ def scan_site(site):
             manager.execute_command_sequence(command_sequence, index='**') # ** for synchronized Browsers
 
             # Close browser
-            manager.logger.info("Closing browser manager...")
             manager.close()
-            manager.logger.info("Browser manager closed.")
-        except Exception as ex:
-            print(ex)
-            e = sys.exc_info()[0]
-            manager.logger.error(str(e))
-            return 'error: ' + str(e)
+        except Exception:
+            logger.exception("Exception during retrieval with OpenWPM. Continuing.")
 
         if check_scan_succeeded("final_urls", manager_params):
             return
 
         if current_try+1 < max_tries:
-            print("Trying again because scan failed...\n")
+            logger.info("Trying again because scan failed...\n")
             manager.close()
             save_screenshot = False
             os.remove(manager_params['database_name'])
