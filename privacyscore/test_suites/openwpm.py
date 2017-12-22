@@ -253,7 +253,7 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
                     scantosave["redirected_to_https"] = True
 
             except Exception:
-                print("Unexpected error:", sys.exc_info()[0])
+                scantosave("exception"] = sys.exc_info()[0])
                 scantosave["redirected_to_https"] = False
                 scantosave["https"] = False
                 scantosave["success"] = False
@@ -270,7 +270,6 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
                 for resp in scantosave["responses"]:
                     if resp["response_status"] < 300 or resp["response_status"] > 399:
                         response = resp
-                        print(response["url"])
                         break
             # Now we should finally have a response. Verify.
             assert response

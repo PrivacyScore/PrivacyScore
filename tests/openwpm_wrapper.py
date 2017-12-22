@@ -146,7 +146,7 @@ def scan_site(site):
 
             # Assemble command sequence for browser
             command_sequence = CommandSequence.CommandSequence(site)
-            command_sequence.get(sleep=10, timeout=60) # 10 sec sleep so everything settles down
+            command_sequence.get(sleep=10, timeout=180) # 10 sec sleep so everything settles down
 
             # save a screenshot
             # unfortunately in selenium 2 (which we have to use because
@@ -161,7 +161,7 @@ def scan_site(site):
             # start another attempt (right in this function), that time
             # without screen saving.
             if save_screenshot:
-                command_sequence.save_screenshot('screenshot', 5)
+                command_sequence.save_screenshot('screenshot', 60)
 
             command_sequence.dump_page_source('source', 30)
             command_sequence.run_custom_function(determine_final_url, ('final_urls', site)) # needed to determine whether site redirects to https
@@ -172,10 +172,13 @@ def scan_site(site):
             manager.execute_command_sequence(command_sequence, index='**') # ** for synchronized Browsers
 
             # Close browser
+            manager.logger.info("Closing browser manager...")
             manager.close()
+            manager.logger.info("Browser manager closed.")
         except Exception as ex:
             print(ex)
             e = sys.exc_info()[0]
+            manager.logger.error(str(e))
             return 'error: ' + str(e)
 
         if check_scan_succeeded("final_urls", manager_params):
@@ -184,8 +187,7 @@ def scan_site(site):
         if current_try+1 < max_tries:
             print("Trying again because scan failed...\n")
             save_screenshot = False
-            shutil.rmtree(SCAN_DIR)
-            os.mkdir(SCAN_DIR)
+            os.remove(manager_params['database_name'])
 
 
 if __name__ == '__main__':
