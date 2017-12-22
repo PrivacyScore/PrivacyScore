@@ -113,11 +113,21 @@ def scan_site(site):
         command_sequence.get(sleep=10, timeout=60) # 10 sec sleep so everything settles down
 
         # save a screenshot
-        command_sequence.save_screenshot('screenshot', 30)
+        # unfortunately in selenium 2 (which we have to use because
+        # selenium 3's webdriver does not support get_browser_log in
+        # Firefox (which we have to use because openwpm does not support
+        # Chrome) screenshots will always take the whole page. This may
+        # take very long. Sadly, sometimes saving fails altogether and the
+        #  browser hangs. This will cause the scan to fail completely.
+        # TODO: We can detect the failure by checking whether final_urls
+        # table exists after the scan. If it does not exist we could
+        # start another attempt (right in this function), that time
+        # without screen saving.
+        command_sequence.save_screenshot('screenshot', 60)
         command_sequence.dump_page_source('source', 30)
         command_sequence.run_custom_function(determine_final_url, ('final_urls', site)) # needed to determine whether site redirects to https
         command_sequence.run_custom_function(get_browser_log, ('browser_logs', site)) # needed to determine if mixed content was blocked
-        command_sequence.dump_profile_cookies(30)
+        command_sequence.dump_profile_cookies(30) # this also closes the currently open tab
         command_sequence.dump_flash_cookies(30)
         # Execute command sequence
         manager.execute_command_sequence(command_sequence, index='**') # ** for synchronized Browsers
