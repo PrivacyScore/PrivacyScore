@@ -183,6 +183,7 @@ def scan_site(site):
 
         if current_try+1 < max_tries:
             print("Trying again because scan failed...\n")
+            manager.close()
             save_screenshot = False
             shutil.rmtree(SCAN_DIR)
             os.mkdir(SCAN_DIR)
