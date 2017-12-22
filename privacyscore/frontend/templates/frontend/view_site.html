@@ -122,7 +122,7 @@ table.dataTable thead .sorting_desc_disabled
             {% empty %}
                 <div class="col text-center" style="font-size: 1em; line-height: 1.2em; font-weight: 700;">
                     {% if scan_running == False %}
-                        {% trans 'The scan finished, but our scanners failed to reach the website.' %}
+                        {% trans 'Our scanners failed to reach the website, either due to connectivity problems or because our requests are blocked.' %}
                     {% else %}
                         {% trans 'The ratings are not available yet. Please be patient.' %}
                     {% endif %}
