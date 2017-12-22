@@ -121,7 +121,11 @@ table.dataTable thead .sorting_desc_disabled
                 </div>
             {% empty %}
                 <div class="col text-center" style="font-size: 1em; line-height: 1.2em; font-weight: 700;">
-                {% trans 'The ratings are not available yet. Please be patient.' %}
+                    {% if res.unreachable_exception %}
+                        {% trans 'Our scanner failed to reach the website.' %}
+                    {% else %}
+                        {% trans 'The ratings are not available yet. Please be patient.' %}
+                    {% endif %}
                 </div>
             {% endfor %}
             </div>
@@ -345,7 +349,7 @@ table.dataTable thead .sorting_desc_disabled
         {% if site.has_screenshot %}
         <img src="{% url 'frontend:site_screenshot' site.pk %}" class="screenshot" style="width:100%; " />
         {% else %}
-        <div style="padding: 3em;"><em>no screenshot available at the moment</em></div>
+        <div style="padding: 4em; color: gray"><em>no screenshot available at the moment</em></div>
         {% endif %}
         </div>
         
