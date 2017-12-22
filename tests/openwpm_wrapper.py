@@ -161,7 +161,7 @@ def scan_site(site):
             # start another attempt (right in this function), that time
             # without screen saving.
             if save_screenshot:
-                command_sequence.save_screenshot('screenshot', 5)
+                command_sequence.save_screenshot('screenshot', 60)
 
             command_sequence.dump_page_source('source', 30)
             command_sequence.run_custom_function(determine_final_url, ('final_urls', site)) # needed to determine whether site redirects to https
