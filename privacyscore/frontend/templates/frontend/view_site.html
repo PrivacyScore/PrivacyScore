@@ -344,6 +344,8 @@ table.dataTable thead .sorting_desc_disabled
         <div class="group-box" style="padding:5px; margin-bottom: 20px; width:70%; margin-left:auto;margin-right:auto;">
         {% if site.has_screenshot %}
         <img src="{% url 'frontend:site_screenshot' site.pk %}" class="screenshot" style="width:100%; " />
+        {% else %}
+        <div style="padding: 3em;"><em>no screenshot available at the moment</em></div>
         {% endif %}
         </div>
         
