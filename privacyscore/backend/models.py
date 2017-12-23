@@ -467,6 +467,9 @@ class RawScanResult(models.Model):
     file_name = models.CharField(max_length=80, null=True, blank=True)
     data = models.BinaryField(null=True, blank=True)
 
+    def get_data_as_string(self):
+        return bytes(self.retrieve()).decode()
+
     def __str__(self) -> str:
         return '{}: {}'.format(str(self.scan), self.test)
 
