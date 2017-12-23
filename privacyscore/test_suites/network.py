@@ -47,7 +47,10 @@ def retrieve_url_with_wget(url):
     content = None
 
     if proc.returncode == 8:
-        http_error = re.search('(ERROR .*)', stderr.decode(errors='replace')).group(1)
+        if re.search('(ERROR .*)', stderr.decode(errors='replace')):
+            http_error = re.search('(ERROR .*)', stderr.decode(errors='replace')).group(1)
+        else
+            http_error = "Unspecified error."
 
     # we do error handling this way so that error handling in the caller is already compatible with subprocess.run
     elif not proc.returncode == 0:
@@ -56,7 +59,8 @@ def retrieve_url_with_wget(url):
     else:
         # wget output looks like this:
         # '2017-12-21 10:34:51 URL:https://www.example.com/foo/bar [64407] -> "-" [1]\n'
-        final_url = re.search('URL:([^ ]+)', stderr.decode(errors='replace')).group(1)
+        if re.search('URL:([^ ]+)', stderr.decode(errors='replace')):
+            final_url = re.search('URL:([^ ]+)', stderr.decode(errors='replace')).group(1)
         content = stdout
     
     return final_url, content, http_error
