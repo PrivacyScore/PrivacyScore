@@ -58,7 +58,7 @@ class ScanAdmin(admin.ModelAdmin):
 
     def errors_link(self, obj):
         url = reverse('admin:backend_scanerror_changelist')
-        return '<a href="%s?scan_id=%i">%i errors</a>' % (url, obj.pk, obj.errors.count())
+        return '<a href="%s?scan_id=%i">%i errors</a>' % (url, obj.pk, obj.errors.count()) if obj.errors.count()>0 else ""
     errors_link.allow_tags = True
 
     def rawresults_link(self, obj):
