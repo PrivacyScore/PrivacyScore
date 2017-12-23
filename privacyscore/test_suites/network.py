@@ -49,7 +49,7 @@ def retrieve_url_with_wget(url):
     if proc.returncode == 8:
         if re.search('(ERROR .*)', stderr.decode(errors='replace')):
             http_error = re.search('(ERROR .*)', stderr.decode(errors='replace')).group(1)
-        else
+        else:
             http_error = "Unspecified error."
 
     # we do error handling this way so that error handling in the caller is already compatible with subprocess.run
