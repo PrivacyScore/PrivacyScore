@@ -37,6 +37,19 @@ OPENWPM_WRAPPER_PATH = os.path.join(
 
 def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_path: str) -> Dict[str, Dict[str, Union[str, bytes]]]:
     """Test a site using openwpm and related tests."""
+
+    result = {
+        'raw_url': {
+            'mime_type': 'text/plain',
+            'data': url.encode(),
+        }
+    }
+
+    if previous_results.get('dns_error'):
+        #print("Skipping OpenWPM due to dns error")
+        return result
+
+
     # ensure basedir exists
     if not os.path.isdir(scan_basedir):
         os.mkdir(scan_basedir)
@@ -55,13 +68,6 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
              'PATH': '{}:{}'.format(
                  os.path.join(virtualenv_path, 'bin'), os.environ.get('PATH')),
     })
-
-    result = {
-        'raw_url': {
-            'mime_type': 'text/plain',
-            'data': url.encode(),
-        }
-    }
 
     # collect raw output
     # log file
@@ -111,15 +117,6 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
 
 def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str, virtualenv_path: str) -> Dict[str, Dict[str, object]]:
     """Process the raw data of the test."""
-    # store sqlite database in a temporary file
-    url = raw_data['raw_url']['data'].decode()
-
-    temp_db_file = tempfile.mktemp()
-    with open(temp_db_file, 'wb') as f:
-        f.write(raw_data['crawldata']['data'])
-
-    conn = sqlite3.connect(temp_db_file)
-    outercur = conn.cursor()
 
     # TODO: Clean up collection
     scantosave = {
@@ -132,6 +129,20 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
         'flashcookies': [],
         'headerchecks': {}
     }
+
+    if previous_results.get('dns_error'):
+        scantosave['openwpm_skipped_due_to_dns_error'] = True
+        return scantosave
+
+    # store sqlite database in a temporary file
+    url = raw_data['raw_url']['data'].decode()
+
+    temp_db_file = tempfile.mktemp()
+    with open(temp_db_file, 'wb') as f:
+        f.write(raw_data['crawldata']['data'])
+
+    conn = sqlite3.connect(temp_db_file)
+    outercur = conn.cursor()
 
     # requests
     for start_time, site_url in outercur.execute(

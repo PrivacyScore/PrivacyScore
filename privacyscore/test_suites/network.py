@@ -40,16 +40,25 @@ def retrieve_url_with_wget(url):
         proc.kill()
         raise
     
+    # if wget returns 8, this indicates HTTP status != 200
+    http_error = None
+    final_url = None
+    content = None
+
+    if proc.returncode == 8:
+        http_error = re.search('(ERROR .*)', stderr.decode(errors='replace')).group(1)
+
     # we do error handling this way so that error handling in the caller is already compatible with subprocess.run
-    if not proc.returncode == 0:
+    elif not proc.returncode == 0:
         raise subprocess.CalledProcessError(proc.returncode, " ".join(cmd))
     
-    # wget output looks like this:
-    # '2017-12-21 10:34:51 URL:https://www.example.com/foo/bar [64407] -> "-" [1]\n'
-    final_url = re.search('URL:([^ ]+)', stderr.decode(errors='replace')).group(1)
-    content = stdout
+    else:
+        # wget output looks like this:
+        # '2017-12-21 10:34:51 URL:https://www.example.com/foo/bar [64407] -> "-" [1]\n'
+        final_url = re.search('URL:([^ ]+)', stderr.decode(errors='replace')).group(1)
+        content = stdout
     
-    return final_url, content
+    return final_url, content, http_error
     
 
 def test_site(url: str, previous_results: dict, country_database_path: str) -> Dict[str, Dict[str, Union[str, bytes]]]:
@@ -84,43 +93,55 @@ def test_site(url: str, previous_results: dict, country_database_path: str) -> D
          [_reverse_lookup(a) for a in mx_a])
         for pref, mx_a in general_result['mx_a_records']]
 
-    # determine final url
     general_result['reachable'] = True
-    try:
-        wget_final_url, wget_content = retrieve_url_with_wget(url)
-        general_result['final_url'] = wget_final_url
-        result['final_url_content'] = {
-            'mime_type': 'text/html', # probably not always correct, leaving that for later ...
-            'data': wget_content,
-        }
-    
-    # if subprocess.run failed OR re.search did not find anything suitable: raise an exception!
-    except (IndexError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
-        # TODO: extend api to support registration of partial errors
-        general_result['unreachable_exception'] = traceback.format_exc()
-        general_result['reachable'] = False
-        result['general'] = {
-            'mime_type': 'application/json',
-            'data': json.dumps(general_result).encode(),
-        }
-        return result
+    if len(general_result['a_records']) == 0:
+        general_result['dns_error'] = True
 
-    # now let's check the https version again (unless we already have been redirected there)
-    if not general_result['final_url'].startswith('https'):
-        https_url = 'https:/' + general_result['final_url'].split('/', maxsplit=1)[1]
-        try:
-            
-            wget_final_url, wget_content = retrieve_url_with_wget(https_url)
-            
-            general_result['final_https_url'] = wget_final_url
-            result['final_https_url_content'] = {
-                'mime_type': 'text/html', # probably not always correct, leaving that for later ...
-                'data': wget_content,
-            }
-        except (IndexError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
-            general_result['final_https_url'] = False
     else:
-        general_result['final_https_url'] = general_result['final_url']
+        # determine final url
+        try:
+            wget_final_url, wget_content, http_error = retrieve_url_with_wget(url)
+            if http_error:
+                general_result['http_error'] = http_error
+                general_result['final_url'] = url # so that we can check the https version below
+            else:
+                general_result['final_url'] = wget_final_url
+                result['final_url_content'] = {
+                    'mime_type': 'text/html', # probably not always correct, leaving that for later ...
+                    'data': wget_content,
+                }
+        
+        # if subprocess.run failed OR re.search did not find anything suitable: raise an exception!
+        except (IndexError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+            # TODO: extend api to support registration of partial errors
+            general_result['unreachable_exception'] = traceback.format_exc()
+            general_result['reachable'] = False
+            result['general'] = {
+                'mime_type': 'application/json',
+                'data': json.dumps(general_result).encode(),
+            }
+            return result
+
+        # now let's check the https version again (unless we already have been redirected there)
+        if not general_result['final_url'].startswith('https'):
+            https_url = 'https:/' + url.split('/', maxsplit=1)[1]
+            try:
+                
+                wget_final_url, wget_content, https_error = retrieve_url_with_wget(https_url)
+                
+                if https_error:
+                    general_result['https_error'] = https_error
+                    general_result['final_https_url'] = https_url 
+                else:
+                    general_result['final_https_url'] = wget_final_url
+                    result['final_https_url_content'] = {
+                        'mime_type': 'text/html', # probably not always correct, leaving that for later ...
+                        'data': wget_content,
+                    }
+            except (IndexError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+                general_result['final_https_url'] = False
+        else:
+            general_result['final_https_url'] = general_result['final_url']
 
 
     result['general'] = {
