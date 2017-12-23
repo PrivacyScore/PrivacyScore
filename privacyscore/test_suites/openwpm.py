@@ -45,8 +45,8 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
         }
     }
 
-    if previous_results.get('dns_error'):
-        #print("Skipping OpenWPM due to dns error")
+    if previous_results.get('dns_error') or not previous_results.get('reachable'):
+        #print("Skipping OpenWPM due to previous error")
         return result
 
 
@@ -132,6 +132,10 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
 
     if previous_results.get('dns_error'):
         scantosave['openwpm_skipped_due_to_dns_error'] = True
+        return scantosave
+
+    if not previous_results.get('reachable'):
+        scantosave['openwpm_skipped_due_to_not_reachable'] = True
         return scantosave
 
     # store sqlite database in a temporary file

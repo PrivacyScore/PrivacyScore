@@ -122,6 +122,7 @@ def test_site(url: str, previous_results: dict, country_database_path: str) -> D
         except (IndexError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
             # TODO: extend api to support registration of partial errors
             general_result['unreachable_exception'] = traceback.format_exc()
+            general_result['final_url'] = url
             general_result['reachable'] = False
             result['general'] = {
                 'mime_type': 'application/json',
