@@ -132,7 +132,7 @@ def _local_testssl(hostname: str, check_mx: bool) -> bytes:
         '-P', # displays the server's picks: protocol+cipher, e.g., cipher
               # order, security of negotiated protocol and cipher
         '--jsonfile-pretty', result_file,
-        '--warnings=batch',
+        '--warnings=off',
         '--openssl-timeout', '10',
         '--sneaky', # use a harmless user agent instead of "SSL TESTER"
         '--fast', # skip some time-consuming checks
