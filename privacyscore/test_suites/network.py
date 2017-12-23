@@ -9,6 +9,7 @@ import traceback
 from typing import Dict, List, Union
 from urllib.parse import urlparse
 import subprocess
+import os
 
 import requests
 from dns import resolver, reversename
@@ -20,11 +21,19 @@ from geoip2.errors import AddressNotFoundError
 test_name = 'network'
 test_dependencies = []
 
+# TODO put the path somewhere else, maybe in settings
+HSTS_FILE = "/opt/privacyscore/.wget-hsts"
 
 def retrieve_url_with_wget(url):
     """calls wget and extracts the final url and the http body from the response
        IndexError or subprocess.CalledProcessError will be thrown if site is unreachable
     """
+    
+    # TODO this is hacky, but necessary, because (only) on some of our scan hosts
+    # we have a wget version that implements hsts. Once all VMs are upgraded, we can
+    # use the --no-hsts parameter of wget
+    if os.is_file(HSTS_FILE):
+        os.remove(HSTS_FILE)
     
     # this needs python 3.5, but some of our VMs still have Python 3.4
     #proc = subprocess.run(['wget', '--no-verbose', url, '-O-', '--no-check-certificate',
