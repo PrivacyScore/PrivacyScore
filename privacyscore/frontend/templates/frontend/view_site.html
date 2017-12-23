@@ -196,6 +196,8 @@ table.dataTable thead .sorting_desc_disabled
 		implemented changes in the meantime, which are not visible in the results below.
 		</div>
             {% endif %}
+            
+            {% if not scan_running %}
             <div class="col-sm-6">
                 <p><small>ANALYZED URL AFTER LOADING:</small><br>
                     <span style="word-wrap: break-word;">
@@ -208,6 +210,7 @@ table.dataTable thead .sorting_desc_disabled
                         {{ res.mx_record }}
                 </p>
             </div>
+            {% endif %}
 
             <div class="col-sm-12">
                 {% if not scan_running %}
@@ -220,16 +223,16 @@ table.dataTable thead .sorting_desc_disabled
                     {% endif %}
 
                     {% if res.http_error %}
-                        <li>Retrieving {{ res.final_url }} resulted in an HTTP error:
-                            {{ res.http_error }}.<br>Either the URL is invalid or the
-                            server is misconfigured.</li>
+                        <li>Retrieving {{ res.final_url }} resulted in an HTTP error.
+                            Either the URL is invalid or the
+                            server is misconfigured.<b>{{ res.http_error }}</li>
                     {% endif %}
 
                     {% if res.https_error %}
-                        <li>Retrieving {{ res.final_https_url }} resulted in an HTTP error:
-                            {{ res.https_error }}.<br>The URL may be invalid, the server may
+                        <li>Retrieving {{ res.final_https_url }} resulted in an HTTP error.
+                            The URL may be invalid, the server may
                            be  misconfigured, or the server does not expect HTTPS
-                           connections via this URL.</li>
+                           connections via this URL.<br>Status code: {{ res.https_error }}</li>
                     {% endif %}
 
                     {% if res.reachable is False %}
