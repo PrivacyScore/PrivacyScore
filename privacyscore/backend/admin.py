@@ -28,6 +28,7 @@ class RawScanResultAdmin(admin.ModelAdmin):
     )
     readonly_fields = (
         'get_data_as_string',
+        'scan',
     )
     list_filter = (
         'test',
@@ -79,6 +80,9 @@ class ScanAdmin(admin.ModelAdmin):
     search_fields = (
         'site__url',
     )
+    readonly_fields = (
+        'site',
+    )
     list_per_page = 50
 
 
@@ -99,6 +103,9 @@ class ScanErrorAdmin(admin.ModelAdmin):
         'test',
         'scan_host',
         'scan__site',
+    )
+    readonly_fields = (
+        'scan',
     )
 
 
@@ -133,6 +140,9 @@ class ScanResultAdmin(admin.ModelAdmin):
         'site_reachable',
     )
     list_filter = (
+    )
+    readonly_fields = (
+        'scan',
     )
     search_fields = (
         'scan__site__url',
