@@ -196,11 +196,15 @@ CHECKS['privacy']['server_locations'] = {
 # No leaks: good
 # Else: bad
 CHECKS['security']['leaks'] = {
-    'keys': {'leaks',},
+    'keys': {'leaks','reachable'},
     'rating': lambda **keys: {
+        'description': _('The serverleaks check was skipped because the site is not reachable.'),
+        'classification': Rating("neutral"),
+        'details_list': None
+    } if not keys['reachable'] else {
         'description': _('The site does not disclose internal system information at usual paths.'),
         'classification': Rating('good'),
-        'details_list': None
+        'details_list': None        
     } if len(keys['leaks']) == 0 else {
         'description': _('The site discloses internal system information that should not be available.'),
         'classification':  Rating('bad'),
