@@ -30,7 +30,8 @@ def retrieve_url_with_wget(url):
     #proc = subprocess.run(['wget', '--no-verbose', url, '-O-', '--no-check-certificate',
     #                      '--user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0"'],
     #                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-    cmd = ['wget', '--no-verbose', url, '-O-', '--no-check-certificate',
+    cmd = ['env', 'LC_ALL=C', 'wget', '--no-verbose', url, '-O-', \
+           '--no-check-certificate',
            '--user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0"']
     proc = subprocess.Popen(cmd,
                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
