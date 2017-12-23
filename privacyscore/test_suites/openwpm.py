@@ -10,6 +10,7 @@ import sqlite3
 import sys
 import tempfile
 import timeit
+import traceback
 
 from io import BytesIO
 from subprocess import call, DEVNULL
@@ -253,7 +254,7 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
                     scantosave["redirected_to_https"] = True
 
             except Exception:
-                scantosave["exception"] = sys.exc_info()[0]
+                scantosave["exception"] = traceback.format_exc()
                 scantosave["redirected_to_https"] = False
                 scantosave["https"] = False
                 scantosave["success"] = False
