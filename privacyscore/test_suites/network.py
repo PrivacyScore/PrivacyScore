@@ -95,8 +95,10 @@ def test_site(url: str, previous_results: dict, country_database_path: str) -> D
         for pref, mx_a in general_result['mx_a_records']]
 
     general_result['reachable'] = True
+    
     if len(general_result['a_records']) == 0:
         general_result['dns_error'] = True
+        general_result['reachable'] = False
 
     else:
         # determine final url

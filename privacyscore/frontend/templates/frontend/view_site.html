@@ -220,6 +220,8 @@ table.dataTable thead .sorting_desc_disabled
                     {% if res.dns_error %}
                         <li>Invalid domain name:
                             No IP addresses could be found for the domain name.</li>
+                    {% elif res.reachable is False %}
+                        <li>No response from network: The website could not be reached.</li>
                     {% endif %}
 
                     {% if res.http_error %}
@@ -233,10 +235,6 @@ table.dataTable thead .sorting_desc_disabled
                             The URL may be invalid, the server may
                            be  misconfigured, or the server does not expect HTTPS
                            connections via this URL.<br>Status code: {{ res.https_error }}</li>
-                    {% endif %}
-
-                    {% if res.reachable is False %}
-                        <li>No response from network: The website could not be reached.</li>
                     {% endif %}
 
                     {% if res.reachable is None %}
