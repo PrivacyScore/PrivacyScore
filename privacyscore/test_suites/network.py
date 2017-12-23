@@ -32,7 +32,7 @@ def retrieve_url_with_wget(url):
     # TODO this is hacky, but necessary, because (only) on some of our scan hosts
     # we have a wget version that implements hsts. Once all VMs are upgraded, we can
     # use the --no-hsts parameter of wget
-    if os.is_file(HSTS_FILE):
+    if os.path.isfile(HSTS_FILE):
         os.remove(HSTS_FILE)
     
     # this needs python 3.5, but some of our VMs still have Python 3.4
