@@ -225,16 +225,16 @@ table.dataTable thead .sorting_desc_disabled
                     {% endif %}
 
                     {% if res.http_error %}
-                        <li>Retrieving {{ res.final_url }} resulted in an HTTP error.
+                        <li>Retrieving <b>{{ res.final_url }}</b> resulted in an HTTP error.
                             Either the URL is invalid or the
-                            server is misconfigured.<b>{{ res.http_error }}</li>
+                            server is misconfigured. Status code: <b>{{ res.http_error }}</b></li>
                     {% endif %}
 
                     {% if res.https_error %}
-                        <li>Retrieving {{ res.final_https_url }} resulted in an HTTP error.
+                        <li>Retrieving <b>{{ res.final_https_url }}</b> resulted in an HTTP error.
                             The URL may be invalid, the server may
                            be  misconfigured, or the server does not expect HTTPS
-                           connections via this URL.<br>Status code: {{ res.https_error }}</li>
+                           connections via this URL. Status code: <b>{{ res.https_error }}</b></li>
                     {% endif %}
 
                     {% if res.reachable is None %}
