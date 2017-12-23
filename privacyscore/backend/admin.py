@@ -38,6 +38,7 @@ class RawScanResultAdmin(admin.ModelAdmin):
         'scan_host',
         'scan__site__url',
         'identifier',
+        'scan__site__id',
     )
     list_per_page = 50
 
@@ -79,6 +80,7 @@ class ScanAdmin(admin.ModelAdmin):
     )
     search_fields = (
         'site__url',
+        'site__id',
     )
     readonly_fields = (
         'site',
@@ -102,7 +104,7 @@ class ScanErrorAdmin(admin.ModelAdmin):
         'error',
         'test',
         'scan_host',
-        'scan__site',
+        'scan__site__id',
     )
     readonly_fields = (
         'scan',
@@ -124,6 +126,8 @@ class ScanListAdmin(admin.ModelAdmin):
     )
     search_fields = (
         'sites__url',
+        'name'
+        'id',
     )
 
 @admin.register(ScanResult)
@@ -146,6 +150,7 @@ class ScanResultAdmin(admin.ModelAdmin):
     )
     search_fields = (
         'scan__site__url',
+        'scan__site__id',
     )
     list_per_page = 100
 
@@ -153,4 +158,8 @@ class ScanResultAdmin(admin.ModelAdmin):
 class SiteAdmin(admin.ModelAdmin):
     raw_id_fields = (
         'last_scan',
+    )
+    search_fields = (
+        'url',
+        'id'
     )
