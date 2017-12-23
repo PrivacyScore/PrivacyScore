@@ -211,7 +211,7 @@ table.dataTable thead .sorting_desc_disabled
 
             <div class="col-sm-12">
                 {% if not scan_running %}
-                {% if res.dns_error or res.http_error or res.https_error or res.reachable == False or res.reachable == None %}
+                {% if res.dns_error or res.http_error or res.https_error or res.reachable is False or res.reachable is None %}
                 <p style="margin-bottom: 0; color: red"><small><b>SCAN ERROR:</b></small>
                     <ul class="errorlist">
                     {% if res.dns_error %}
@@ -232,11 +232,11 @@ table.dataTable thead .sorting_desc_disabled
                            connections via this URL.</li>
                     {% endif %}
 
-                    {% if res.reachable == False %}
+                    {% if res.reachable is False %}
                         <li>No response from network: The website could not be reached.</li>
                     {% endif %}
 
-                    {% if res.reachable == None %}
+                    {% if res.reachable is None %}
                         <li>Internal error: The scanner returned no results.</li>
                     {% endif %}
                     </ul>

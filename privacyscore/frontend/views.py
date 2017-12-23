@@ -505,6 +505,7 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     res = {}
     
     res['final_url'] = results.get('final_url', '–')
+    res['final_https_url'] = results.get('final_https_url')
 
     if results.get('mx_records') and results.get('mx_records')[0] and results.get('mx_records')[0][1]:
         mxrec = results.get('mx_records')[0][1]
@@ -513,6 +514,10 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
      
     res['mx_record'] = mxrec
     
+    res['reachable'] = results.get('reachable')
+    res['dns_error'] = results.get('dns_error')
+    res['http_error'] = results.get('http_error')
+    res['https_error'] = results.get('https_error')
     
     return render(request, 'frontend/view_site.html', {
         'site': site,
