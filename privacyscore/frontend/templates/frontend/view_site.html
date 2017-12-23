@@ -121,8 +121,10 @@ table.dataTable thead .sorting_desc_disabled
                 </div>
             {% empty %}
                 <div class="col text-center" style="font-size: 1em; line-height: 1.2em; font-weight: 700;">
-                    {% if scan_running == False %}
-                        {% trans 'Our scanners failed to reach the website, either due to connectivity problems or because our requests are blocked.' %}
+                    {% if res.dns_error %}
+                        {% trans 'Invalid URL! The domain name could not be resolved.' %}
+                    {% elif scan_running == False %}
+                        {% trans 'Our scanners failed to reach the website.<br>Either due to connectivity problems or because our requests are blocked.' %}
                     {% else %}
                         {% trans 'The ratings are not available yet. Please be patient.' %}
                     {% endif %}
@@ -206,6 +208,43 @@ table.dataTable thead .sorting_desc_disabled
                         {{ res.mx_record }}
                 </p>
             </div>
+
+            <div class="col-sm-12">
+                {% if not scan_running %}
+                {% if res.dns_error or res.http_error or res.https_error or res.reachable == False or res.reachable == None %}
+                <p style="margin-bottom: 0; color: red"><small><b>SCAN ERROR:</b></small>
+                    <ul class="errorlist">
+                    {% if res.dns_error %}
+                        <li>Invalid domain name:
+                            No IP addresses could be found for the domain name.</li>
+                    {% endif %}
+
+                    {% if res.http_error %}
+                        <li>Retrieving {{ res.final_url }} resulted in an HTTP error:
+                            {{ res.http_error }}.<br>Either the URL is invalid or the
+                            server is misconfigured.</li>
+                    {% endif %}
+
+                    {% if res.https_error %}
+                        <li>Retrieving {{ res.final_https_url }} resulted in an HTTP error:
+                            {{ res.https_error }}.<br>The URL may be invalid, the server may
+                           be  misconfigured, or the server does not expect HTTPS
+                           connections via this URL.</li>
+                    {% endif %}
+
+                    {% if res.reachable == False %}
+                        <li>No response from network: The website could not be reached.</li>
+                    {% endif %}
+
+                    {% if res.reachable == None %}
+                        <li>Internal error: The scanner returned no results.</li>
+                    {% endif %}
+                    </ul>
+                </p>
+                {% endif %}
+                {% endif %}
+            </div>
+
             <div class="col-sm-12">
                 
                 
