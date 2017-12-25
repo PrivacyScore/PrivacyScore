@@ -49,7 +49,11 @@ def process_test_data(raw_data: list, previous_results: dict, remote_host: str =
 
     if loaded_data.get('parse_error'):
         result['mx_scan_failed'] = True
+        result['mx_parse_error'] = loaded_data.get('parse_error')
         return result
-
+    
+    if loaded_data.get('testssl_incomplete'):
+        result['mx_testssl_incomplete'] = True
+     
     result.update(parse_common_testssl(loaded_data, "mx"))
     return result

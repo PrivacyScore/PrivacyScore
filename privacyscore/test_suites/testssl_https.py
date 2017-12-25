@@ -52,8 +52,6 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
         rv['web_has_ssl'] = False
         return rv
 
-    #data = json.loads(
-    #    raw_data['jsonresult']['data'].decode('unicode_escape'))
     loaded_data = load_result(raw_data)
 
     if loaded_data.get('parse_error'):
@@ -64,9 +62,13 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
         # The test terminated, but did not give any results => probably no HTTPS
         rv['web_has_ssl'] = False
         return rv
-
+    
+    result = {}
+    if loaded_data.get('testssl_incomplete'):
+        result['web_testssl_incomplete'] = True
+    
     # Grab common information
-    result = parse_common_testssl(loaded_data, "web")
+    result.update(parse_common_testssl(loaded_data, "web"))
     result["web_ssl_finished"] = True
     
     # detect headers

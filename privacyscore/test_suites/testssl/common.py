@@ -75,6 +75,10 @@ def save_result(jsonresults: List[bytes], hostname: str) -> Dict[str, Dict[str, 
 def load_result(raw_data: list) -> Dict[str, Dict[str, object]]:
     """load result(s) from raw_data and merge them into one dictionary"""
 
+    # In case of json parse errors this will throw an Exception
+    # which is intended behavior so that we become aware of it
+    # (becomes a ScanError in our backend).
+    
     inputs = []
     data = json.loads(
         raw_data['jsonresult']['data'].decode())
@@ -94,21 +98,22 @@ def load_result(raw_data: list) -> Dict[str, Dict[str, object]]:
         inputs.append(data3)
         
 
-    # now we will merge the three results into one flat dict
+    # Now we will merge the three results into one flat dict
     # this makes us independent from how testssl's json
     # output structures test results into groups. We only
     # depend on the exact id values.
     
     results = []
+    good_results = 0
     for index, json_data in enumerate(inputs, start=1):
         if not json_data['scanResult']:
             # something went wrong with this test.
             return {'parse_error': "stage %i: no scanResult" % index
             }
         if not json_data['scanResult'][0]:
-            return {'parse_error': "stage %i: scanResult empty" % index,
-                    'scan_result_empty': True
-            }
+            continue
+        
+        good_results = good_results + 1
         sr = json_data['scanResult'][0]
         res = {}
         for key in sr:
@@ -128,6 +133,12 @@ def load_result(raw_data: list) -> Dict[str, Dict[str, object]]:
     flat_res = {}
     for r in results:
         flat_res.update(r)
+    
+    if good_results > 0 and good_results < len(inputs):
+        flat_res['testssl_incomplete'] = True
+    elif good_results == 0:
+        flat_res['scan_result_empty'] = True
+        
     
     return flat_res
 
