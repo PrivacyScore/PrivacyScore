@@ -23,6 +23,10 @@ def test_site(url: str, previous_results: dict, remote_host: str = None) -> Dict
                 'mime_type': 'application/json',
                 'data': b'',
             },
+            'testssl_hostname': {
+                'mime_type': 'text/plain',
+                'data': hostname.encode(),
+            }
         }
 
     jsonresults = run_testssl(hostname, True, remote_host)
@@ -36,17 +40,16 @@ def process_test_data(raw_data: list, previous_results: dict, remote_host: str =
     """Process the raw data of the test."""
     result = {"mx_ssl_finished": True}
     
-    if raw_data['jsonresult']['data'] == b'':
+    loaded_data = load_result(raw_data)
+    
+    if loaded_data.get('scan_result_empty'):
+        # The test terminated, but did not give any results => probably no STARTTLS
         result['mx_has_ssl'] = False
         return result
 
-    loaded_data = load_result(raw_data)
-    
     if loaded_data.get('parse_error'):
         result['mx_scan_failed'] = True
         return result
-
-    # TODO: Parse mx result -- there are no http headers to analyze here ...
 
     result.update(parse_common_testssl(loaded_data, "mx"))
     return result
