@@ -33,9 +33,9 @@ def run_testssl(hostname: str, check_mx: bool, remote_host: str = None) -> List[
     
     # fix json syntax error
     # TODO: still necessary?
-    out = re.sub(r'"Invocation.*?\n', '', out.decode(), 1).encode()
-    out2 = re.sub(r'"Invocation.*?\n', '', out2.decode(), 1).encode()
-    out3 = re.sub(r'"Invocation.*?\n', '', out3.decode(), 1).encode()
+    #out = re.sub(r'"Invocation.*?\n', '', out.decode(), 1).encode()
+    #out2 = re.sub(r'"Invocation.*?\n', '', out2.decode(), 1).encode()
+    #out3 = re.sub(r'"Invocation.*?\n', '', out3.decode(), 1).encode()
     
     return [out, out2, out3]
 
@@ -152,17 +152,18 @@ def parse_common_testssl(json: str, prefix: str):
         elif test_id == "issuer" and test_result["severity"] == "CRITICAL":
             trust_chain = test_result
 
-    assert trust_cert is not None
-    assert trust_chain is not None
-    
     reason = ""
     trusted = True
-    if not trust_cert['severity'] in ['OK', "INFO"]:
-        reason += trust_cert['finding']
+    if not trust_cert  or not trust_chain:
         trusted = False
-    if not trust_chain['severity'] in ['OK', 'INFO']:
-        reason += trust_chain['finding']
-        trusted = False
+        reason = "Server did not present a certificate"
+    else:
+        if not trust_cert['severity'] in ['OK', "INFO"]:
+            reason += trust_cert['finding']
+            trusted = False
+        if not trust_chain['severity'] in ['OK', 'INFO']:
+            reason += trust_chain['finding']
+            trusted = False
 
     result['{}_cert_trusted'.format(prefix)] = trusted
     result['{}_cert_trusted_reason'.format(prefix)] = reason
@@ -241,7 +242,7 @@ def parse_common_testssl(json: str, prefix: str):
         if test_result['severity'] != u"OK" and test_result['severity'] != u'INFO':
             result['{}_ciphers'.format(prefix)][test_id] = {
                 'severity': test_result['severity'],
-                'finding': cipher['finding'],
+                'finding': test_result['finding'],
             }
 
     return result
@@ -290,7 +291,8 @@ def _local_testssl(hostname: str, check_mx: bool, stage: int) -> bytes:
         raise Exception("unsupported stage")
     
     if check_mx:
-        args.remove('-h')
+        if '-h' in args:
+            args.remove('-h')
         args.extend([
             '-t', 'smtp',  # test smtp
             '{}:25'.format(hostname),  # hostname on port 25
