@@ -34,7 +34,7 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
             },
             'testssl_hostname': {
                 'mime_type': 'text/plain',
-                'data': hostname.encode(),
+                'data': b'',
             }
         }
     
