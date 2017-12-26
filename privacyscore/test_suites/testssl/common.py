@@ -235,17 +235,17 @@ def load_result(raw_data: list) -> Dict[str, Dict[str, object]]:
 
 missing_ids = []
 
-def scanres(result, the_id) -> Dict[str, str]
+def scanres(json: Dict[str, str], the_id) -> Dict[str, str]:
     """Get a result from the testssl flat_res result array
        Add id to global missing_ids array if it is not present"""
-    if result.get(id):
-        return result.get(the_id)
+    if json.get(the_id):
+        return json.get(the_id)
     else:
         missing_ids.append(the_id)
         return None
 
 
-def parse_common_testssl(json: str, prefix: str):
+def parse_common_testssl(json: Dict[str, str], prefix: str):
     """Perform common parsing tasks on result JSONs."""
     result = {
         '{}_has_ssl'.format(prefix): True,  # otherwise an exception would have been thrown before
@@ -285,35 +285,78 @@ def parse_common_testssl(json: str, prefix: str):
 
 
     # pfs
-    if  r = scanres(result, 'pfs'):
+    r = scanres(json, 'pfs')
+    if r:
         result['{}_pfs'.format(prefix)] = r['severity'] == 'OK'
 
     # CAA
-    if r = scanres(result, 'CAA_record'):
+    r = scanres(json, 'CAA_record')
+    if r:
         if r['severity'] != 'WARN': # WARN indicates the test was intentionally skipped
             result['{}_caa_record'.format(prefix)] = r['severity'] == 'OK'
             result['{}_caa_record_severity'.format(prefix)] = r['severity']
-
+    
     # CT
-    if r = scanres(result, 'certificate_transparency'):
+    r = scanres(json, 'certificate_transparency')
+    if r:
         result['{}_certificate_transparency'.format(prefix)] = r['severity'] == 'OK'
         result['{}_certificate_transparency_severity'.format(prefix)] = r['severity']
-
+    
     # neither CRL nor OCSP
-    if r = scanres(result, 'crl'):
+    r = scanres(json, 'crl')
+    if r:
         result['{}_neither_crl_nor_ocsp'.format(prefix)] = r['severity'] == 'HIGH'
         result['{}_neither_crl_nor_ocsp_severity'.format(prefix)] = r['severity']
-
+    
     # certificate expired?
-    if r = scanres(result, 'expiration'):
+    r = scanres(json, 'expiration')
+    if r:
         result['{}_certificate_expired'.format(prefix)] = r['severity'] == 'CRITICAL'
-
+        result['{}_certificate_expired_finding'.format(prefix)] = r['finding']
+    
     # key size
-    if r = scanres(result, 'key_size'):
+    r = scanres(json, 'key_size')
+    if r:
         result['{}_poor_keysize'.format(prefix)] = r['severity'] in ['CRITICAL', 'HIGH', 'MEDIUM']
-	if re.search('Server keys ([0-9]+) bits', r['finding']):
+        result['{}_poor_keysize_severity'.format(prefix)] = r['severity']
+        if re.search('Server keys ([0-9]+) bits', r['finding']):
             keysize = re.search('Server keys ([0-9]+) bits', r['finding']).group(1)
-	    result['{}_keysize'.format(prefix)] = keysize
+            result['{}_keysize'.format(prefix)] = keysize
+    
+    # Does the server set a cipher order? (it should!)
+    r = scanres(json, 'order')
+    if r:
+        result['{}_cipher_order'.format(prefix)] = r['severity'] == 'OK'
+        result['{}_cipher_order_severity'.format(prefix)] = r['severity']
+    
+    # default cipher OK?
+    r = scanres(json, 'order_cipher')
+    if r:
+        if r['severity'] != 'WARN': # WARN indicates the test was intentionally skipped
+            result['{}_cipher_order_default_cipher'.format(prefix)] = r['severity'] in ['LOW', 'OK']
+            result['{}_cipher_order_default_cipher_severity'.format(prefix)] = r['severity']
+            result['{}_cipher_order_default_cipher_finding'.format(prefix)] = r['finding']
+    
+    # default protocol OK?
+    r = scanres(json, 'order_proto')
+    if r:
+        if r['severity'] != 'WARN': # WARN indicates the test was intentionally skipped
+            result['{}_cipher_order_default_protocol'.format(prefix)] = r['severity'] in ['INFO', 'OK']
+            result['{}_cipher_order_default_protocol_severity'.format(prefix)] = r['severity']
+            result['{}_cipher_order_default_protocol_finding'.format(prefix)] = r['finding']
+    
+    #subjectAltName present and contains domain?
+    r = scanres(json, 'san')
+    if r:
+        result['{}_valid_san'.format(prefix)] = r['severity'] in ['OK', 'INFO']
+        result['{}_valid_san_severity'.format(prefix)] = r['severity']
+        result['{}_san_finding'.format(prefix)] = r['finding']
+    
+    # session_ticket
+    r = scanres(json, 'session_ticket')
+    if r:
+        result['{}_session_ticket'.format(prefix)] = r['severity'] in ['OK', 'INFO']
+        result['{}_session_ticket_severity'.format(prefix)] = r['severity']
 
 
     # detect protocols, names are equal to "id" of testssl
@@ -345,11 +388,13 @@ def parse_common_testssl(json: str, prefix: str):
             pat = re.compile(r'higher version number')
             match = pat.search(test_result['finding'])
             result['{}_has_protocol_{}'.format(prefix, test_id)] = match is None
+            result['{}_has_protocol_{}_severity'.format(prefix, test_id)] = test_result['severity']
             continue
         match = pattern.search(test_result['finding'])
         if not match:
             continue
         result['{}_has_protocol_{}'.format(prefix, test_id)] = match.group(1) is None
+        result['{}_has_protocol_{}_severity'.format(prefix, test_id)] = test_result['severity']
 
     # Detect vulnerabilities
     vulnerabilities = ('heartbleed', 'ccs', 'ticketbleed', 'ROBOT',
@@ -364,7 +409,9 @@ def parse_common_testssl(json: str, prefix: str):
         test_result = json.get(test_id)
         if not test_result:
             continue
-        
+
+        # TODO: this is bad because we will not be able to tell the difference between
+        # "check result missing" and "OK" later on        
         if test_result['severity'] != u"OK" and test_result['severity'] != u'INFO':
             result['{}_vulnerabilities'.format(prefix)][test_id] = {
                 'severity': test_result['severity'],
@@ -383,6 +430,8 @@ def parse_common_testssl(json: str, prefix: str):
         if not test_result:
             continue
         
+        # TODO: this is bad because we will not be able to tell the difference between
+        # "check result missing" and "OK" later on
         if test_result['severity'] != u"OK" and test_result['severity'] != u'INFO':
             result['{}_ciphers'.format(prefix)][test_id] = {
                 'severity': test_result['severity'],
@@ -391,7 +440,7 @@ def parse_common_testssl(json: str, prefix: str):
 
     
 
-    result['{}_testssl_missing_ids'] = ', '.join(missing_ids)
+    result['{}_testssl_missing_ids'.format(prefix)] = missing_ids
     return result
 
 def _remote_testssl(hostname: str, remote_host: str) -> bytes:
