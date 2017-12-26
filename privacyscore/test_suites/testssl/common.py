@@ -233,11 +233,25 @@ def load_result(raw_data: list) -> Dict[str, Dict[str, object]]:
     return flat_res
 
 
+missing_ids = []
+
+def scanres(result, the_id) -> Dict[str, str]
+    """Get a result from the testssl flat_res result array
+       Add id to global missing_ids array if it is not present"""
+    if result.get(id):
+        return result.get(the_id)
+    else:
+        missing_ids.append(the_id)
+        return None
+
+
 def parse_common_testssl(json: str, prefix: str):
     """Perform common parsing tasks on result JSONs."""
     result = {
         '{}_has_ssl'.format(prefix): True,  # otherwise an exception would have been thrown before
     }
+
+    missing_ids.clear()
 
     # Detect if cert is valid
     trust_cert = None
@@ -253,26 +267,54 @@ def parse_common_testssl(json: str, prefix: str):
         elif test_id == "issuer" and test_result["severity"] == "CRITICAL":
             trust_chain = test_result
 
-    reason = ""
+    reason = []
     trusted = True
     if not trust_cert  or not trust_chain:
         trusted = False
-        reason = "Server did not present a certificate"
+        reason.append("Server did not present a certificate")
     else:
         if not trust_cert['severity'] in ['OK', "INFO"]:
-            reason += trust_cert['finding']
+            reason.append(trust_cert['finding'])
             trusted = False
         if not trust_chain['severity'] in ['OK', 'INFO']:
-            reason += trust_chain['finding']
+            reason.append(trust_chain['finding'])
             trusted = False
 
     result['{}_cert_trusted'.format(prefix)] = trusted
-    result['{}_cert_trusted_reason'.format(prefix)] = reason
+    result['{}_cert_trusted_reason'.format(prefix)] = ' / '.join(reason)
 
 
     # pfs
-    if json.get('pfs'):
-        result['{}_pfs'.format(prefix)] = json['pfs']['severity'] == 'OK'
+    if  r = scanres(result, 'pfs'):
+        result['{}_pfs'.format(prefix)] = r['severity'] == 'OK'
+
+    # CAA
+    if r = scanres(result, 'CAA_record'):
+        if r['severity'] != 'WARN': # WARN indicates the test was intentionally skipped
+            result['{}_caa_record'.format(prefix)] = r['severity'] == 'OK'
+            result['{}_caa_record_severity'.format(prefix)] = r['severity']
+
+    # CT
+    if r = scanres(result, 'certificate_transparency'):
+        result['{}_certificate_transparency'.format(prefix)] = r['severity'] == 'OK'
+        result['{}_certificate_transparency_severity'.format(prefix)] = r['severity']
+
+    # neither CRL nor OCSP
+    if r = scanres(result, 'crl'):
+        result['{}_neither_crl_nor_ocsp'.format(prefix)] = r['severity'] == 'HIGH'
+        result['{}_neither_crl_nor_ocsp_severity'.format(prefix)] = r['severity']
+
+    # certificate expired?
+    if r = scanres(result, 'expiration'):
+        result['{}_certificate_expired'.format(prefix)] = r['severity'] == 'CRITICAL'
+
+    # key size
+    if r = scanres(result, 'key_size'):
+        result['{}_poor_keysize'.format(prefix)] = r['severity'] in ['CRITICAL', 'HIGH', 'MEDIUM']
+	if re.search('Server keys ([0-9]+) bits', r['finding']):
+            keysize = re.search('Server keys ([0-9]+) bits', r['finding']).group(1)
+	    result['{}_keysize'.format(prefix)] = keysize
+
 
     # detect protocols, names are equal to "id" of testssl
     protocols = ('sslv2', 'sslv3', 'tls1', 'tls1_1', 'tls1_2',
@@ -347,6 +389,9 @@ def parse_common_testssl(json: str, prefix: str):
                 'finding': test_result['finding'],
             }
 
+    
+
+    result['{}_testssl_missing_ids'] = ', '.join(missing_ids)
     return result
 
 def _remote_testssl(hostname: str, remote_host: str) -> bytes:
