@@ -205,10 +205,13 @@ def load_result(raw_data: list) -> Dict[str, Dict[str, object]]:
             if isinstance(sr[key], list):
                 for item in sr[key]:
                     if item.get('id'):
-                        res[item['id']] = {'severity': item.get('severity'),
-                                           'finding': item.get('finding'),
-                                           'cve': item.get('cve')
+                        summary = {'severity': item.get('severity'),
+                                   'finding': item.get('finding')
                         }
+                        if item.get('cve'):
+                            summary['cve'] = item.get('cve')
+                        res[item['id']] = summary
+                        
         results.append(res)
     
     # flat_results contains all findings from jsonresult and
@@ -308,11 +311,41 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
         result['{}_neither_crl_nor_ocsp'.format(prefix)] = r['severity'] == 'HIGH'
         result['{}_neither_crl_nor_ocsp_severity'.format(prefix)] = r['severity']
     
+    # OCSP URI
+    r = scanres(json, 'ocsp_uri')
+    if r:
+        result['{}_offers_ocsp'.format(prefix)] = r['finding'] != "OCSP URI : --"
+    
+    # OCSP stapling
+    r = scanres(json, 'ocsp_stapling')
+    if r:
+        result['{}_ocsp_stapling'.format(prefix)] = r['severity'] == 'OK'
+        result['{}_ocsp_stapling_severity'.format(prefix)] = r['severity']
+
+    # OCSP must staple
+    r = scanres(json, 'OCSP must staple: ocsp_must_staple')
+    if r:
+        result['{}_ocsp_must_staple'.format(prefix)] = r['severity'] == 'OK'
+        result['{}_ocsp_must_staple_severity'.format(prefix)] = r['severity']
+    else:
+        r = scanres(json, 'ocsp_must_staple') # be flexible in case the naming error is fixed
+        if r:
+            result['{}_ocsp_must_staple'.format(prefix)] = r['severity'] == 'OK'
+            result['{}_ocsp_must_staple_severity'.format(prefix)] = r['severity']
+        
+    
     # certificate expired?
     r = scanres(json, 'expiration')
     if r:
         result['{}_certificate_expired'.format(prefix)] = r['severity'] == 'CRITICAL'
         result['{}_certificate_expired_finding'.format(prefix)] = r['finding']
+    
+    # signature algorithm
+    r = scanres(json, 'algorithm')
+    if r:
+        result['{}_poor_algorithm'.format(prefix)] = r['severity'] in ['CRITICAL', 'HIGH', 'MEDIUM']
+        result['{}_poor_algorithm_severity'.format(prefix)] = r['severity']
+        result['{}_signature_algorihm'.format(prefix)] = r['finding']
     
     # key size
     r = scanres(json, 'key_size')
