@@ -5,9 +5,10 @@ import os
 import re
 import tempfile
 import json
+import time
 from typing import List, Dict, Union
 
-from subprocess import call, check_output, DEVNULL
+from subprocess import call, check_output, DEVNULL, PIPE, Popen
 
 from django.conf import settings
 
@@ -21,23 +22,110 @@ TESTSSL_PATH = os.path.join(
 def run_testssl(hostname: str, check_mx: bool, remote_host: str = None) -> List[bytes]:
     """Test the specified hostname with testssl and return the raw json result."""
     
-    out2 = None
-    out3 = None
-    if remote_host:
-        out =  _remote_testssl(hostname, remote_host)
-    else:
-        out = _local_testssl(hostname, check_mx, 1)
-        out2 = _local_testssl(hostname, check_mx, 2)
-        out3 = _local_testssl(hostname, check_mx, 3)
+    results = []
 
+    if remote_host:
+        results.append(_remote_testssl(hostname, remote_host))
+    else:
+        results = run_and_check_local_testssl(hostname, check_mx)
+
+    return results
+
+
+def starttls_handshake_possible(hostname: str, check_mx: bool) -> bool:
+    """Check whether we can perform a TLS handshake (called directly after testssl.sh)"""
+    if check_mx:
+        args = ['timeout', '--preserve-status', '10s',
+                'openssl', 's_client', '-connect',
+                "{}:25".format(hostname),
+                '-starttls', 'smtp'
+        ]
+    else:
+        args = ['timeout', '--preserve-status', '10s',
+                'openssl', 's_client', '-connect',
+                "{}:443".format(hostname)
+        ]
+
+    proc = Popen(args, stdout=DEVNULL, stderr=DEVNULL, stdin=PIPE)
+    stdout = proc.communicate(input=b'\n')[0]
+    # openssl returns 0 if the handshake succeeded and 1 otherwise
+    # timeouts return something > 100
+
+    return proc.returncode == 0
+
+
+def run_and_check_local_testssl(hostname: str, check_mx: bool) -> List[bytes]:
+    """run testssl in multiple stages, check return code and verify that
+       remote server is not blocking our requests, sleep in case of problems."""
+    SLEEP_TIME=60
+    return_code = None
+    failures = 0
+    impossible_handshakes = 0
+    results = []
+    keep_running = True
     
-    # fix json syntax error
-    # TODO: still necessary?
-    #out = re.sub(r'"Invocation.*?\n', '', out.decode(), 1).encode()
-    #out2 = re.sub(r'"Invocation.*?\n', '', out2.decode(), 1).encode()
-    #out3 = re.sub(r'"Invocation.*?\n', '', out3.decode(), 1).encode()
-    
-    return [out, out2, out3]
+    progress = []
+    progress.append("running testssl for %s" % hostname)
+    if check_mx:
+        progress.append("Mode: mx (STARTTLS)")
+
+    num_stages = 6
+    for stage in range(1, num_stages+1):
+        if not keep_running:
+            progress.append("Skipping stage %i because we cannot establish TLS connections any more." % stage)
+            results.append(json.dumps({'scanResult': []}).encode()) # needed so that we notice that the scan is incomplete after loading
+            continue
+        if (failures + impossible_handshakes) >= 4:
+            progress.append("Skipping stage %i because of too many connectivity problems." % stage)
+            results.append(json.dumps({'scanResult': []}).encode()) # needed so that we notice that the scan is incomplete after loading
+            continue
+
+        progress.append("Running stage %i" % stage)
+        for run in range(2):
+            progress.append("Try %i ..." % run)
+            out, return_code = _local_testssl(hostname, check_mx, stage)
+            if return_code != 0:
+                progress.append("Return code of testssl.sh != 0: %i" % return_code)
+                # testssl failed => try again
+                failures += 1
+            
+            # unfortunately, return_code = 0 does not mean that
+            # everything went fine, STARTTLS handshake errors
+            # may have occurred due to tarpitting or fail2ban etc.
+
+            # therefore, we check whether the remote is still accepting 
+            # our requests
+            server_ready = starttls_handshake_possible(hostname, check_mx)
+            if not server_ready:
+                progress.append("server_ready = False => sleeping %i" % SLEEP_TIME)
+                impossible_handshakes += 1
+                time.sleep(SLEEP_TIME)
+                server_ready = starttls_handshake_possible(hostname, check_mx)
+                if not server_ready:
+                    progress.append("server_ready is still False. It makes no sense to continue.")
+                    keep_running = False
+                    if return_code == 0:
+                        results.append(out)
+                        results.append(json.dumps({'incomplete_scan':"stage%i" % stage}).encode())
+                    break
+                else:
+                    progress.append("server_ready is now True. We can continue.")
+                if return_code == 0:
+                    results.append(out)
+                    results.append(json.dumps({'incomplete_scan':"stage%i" % stage}).encode())
+
+            else:
+                progress.append("server_ready = True => next stage.")
+                results.append(out)
+                # testssl succeeded and we still have connectivity
+                # => this stage is finished
+                if (failures + impossible_handshakes) > 0 and stage < num_stages: # do not sleep in the last stage
+                    progress.append("We have experienced connectivity problems => sleeping %i before next stage." % SLEEP_TIME)
+                    time.sleep(SLEEP_TIME)
+                break
+
+    results.append(json.dumps({'scan_log': progress}).encode())
+    return results
 
 
 def save_result(jsonresults: List[bytes], hostname: str) -> Dict[str, Dict[str, Union[str, bytes]]]:
@@ -56,18 +144,18 @@ def save_result(jsonresults: List[bytes], hostname: str) -> Dict[str, Dict[str, 
     # We have to implement it flexibly like this because we have to be
     # compatible with the case that remote_testssl was invoked. In this
     # case there will only be one (i.e. the) jsonresult. Otherwise
-    # we will merge the 3 results in process_test_data.
-    if jsonresults[1]:
-        result['jsonresult2'] = {
-                'mime_type': 'application/json',
-                'data': jsonresults[1],
-        }
-    
-    if jsonresults[2]:
-        result['jsonresult3'] = {
-                'mime_type': 'application/json',
-                'data': jsonresults[2],
-        }
+    # we will merge the all results in process_test_data.
+
+    jsonresults.pop(0) # this one was saved in 'jsonresult' above
+
+    index = 2 # first additional result will be jsonresult2
+    for res in jsonresults:
+        if res:
+            result["jsonresult%i" % index] = {
+                    'mime_type': 'application/json',
+                    'data': res,
+            }
+        index += 1
     
     return result
 
@@ -80,23 +168,12 @@ def load_result(raw_data: list) -> Dict[str, Dict[str, object]]:
     # (becomes a ScanError in our backend).
     
     inputs = []
-    data = json.loads(
-        raw_data['jsonresult']['data'].decode())
-    inputs.append(data)
-    
-    data2 = None
-    data3 = None
 
-    if raw_data['jsonresult2']:
-        data2 = json.loads(
-                    raw_data['jsonresult2']['data'].decode())
-        inputs.append(data2)
-    
-    if raw_data['jsonresult3']:
-        data3 = json.loads(
-                    raw_data['jsonresult3']['data'].decode())
-        inputs.append(data3)
-        
+    for key in sorted(raw_data.keys()):
+        if key.startswith('jsonresult') and raw_data[key].get('data'):
+            data = json.loads(
+                    raw_data[key]['data'].decode())
+            inputs.append(data)
 
     # Now we will merge the three results into one flat dict
     # this makes us independent from how testssl's json
@@ -105,12 +182,20 @@ def load_result(raw_data: list) -> Dict[str, Dict[str, object]]:
     
     results = []
     good_results = 0
+    incomplete_scans = set()
+    missing_scans = set()
     for index, json_data in enumerate(inputs, start=1):
-        if not json_data['scanResult']:
+        if json_data.get('scan_log'):
+            continue
+        if json_data.get('incomplete_scan'):
+            incomplete_scans.add("jsonresult%i" % index)
+            continue
+        if json_data.get('scanResult') == None:
             # something went wrong with this test.
-            return {'parse_error': "stage %i: no scanResult" % index
+            return {'parse_error': "jsonresult%i: no scanResult" % index
             }
-        if not json_data['scanResult'][0]:
+        if len(json_data.get('scanResult')) == 0:
+            missing_scans.add("jsonresult%i" % index)
             continue
         
         good_results = good_results + 1
@@ -134,12 +219,17 @@ def load_result(raw_data: list) -> Dict[str, Dict[str, object]]:
     for r in results:
         flat_res.update(r)
     
-    if good_results > 0 and good_results < len(inputs):
+    if len(incomplete_scans) > 0 or len(missing_scans) > 0:
         flat_res['testssl_incomplete'] = True
     elif good_results == 0:
         flat_res['scan_result_empty'] = True
-        
-    
+
+    if len(incomplete_scans) > 0:
+        flat_res['incomplete_scans'] = ' '.join(sorted(list(incomplete_scans)))
+
+    if len(missing_scans) > 0:
+        flat_res['missing_scans'] = ' '.join(sorted(list(missing_scans)))
+
     return flat_res
 
 
@@ -181,7 +271,8 @@ def parse_common_testssl(json: str, prefix: str):
 
 
     # pfs
-    result['{}_pfs'.format(prefix)] = json['pfs']['severity'] == 'OK'
+    if json.get('pfs'):
+        result['{}_pfs'.format(prefix)] = json['pfs']['severity'] == 'OK'
 
     # detect protocols, names are equal to "id" of testssl
     protocols = ('sslv2', 'sslv3', 'tls1', 'tls1_1', 'tls1_2',
@@ -284,19 +375,28 @@ def _local_testssl(hostname: str, check_mx: bool, stage: int) -> bytes:
         args.extend([
             '-p', # enable all checks for presence of SSLx.x and TLSx.x protocols
             '-h', # enable all checks for security-relevant HTTP headers
-            '-s', # tests certain lists of cipher suites by strength
-            '-f', # checks (perfect) forward secrecy settings
-            '-U', # tests all (of the following) vulnerabilities (if applicable)
         ])
     elif stage == 2:
+        args.extend([
+            '-s', # tests certain lists of cipher suites by strength
+        ])
+    elif stage == 3:
+        args.extend([
+            '-f', # checks (perfect) forward secrecy settings
+        ])
+    elif stage == 4:
         args.extend([
             '-S', # displays the server's default picks and certificate info, e.g.
                   # used CA, trust chain, Sig Alg, DNS CAA, OCSP Stapling
         ])
-    elif stage == 3:
+    elif stage == 5:
         args.extend([
             '-P', # displays the server's picks: protocol+cipher, e.g., cipher
                   # order, security of negotiated protocol and cipher
+        ])
+    elif stage == 6:
+        args.extend([
+            '-U', # tests all (of the following) vulnerabilities (if applicable)
         ])
     else:
         raise Exception("unsupported stage")
@@ -311,7 +411,7 @@ def _local_testssl(hostname: str, check_mx: bool, stage: int) -> bytes:
     else:
         args.append(hostname)
 
-    call(args, stdout=DEVNULL, stderr=DEVNULL)
+    returncode = call(args, stdout=DEVNULL, stderr=DEVNULL)
 
     # exception when file does not exist.
     with open(result_file, 'rb') as file:
@@ -320,4 +420,4 @@ def _local_testssl(hostname: str, check_mx: bool, stage: int) -> bytes:
     os.remove(result_file)
 
     # store raw scan result
-    return result
+    return result, returncode

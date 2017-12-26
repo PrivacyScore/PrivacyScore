@@ -54,6 +54,12 @@ def process_test_data(raw_data: list, previous_results: dict, remote_host: str =
     
     if loaded_data.get('testssl_incomplete'):
         result['mx_testssl_incomplete'] = True
+
+    if loaded_data.get('incomplete_scans'):
+        result['mx_testssl_incomplete_scans'] = loaded_data.get('incomplete_scans')
+
+    if loaded_data.get('missing_scans'):
+        result['mx_testssl_missing_scans'] = loaded_data.get('missing_scans')
      
     result.update(parse_common_testssl(loaded_data, "mx"))
     return result

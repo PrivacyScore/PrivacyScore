@@ -66,6 +66,12 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
     result = {}
     if loaded_data.get('testssl_incomplete'):
         result['web_testssl_incomplete'] = True
+
+    if loaded_data.get('incomplete_scans'):
+        result['web_testssl_incomplete_scans'] = loaded_data.get('incomplete_scans')
+
+    if loaded_data.get('missing_scans'):
+        result['web_testssl_missing_scans'] = loaded_data.get('missing_scans')
     
     # Grab common information
     result.update(parse_common_testssl(loaded_data, "web"))
