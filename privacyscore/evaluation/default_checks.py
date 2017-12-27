@@ -307,7 +307,7 @@ CHECKS['security']['header_ref'] = {
 CHECKS['ssl']['https_scan_failed'] = {
     'keys': {'web_scan_failed'},
     'rating': lambda **keys: {
-        'description': _('The SSL scan experienced an unexpected error. Please rescan and contact us if the problem persists.'),
+        'description': _('The testssl scan experienced an unexpected error. Please rescan and contact us if the problem persists.'),
         'classification': Rating('neutral', devaluates_group=True),
         'details_list': None,
     } if keys['web_scan_failed'] else None,
@@ -324,7 +324,7 @@ CHECKS['ssl']['https_scan_finished'] = {
         'details_list': None,
     } if keys['web_ssl_finished'] and not keys['web_has_ssl'] else None,
     'missing': {
-        'description': _('The SSL scan experienced a problem and had to be aborted, some SSL checks were not performed.'),
+        'description': _('The testssl scan experienced a problem and had to be aborted, some checks were not performed.'),
         'classification': Rating('neutral', devaluates_group=True),
         'details_list': None
     },
@@ -350,7 +350,7 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
           keys['final_https_url'] and
           keys['final_https_url'].startswith('https') and
           not keys['same_content_via_https']) else {
-        'description': _('Not comparing between HTTP and HTTPS version, as the website was scanned only over HTTPS.'),
+        'description': _('Not comparing HTTP with HTTPS version, because an HTTPS URL was provided.'),
         'classification': Rating('neutral', influences_ranking=False),
         'details_list': None,
     } if (keys["final_url"].startswith("https:")) else None,
@@ -362,19 +362,39 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
 CHECKS['ssl']['web_cert'] = {
     'keys': {'web_has_ssl', 'web_cert_trusted', 'web_cert_trusted_reason'},
     'rating': lambda **keys: {
-        'description': _('The website uses a valid security certificate.'),
+        'description': _('The presented server certificate could be validated.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['web_has_ssl'] and keys['web_cert_trusted'] else {
-        'description': _('Not checking SSL certificate, as the server does not offer SSL'),
+        'description': _('Not checking server certificate, as the server does not offer HTTPS'),
         'classification': Rating('neutral'),
         'details_list': None
     } if not keys['web_has_ssl'] else {
-        'description': _('Server uses an invalid SSL certificate.'),
+        'description': _('Server certificate could not be validated. Browsers may fail to establish a secure connection.'),
         'classification': Rating('critical'),
         'details_list': [(keys['web_cert_trusted_reason'],)],
     },
     'missing': None
+}
+# Check whether certificate hasn't expired yes
+# not expired: critical
+# Else: bad
+CHECKS['ssl']['web_certificate_not_expired'] = {
+    'keys': {'web_certificate_not_expired', 'web_certificate_not_expired_finding', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The certificate has not expired yet.'),
+        'classification': Rating('good'),
+        'details_list': (keys['web_certificate_not_expired_finding'],),
+    } if keys["web_certificate_not_expired"] else {
+        'description': _('The certificate has expired.'),
+        'classification': Rating('bad'),
+        'details_list': (keys['web_certificate_not_expired_finding'],),
+    }if keys['web_has_ssl'] else {
+        'description': _('Skipping check for certificate expiration because the server does not offer HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
 }
 # Check if server forwarded us to HTTPS version
 # yes: good
@@ -433,14 +453,15 @@ CHECKS['ssl']['redirects_from_https_to_http'] = {
 # PFS available: good
 # Else: bad
 CHECKS['ssl']['web_pfs'] = {
-    'keys': {'web_pfs',},
+    'keys': {'web_pfs','web_pfs_severity'},
     'rating': lambda **keys: {
-        'description': _('The web server is supporting perfect forward secrecy.'),
+        'description': _('The web server supports perfect forward secrecy.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['web_pfs'] else {
-        'description': _('The web server is not supporting perfect forward secrecy.'),
+        'description': _('The web server does not support perfect forward secrecy.'),
         'classification': Rating('bad'),
+        'severity': keys['web_pfs_severity']
         'details_list': None,
     },
     'missing': None,
@@ -460,7 +481,7 @@ CHECKS['ssl']['web_hsts_header'] = {
         'classification': Rating('good'),
         'details_list': None,
     } if keys['web_has_hsts_header'] or keys['web_has_hsts_preload'] else {
-        'description': _('The site is not using HSTS to prevent insecure requests.'),
+        'description': _('The site does not use HSTS to prevent insecure requests.'),
         'classification': Rating('bad'),
         'details_list': None,
     },
@@ -473,15 +494,15 @@ CHECKS['ssl']['web_hsts_header'] = {
 CHECKS['ssl']['web_hsts_header_duration'] = {
     'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header', 'web_has_hsts_header_sufficient_time', 'web_has_ssl'},
     'rating': lambda **keys: None if not keys['web_has_ssl'] else {
-        'description': _('The server is not using HSTS, so not checking HSTS validity duration.'),
+        'description': _('Skipping check of HSTS max-age field because the server does not use HSTS, '),
         'classification': Rating('neutral'),
         'details_list': None,
     } if not (keys['web_has_hsts_header'] or keys['web_has_hsts_preload']) else {
-        'description': _('The site uses HSTS with a sufficiently long duration.'),
+        'description': _('The site uses HSTS with a sufficiently large max-age value.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['web_has_hsts_header_sufficient_time'] else {
-        'description': _('The validity of the HSTS header is too short.'),
+        'description': _('The HSTS header conatains a max-age value, which is too small.'),
         'classification': Rating('bad'),
         'details_list': None,
     },
@@ -494,7 +515,7 @@ CHECKS['ssl']['web_hsts_header_duration'] = {
 CHECKS['ssl']['web_hsts_preload_prepared'] = {
     'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header', 'web_has_hsts_preload', 'web_has_ssl'},
     'rating': lambda **keys: {
-        'description': _("Not checking for HSTS Preloading support, as the server does not offer HTTPS."),
+        'description': _("Skipping check of HSTS preloading support because the server does not use HTTPS."),
         'classification': Rating("neutral"),
         'details_list': None,
     } if not keys['web_has_ssl'] else {
@@ -502,11 +523,11 @@ CHECKS['ssl']['web_hsts_preload_prepared'] = {
         'classification': Rating('good'),
         'details_list': None,
     } if keys['web_has_hsts_preload'] or keys['web_has_hsts_preload_header'] else {
-        'description': _('The site is not using HSTS preloading to prevent insecure requests.'),
+        'description': _('The site is not prepared for HSTS preloading to prevent insecure requests.'),
         'classification': Rating('bad'),
         'details_list': None,
     } if keys['web_has_hsts_header'] else {
-        'description': _('Not checking for HSTS preloading, as the website does not offer HSTS.'),
+        'description': _('Skipping check for HSTS preloading because the website does not use HSTS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -519,11 +540,11 @@ CHECKS['ssl']['web_hsts_preload_prepared'] = {
 CHECKS['ssl']['web_hsts_preload_listed'] = {
     'keys': {'web_has_hsts_preload_header', 'web_has_hsts_header', 'web_has_hsts_preload', 'web_has_ssl'},
     'rating': lambda **keys: {
-        'description': _("Not checking for HSTS Preloading list inclusion, as the server does not offer HTTPS."),
+        'description': _("Skipping check for inclusion in HSTS preloading lists because the server does not offer HTTPS."),
         'classification': Rating("neutral"),
         'details_list': None,
     } if not keys['web_has_ssl'] else {
-        'description': _('The server is part of the Chrome HSTS preload list.'),
+        'description': _('The website is contained in the HSTS preload list of Chrome.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['web_has_hsts_preload'] else {
@@ -531,11 +552,11 @@ CHECKS['ssl']['web_hsts_preload_listed'] = {
         'classification': Rating('bad'),
         'details_list': None
     } if keys['web_has_hsts_preload_header'] else {
-        'description': _('Not checking for inclusion in HSTS preloading lists, as the website does not advertise it.'),
+        'description': _('Skipping check for inclusion in HSTS preloading lists because the server does not advertise it.'),
         'classification': Rating('neutral'),
         'details_list': None,
     } if keys['web_has_hsts_header'] else {
-        'description': _('Not checking for inclusion in HSTS preloading lists, as the website does not offer HSTS.'),
+        'description': _('Skipping check for inclusion in HSTS preloading lists because the website does not offer HSTS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -556,7 +577,7 @@ CHECKS['ssl']['web_has_hpkp_header'] = {
         'classification': Rating('neutral', influences_ranking=False),
         'details_list': None,
     } if keys['web_has_ssl'] else {
-        'description': _('Not checking for HPKP support, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for HPKP support because the server does not offer HTTPS.'),
         'classification': Rating('neutral', influences_ranking=False),
         'details_list': None,
     },
@@ -567,17 +588,18 @@ CHECKS['ssl']['web_has_hpkp_header'] = {
 # No HTTPS at all: neutral
 # Else: bad
 CHECKS['ssl']['web_insecure_protocols_sslv2'] = {
-    'keys': {'web_has_protocol_sslv2', 'web_has_ssl'},
+    'keys': {'web_has_protocol_sslv2', 'web_has_protocol_sslv2_severity', 'web_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server does not support SSLv2.'),
+        'description': _('The server does not support the insecure SSLv2 protocol.'),
         'classification': Rating('good'),
         'details_list': None,
     } if not keys["web_has_protocol_sslv2"] else {
-        'description': _('The server supports SSLv2.'),
+        'description': _('The server supports the insecure SSLv2 protocol.'),
         'classification': Rating('bad'),
+        'severity': keys['web_has_protocol_sslv2_severity'],
         'details_list': None,
     } if keys['web_has_ssl'] else {
-        'description': _('Not checking for SSLv2 support, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for SSLv2 support because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -590,15 +612,15 @@ CHECKS['ssl']['web_insecure_protocols_sslv2'] = {
 CHECKS['ssl']['web_insecure_protocols_sslv3'] = {
     'keys': {'web_has_protocol_sslv3', 'web_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server does not support SSLv3.'),
+        'description': _('The server does not support the insecure SSLv3 protocol.'),
         'classification': Rating('good'),
         'details_list': None,
     } if not keys["web_has_protocol_sslv3"] else {
-        'description': _('The server supports SSLv3.'),
+        'description': _('The server supports the insecure SSLv3 protocol.'),
         'classification': Rating('bad'),
         'details_list': None,
     } if keys['web_has_ssl'] else {
-        'description': _('Not checking for SSLv3 support, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for the insecure SSLv3 protocol because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -610,15 +632,15 @@ CHECKS['ssl']['web_insecure_protocols_sslv3'] = {
 CHECKS['ssl']['web_secure_protocols_tls1'] = {
     'keys': {'web_has_protocol_tls1', 'web_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server supports TLS 1.0.'),
+        'description': _('The server supports the protocol TLS 1.0, which has some known weaknesses.'),
         'classification': Rating('neutral'),
         'details_list': None,
     } if keys["web_has_protocol_tls1"] else {
-        'description': _('The server does not support TLS 1.0.'),
+        'description': _('The server does not support the protocol TLS 1.0, which has some known weaknesses'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['web_has_ssl'] else {
-        'description': _('Not checking for TLS 1.0-support, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for the protocol TLS 1.0 because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -630,15 +652,15 @@ CHECKS['ssl']['web_secure_protocols_tls1'] = {
 CHECKS['ssl']['web_secure_protocols_tls1_1'] = {
     'keys': {'web_has_protocol_tls1_1', 'web_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server supports TLS 1.1.'),
+        'description': _('The server supports the protocol TLS 1.1, which does not support modern encryption techniques.'),
         'classification': Rating('neutral'),
         'details_list': None,
     } if keys["web_has_protocol_tls1_1"] else {
-        'description': _('The server does not support TLS 1.1.'),
+        'description': _('The server does not support the protocol TLS 1.1, which does not support modern encryption techniques.'),
         'classification': Rating('neutral'),
         'details_list': None,
     } if keys['web_has_ssl'] else {
-        'description': _('Not checking for TLS 1.1-support, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for the protocol TLS 1.1 because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -650,15 +672,57 @@ CHECKS['ssl']['web_secure_protocols_tls1_1'] = {
 CHECKS['ssl']['web_secure_protocols_tls1_2'] = {
     'keys': {'web_has_protocol_tls1_2', 'web_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server supports TLS 1.2.'),
+        'description': _('The server supports the protocol TLS 1.2, which supports modern encryption techniques.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys["web_has_protocol_tls1_2"] else {
-        'description': _('The server does not support TLS 1.2.'),
+        'description': _('The server does not support the protocol TLS 1.2, which supports modern encryption techniques'),
         'classification': Rating('critical'),
         'details_list': None,
     }if keys['web_has_ssl'] else {
-        'description': _('Not checking for TLS 1.2-support, as the server does not offer HTTPS.'),
+        'description': _('Skippinf check for the protocol TLS 1.2 because the server does not offer HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for TLS 1.3
+# supported: good
+# Else: critical
+CHECKS['ssl']['web_secure_protocols_tls1_3'] = {
+    'keys': {'web_has_protocol_tls1_3', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The server supports the protocol TLS 1.3, which supports modern encryption techniques.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys["web_has_protocol_tls1_2"] else {
+        'description': _('The server does not support the protocol TLS 1.3, which supports modern encryption techniques'),
+        'classification': Rating('critical'),
+        'details_list': None,
+    }if keys['web_has_ssl'] else {
+        'description': _('Skipping check for the protocol TLS 1.3 because the server does not offer HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for default protocol
+# strong protocol: good
+# Else: bad
+CHECKS['ssl']['web_default_protocol'] = {
+    'keys': {'web_default_protocol', 'web_default_protocol', 'web_default_protocol_finding', 'web_default_protocol_severity', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The server prefers a strong protocol.'),
+        'classification': Rating('good'),
+        'details_list': (keys['web_default_protocol_finding'],),
+        'severity': keys['web_default_protocol_severity'],
+    } if keys["web_default_protocol"] else {
+        'description': _('The server does not prefer a strong protocol.'),
+        'classification': Rating('bad'),
+        'details_list': (keys['web_default_protocol_finding'],),
+        'severity': keys['web_default_protocol_severity'],
+    }if keys['web_has_ssl'] else {
+        'description': _('Skipping check for the default protocol because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -678,7 +742,7 @@ CHECKS['ssl']['mixed_content'] = {
         'classification': Rating('good'),
         'details_list': None,
     } if (not keys['mixed_content'] and keys['final_url'].startswith('https')) else {
-        'description': _('The site was scanned via HTTP only, mixed content checks do not apply.'),
+        'description': _('The site was scanned via HTTP only. Mixed content check does not apply.'),
         'classification': Rating('neutral'),
         'details_list': None,
     },

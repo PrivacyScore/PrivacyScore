@@ -291,6 +291,7 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
     r = scanres(json, 'pfs')
     if r:
         result['{}_pfs'.format(prefix)] = r['severity'] == 'OK'
+        result['{}_pfs_severity'.format(prefix)] = r['severity']
 
     # CAA
     r = scanres(json, 'CAA_record')
@@ -337,8 +338,8 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
     # certificate expired?
     r = scanres(json, 'expiration')
     if r:
-        result['{}_certificate_expired'.format(prefix)] = r['severity'] == 'CRITICAL'
-        result['{}_certificate_expired_finding'.format(prefix)] = r['finding']
+        result['{}_certificate_not_expired'.format(prefix)] = r['severity'] == 'CRITICAL'
+        result['{}_certificate_not_expired_finding'.format(prefix)] = r['finding']
     
     # signature algorithm
     r = scanres(json, 'algorithm')
@@ -374,9 +375,9 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
     r = scanres(json, 'order_proto')
     if r:
         if r['severity'] != 'WARN': # WARN indicates the test was intentionally skipped
-            result['{}_cipher_order_default_protocol'.format(prefix)] = r['severity'] in ['INFO', 'OK']
-            result['{}_cipher_order_default_protocol_severity'.format(prefix)] = r['severity']
-            result['{}_cipher_order_default_protocol_finding'.format(prefix)] = r['finding']
+            result['{}_default_protocol'.format(prefix)] = r['severity'] in ['INFO', 'OK']
+            result['{}_default_protocol_severity'.format(prefix)] = r['severity']
+            result['{}_default_protocol_finding'.format(prefix)] = r['finding']
     
     #subjectAltName present and contains domain?
     r = scanres(json, 'san')
@@ -471,10 +472,9 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
                 'finding': test_result['finding'],
             }
 
-    
-
     result['{}_testssl_missing_ids'.format(prefix)] = missing_ids
     return result
+
 
 def _remote_testssl(hostname: str, remote_host: str) -> bytes:
     """Run testssl over ssh."""
@@ -483,7 +483,6 @@ def _remote_testssl(hostname: str, remote_host: str) -> bytes:
         remote_host,
         hostname,
     ])
-
 
 
 def _local_testssl(hostname: str, check_mx: bool, stage: int) -> bytes:
