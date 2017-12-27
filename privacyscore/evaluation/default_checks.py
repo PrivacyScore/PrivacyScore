@@ -377,8 +377,8 @@ CHECKS['ssl']['web_cert'] = {
     'missing': None
 }
 # Check whether certificate hasn't expired yes
-# not expired: critical
-# Else: bad
+# not expired: good
+# Else: critical
 CHECKS['ssl']['web_certificate_not_expired'] = {
     'keys': {'web_certificate_not_expired', 'web_certificate_not_expired_finding', 'web_has_ssl'},
     'rating': lambda **keys: {
@@ -387,10 +387,72 @@ CHECKS['ssl']['web_certificate_not_expired'] = {
         'details_list': (keys['web_certificate_not_expired_finding'],),
     } if keys["web_certificate_not_expired"] else {
         'description': _('The certificate has expired.'),
-        'classification': Rating('bad'),
+        'classification': Rating('critical'),
         'details_list': (keys['web_certificate_not_expired_finding'],),
     }if keys['web_has_ssl'] else {
         'description': _('Skipping check for certificate expiration because the server does not offer HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check whether certificate hasn't expired yes
+# not expired: good
+# Else: critical
+CHECKS['ssl']['web_certificate_not_expired'] = {
+    'keys': {'web_certificate_not_expired', 'web_certificate_not_expired_finding', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The certificate has not expired yet.'),
+        'classification': Rating('good'),
+        'details_list': (keys['web_certificate_not_expired_finding'],),
+    } if keys["web_certificate_not_expired"] else {
+        'description': _('The certificate has expired.'),
+        'classification': Rating('critical'),
+        'details_list': (keys['web_certificate_not_expired_finding'],),
+    }if keys['web_has_ssl'] else {
+        'description': _('Skipping check for certificate expiration because the server does not offer HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check whether subjectAltName is present and contains domain
+# everyhting fine: good
+# Else: critical
+CHECKS['ssl']['web_valid_san'] = {
+    'keys': {'web_valid_san', 'web_valid_san_severity', 'web_valid_san_finding', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The certificate contains a valid subjectAlName field, which is required by browsers.'),
+        'classification': Rating('good'),
+        'details_list': (keys['web_valid_san'],),
+    } if keys["web_certificate_not_expired"] else {
+        'description': _('The certificate does not contain a valid subjectAltName field, which is required by browsers.'),
+        'classification': Rating('critical'),
+        'details_list': (keys['web_valid_san_finding'],),
+        'severity': keys['web_valid_san_severity']
+    }if keys['web_has_ssl'] else {
+        'description': _('Skipping check for subjectAltName field because the server does not offer HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check whether a poor signature algorithm 
+# not expired: good
+# Else: critical
+CHECKS['ssl']['web_strong_keysize'] = {
+    'keys': {'web_strong_keysize', 'web_strong_keysize_severity', 'web_keysize', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The certificate uses a sufficiently large key size.'),
+        'classification': Rating('good'),
+        'details_list': (keys['web_keysize'],),
+    } if keys["web_certificate_not_expired"] else {
+        'description': _('The certificate does not use a sufficiently strong key size.'),
+        'classification': Rating('bad'),
+        'details_list': (keys['web_keysize'],),
+        'severity': keys['web_strong_keysize_severity']
+    }if keys['web_has_ssl'] else {
+        'description': _('Skipping check for certificate key size because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -463,6 +525,23 @@ CHECKS['ssl']['web_pfs'] = {
         'classification': Rating('bad'),
         'severity': keys['web_pfs_severity']
         'details_list': None,
+    },
+    'missing': None,
+}
+# Check for Perfect Forward Secrecy on Webserver
+# PFS available: good
+# Else: bad
+CHECKS['ssl']['web_session_ticket'] = {
+    'keys': {'web_session_ticket','web_session_ticket_severity', 'web_session_ticket_finding'},
+    'rating': lambda **keys: {
+        'description': _('The web server uses short-living session tickets, which are required for perfect forward secrecy.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['web_session_ticket'] else {
+        'description': _('The web server does not use short-living session tickets, which are required for perfect forward secrecy.'),
+        'classification': Rating('bad'),
+        'severity': keys['web_session_ticket_severity']
+        'details_list': (keys['web_session_ticket_finding'],),
     },
     'missing': None,
 }
@@ -723,6 +802,47 @@ CHECKS['ssl']['web_default_protocol'] = {
         'severity': keys['web_default_protocol_severity'],
     }if keys['web_has_ssl'] else {
         'description': _('Skipping check for the default protocol because the server does not offer HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check whether server has a cipher order
+# yes: good
+# Else: bad
+CHECKS['ssl']['web_cipher_order'] = {
+    'keys': {'web_cipher_order', 'web_cipher_order_severity', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The server has been configured with a cipher order.'),
+        'classification': Rating('good'),
+    } if keys["web_default_protocol"] else {
+        'description': _('The server has not been configured with a cipher order.'),
+        'classification': Rating('bad'),
+        'severity': keys['web_cipher_order_severity'],
+    }if keys['web_has_ssl'] else {
+        'description': _('Skipping check whether the server has been configured with a cipher order because the server does not offer HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check whether server uses a strong default cipher
+# yes: good
+# Else: bad
+CHECKS['ssl']['web_default_cipher'] = {
+    'keys': {'web_default_cipher', 'web_default_cipher_severity', 'web_default_cipher_finding', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The server prefers a strong cipher.'),
+        'classification': Rating('good'),
+        'details_list': (keys['web_default_cipher_finding'],),
+        'severity': keys['web_default_cipher_severity'],
+    } if keys["web_default_protocol"] else {
+        'description': _('The server does not prefer a strong cipher.'),
+        'classification': Rating('bad'),
+        'details_list': (keys['web_default_cipher_finding'],),
+        'severity': keys['web_default_cipher_severity'],
+    }if keys['web_has_ssl'] else {
+        'description': _('Skipping check for the default cipher because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
