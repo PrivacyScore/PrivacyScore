@@ -309,8 +309,8 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
     # neither CRL nor OCSP
     r = scanres(json, 'crl')
     if r:
-        result['{}_neither_crl_nor_ocsp'.format(prefix)] = r['severity'] == 'HIGH'
-        result['{}_neither_crl_nor_ocsp_severity'.format(prefix)] = r['severity']
+        result['{}_either_crl_or_ocsp'.format(prefix)] = r['severity'] in ['INFO', 'OK']
+        result['{}_either_crl_or_ocsp_severity'.format(prefix)] = r['severity']
     
     # OCSP URI
     r = scanres(json, 'ocsp_uri')
@@ -344,15 +344,15 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
     # signature algorithm
     r = scanres(json, 'algorithm')
     if r:
-        result['{}_poor_algorithm'.format(prefix)] = r['severity'] in ['CRITICAL', 'HIGH', 'MEDIUM']
-        result['{}_poor_algorithm_severity'.format(prefix)] = r['severity']
+        result['{}_strong_sig_algorithm'.format(prefix)] = r['severity'] not in ['CRITICAL', 'HIGH', 'MEDIUM']
+        result['{}_strong_sig_algorithm_severity'.format(prefix)] = r['severity']
         result['{}_signature_algorihm'.format(prefix)] = r['finding']
     
     # key size
     r = scanres(json, 'key_size')
     if r:
-        result['{}_poor_keysize'.format(prefix)] = r['severity'] in ['CRITICAL', 'HIGH', 'MEDIUM']
-        result['{}_poor_keysize_severity'.format(prefix)] = r['severity']
+        result['{}_strong_keysize'.format(prefix)] = r['severity'] not in ['CRITICAL', 'HIGH', 'MEDIUM']
+        result['{}_strong_keysize_severity'.format(prefix)] = r['severity']
         if re.search('Server keys ([0-9]+) bits', r['finding']):
             keysize = re.search('Server keys ([0-9]+) bits', r['finding']).group(1)
             result['{}_keysize'.format(prefix)] = keysize
@@ -367,9 +367,9 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
     r = scanres(json, 'order_cipher')
     if r:
         if r['severity'] != 'WARN': # WARN indicates the test was intentionally skipped
-            result['{}_cipher_order_default_cipher'.format(prefix)] = r['severity'] in ['LOW', 'OK']
-            result['{}_cipher_order_default_cipher_severity'.format(prefix)] = r['severity']
-            result['{}_cipher_order_default_cipher_finding'.format(prefix)] = r['finding']
+            result['{}_default_cipher'.format(prefix)] = r['severity'] in ['LOW', 'OK']
+            result['{}_default_cipher_severity'.format(prefix)] = r['severity']
+            result['{}_default_cipher_finding'.format(prefix)] = r['finding']
     
     # default protocol OK?
     r = scanres(json, 'order_proto')
