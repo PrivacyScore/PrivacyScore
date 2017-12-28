@@ -313,6 +313,15 @@ CHECKS['ssl']['https_scan_failed'] = {
     } if keys['web_scan_failed'] else None,
     'missing': None,
 }
+CHECKS['ssl']['web_testssl_incomplete'] = {
+    'keys': {'web_testssl_incomplete'},
+    'rating': lambda **keys: {
+        'description': _('Some results from the testssl scan could not be retrieved.'),
+        'classification': Rating('neutral'),
+        'details_list': None,
+    } if keys['web_testssl_incomplete'] else None,
+    'missing': None,
+}
 # Check if server scan timed out
 # no: Nothing
 # yes: notify, neutral
@@ -446,7 +455,7 @@ CHECKS['ssl']['web_strong_keysize'] = {
         'description': _('The certificate uses a sufficiently large key size.'),
         'classification': Rating('good'),
         'details_list': (keys['web_keysize'],),
-    } if keys["web_certificate_not_expired"] else {
+    } if keys["web_strong_keysize"] else { 
         'description': _('The certificate does not use a sufficiently strong key size.'),
         'classification': Rating('bad'),
         'details_list': (keys['web_keysize'],),
@@ -488,15 +497,17 @@ CHECKS['ssl']['web_either_crl_or_ocsp'] = {
     'rating': lambda **keys: {
         'description': _('The certificate contains information required for revocation checking (CRL or OCSP URI).'),
         'classification': Rating('good'),
+        'details_list': None,
         'severity': keys['web_either_crl_or_ocsp_severity']
     } if keys["web_either_crl_or_ocsp"] else {
         'description': _('The certificate does not contain information required for revocation checking (neither CRL nor OCSP URI).'),
         'classification': Rating('bad'),
+        'details_list': None,
         'severity': keys['web_either_crl_or_ocsp_severity']
     }if keys['web_has_ssl'] else {
         'description': _('Skipping check for certificate revocation checking because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
-        'details_list': None
+        'details_list': None,
     },
     'missing': None,
 }
@@ -508,15 +519,17 @@ CHECKS['ssl']['web_ocsp_stapling'] = {
     'rating': lambda **keys: {
         'description': _('The server performs OCSP stapling.'),
         'classification': Rating('good'),
+        'details_list': None,
         'severity': keys['web_ocsp_stapling_severity']
     } if keys["web_offers_ocsp"] and keys["web_ocsp_stapling"] else {
         'description': _('The certificate does not perform OCSP stapling.'),
         'classification': Rating('bad'),
+        'details_list': None,
         'severity': keys['web_ocsp_stapling_severity']
     }if keys["web_offers_ocsp"] and not keys["web_ocsp_stapling"] else {
         'description': _('Skipping check for OCSP stapling because the server does not offer HTTPS or the certificate does not contain an OCSP URI.'),
         'classification': Rating('neutral'),
-        'details_list': None
+        'details_list': None,
     },
     'missing': None,
 }
@@ -528,19 +541,22 @@ CHECKS['ssl']['web_ocsp_must_staple'] = {
     'rating': lambda **keys: {
         'description': _('The certificate contains the OCSP must staple extension and OCSP stapling is performed.'),
         'classification': Rating('good'),
+        'details_list': None,
         'severity': keys['web_ocsp_must_staple_severity']
     } if keys["web_offers_ocsp"] and keys["web_ocsp_must_staple"] else {
         'description': _('The server does not perform OCSP stapling although the certificate contains the must staple extension.'),
         'classification': Rating('critical'),
+        'details_list': None,
         'severity': keys['web_ocsp_must_staple_severity']
     }if keys["web_offers_ocsp"] and not keys["web_ocsp_must_staple"] and keys["web_ocsp_must_staple_severity"] == "HIGH" else {
         'description': _('The certificate does not contain the must staple extension.'),
         'classification': Rating('bad'),
+        'details_list': None,
         'severity': keys['web_ocsp_must_staple_severity']
     }if keys["web_offers_ocsp"] and not keys["web_ocsp_must_staple"] and keys["web_ocsp_must_staple_severity"] != "HIGH" else {
         'description': _('Skipping check for OCSP must staple extension because the server does not offer HTTPS or the certificate does not contain an OCSP URI.'),
         'classification': Rating('neutral'),
-        'details_list': None
+        'details_list': None,
     },
     'missing': None,
 }
@@ -923,14 +939,16 @@ CHECKS['ssl']['web_cipher_order'] = {
     'rating': lambda **keys: {
         'description': _('The server has been configured with a cipher order.'),
         'classification': Rating('good'),
+        'details_list': None,
     } if keys["web_default_protocol"] else {
         'description': _('The server has not been configured with a cipher order.'),
         'classification': Rating('bad'),
+        'details_list': None,
         'severity': keys['web_cipher_order_severity'],
     }if keys['web_has_ssl'] else {
         'description': _('Skipping check whether the server has been configured with a cipher order because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
-        'details_list': None
+        'details_list': None,
     },
     'missing': None,
 }
@@ -976,6 +994,174 @@ CHECKS['ssl']['web_ciphers_null'] = {
         'severity': keys["web_ciphers"].get('std_NULL')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for NULL cipher support because the server does not offer HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for cipher: aNULL_cipher
+# Supported: bad
+# Else: good
+CHECKS['ssl']['web_ciphers_anull'] = {
+    'keys': {'web_ciphers', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('Anonymous NULL cipher: The server supports this insecure cipher.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["web_ciphers"].get('std_aNULL')['finding'],
+        'severity': keys["web_ciphers"].get('std_aNULL')['severity'],
+    } if keys["web_ciphers"].get('std_aNULL') else {
+        'description': _('Anonymous NULL cipher: The server does not support this insecure cipher.'),
+        'classification': Rating('good'),
+        'details_list': None,
+        'finding': keys["web_ciphers"].get('std_aNULL')['finding'],
+        'severity': keys["web_ciphers"].get('std_aNULL')['severity'],
+    } if keys['web_has_ssl'] else {
+        'description': _('Skipping check for anonymous NULL cipher support because the server does not offer HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for cipher: export cipher
+# Supported: bad
+# Else: good
+CHECKS['ssl']['web_ciphers_export'] = {
+    'keys': {'web_ciphers', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('Export ciphers: The server supports these insecure ciphers.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["web_ciphers"].get('std_EXPORT')['finding'],
+        'severity': keys["web_ciphers"].get('std_EXPORT')['severity'],
+    } if keys["web_ciphers"].get('std_EXPORT') else {
+        'description': _('Export ciphers: The server does not support these insecure ciphers.'),
+        'classification': Rating('good'),
+        'details_list': None,
+        'finding': keys["web_ciphers"].get('std_EXPORT')['finding'],
+        'severity': keys["web_ciphers"].get('std_EXPORT')['severity'],
+    } if keys['web_has_ssl'] else {
+        'description': _('Skipping check for export ciphers support because the server does not offer HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for cipher: des+64bit
+# Supported: bad
+# Else: good
+CHECKS['ssl']['web_ciphers_des_64bit'] = {
+    'keys': {'web_ciphers', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('64 bit and DES ciphers: The server supports these insecure ciphers.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["web_ciphers"].get('std_DES+64Bit')['finding'],
+        'severity': keys["web_ciphers"].get('std_DES+64Bit')['severity'],
+    } if keys["web_ciphers"].get('std_DES+64Bit') else {
+        'description': _('64 bit and DES ciphers: The server does not support these insecure ciphers.'),
+        'classification': Rating('good'),
+        'details_list': None,
+        'finding': keys["web_ciphers"].get('std_DES+64Bit')['finding'],
+        'severity': keys["web_ciphers"].get('std_DES+64Bit')['severity'],
+    } if keys['web_has_ssl'] else {
+        'description': _('Skipping check for 64 bit and DES cipher support because the server does not offer HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for cipher: std_128Bit
+# Supported: bad
+# Else: good
+CHECKS['ssl']['web_ciphers_128bit'] = {
+    'keys': {'web_ciphers', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('Weak 128 bit ciphers: The server supports insecure ciphers such as SEED, IDEA, RC2, and RC4.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["web_ciphers"].get('std_128Bit')['finding'],
+        'severity': keys["web_ciphers"].get('std_128Bit')['severity'],
+    } if keys["web_ciphers"].get('std_DES+64Bit') else {
+        'description': _('Weak 128 bit ciphers: The server does not support insecure ciphers such as SEED, IDEA, RC2, and RC4.'),
+        'classification': Rating('good'),
+        'details_list': None,
+        'finding': keys["web_ciphers"].get('std_128Bit')['finding'],
+        'severity': keys["web_ciphers"].get('std_128Bit')['severity'],
+    } if keys['web_has_ssl'] else {
+        'description': _('Skipping check for weak 128 bit cipher support because the server does not offer HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for cipher: std_3DES
+# Supported: bad
+# Else: good
+CHECKS['ssl']['web_ciphers_3des'] = {
+    'keys': {'web_ciphers', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('3DES cipher: The server supports this outdated cipher.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["web_ciphers"].get('std_3DES')['finding'],
+        'severity': keys["web_ciphers"].get('std_3DES')['severity'],
+    } if keys["web_ciphers"].get('std_3DES') else {
+        'description': _('3DES cipher: The server does not support this outdated cipher.'),
+        'classification': Rating('good'),
+        'details_list': None,
+        'finding': keys["web_ciphers"].get('std_3DES')['finding'],
+        'severity': keys["web_ciphers"].get('std_3DES')['severity'],
+    } if keys['web_has_ssl'] else {
+        'description': _('Skipping check for 3DES cipher support because the server does not offer HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for cipher: std_HIGH
+# Supported: bad
+# Else: good
+CHECKS['ssl']['web_ciphers_high'] = {
+    'keys': {'web_ciphers', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('Modern ciphers: The server does not support ciphers such as AES and Camellia (not offering authenticated encryption).'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["web_ciphers"].get('std_HIGH')['finding'],
+        'severity': keys["web_ciphers"].get('std_HIGH')['severity'],
+    } if keys["web_ciphers"].get('std_HIGH') else {
+        'description': _('Modern ciphers: The server supports ciphers such as AES and Camellia (not offering authenticated encryption).'),
+        'classification': Rating('good'),
+        'details_list': None,
+        'finding': keys["web_ciphers"].get('std_HIGH')['finding'],
+        'severity': keys["web_ciphers"].get('std_HIGH')['severity'],
+    } if keys['web_has_ssl'] else {
+        'description': _('Skipping check for modern cipher support (such as AES+Camellia, no AEAD) because the server does not offer HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for cipher: std_STRONG
+# Supported: bad
+# Else: good
+CHECKS['ssl']['web_ciphers_strong'] = {
+    'keys': {'web_ciphers', 'web_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('Strong ciphers: The server does not support ciphers that offer authenticated encryption.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["web_ciphers"].get('std_STRONG')['finding'],
+        'severity': keys["web_ciphers"].get('std_STRONG')['severity'],
+    } if keys["web_ciphers"].get('std_STRONG') else {
+        'description': _('Strong ciphers: The server does support ciphers that offer authenticated encryption.'),
+        'classification': Rating('good'),
+        'details_list': None,
+        'finding': keys["web_ciphers"].get('std_STRONG')['finding'],
+        'severity': keys["web_ciphers"].get('std_STRONG')['severity'],
+    } if keys['web_has_ssl'] else {
+        'description': _('Skipping check for strong cipher support (with AEAD) because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },

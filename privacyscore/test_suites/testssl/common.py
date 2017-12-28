@@ -346,7 +346,7 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
     if r:
         result['{}_strong_sig_algorithm'.format(prefix)] = r['severity'] not in ['CRITICAL', 'HIGH', 'MEDIUM']
         result['{}_strong_sig_algorithm_severity'.format(prefix)] = r['severity']
-        result['{}_signature_algorihm'.format(prefix)] = r['finding']
+        result['{}_sig_algorihm'.format(prefix)] = r['finding']
     
     # key size
     r = scanres(json, 'key_size')
