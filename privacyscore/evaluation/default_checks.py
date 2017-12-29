@@ -536,6 +536,8 @@ CHECKS['ssl']['web_ocsp_stapling'] = {
 # Check whether certificate contains OCSP must staple field (if OCSP is being used)
 # yes: good
 # Else: bad
+### NOTE: web_ocsp_must_staple is also set to "false" if must staple is present, but server does not perform stapling
+### must differentiate this situation from must staple not being present by looking at severity (= HIGH in this case)
 CHECKS['ssl']['web_ocsp_must_staple'] = {
     'keys': {'web_ocsp_must_staple', 'web_ocsp_must_staple_severity', 'web_offers_ocsp', 'web_has_ssl', 'web_ocsp_stapling'},
     'rating': lambda **keys: {
