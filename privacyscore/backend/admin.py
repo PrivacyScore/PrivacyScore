@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from privacyscore.backend.models import BlacklistEntry, ScanList, Site, \
     ListTag, ListColumn, ListColumnValue, Scan, RawScanResult, ScanResult, \
