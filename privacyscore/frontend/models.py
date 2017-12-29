@@ -8,7 +8,7 @@ class Spotlight(models.Model):
     is_visible = models.BooleanField(default=False)
     order_key = models.IntegerField(default=0)
     image = models.ImageField()
-    scan_list = models.ForeignKey(ScanList)
+    scan_list = models.ForeignKey(ScanList, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
