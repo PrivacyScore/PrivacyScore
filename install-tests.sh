@@ -52,3 +52,12 @@ mkdir tests/vendor/HSTSPreload
 pushd tests/vendor/HSTSPreload
 wget https://chromium.googlesource.com/chromium/src/net/+/master/http/transport_security_state_static.json?format=TEXT -O - | base64 -d | egrep -v "^([ ]*\/\/|$)" > "transport_security_state_static"
 popd
+
+# webapp-version-inferer
+git clone https://github.com/wichmannpas/webapp-version-inferer tests/vendor/webapp-version-inferer
+pushd tests/vendor/webapp-version-inferer
+virtualenv --python `which python3` .pyenv
+. .pyenv/bin/activate
+pip install -r requirements.txt
+deactivate
+popd
