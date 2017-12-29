@@ -338,7 +338,7 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
     # certificate expired?
     r = scanres(json, 'expiration')
     if r:
-        result['{}_certificate_not_expired'.format(prefix)] = r['severity'] == 'CRITICAL'
+        result['{}_certificate_not_expired'.format(prefix)] = r['severity'] != 'CRITICAL'
         result['{}_certificate_not_expired_finding'.format(prefix)] = r['finding']
     
     # signature algorithm
@@ -391,6 +391,7 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
     if r:
         result['{}_session_ticket'.format(prefix)] = r['severity'] in ['OK', 'INFO']
         result['{}_session_ticket_severity'.format(prefix)] = r['severity']
+        result['{}_session_ticket_finding'.format(prefix)] = r['finding']
 
 
     # detect protocols, names are equal to "id" of testssl

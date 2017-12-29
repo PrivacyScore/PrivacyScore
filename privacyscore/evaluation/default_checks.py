@@ -537,24 +537,24 @@ CHECKS['ssl']['web_ocsp_stapling'] = {
 # yes: good
 # Else: bad
 CHECKS['ssl']['web_ocsp_must_staple'] = {
-    'keys': {'web_ocsp_must_staple', 'web_ocsp_must_staple_severity', 'web_offers_ocsp', 'web_has_ssl'},
+    'keys': {'web_ocsp_must_staple', 'web_ocsp_must_staple_severity', 'web_offers_ocsp', 'web_has_ssl', 'web_ocsp_stapling'},
     'rating': lambda **keys: {
         'description': _('The certificate contains the OCSP must staple extension and OCSP stapling is performed.'),
         'classification': Rating('good'),
         'details_list': None,
         'severity': keys['web_ocsp_must_staple_severity']
-    } if keys["web_offers_ocsp"] and keys["web_ocsp_must_staple"] else {
+    } if keys["web_offers_ocsp"] and keys['web_ocsp_stapling'] and keys["web_ocsp_must_staple"] else {
         'description': _('The server does not perform OCSP stapling although the certificate contains the must staple extension.'),
         'classification': Rating('critical'),
         'details_list': None,
         'severity': keys['web_ocsp_must_staple_severity']
-    }if keys["web_offers_ocsp"] and not keys["web_ocsp_must_staple"] and keys["web_ocsp_must_staple_severity"] == "HIGH" else {
-        'description': _('The certificate does not contain the must staple extension.'),
+    } if keys["web_offers_ocsp"] and not keys['web_ocsp_stapling'] and not keys["web_ocsp_must_staple"] and keys["web_ocsp_must_staple_severity"] == "HIGH" else {
+        'description': _('The server performs OCSP stapling. However, the certificate does not contain the must staple extension.'),
         'classification': Rating('bad'),
         'details_list': None,
         'severity': keys['web_ocsp_must_staple_severity']
-    }if keys["web_offers_ocsp"] and not keys["web_ocsp_must_staple"] and keys["web_ocsp_must_staple_severity"] != "HIGH" else {
-        'description': _('Skipping check for OCSP must staple extension because the server does not offer HTTPS or the certificate does not contain an OCSP URI.'),
+    } if keys["web_offers_ocsp"] and keys['web_ocsp_stapling'] and not keys["web_ocsp_must_staple"] and keys["web_ocsp_must_staple_severity"] != "HIGH" else {
+        'description': _('Skipping check for the OCSP must staple extension because the server does not perform OCSP stapling, the certificate does not contain an OCSP URL, or the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None,
     },
@@ -897,7 +897,7 @@ CHECKS['ssl']['web_secure_protocols_tls1_3'] = {
         'description': _('The server supports the protocol TLS 1.3, which supports modern encryption techniques.'),
         'classification': Rating('good'),
         'details_list': None,
-    } if keys["web_has_protocol_tls1_2"] else {
+    } if keys["web_has_protocol_tls1_3"] else {
         'description': _('The server does not support the protocol TLS 1.3, which supports modern encryption techniques'),
         'classification': Rating('critical'),
         'details_list': None,
@@ -940,7 +940,7 @@ CHECKS['ssl']['web_cipher_order'] = {
         'description': _('The server has been configured with a cipher order.'),
         'classification': Rating('good'),
         'details_list': None,
-    } if keys["web_default_protocol"] else {
+    } if keys["web_cipher_order"] else {
         'description': _('The server has not been configured with a cipher order.'),
         'classification': Rating('bad'),
         'details_list': None,
@@ -962,7 +962,7 @@ CHECKS['ssl']['web_default_cipher'] = {
         'classification': Rating('good'),
         'details_list': (keys['web_default_cipher_finding'],),
         'severity': keys['web_default_cipher_severity'],
-    } if keys["web_default_protocol"] else {
+    } if keys["web_default_cipher"] else {
         'description': _('The server does not prefer a strong cipher.'),
         'classification': Rating('bad'),
         'details_list': (keys['web_default_cipher_finding'],),
@@ -990,8 +990,9 @@ CHECKS['ssl']['web_ciphers_null'] = {
         'description': _('NULL cipher: The server does not support this insecure cipher.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_ciphers"].get('std_NULL')['finding'],
-        'severity': keys["web_ciphers"].get('std_NULL')['severity'],
+        # don't do this, because keys["web_ciphers"].get('std_NULL') == None in this case
+        #'finding': keys["web_ciphers"].get('std_NULL')['finding'],
+        #'severity': keys["web_ciphers"].get('std_NULL')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for NULL cipher support because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1014,8 +1015,6 @@ CHECKS['ssl']['web_ciphers_anull'] = {
         'description': _('Anonymous NULL cipher: The server does not support this insecure cipher.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_ciphers"].get('std_aNULL')['finding'],
-        'severity': keys["web_ciphers"].get('std_aNULL')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for anonymous NULL cipher support because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1038,8 +1037,6 @@ CHECKS['ssl']['web_ciphers_export'] = {
         'description': _('Export ciphers: The server does not support these insecure ciphers.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_ciphers"].get('std_EXPORT')['finding'],
-        'severity': keys["web_ciphers"].get('std_EXPORT')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for export ciphers support because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1062,8 +1059,6 @@ CHECKS['ssl']['web_ciphers_des_64bit'] = {
         'description': _('64 bit and DES ciphers: The server does not support these insecure ciphers.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_ciphers"].get('std_DES+64Bit')['finding'],
-        'severity': keys["web_ciphers"].get('std_DES+64Bit')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for 64 bit and DES cipher support because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1086,8 +1081,6 @@ CHECKS['ssl']['web_ciphers_128bit'] = {
         'description': _('Weak 128 bit ciphers: The server does not support insecure ciphers such as SEED, IDEA, RC2, and RC4.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_ciphers"].get('std_128Bit')['finding'],
-        'severity': keys["web_ciphers"].get('std_128Bit')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for weak 128 bit cipher support because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1110,8 +1103,6 @@ CHECKS['ssl']['web_ciphers_3des'] = {
         'description': _('3DES cipher: The server does not support this outdated cipher.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_ciphers"].get('std_3DES')['finding'],
-        'severity': keys["web_ciphers"].get('std_3DES')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for 3DES cipher support because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1134,8 +1125,6 @@ CHECKS['ssl']['web_ciphers_high'] = {
         'description': _('Modern ciphers: The server supports ciphers such as AES and Camellia (not offering authenticated encryption).'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_ciphers"].get('std_HIGH')['finding'],
-        'severity': keys["web_ciphers"].get('std_HIGH')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for modern cipher support (such as AES+Camellia, no AEAD) because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1158,8 +1147,6 @@ CHECKS['ssl']['web_ciphers_strong'] = {
         'description': _('Strong ciphers: The server does support ciphers that offer authenticated encryption.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_ciphers"].get('std_STRONG')['finding'],
-        'severity': keys["web_ciphers"].get('std_STRONG')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for strong cipher support (with AEAD) because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1183,8 +1170,6 @@ CHECKS['ssl']['web_vuln_rc4'] = {
         'description': _('RC4: The server does not support this insecure cipher.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('rc4')['finding'],
-        'severity': keys["web_vulnerabilities"].get('rc4')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for RC4 cipher support because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1208,8 +1193,6 @@ CHECKS['ssl']['web_vuln_heartbleed'] = {
         'description': _('Heartbleed attack: The server seems not to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('heartbleed')['finding'],
-        'severity': keys["web_vulnerabilities"].get('heartbleed')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check check for Heartbleed vulnerability because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1232,8 +1215,6 @@ CHECKS['ssl']['web_vuln_ccs'] = {
         'description': _('CCS attack: The server seems not to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('ccs')['finding'],
-        'severity': keys["web_vulnerabilities"].get('ccs')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for CCS vulnerability because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1256,8 +1237,6 @@ CHECKS['ssl']['web_vuln_ticketbleed'] = {
         'description': _('Ticketbleed attack: The server seems not to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('ticketbleed')['finding'],
-        'severity': keys["web_vulnerabilities"].get('ticketbleed')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for Ticketbleed vulnerability because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1280,8 +1259,6 @@ CHECKS['ssl']['web_vuln_robot'] = {
         'description': _('ROBOT attack: The server seems not to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('ROBOT')['finding'],
-        'severity': keys["web_vulnerabilities"].get('ROBOT')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for ROBOT vulnerability because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1304,8 +1281,6 @@ CHECKS['ssl']['web_vuln_secure_renego'] = {
         'description': _('Secure re-negotiation: The server seems not to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('secure-renego')['finding'],
-        'severity': keys["web_vulnerabilities"].get('secure-renego')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for secure re-negotiation vulnerability because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1328,8 +1303,6 @@ CHECKS['ssl']['web_vuln_secure_client_renego'] = {
         'description': _('Secure client re-negotiation: The server seems not to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('sec_client_renego')['finding'],
-        'severity': keys["web_vulnerabilities"].get('sec_client_renego')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for secure client re-negotiation vulnerability because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1352,8 +1325,6 @@ CHECKS['ssl']['web_vuln_crime'] = {
         'description': _('CRIME attack: The server seems not to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('crime')['finding'],
-        'severity': keys["web_vulnerabilities"].get('crime')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for CRIME attack because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1376,8 +1347,6 @@ CHECKS['ssl']['web_vuln_breach'] = {
         'description': _('BREACH attack: The server does not seem to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('breach')['finding'],
-        'severity': keys["web_vulnerabilities"].get('breach')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping to check for BREACH vulnerability because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1400,8 +1369,6 @@ CHECKS['ssl']['web_vuln_poodle'] = {
         'description': _('POODLE attack: The server does not seem to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('poodle_ssl')['finding'],
-        'severity': keys["web_vulnerabilities"].get('poodle_ssl')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for POODLE vulnerability because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1424,8 +1391,6 @@ CHECKS['ssl']['web_vuln_fallback_scsv'] = {
         'description': _('TLS_FALLBACK_SCSV: The server implements this downgrade attack prevention mechanism.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('fallback_scsv')['finding'],
-        'severity': keys["web_vulnerabilities"].get('fallback_scsv')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for TLS_FALLBACK_SCSV downgrade attack prevention because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1448,8 +1413,6 @@ CHECKS['ssl']['web_vuln_sweet32'] = {
         'description': _('SWEET32 attack: The server seems not to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('sweet32')['finding'],
-        'severity': keys["web_vulnerabilities"].get('sweet32')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for SWEET32 vulnerabilit because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1472,8 +1435,6 @@ CHECKS['ssl']['web_vuln_freak'] = {
         'description': _('FREAK attack: The server does not seem to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('freak')['finding'],
-        'severity': keys["web_vulnerabilities"].get('freak')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for FREAK vulnerability because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1496,8 +1457,6 @@ CHECKS['ssl']['web_vuln_drown'] = {
         'description': _('DROWN attack: The server does not seem to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('drown')['finding'],
-        'severity': keys["web_vulnerabilities"].get('drown')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for DROWN vulnerability because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1520,8 +1479,6 @@ CHECKS['ssl']['web_vuln_logjam'] = {
         'description': _('LOGJAM attack: The server does not seem to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('logjam')['finding'],
-        'severity': keys["web_vulnerabilities"].get('logjam')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for LOGJAM vulnerability because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1544,8 +1501,6 @@ CHECKS['ssl']['web_vuln_logjam_common_primes'] = {
         'description': _('LOGJAM common primes: The server does not use a common prime number.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('LOGJAM_common primes')['finding'],
-        'severity': keys["web_vulnerabilities"].get('LOGJAM_common primes')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for LOGJAM common primes because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1568,8 +1523,6 @@ CHECKS['ssl']['web_vuln_beast_cbcssl3'] = {
         'description': _('BEAST attack: The server does not support CBC ciphers with the SSL 3.0 protcol.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('cbc_ssl3')['finding'],
-        'severity': keys["web_vulnerabilities"].get('cbc_ssl3')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for CBC ciphers in the SSL 3.0 protocol (BEAST attack) because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1592,8 +1545,6 @@ CHECKS['ssl']['web_vuln_beast_cbctls1'] = {
         'description': _('BEAST attack: The server does not support CBC ciphers with the TLS 1.0 protcol.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('cbc_tls1')['finding'],
-        'severity': keys["web_vulnerabilities"].get('cbc_tls1')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for CBC ciphers in the TLS 1.0 protocol (BEAST attack) because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1616,8 +1567,6 @@ CHECKS['ssl']['web_vuln_beast'] = {
         'description': _('BEAST attack: The server does not seem to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('beast')['finding'],
-        'severity': keys["web_vulnerabilities"].get('beast')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for the BEAST vulnerability because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -1640,8 +1589,6 @@ CHECKS['ssl']['web_vuln_lucky13'] = {
         'description': _('LUCKY13 attack: The server does not seem to be vulnerable'),
         'classification': Rating('good'),
         'details_list': None,
-        'finding': keys["web_vulnerabilities"].get('lucky13')['finding'],
-        'severity': keys["web_vulnerabilities"].get('lucky13')['severity'],
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for the LUCKY13 vulnerability because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
