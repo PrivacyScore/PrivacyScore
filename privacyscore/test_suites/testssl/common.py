@@ -454,6 +454,18 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
                 'finding': test_result['finding'],
             }
     
+    # If none of the vulnerabilities has been present, remove the entry from
+    # the dict to avoid that there are this is evaluated into false "everything is good"
+    # This can happen with the multi-stage testssl, if the stage that evaluates
+    # vulnerabilities is never executed because the server goes dark using fail2ban etc.
+    # after a previous stage was run.
+    result.pop('{}_vulnerabilities'.format(prefix))
+    
+    # TODO: Think about moving from web_vulnerabilities['heartbleed']['severity'] to
+    # a flat dict: web_vuln_heartbleed['severity]. This would be in line with all
+    # other checks (also applies to ciphers)
+    
+    
     # Detect ciphers
     ciphers = ('std_NULL', 'std_aNULL', 'std_EXPORT', 'std_DES+64Bit',
                'std_128Bit', 'std_3DES', 'std_HIGH', 'std_STRONG'
@@ -472,6 +484,7 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
                 'severity': test_result['severity'],
                 'finding': test_result['finding'],
             }
+    result.pop('{}_ciphers'.format(prefix))
 
     result['{}_testssl_missing_ids'.format(prefix)] = missing_ids
     return result
