@@ -649,7 +649,7 @@ CHECKS['ssl']['web_session_ticket'] = {
     },
     'missing': None,
 }
-# Checks for HSTS Preload header
+# Checks for HSTS header
 # HSTS present: good
 # No HSTS: bad
 # No HTTPS at all: Neutral
@@ -670,7 +670,7 @@ CHECKS['ssl']['web_hsts_header'] = {
     },
     'missing': None,
 }
-# Checks for HSTS Preload header duration
+# Checks for HSTS header duration
 # HSTS duration good: good
 # Too short: bad
 # No HTTPS at all: Neutral
@@ -762,6 +762,40 @@ CHECKS['ssl']['web_has_hpkp_header'] = {
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for HPKP support because the server does not offer HTTPS.'),
         'classification': Rating('neutral', influences_ranking=False),
+        'details_list': None,
+    },
+    'missing': None,
+}
+# Check for CAA DNS record
+# available: good
+# Else: bad
+CHECKS['ssl']['web_caa_record'] = {
+    'keys': {'web_caa_record','web_caa_record_severity'},
+    'rating': lambda **keys: {
+        'description': _('The domain name of the site contains a valid CAA record.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['web_caa_record'] else {
+        'description': _('The domain name of the site does not contain a valid CAA record.'),
+        'classification': Rating('bad'),
+        'severity': keys['web_caa_record_severity'],
+        'details_list': None,
+    },
+    'missing': None,
+}
+# Check for certificate transparency TLS extension
+# PFS available: good
+# Else: bad
+CHECKS['ssl']['web_certificate_transparency'] = {
+    'keys': {'web_certificate_transparency','web_certificate_transparency'},
+    'rating': lambda **keys: {
+        'description': _('The server offers a certificate transparency mechanism as specified in RFC 6962.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['web_caa_record'] else {
+        'description': _('The server does not offer a certificate transparency mechanism as specified in RFC 6962.'),
+        'classification': Rating('bad'),
+        'severity': keys['web_caa_record_severity'],
         'details_list': None,
     },
     'missing': None,
@@ -1837,6 +1871,23 @@ CHECKS['mx']['mx_session_ticket'] = {
         'classification': Rating('bad'),
         'severity': keys['mx_session_ticket_severity'],
         'details_list': (keys['mx_session_ticket_finding'],),
+    },
+    'missing': None,
+}
+# Check for CAA DNS record
+# available: good
+# Else: bad
+CHECKS['mx']['mx_caa_record'] = {
+    'keys': {'mx_caa_record','mx_caa_record_severity'},
+    'rating': lambda **keys: {
+        'description': _('The domain name of the mail server contains a valid CAA record.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['mx_caa_record'] else {
+        'description': _('The domain name of the mail server does not contain a valid CAA record.'),
+        'classification': Rating('bad'),
+        'severity': keys['mx_caa_record_severity'],
+        'details_list': None,
     },
     'missing': None,
 }
@@ -3124,21 +3175,22 @@ CHECKS['mx']['mx_vuln_ccs']['longdesc'] = """<p>The ChangeCipherSpec-Bug was a c
 CHECKS['ssl']['web_vuln_ccs']['labels'] = \
 CHECKS['mx']['mx_vuln_ccs']['labels'] = ['unreliable']
 
-CHECKS['ssl']['web_vuln_ticketbleed']['title'] = \
-CHECKS['mx']['mx_vuln_ticketbleed']['title'] = "Check for protection against Ticketbleed"
-CHECKS['ssl']['web_vuln_ticketbleed']['longdesc'] = \
-CHECKS['mx']['mx_vuln_ticketbleed']['longdesc'] = """<p>The Ticketbleed-Bug was a programming error in enterprise-level hardware.</p>
-<p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
-<p><strong>Reliability: reliable.</strong></p>
-<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
-<p>Further reading:</p>
-<ul>
-<li>CVE-2016-9244</li>
-</ul>
-""" 
-CHECKS['ssl']['web_vuln_ticketbleed']['labels'] = \
-CHECKS['mx']['mx_vuln_ticketbleed']['labels'] = ['experimental']
+## disabled because not part of testssl result
+## CHECKS['ssl']['web_vuln_ticketbleed']['title'] = \
+## CHECKS['mx']['mx_vuln_ticketbleed']['title'] = "Check for protection against Ticketbleed"
+## CHECKS['ssl']['web_vuln_ticketbleed']['longdesc'] = \
+## CHECKS['mx']['mx_vuln_ticketbleed']['longdesc'] = """<p>The Ticketbleed-Bug was a programming error in enterprise-level hardware.</p>
+## <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+## <p><strong>Reliability: reliable.</strong></p>
+## <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+## <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+## <p>Further reading:</p>
+## <ul>
+## <li>CVE-2016-9244</li>
+## </ul>
+## """ 
+## CHECKS['ssl']['web_vuln_ticketbleed']['labels'] = \
+## CHECKS['mx']['mx_vuln_ticketbleed']['labels'] = ['experimental']
 
 CHECKS['ssl']['web_vuln_secure_renego']['title'] = \
 CHECKS['mx']['mx_vuln_secure_renego']['title'] = "Check for Secure Renegotiation"
@@ -3188,21 +3240,22 @@ CHECKS['mx']['mx_vuln_crime']['longdesc'] = """<p>Description will be added soon
 CHECKS['ssl']['web_vuln_crime']['labels'] = \
 CHECKS['mx']['mx_vuln_crime']['labels'] = ['reliable']
 
-CHECKS['ssl']['web_vuln_breach']['title'] = \
-CHECKS['mx']['mx_vuln_breach']['title'] = "Check for protection against BREACH"
-CHECKS['ssl']['web_vuln_breach']['longdesc'] = \
-CHECKS['mx']['mx_vuln_breach']['longdesc'] = """<p>Description will be added soon.</p>
-<p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
-<p><strong>Reliability: reliable.</strong></p>
-<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
-<p>Further reading:</p>
-<ul>
-<li>CVE-2013-3587</li>
-</ul>
-""" 
-CHECKS['ssl']['web_vuln_breach']['labels'] = \
-CHECKS['mx']['mx_vuln_breach']['labels'] = ['reliable']
+## disabled because not part of testssl result
+## CHECKS['ssl']['web_vuln_breach']['title'] = \
+## CHECKS['mx']['mx_vuln_breach']['title'] = "Check for protection against BREACH"
+## CHECKS['ssl']['web_vuln_breach']['longdesc'] = \
+## CHECKS['mx']['mx_vuln_breach']['longdesc'] = """<p>Description will be added soon.</p>
+## <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+## <p><strong>Reliability: reliable.</strong></p>
+## <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+## <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+## <p>Further reading:</p>
+## <ul>
+## <li>CVE-2013-3587</li>
+## </ul>
+## """ 
+## CHECKS['ssl']['web_vuln_breach']['labels'] = \
+## CHECKS['mx']['mx_vuln_breach']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_vuln_poodle']['title'] = \
 CHECKS['mx']['mx_vuln_poodle']['title'] = "Check for protection against POODLE"
