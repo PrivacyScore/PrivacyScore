@@ -25,12 +25,12 @@ CHECKS = {
 CHECKS['privacy']['openwpm_scan_failed'] = {
     'keys': {'success'},
     'rating': lambda **keys: {
-        'description': _('The website scan has encountered an error: OpenWPM timed out. The results shown in this category are invalid.'),
+        'description': _('The OpenWPM scan failed: It timed out. Some results are missing, some may be inaccurate.'),
         'classification': Rating('neutral', devaluates_group=True),
         'details_list': None
     } if not keys['success'] else None,
     'missing': {
-        'description': _('The website scan has encountered an error: OpenWPM has not returned a result. The results shown in this category are invalid.'),
+        'description': _('The OpenWPM scan failed: It returned no result. Some results are missing, some may be inaccurate.'),
         'classification': Rating('neutral', devaluates_group=True),
         'details_list': None,
     }
@@ -41,13 +41,13 @@ CHECKS['privacy']['openwpm_scan_failed'] = {
 CHECKS['privacy']['third_parties'] = {
     'keys': {'third_parties_count', 'third_parties'},
     'rating': lambda **keys: {
-        'description': _('The site does not use any third parties.'),
+        'description': _('The site does not include content from third-party servers.'),
         'classification': Rating('good'),
         'details_list': None
     } if keys['third_parties_count'] == 0 else {
         'description': ungettext_lazy(
-            'The site is using one third party.',
-            'The site is using %(count)d third parties.',
+            'The site is using one third party server.',
+            'The site is using %(count)d third party servers.',
             keys['third_parties_count']) % {
                 'count': keys['third_parties_count']},
         'classification':  Rating('bad'),
@@ -60,13 +60,13 @@ CHECKS['privacy']['third_parties'] = {
 CHECKS['privacy']['third_party-trackers'] = {
     'keys': {'tracker_requests',},
     'rating': lambda **keys: {
-        'description': _('The site does not use any known tracking- or advertising companies.'),
+        'description': _('The site does not include content from any well-known tracking or advertising companies.'),
         'classification': Rating('good'),
         'details_list': [],
     } if len(keys['tracker_requests']) == 0 else {
         'description': ungettext_lazy(
-            'The site is using one known tracking- or advertising company.',
-            'The site is using %(count)d known tracking- or advertising companies.',
+            'The site includes content from one well-known tracking or advertising company.',
+            'The site includes content from %(count)d well-known tracking or advertising companies.',
             len(keys['tracker_requests'])) % {
                 'count': len(keys['tracker_requests'])},
         'classification':  Rating('bad'),
@@ -83,7 +83,7 @@ CHECKS['privacy']['cookies_1st_party'] = {
         'classification': Rating('good'),
         'details_list': None
     } if keys['cookie_stats']["first_party_short"] == 0 and keys['cookie_stats']["first_party_long"] == 0 else {
-        'description': _('The website itself is setting %(short)d short-term and %(long)d long-term cookies, and %(flash)d flash cookies.') % {
+        'description': _('The website itself is setting %(short)d short-term, %(long)d long-term cookies, and %(flash)d flash cookies.') % {
                 'short': keys['cookie_stats']["first_party_short"],
                 'long': keys['cookie_stats']["first_party_long"],
                 'flash': keys['cookie_stats']["first_party_flash"]},
@@ -98,11 +98,11 @@ CHECKS['privacy']['cookies_1st_party'] = {
 CHECKS['privacy']['cookies_3rd_party'] = {
     'keys': {'cookie_stats',},
     'rating': lambda **keys: {
-        'description': _('No one else is setting any cookies.'),
+        'description': _('Third-party servers are not setting any cookies.'),
         'classification': Rating('good'),
         'details_list': []
     } if keys['cookie_stats']["third_party_short"] == 0 and keys['cookie_stats']["third_party_long"] == 0 else {
-        'description': _('Third parties are setting %(short)d short-term, %(long)d long-term and %(flash)d flash cookies, %(notrack)d of which are set by %(uniqtrack)d known trackers.') % {
+        'description': _('Third-party servers are setting %(short)d short-term, %(long)d long-term, and %(flash)d flash cookies. %(notrack)d of these cookies are set by %(uniqtrack)d well-known tracking or advertising companies.') % {
                 'short': keys['cookie_stats']["third_party_short"],
                 'long': keys['cookie_stats']["third_party_long"],
                 "notrack": keys['cookie_stats']["third_party_track"],
@@ -139,11 +139,11 @@ CHECKS['privacy']['google_analytics_anonymizeIP_not_set'] = {
         'classification': Rating('neutral'),
         'details_list': None
     } if not keys["google_analytics_present"] else {
-        'description': _('The site uses Google Analytics without the anonymizeIP privacy mechanism.'),
+        'description': _('At least one of the tracking requests sent to Google Analytics did not carry the anonymizeIP (aip) flag.'),
         'classification': Rating('bad'),
         'details_list': None
     } if keys['google_analytics_anonymizeIP_not_set'] else {
-        'description': _('The site uses Google Analytics. However, it instructs Google to store only anonymized IPs.'),
+        'description': _('The site instructs Google to store only anonymized IPs.'),
         'classification': Rating('good'),
         'details_list': None,
     },
@@ -172,12 +172,12 @@ CHECKS['privacy']['mailserver_locations'] = {
 CHECKS['privacy']['server_locations'] = {
     'keys': {'a_locations', 'mx_locations'},
     'rating': lambda **keys: {
-        'description': _('The geo-location(s) of the web server(s) and the mail server(s) are not identical.'),
+        'description': _('The geo-location(s) of the web server(s) and the mail server(s) are not in the same country.'),
         'classification': Rating('bad'),
         'details_list': None
     } if (keys['a_locations'] and keys['mx_locations'] and
           set(keys['a_locations']) != set(keys['mx_locations'])) else {
-        'description': _('The geo-location(s) of the web server(s) and the mail server(s) are identical.'),
+        'description': _('The geo-location(s) of the web server(s) and the mail server(s) are in the same country.'),
         'classification': Rating('good'),
         'details_list': None
     } if len(keys['mx_locations']) > 0 else {
@@ -198,7 +198,7 @@ CHECKS['privacy']['server_locations'] = {
 CHECKS['security']['leaks'] = {
     'keys': {'leaks','reachable','success'},
     'rating': lambda **keys: {
-        'description': _('Since the site was unreachable or the OpenWPM scan failed, the serverleaks check cannot be performed.'),
+        'description': _('Since the site was unreachable or the OpenWPM scan failed, the serverleaks check is skipped.'),
         'classification': Rating("neutral"),
         'details_list': None
     } if not keys['reachable'] or not keys['success'] else {
