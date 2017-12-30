@@ -2706,15 +2706,15 @@ CHECKS['mx']['mx_vuln_lucky13'] = {
 }
 
 # Add textual descriptions and labels and stuff
-CHECKS['privacy']['openwpm_scan_failed']['title'] = "Check if Website scan succeeded"
-CHECKS['privacy']['openwpm_scan_failed']['longdesc'] = '''<p>Sometimes, a scan can go wrong and not deliver any results. This check tests if the scan of the website using the OpenWPM tool succeeded.</p>
+CHECKS['privacy']['openwpm_scan_failed']['title'] = "Check if OpenWPM scan succeeded"
+CHECKS['privacy']['openwpm_scan_failed']['longdesc'] = '''<p>Sometimes, a scan can go wrong and not return any results. This check tests if the scan of the website using the OpenWPM tool succeeded.</p>
 <p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>'''
 CHECKS['privacy']['openwpm_scan_failed']['labels'] = ['informational']
 
-CHECKS['privacy']['third_parties']['title'] = "Check if 3rd party embeds are being used"
-CHECKS['privacy']['third_parties']['longdesc'] = '''<p>Many websites are using services provided by third parties to enhance their websites. However, this use of third parties has privacy implications for the users, as the information that they are visiting a particular website is also disclosed to all used third parties.</p>
-<p><strong>Conditions for passing:</strong> Test passes if no 3rd party resources are being embedded on the website.</p>
+CHECKS['privacy']['third_parties']['title'] = "Check for content from third-party servers"
+CHECKS['privacy']['third_parties']['longdesc'] = '''<p>Many websites are using services provided by third parties. However, including content from third parties has privacy implications for users because the fact that they are visiting a particular website is disclosed to the third parties.</p>
+<p><strong>Conditions for passing:</strong> Test passes if no third-party resources are retrieved when the website is visited.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
@@ -2724,11 +2724,11 @@ CHECKS['privacy']['third_parties']['longdesc'] = '''<p>Many websites are using s
 </ul>''' 
 CHECKS['privacy']['third_parties']['labels'] = ['reliable']
 
-CHECKS['privacy']['third_party-trackers']['title'] = 'Check if embedded 3rd parties are known trackers'
-CHECKS['privacy']['third_party-trackers']['longdesc'] = '''<p>Often, web tracking is done through embedding trackers and advertising companies as third parties in the website. This test checks if any of the 3rd parties are known trackers or advertisers, as determined by matching them against a number of blocking lists (see “conditions for passing”).</p>
-<p><strong>Conditions for passing:</strong> Test passes if none of the embedded 3rd parties is a known tracker, as determined by a combination of three common blocking rulesets for AdBlock Plus: the EasyList, EasyPrivacy and Fanboy’s Annoyance List (which covers social media embeds).</p>
+CHECKS['privacy']['third_party-trackers']['title'] = 'Check for known trackers'
+CHECKS['privacy']['third_party-trackers']['longdesc'] = '''<p>Often, web tracking is done through embedding trackers and advertising companies as third parties in the website. This test checks if any of the third parties are known trackers or advertisers, as determined by matching them against a number of blocking lists (see “conditions for passing”).</p>
+<p><strong>Conditions for passing:</strong> Test passes if none of the embedded third parties is a known tracker, as determined by a combination of three common blocking rulesets: EasyList, EasyPrivacy, and Fanboy’s Annoyance List (which covers social media embeds).</p>
 <p><strong>Reliability: reliable.</strong></p>
-<p><strong>Potential scan errors:</strong> Due to modifications to the list to make them compatible with our system, false positives may be introduced in rare conditions (e.g., if rules were blocking only specific resource types).</p>
+<p><strong>Potential scan errors:</strong> Parsing errors may introduce false positives under rare conditions (e.g., if rules were blocking only specific resource types).</p>
 <p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 <p>Further reading:</p>
 <ul>
@@ -2737,9 +2737,9 @@ CHECKS['privacy']['third_party-trackers']['longdesc'] = '''<p>Often, web trackin
 ''' 
 CHECKS['privacy']['third_party-trackers']['labels'] = ['reliable']
 
-CHECKS['privacy']['cookies_1st_party']['title'] = "Determine how many cookies the website sets"
-CHECKS['privacy']['cookies_1st_party']['longdesc'] = '''<p>Cookies can be used to track you over multiple visits, but they also have benign uses. This test checks how many cookies the website itself is setting.</p>
-<p><strong>Conditions for passing:</strong> The test will pass if no cookies are set. Otherwise, it will be neutral.</p>
+CHECKS['privacy']['cookies_1st_party']['title'] = "Count first-party cookies"
+CHECKS['privacy']['cookies_1st_party']['longdesc'] = '''<p>Cookies can be used to keep track of a user over multiple requests. Originally, cookies were only used for benign uses such as shopping carts. Today they are often used to track users over multiple websites. This test checks how many cookies the website itself is setting.</p>
+<p><strong>Conditions for passing:</strong> The test will pass if no cookies are being set. Otherwise, it will be neutral.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
@@ -2750,9 +2750,9 @@ CHECKS['privacy']['cookies_1st_party']['longdesc'] = '''<p>Cookies can be used t
 ''' 
 CHECKS['privacy']['cookies_1st_party']['labels'] = ['reliable']
 
-CHECKS['privacy']['cookies_3rd_party']['title'] = "Determine how many cookies are set by third parties"
-CHECKS['privacy']['cookies_3rd_party']['longdesc'] = """<p>Cookies can also be set by third parties that are included in the website. This test counts 3rd party cookies, and matches them against the same tracker and advertising lists that the 3rd party tests use.</p>
-<p><strong>Conditions for passing:</strong> The test will pass if no cookies are set by third parties.</p>
+CHECKS['privacy']['cookies_3rd_party']['title'] = "Count third-party cookies"
+CHECKS['privacy']['cookies_3rd_party']['longdesc'] = """<p>Cookies can also be set by third parties whose content is embedded in a website. This test counts third-party cookies. It also matches them against the same tracker and advertising lists that the third-party test uses.</p>
+<p><strong>Conditions for passing:</strong> The test will pass if no cookies are being set by third parties.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
@@ -2764,8 +2764,8 @@ CHECKS['privacy']['cookies_3rd_party']['longdesc'] = """<p>Cookies can also be s
 CHECKS['privacy']['cookies_3rd_party']['labels'] = ['reliable']
 
 CHECKS['privacy']['google_analytics_present']['title'] = 'Check if Google Analytics is being used'
-CHECKS['privacy']['google_analytics_present']['longdesc'] = """<p>Google Analytics is a very prevalent tracker, and allows Google to track users over wide swaths of the internet. This test checks if Google Analytics is present on the website.</p>
-<p><strong>Conditions for passing:</strong> Test is passes if Google Analytics is not being used.</p>
+CHECKS['privacy']['google_analytics_present']['longdesc'] = """<p>Google Analytics is a very prevalent tracker, and allows Google to track users on a large part of the internet. This test checks whether a website uses Google Analytics.</p>
+<p><strong>Conditions for passing:</strong> Test passes if Google Analytics is not being used.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
@@ -2776,9 +2776,9 @@ CHECKS['privacy']['google_analytics_present']['longdesc'] = """<p>Google Analyti
 """ 
 CHECKS['privacy']['google_analytics_present']['labels'] = ['reliable']
 
-CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['title'] = "Check if Google Analytics has the privacy extension enabled"
-CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['longdesc'] = """<p>Google Analytics offers a special parameter to anonymize the IPs of visitors. In some countries (e.g. Germany), website operators are legally required to use this parameter. This test checks if the parameter is being used.</p>
-<p><strong>Conditions for passing:</strong> Test passes if Google Analytics is being used with the anonymizeIp extension. If Google Analytics is not being used, this test is neutral. Otherwise, the test fails, and the operation of the website may be illegal in certain juristictions.</p>
+CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['title'] = "Check if Google Analytics is configured for privacy protection"
+CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['longdesc'] = """<p>Google Analytics offers a special parameter to anonymize the IPs of visitors. In some countries (e.g., Germany), website operators may be legally required to use this parameter. This test checks if the parameter is being used.</p>
+<p><strong>Conditions for passing:</strong> Test passes if Google Analytics is being used with the anonymizeIp extension. If Google Analytics is not being used, this test is neutral. Otherwise, the test fails, indicating that the operation of the website may be illegal in certain juristictions.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
@@ -2831,10 +2831,10 @@ CHECKS['privacy']['server_locations']['longdesc'] = '''<p>Some site owners outso
 CHECKS['privacy']['server_locations']['labels'] = ['unreliable']
 
 CHECKS['security']['leaks']['title'] = "Check for unintentional information leaks"
-CHECKS['security']['leaks']['longdesc'] = '''<p>Web servers may be configured incorrectly and expose private information on the public internet. This test looks for a series of common mistakes: Exposing the "server-status" or "server-info" pages of the web server, common debugging files that may have been forgotten on the server, and the presence of version control system files from the Git or SVN systems, which may contain private or security-critical information.</p>
+CHECKS['security']['leaks']['longdesc'] = '''<p>Web servers may be configured incorrectly and expose private information on the public internet. This test looks for a series of common mistakes: Exposing the "server-status" or "server-info" pages of the web server, common debugging files such as test.php or phpinfo.php that may have been forgotten on the server, and the presence of version control system files from the Git and SVN systems, which may contain private or security-critical information.</p>
 <p><strong>Conditions for passing:</strong> No leaks have been detected.</p>
 <p><strong>Reliability: unreliable.</strong> The detection is not completely reliable, as we can only check for certain indicators of problems. This test may result in both false positives (claiming that a website is insecure where it isn't) and false negatives (claiming that a website is secure where it isn't).</p>
-<p><strong>Potential scan errors:</strong> We only check for leaks at specific, pre-defined paths. If The website exposes information in other places, we may not detect it.</p>
+<p><strong>Potential scan errors:</strong> We only check for leaks at specific, pre-defined paths. If the website exposes information in other places, we will not detect it.</p>
 <p>Scan Module: serverleaks</p>
 <p>Further reading:</p>
 <ul>
@@ -2908,29 +2908,36 @@ CHECKS['security']['header_ref']['longdesc'] = """<p>A secure referrer policy pr
 """
 CHECKS['security']['header_ref']['labels'] = ['unreliable']
 
-CHECKS['ssl']['web_scan_failed']['title'] = "Check if the HTTPS scan completed successfully"
-CHECKS['ssl']['web_scan_failed']['longdesc'] = """<p>Due to various reasons, a detailed test of the HTTPS connections offered by the web server may have failed. This test indicates whether the scan completed successfully</p>
+CHECKS['ssl']['web_scan_failed']['title'] = "Check if the HTTPS scan succeeded"
+CHECKS['ssl']['web_scan_failed']['longdesc'] = """<p>Due to various reasons, a detailed test of the HTTPS connections offered by the web server may have failed. This test indicates whether the scan completed successfully.</p>
 <p><strong>Informational check:</strong> This is an informational check without influence on the rating.</p>
 <p><strong>Reliability: unreliable.</strong> </p>
 <p><strong>Potential scan errors:</strong> Sometimes, the check may fail even though the server offers encrypted connections. In that case, we will be unable to determine detailed information about the security of the server.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
-<p>Further reading:</p>
-<ul>
-<li>TODO</li>
 </ul>
 """ 
 CHECKS['ssl']['web_scan_failed']['labels'] = ['unreliable']
 
-CHECKS['ssl']['web_scan_finished']['title'] = "Check if the Server offers HTTPS"
+CHECKS['ssl']['web_testssl_incomplete']['title'] = "Check if all results from the HTTPS scan are available"
+CHECKS['ssl']['web_testssl_incomplete']['longdesc'] = """<p>Due to various reasons, a some of the tests we perform may have failed. This test indicates whether all results have been retrieved or some are missing.</p>
+<p><strong>Informational check:</strong> This is an informational check without influence on the rating.</p>
+<p><strong>Reliability: unreliable.</strong> </p>
+<p><strong>Potential scan errors:</strong> None that we aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+</ul>
+""" 
+CHECKS['ssl']['web_testssl_incomplete']['labels'] = ['reliable']
+
+CHECKS['ssl']['web_scan_finished']['title'] = "Check if the server offers HTTPS"
 CHECKS['ssl']['web_scan_finished']['longdesc'] = """<p>HTTPS is a critical building block in website security. This check tests if the web server offers users the option to connect via HTTPS.</p>
 <p><strong>Conditions for passing:</strong> Test fails if the server does not offer HTTPS.</p>
 <p><strong>Reliability: unreliable.</strong></p>
-<p><strong>Potential scan errors:</strong> If the server employs tarpitting the testssl check fails.</p>
+<p><strong>Potential scan errors:</strong> If the server blocks our requests or performs tarpitting this check may fail although the server does indeed offer HTTPS.</p>
 <p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 """
 CHECKS['ssl']['web_scan_finished']['labels'] = ['unreliable']
 
-CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['title'] = 'Check whether HTTP URL is also reachable via HTTPS'
+CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['title'] = 'Check whether the given HTTP URL is also reachable via HTTPS'
 CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['longdesc'] = """<p>If the website does not automatically forward the user to an HTTPS version of the website, we explicitly check for an HTTPS version, and also verify that the secure version matches the insecure version (to rule out cases where connecting to an HTTPS version accidentally or intentionally forwards the user to a different website).</p>
 <p><strong>Conditions for passing:</strong> Test passes if the server outputs the same site when the given URL is requested via HTTPS. Test fails if no HTTPS connection can be established or the content (HTTP body) of the HTTPS response differs from the HTTP response. Neutral if the given URL is already an HTTPS URL.</p>
 <p><strong>Reliability: reliable.</strong></p>
@@ -2939,18 +2946,8 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['longdesc'] = ""
 """ 
 CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['labels'] = ['unreliable']
 
-CHECKS['ssl']['web_cert']['title'] = "Check whether the SSL certificate is valid"
-CHECKS['ssl']['web_cert']['longdesc'] = """<p>A secure HTTPS connection requires a valid SSL certificate on the server. This check tests if the certificate provided by the server is trusted.</p>
-<p><strong>Conditions for passing:</strong> Test passes if the server provides a valid SSL certificate.</p>
-<p><strong>Reliability: reliable.</strong></p>
-<p><strong>Potential scan errors:</strong> If website contents change significantly on each page load, this test may incorrectly fail.</p>
-<p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
-""" 
-CHECKS['ssl']['web_cert']['labels'] = ['unreliable']
-
-
 CHECKS['ssl']['site_redirects_to_https']['title'] = "Check for automatic redirection to HTTPS"
-CHECKS['ssl']['site_redirects_to_https']['longdesc'] = """<p>To protect their users, websites offering HTTPS should automatically redirect visitors to the secure version of the website if they visit the unsecured version, as users cannot be expected to change the address by hand. This test verifies that this is the case. If the browser is redirected to a secure URL, all other HTTPS tests use the final URL.</p>
+CHECKS['ssl']['site_redirects_to_https']['longdesc'] = """<p>To protect their users, websites offering HTTPS should automatically redirect visitors to the secure HTTPS version of the website if they visit the insecure HTTP version, as users cannot be expected to type "https://" manually all the time. This test verifies that this is the case. If the browser is redirected to a different HTTPS URL, all other HTTPS tests use this final URL.</p>
 <p><strong>Conditions for passing:</strong> Test passes if the server automatically redirects the browser to an HTTPS URL when the browser requests a HTTP URL. Neutral if the given URL is already an HTTPS URL.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> If users are redirected to the HTTPS version using JavaScript, this test may not detect it.<br>
@@ -2959,7 +2956,7 @@ Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a>
 CHECKS['ssl']['site_redirects_to_https']['labels'] = ['reliable']
 
 CHECKS['ssl']['redirects_from_https_to_http']['title'] = "Check if the server prevents users from using the HTTPS version of the website"
-CHECKS['ssl']['redirects_from_https_to_http']['longdesc'] = """<p>Some servers offer HTTPS, but will forward users back to the insecure version of the website when they attempt to use it.</p>
+CHECKS['ssl']['redirects_from_https_to_http']['longdesc'] = """<p>Some servers offer HTTPS, but will redirect users to the insecure HTTP version of the website when they visit the HTTPS version.</p>
 <p><strong>Conditions for passing:</strong> Test fails if the server automatically redirects the browser to an HTTP URL when the browser requests a HTTPS URL. Neutral if the server does not support HTTPS.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> If users are redirected to the HTTP version using JavaScript, this test may not detect it.<br>
@@ -2967,12 +2964,31 @@ Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a>
 """ 
 CHECKS['ssl']['redirects_from_https_to_http']['labels'] = ['reliable']
 
+CHECKS['ssl']['web_cert']['title'] = "Check whether browsers trust the certificate of the server"
+CHECKS['ssl']['web_cert']['longdesc'] = """<p>A secure HTTPS connection requires a trusted certificate on the server. This check tests whether common browsers trust the certificate that is offered by the server.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server provides a certificate that is trusted by common web browsers. First, the domain name of the website must correspond to the domain name for which the certificate has been issued. Second, the server has to provide the full chain of intermediate certificates up to a root certificate. Third, the certificate chain has to end at a certification authority whose root certificate is trusted by common browsers. The check will also fail if the server uses a self-signed certificate.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> Not all browsers use the same set of trusted root certificates, i.e., some browsers may trust the certificate although the check fails.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_cert']['labels'] = ['reliable']
+
+CHECKS['ssl']['web_certificate_not_expired']['title'] = "Check whether the certificate is currently valid"
+CHECKS['ssl']['web_certificate_not_expired']['longdesc'] = """<p>A certificate is valid within a certain timeframe. This check tests whether the current time is within the validy period.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the current time is within the validy period, otherwise it fails.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_certificate_not_expired']['labels'] = ['reliable']
+
+
 CHECKS['ssl']['web_pfs']['title'] = "Check if the server offers Perfect Forward Secrecy"
 CHECKS['ssl']['web_pfs']['longdesc'] = """<p>Perfect forward secrecy protects the security of connections even if the long-term cryptographic keys of the server are disclosed at a later time.</p>
 <p><strong>Conditions for passing:</strong> Test passes if the server offers HTTPS with perfect forward secrecy. Neutral if the server does not support HTTPS.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.<br>
-Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 """ 
 CHECKS['ssl']['web_pfs']['labels'] = ['reliable']
 
