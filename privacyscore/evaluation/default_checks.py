@@ -304,7 +304,7 @@ CHECKS['security']['header_ref'] = {
 # Check if server scan failed in an unexpected way
 # yes: notify, neutral
 # no: Nothing
-CHECKS['ssl']['https_scan_failed'] = {
+CHECKS['ssl']['web_scan_failed'] = {
     'keys': {'web_scan_failed'},
     'rating': lambda **keys: {
         'description': _('The testssl scan experienced an unexpected error. Please rescan and contact us if the problem persists.'),
@@ -325,7 +325,7 @@ CHECKS['ssl']['web_testssl_incomplete'] = {
 # Check if server scan timed out
 # no: Nothing
 # yes: notify, neutral
-CHECKS['ssl']['https_scan_finished'] = {
+CHECKS['ssl']['web_scan_finished'] = {
     'keys': {'web_ssl_finished', 'web_has_ssl'},
     'rating': lambda **keys: {
         'description': _('The website does not offer an encrypted (HTTPS) version.'),
@@ -458,27 +458,7 @@ CHECKS['ssl']['web_cert'] = {
     },
     'missing': None
 }
-# Check whether certificate hasn't expired yes
-# not expired: good
-# Else: critical
-CHECKS['ssl']['web_certificate_not_expired'] = {
-    'keys': {'web_certificate_not_expired', 'web_certificate_not_expired_finding', 'web_has_ssl'},
-    'rating': lambda **keys: {
-        'description': _('The certificate has not expired yet.'),
-        'classification': Rating('good'),
-        'details_list': (keys['web_certificate_not_expired_finding'],),
-    } if keys["web_certificate_not_expired"] else {
-        'description': _('The certificate has expired.'),
-        'classification': Rating('critical'),
-        'details_list': (keys['web_certificate_not_expired_finding'],),
-    }if keys['web_has_ssl'] else {
-        'description': _('Skipping check for certificate expiration because the server does not offer HTTPS.'),
-        'classification': Rating('neutral'),
-        'details_list': None
-    },
-    'missing': None,
-}
-# Check whether certificate hasn't expired yes
+# Check whether certificate hasn't expired yet
 # not expired: good
 # Else: critical
 CHECKS['ssl']['web_certificate_not_expired'] = {
@@ -1609,43 +1589,274 @@ CHECKS['ssl']['web_vuln_lucky13'] = {
 CHECKS['mx']['has_mx'] = {
     'keys': {'mx_records'},
     'rating': lambda **keys: {
-        'description': _('No mail server is available for this site.'),
+        'description': _('Since there is no mail server available for this site, all checks in this category are skipped.'),
         'classification': Rating('neutral', devaluates_group=True),
         'details_list': None,
     } if not keys['mx_records'] else None,
     'missing': None,
 }
-# Check if mail server check actually finished
-# Result is informational
-CHECKS['mx']['mx_scan_finished'] = {
-    'keys': {'mx_ssl_finished', 'mx_has_ssl', 'mx_records'},
+CHECKS['mx']['mx_scan_failed'] = {
+    'keys': {'mx_scan_failed'},
     'rating': lambda **keys: {
-        'description': _('The mail server does not seem to support encryption.'),
+        'description': _('The testssl scan experienced an unexpected error. Please rescan and contact us if the problem persists.'),
+        'classification': Rating('neutral', devaluates_group=True),
+        'details_list': None,
+    } if keys['mx_scan_failed'] else None,
+    'missing': None,
+}
+CHECKS['mx']['mx_testssl_incomplete'] = {
+    'keys': {'mx_testssl_incomplete'},
+    'rating': lambda **keys: {
+        'description': _('Some results from the testssl scan could not be retrieved.'),
+        'classification': Rating('neutral'),
+        'details_list': None,
+    } if keys['mx_testssl_incomplete'] else None,
+    'missing': None,
+}
+# Check if server scan timed out
+# no: Nothing
+# yes: notify, neutral
+CHECKS['mx']['mx_scan_finished'] = {
+    'keys': {'mx_ssl_finished', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The server does not offer encrypted connections (STARTTLS).'),
         'classification': Rating('critical'),
         'details_list': None,
-    } if keys['mx_ssl_finished'] and not keys['mx_has_ssl'] and len(keys['mx_records']) > 0 else None,
+    } if keys['mx_ssl_finished'] and not keys['mx_has_ssl'] else None,
     'missing': {
-        'description': _('The SSL scan of the mail server timed out.'),
-        'classification': Rating('neutral'),
+        'description': _('The testssl scan experienced a problem and had to be aborted, some checks were not performed.'),
+        'classification': Rating('neutral', devaluates_group=True),
         'details_list': None
     },
 }
-# Check for insecure SSLv2 protocol
-# No SSLv2: Good
-# No HTTPS at all: neutral
-# Else: bad
-CHECKS['mx']['mx_insecure_protocols_sslv2'] = {
-    'keys': {'mx_has_protocol_sslv2', 'mx_has_ssl'},
+# Check if server cert is valid
+# yes: good
+# no: critical
+CHECKS['mx']['mx_cert'] = {
+    'keys': {'mx_has_ssl', 'mx_cert_trusted', 'mx_cert_trusted_reason'},
     'rating': lambda **keys: {
-        'description': _('The server does not support SSLv2.'),
+        'description': _('The presented server certificate could be validated.'),
         'classification': Rating('good'),
         'details_list': None,
-    } if not keys['mx_has_protocol_sslv2'] else {
-        'description': _('The server supports SSLv2.'),
+    } if keys['mx_has_ssl'] and keys['mx_cert_trusted'] else {
+        'description': _('Since the server could not be reached via STARTTLS, the check of the server certificate is skipped.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    } if not keys['mx_has_ssl'] else {
+        'description': _('Server certificate could not be validated. Clients may fail to establish a secure connection to this server.'),
+        'classification': Rating('critical'),
+        'details_list': [(keys['mx_cert_trusted_reason'],)],
+    },
+    'missing': None
+}
+# Check whether certificate hasn't expired yet
+# not expired: good
+# Else: critical
+CHECKS['mx']['mx_certificate_not_expired'] = {
+    'keys': {'mx_certificate_not_expired', 'mx_certificate_not_expired_finding', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The certificate has not expired yet.'),
+        'classification': Rating('good'),
+        'details_list': (keys['mx_certificate_not_expired_finding'],),
+    } if keys["mx_certificate_not_expired"] else {
+        'description': _('The certificate has expired.'),
+        'classification': Rating('critical'),
+        'details_list': (keys['mx_certificate_not_expired_finding'],),
+    }if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for certificate expiration because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check whether subjectAltName is present and contains domain
+# everyhting fine: good
+# Else: critical
+CHECKS['mx']['mx_valid_san'] = {
+    'keys': {'mx_valid_san', 'mx_valid_san_severity', 'mx_valid_san_finding', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The certificate contains a valid subjectAltName field.'),
+        'classification': Rating('good'),
+        'details_list': (keys['mx_valid_san'],),
+    } if keys["mx_certificate_not_expired"] else {
+        'description': _('The certificate does not contain a valid subjectAltName field. However, storing the hostname in the subjectAltName is required by Internet standards (such as RFC 3280).'),
+        'classification': Rating('bad'),
+        'details_list': (keys['mx_valid_san_finding'],),
+        'severity': keys['mx_valid_san_severity']
+    }if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for the subjectAltName field because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check whether a the certificate key size is sufficient
+# not expired: good
+# Else: critical
+CHECKS['mx']['mx_strong_keysize'] = {
+    'keys': {'mx_strong_keysize', 'mx_strong_keysize_severity', 'mx_keysize', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The certificate uses a sufficiently large key size.'),
+        'classification': Rating('good'),
+        'details_list': (keys['mx_keysize'],),
+    } if keys["mx_strong_keysize"] else { 
+        'description': _('The certificate does not use a sufficiently strong key size.'),
+        'classification': Rating('bad'),
+        'details_list': (keys['mx_keysize'],),
+        'severity': keys['mx_strong_keysize_severity']
+    }if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for certificate key size because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check whether a strong signature algorithm is used
+# not expired: good
+# Else: critical
+CHECKS['mx']['mx_strong_sig_algorithm'] = {
+    'keys': {'mx_strong_sig_algorithm', 'mx_strong_sig_algorithm_severity', 'mx_sig_algorithm', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The certificate uses a strong signature algorithm.'),
+        'classification': Rating('good'),
+        'details_list': (keys['mx_sig_algorithm'],),
+        'severity': keys['mx_strong_sig_algorithm_severity']
+    } if keys["mx_strong_sig_algorithm"] else {
+        'description': _('The certificate does not use a strong signature algorithm.'),
+        'classification': Rating('bad'),
+        'details_list': (keys['mx_sig_algorithm'],),
+        'severity': keys['mx_strong_sig_algorithm_severity']
+    }if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for certificate signature algorithm because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check whether certificate contains either CSL or OCSP information
+# yes: good
+# Else: bad
+CHECKS['mx']['mx_either_crl_or_ocsp'] = {
+    'keys': {'mx_either_crl_or_ocsp', 'mx_either_crl_or_ocsp_severity', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The certificate contains the fields required for revocation checking (CRL or OCSP URI).'),
+        'classification': Rating('good'),
+        'details_list': None,
+        'severity': keys['mx_either_crl_or_ocsp_severity']
+    } if keys["mx_either_crl_or_ocsp"] else {
+        'description': _('The certificate does not contain the fields required for revocation checking (neither CRL nor OCSP URI).'),
         'classification': Rating('bad'),
         'details_list': None,
+        'severity': keys['mx_either_crl_or_ocsp_severity']
+    }if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for certificate revocation checking because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None,
+    },
+    'missing': None,
+}
+# Check whether server performs OCSP stapling (if OCSP is used)
+# yes: good
+# Else: bad
+CHECKS['mx']['mx_ocsp_stapling'] = {
+    'keys': {'mx_ocsp_stapling', 'mx_ocsp_stapling_severity', 'mx_offers_ocsp', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The server performs OCSP stapling.'),
+        'classification': Rating('good'),
+        'details_list': None,
+        'severity': keys['mx_ocsp_stapling_severity']
+    } if keys["mx_offers_ocsp"] and keys["mx_ocsp_stapling"] else {
+        'description': _('The certificate does not perform OCSP stapling.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'severity': keys['mx_ocsp_stapling_severity']
+    }if keys["mx_offers_ocsp"] and not keys["mx_ocsp_stapling"] else {
+        'description': _('Skipping check for OCSP stapling because the server does not offer STARTTLS or the certificate does not contain an OCSP URI.'),
+        'classification': Rating('neutral'),
+        'details_list': None,
+    },
+    'missing': None,
+}
+# Check whether certificate contains OCSP must staple field (if OCSP is being used)
+# yes: good
+# Else: bad
+### NOTE: mx_ocsp_must_staple is also set to "false" if must staple is present, but server does not perform stapling
+### must differentiate this situation from must staple not being present by looking at severity (= HIGH in this case)
+CHECKS['mx']['mx_ocsp_must_staple'] = {
+    'keys': {'mx_ocsp_must_staple', 'mx_ocsp_must_staple_severity', 'mx_offers_ocsp', 'mx_has_ssl', 'mx_ocsp_stapling'},
+    'rating': lambda **keys: {
+        'description': _('The certificate contains the OCSP must staple extension and OCSP stapling is performed.'),
+        'classification': Rating('good'),
+        'details_list': None,
+        'severity': keys['mx_ocsp_must_staple_severity']
+    } if keys["mx_offers_ocsp"] and keys['mx_ocsp_stapling'] and keys["mx_ocsp_must_staple"] else {
+        'description': _('The server does not perform OCSP stapling although the certificate contains the must staple extension.'),
+        'classification': Rating('critical'),
+        'details_list': None,
+        'severity': keys['mx_ocsp_must_staple_severity']
+    } if keys["mx_offers_ocsp"] and not keys['mx_ocsp_stapling'] and not keys["mx_ocsp_must_staple"] and keys["mx_ocsp_must_staple_severity"] == "HIGH" else {
+        'description': _('The server performs OCSP stapling. However, the certificate does not contain the must staple extension.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'severity': keys['mx_ocsp_must_staple_severity']
+    } if keys["mx_offers_ocsp"] and keys['mx_ocsp_stapling'] and not keys["mx_ocsp_must_staple"] and keys["mx_ocsp_must_staple_severity"] != "HIGH" else {
+        'description': _('Skipping check for the OCSP must staple extension because the server does not perform OCSP stapling, the certificate does not contain an OCSP URL, or the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None,
+    },
+    'missing': None,
+}
+# Check for Perfect Forward Secrecy on mail server
+# PFS available: good
+# Else: bad
+CHECKS['mx']['mx_pfs'] = {
+    'keys': {'mx_pfs','mx_pfs_severity'},
+    'rating': lambda **keys: {
+        'description': _('The server supports perfect forward secrecy.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['mx_pfs'] else {
+        'description': _('The server does not support perfect forward secrecy.'),
+        'classification': Rating('bad'),
+        'severity': keys['mx_pfs_severity'],
+        'details_list': None,
+    },
+    'missing': None,
+}
+# Check for Perfect Forward Secrecy on mail server
+# PFS available: good
+# Else: bad
+CHECKS['mx']['mx_session_ticket'] = {
+    'keys': {'mx_session_ticket','mx_session_ticket_severity', 'mx_session_ticket_finding'},
+    'rating': lambda **keys: {
+        'description': _('The server uses short-living session tickets, which are required for perfect forward secrecy.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['mx_session_ticket'] else {
+        'description': _('The server does not use short-living session tickets, which are required for perfect forward secrecy.'),
+        'classification': Rating('bad'),
+        'severity': keys['mx_session_ticket_severity'],
+        'details_list': (keys['mx_session_ticket_finding'],),
+    },
+    'missing': None,
+}
+# Check for insecure SSLv2 protocol
+# No SSLv2: Good
+# No STARTTLS at all: neutral
+# Else: bad
+CHECKS['mx']['mx_insecure_protocols_sslv2'] = {
+    'keys': {'mx_has_protocol_sslv2', 'mx_has_protocol_sslv2_severity', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The server does not support the SSLv2 protocol.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if not keys["mx_has_protocol_sslv2"] else {
+        'description': _('The server supports the SSLv2 protocol.'),
+        'classification': Rating('bad'),
+        'severity': keys['mx_has_protocol_sslv2_severity'],
+        'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for SSLv2 support because the server does not offer TLS.'),
+        'description': _('Skipping check for the insecure SSLv2 protocol because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -1653,20 +1864,20 @@ CHECKS['mx']['mx_insecure_protocols_sslv2'] = {
 }
 # Check for insecure SSLv3 protocol
 # No SSLv3: Good
-# Not HTTPS at all: neutral
+# No STARTTLS at all: neutral
 # Else: bad
 CHECKS['mx']['mx_insecure_protocols_sslv3'] = {
     'keys': {'mx_has_protocol_sslv3', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server does not support SSLv3.'),
+        'description': _('The server does not support the SSLv3 protocol.'),
         'classification': Rating('good'),
         'details_list': None,
     } if not keys["mx_has_protocol_sslv3"] else {
-        'description': _('The server supports SSLv3.'),
+        'description': _('The server supports the SSLv3 protocol.'),
         'classification': Rating('bad'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for SSLv3 support, as the server does not offer TLS.'),
+        'description': _('Skipping check for the SSLv3 protocol because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -1676,17 +1887,17 @@ CHECKS['mx']['mx_insecure_protocols_sslv3'] = {
 # supported: neutral
 # Else: good
 CHECKS['mx']['mx_secure_protocols_tls1'] = {
-    'keys': {'mx_has_protocol_tls1', "mx_has_ssl"},
+    'keys': {'mx_has_protocol_tls1', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server supports TLS 1.0.'),
+        'description': _('The server supports the protocol TLS 1.0.'),
         'classification': Rating('neutral'),
         'details_list': None,
-    } if keys['mx_has_protocol_tls1'] else {
-        'description': _('The server does not support TLS 1.0.'),
+    } if keys["mx_has_protocol_tls1"] else {
+        'description': _('The server does not support the protocol TLS 1.0.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for TLS 1.0-support, as the server does not offer TLS.'),
+        'description': _('Skipping check for the protocol TLS 1.0 because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -1696,17 +1907,17 @@ CHECKS['mx']['mx_secure_protocols_tls1'] = {
 # supported: neutral
 # Else: neutral
 CHECKS['mx']['mx_secure_protocols_tls1_1'] = {
-    'keys': {'mx_has_protocol_tls1_1', "mx_has_ssl"},
+    'keys': {'mx_has_protocol_tls1_1', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server supports TLS 1.1.'),
+        'description': _('The server supports the protocol TLS 1.1.'),
         'classification': Rating('neutral'),
         'details_list': None,
-    } if keys['mx_has_protocol_tls1_1'] else {
-        'description': _('The server does not support TLS 1.1.'),
+    } if keys["mx_has_protocol_tls1_1"] else {
+        'description': _('The server does not support the protocol TLS 1.1.'),
         'classification': Rating('neutral'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for TLS 1.1-support, as the server does not offer TLS.'),
+        'description': _('Skipping check for the protocol TLS 1.1 because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -1716,38 +1927,329 @@ CHECKS['mx']['mx_secure_protocols_tls1_1'] = {
 # supported: good
 # Else: critical
 CHECKS['mx']['mx_secure_protocols_tls1_2'] = {
-    'keys': {'mx_has_protocol_tls1_2', "mx_has_ssl"},
+    'keys': {'mx_has_protocol_tls1_2', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server supports TLS 1.2.'),
+        'description': _('The server supports the protocol TLS 1.2.'),
         'classification': Rating('good'),
         'details_list': None,
-    } if keys['mx_has_protocol_tls1_2'] else {
-        'description': _('The server does not support TLS 1.2.'),
+    } if keys["mx_has_protocol_tls1_2"] else {
+        'description': _('The server does not support the protocol TLS 1.2.'),
         'classification': Rating('critical'),
         'details_list': None,
     }if keys['mx_has_ssl'] else {
-        'description': _('Not checking for TLS 1.2-support, as the server does not offer TLS.'),
+        'description': _('Skipping check for the protocol TLS 1.2 because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
     'missing': None,
 }
+# Check for TLS 1.3
+# supported: good
+# Else: critical
+CHECKS['mx']['mx_secure_protocols_tls1_3'] = {
+    'keys': {'mx_has_protocol_tls1_3', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The server supports the protocol TLS 1.3.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys["mx_has_protocol_tls1_3"] else {
+        'description': _('The server does not support the protocol TLS 1.3.'),
+        'classification': Rating('critical'),
+        'details_list': None,
+    }if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for the protocol TLS 1.3 because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for default protocol
+# strong protocol: good
+# Else: bad
+CHECKS['mx']['mx_default_protocol'] = {
+    'keys': {'mx_default_protocol', 'mx_default_protocol', 'mx_default_protocol_finding', 'mx_default_protocol_severity', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The server prefers a strong protocol.'),
+        'classification': Rating('good'),
+        'details_list': (keys['mx_default_protocol_finding'],),
+        'severity': keys['mx_default_protocol_severity'],
+    } if keys["mx_default_protocol"] else {
+        'description': _('The server does not prefer a strong protocol.'),
+        'classification': Rating('bad'),
+        'details_list': (keys['mx_default_protocol_finding'],),
+        'severity': keys['mx_default_protocol_severity'],
+    }if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for the default protocol because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+
+# Check whether server has a cipher order
+# yes: good
+# Else: bad
+CHECKS['mx']['mx_cipher_order'] = {
+    'keys': {'mx_cipher_order', 'mx_cipher_order_severity', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The server has been configured with a cipher order.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys["mx_cipher_order"] else {
+        'description': _('The server has not been configured with a cipher order.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'severity': keys['mx_cipher_order_severity'],
+    }if keys['mx_has_ssl'] else {
+        'description': _('Skipping check whether the server has been configured with a cipher order because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None,
+    },
+    'missing': None,
+}
+# Check whether server uses a strong default cipher
+# yes: good
+# Else: bad
+CHECKS['mx']['mx_default_cipher'] = {
+    'keys': {'mx_default_cipher', 'mx_default_cipher_severity', 'mx_default_cipher_finding', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The server prefers a strong cipher.'),
+        'classification': Rating('good'),
+        'details_list': (keys['mx_default_cipher_finding'],),
+        'severity': keys['mx_default_cipher_severity'],
+    } if keys["mx_default_cipher"] else {
+        'description': _('The server does not prefer a strong cipher.'),
+        'classification': Rating('bad'),
+        'details_list': (keys['mx_default_cipher_finding'],),
+        'severity': keys['mx_default_cipher_severity'],
+    }if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for the default cipher because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+
+# Check for cipher: NULL_cipher
+# Supported: bad
+# Else: good
+CHECKS['mx']['mx_ciphers_null'] = {
+    'keys': {'mx_ciphers', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('NULL cipher: The server supports this insecure cipher.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["mx_ciphers"].get('std_NULL')['finding'],
+        'severity': keys["mx_ciphers"].get('std_NULL')['severity'],
+    } if keys["mx_ciphers"].get('std_NULL') else {
+        'description': _('NULL cipher: The server does not support this insecure cipher.'),
+        'classification': Rating('good'),
+        'details_list': None,
+        # don't do this, because keys["mx_ciphers"].get('std_NULL') == None in this case
+        #'finding': keys["mx_ciphers"].get('std_NULL')['finding'],
+        #'severity': keys["mx_ciphers"].get('std_NULL')['severity'],
+    } if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for NULL cipher support because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for cipher: aNULL_cipher
+# Supported: bad
+# Else: good
+CHECKS['mx']['mx_ciphers_anull'] = {
+    'keys': {'mx_ciphers', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('Anonymous NULL cipher: The server supports this insecure cipher.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["mx_ciphers"].get('std_aNULL')['finding'],
+        'severity': keys["mx_ciphers"].get('std_aNULL')['severity'],
+    } if keys["mx_ciphers"].get('std_aNULL') else {
+        'description': _('Anonymous NULL cipher: The server does not support this insecure cipher.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for anonymous NULL cipher support because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for cipher: export cipher
+# Supported: bad
+# Else: good
+CHECKS['mx']['mx_ciphers_export'] = {
+    'keys': {'mx_ciphers', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('Export ciphers: The server supports these insecure ciphers.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["mx_ciphers"].get('std_EXPORT')['finding'],
+        'severity': keys["mx_ciphers"].get('std_EXPORT')['severity'],
+    } if keys["mx_ciphers"].get('std_EXPORT') else {
+        'description': _('Export ciphers: The server does not support these insecure ciphers.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for export ciphers support because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for cipher: des+64bit
+# Supported: bad
+# Else: good
+CHECKS['mx']['mx_ciphers_des_64bit'] = {
+    'keys': {'mx_ciphers', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('64 bit and DES ciphers: The server supports these insecure ciphers.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["mx_ciphers"].get('std_DES+64Bit')['finding'],
+        'severity': keys["mx_ciphers"].get('std_DES+64Bit')['severity'],
+    } if keys["mx_ciphers"].get('std_DES+64Bit') else {
+        'description': _('64 bit and DES ciphers: The server does not support these insecure ciphers.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for 64 bit and DES cipher support because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for cipher: std_128Bit
+# Supported: bad
+# Else: good
+CHECKS['mx']['mx_ciphers_128bit'] = {
+    'keys': {'mx_ciphers', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('Weak 128 bit ciphers: The server supports insecure ciphers such as SEED, IDEA, RC2, and RC4.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["mx_ciphers"].get('std_128Bit')['finding'],
+        'severity': keys["mx_ciphers"].get('std_128Bit')['severity'],
+    } if keys["mx_ciphers"].get('std_DES+64Bit') else {
+        'description': _('Weak 128 bit ciphers: The server does not support insecure ciphers such as SEED, IDEA, RC2, and RC4.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for weak 128 bit cipher support because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for cipher: std_3DES
+# Supported: bad
+# Else: good
+CHECKS['mx']['mx_ciphers_3des'] = {
+    'keys': {'mx_ciphers', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('3DES cipher: The server supports this outdated cipher.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["mx_ciphers"].get('std_3DES')['finding'],
+        'severity': keys["mx_ciphers"].get('std_3DES')['severity'],
+    } if keys["mx_ciphers"].get('std_3DES') else {
+        'description': _('3DES cipher: The server does not support this outdated cipher.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for 3DES cipher support because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for cipher: std_HIGH
+# Supported: bad
+# Else: good
+CHECKS['mx']['mx_ciphers_high'] = {
+    'keys': {'mx_ciphers', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('Modern ciphers: The server does not support ciphers such as AES and Camellia (not offering authenticated encryption).'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["mx_ciphers"].get('std_HIGH')['finding'],
+        'severity': keys["mx_ciphers"].get('std_HIGH')['severity'],
+    } if keys["mx_ciphers"].get('std_HIGH') else {
+        'description': _('Modern ciphers: The server supports ciphers such as AES and Camellia (not offering authenticated encryption).'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for modern cipher support (such as AES+Camellia, no AEAD) because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for cipher: std_STRONG
+# Supported: bad
+# Else: good
+CHECKS['mx']['mx_ciphers_strong'] = {
+    'keys': {'mx_ciphers', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('Strong ciphers: The server does not support ciphers that offer authenticated encryption.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["mx_ciphers"].get('std_STRONG')['finding'],
+        'severity': keys["mx_ciphers"].get('std_STRONG')['severity'],
+    } if keys["mx_ciphers"].get('std_STRONG') else {
+        'description': _('Strong ciphers: The server does support ciphers that offer authenticated encryption.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for strong cipher support (with AEAD) because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+
+# Check for RC4
+# Supported: bad
+# Else: good
+CHECKS['mx']['mx_vuln_rc4'] = {
+    'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('RC4: The server supports this insecure cipher.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["mx_vulnerabilities"].get('rc4')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('rc4')['severity'],
+    } if keys["mx_vulnerabilities"].get('rc4') else {
+        'description': _('RC4: The server does not support this insecure cipher.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for RC4 cipher support because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+
 # Check for Heartbleed
 # vulnerable: bad
 # Else: good
 CHECKS['mx']['mx_vuln_heartbleed'] = {
     'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server may be vulnerable to the Heartbleed attack.'),
+        'description': _('Heartbleed attack: The server seems to be vulnerable.'),
         'classification': Rating('bad'),
         'details_list': None,
-        'finding': keys["mx_vulnerabilities"].get('heartbleed')['finding']
+        'finding': keys["mx_vulnerabilities"].get('heartbleed')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('heartbleed')['severity'],
     } if keys["mx_vulnerabilities"].get('heartbleed') else {
-        'description': _('The server is secure against the Heartbleed attack.'),
+        'description': _('Heartbleed attack: The server seems not to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for the Heartbleed vulnerability, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for Heartbleed vulnerability because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -1759,16 +2261,17 @@ CHECKS['mx']['mx_vuln_heartbleed'] = {
 CHECKS['mx']['mx_vuln_ccs'] = {
     'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server may be vulnerable to the CCS attack.'),
+        'description': _('CCS attack: The server seems to be vulnerable.'),
         'classification': Rating('bad'),
         'details_list': None,
-        'finding': keys["mx_vulnerabilities"].get('ccs')['finding']
+        'finding': keys["mx_vulnerabilities"].get('ccs')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('ccs')['severity'],
     } if keys["mx_vulnerabilities"].get('ccs') else {
-        'description': _('The server is secure against the CCS attack.'),
+        'description': _('CCS attack: The server seems not to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for the CCS vulnerability, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for CCS vulnerability because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -1777,19 +2280,43 @@ CHECKS['mx']['mx_vuln_ccs'] = {
 # Check for ticketbleed
 # vulnerable: bad
 # Else: good
-CHECKS['mx']['mx_vuln_ticketbleed'] = {
+## disabled because not part of testssl result
+##CHECKS['mx']['mx_vuln_ticketbleed'] = {
+##    'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
+##    'rating': lambda **keys: {
+##        'description': _('Ticketbleed attack: The server seems to be vulnerable.'),
+##        'classification': Rating('bad'),
+##        'details_list': None,
+##        'finding': keys["mx_vulnerabilities"].get('ticketbleed')['finding'],
+##        'severity': keys["mx_vulnerabilities"].get('ticketbleed')['severity'],
+##    } if keys["mx_vulnerabilities"].get('ticketbleed') else {
+##        'description': _('Ticketbleed attack: The server seems not to be vulnerable.'),
+##        'classification': Rating('good'),
+##        'details_list': None,
+##    } if keys['mx_has_ssl'] else {
+##        'description': _('Skipping check for Ticketbleed vulnerability because the server does not offer STARTTLS.'),
+##        'classification': Rating('neutral'),
+##        'details_list': None
+##    },
+##    'missing': None,
+##}
+# Check for ROBOT
+# vulnerable: bad
+# Else: good
+CHECKS['mx']['mx_vuln_robot'] = {
     'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server may be vulnerable to the Ticketbleed attack.'),
+        'description': _('ROBOT attack: The server seems to be vulnerable.'),
         'classification': Rating('bad'),
         'details_list': None,
-        'finding': keys["mx_vulnerabilities"].get('ticketbleed')['finding']
-    } if keys["mx_vulnerabilities"].get('ticketbleed') else {
-        'description': _('The server is secure against the Ticketbleed attack.'),
+        'finding': keys["mx_vulnerabilities"].get('robot')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('robot')['severity'],
+    } if keys["mx_vulnerabilities"].get('ROBOT') else {
+        'description': _('ROBOT attack: The server seems not to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for the Ticketbleed vulnerability, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for ROBOT vulnerability because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -1801,16 +2328,17 @@ CHECKS['mx']['mx_vuln_ticketbleed'] = {
 CHECKS['mx']['mx_vuln_secure_renego'] = {
     'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server may be vulnerable to a Secure Re-Negotiation attack.'),
+        'description': _('Secure re-negotiation: The server seems to be vulnerable.'),
         'classification': Rating('bad'),
         'details_list': None,
-        'finding': keys["mx_vulnerabilities"].get('secure-renego')['finding']
+        'finding': keys["mx_vulnerabilities"].get('secure-renego')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('secure-renego')['severity'],
     } if keys["mx_vulnerabilities"].get('secure-renego') else {
-        'description': _('The server is secure against the Secure Re-Negotiation attack.'),
+        'description': _('Secure re-negotiation: The server seems not to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for the Secure Re-Negotiation vulnerability, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for secure re-negotiation vulnerability because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -1822,16 +2350,17 @@ CHECKS['mx']['mx_vuln_secure_renego'] = {
 CHECKS['mx']['mx_vuln_secure_client_renego'] = {
     'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server may be vulnerable to the Secure Client Re-Negotiation attack.'),
+        'description': _('Secure client re-negotiation: The server seems to be vulnerable.'),
         'classification': Rating('bad'),
         'details_list': None,
-        'finding': keys["mx_vulnerabilities"].get('sec_client_renego')['finding']
+        'finding': keys["mx_vulnerabilities"].get('sec_client_renego')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('sec_client_renego')['severity'],
     } if keys["mx_vulnerabilities"].get('sec_client_renego') else {
-        'description': _('The server is secure against the Secure Client Re-Negotiation attack.'),
+        'description': _('Secure client re-negotiation: The server seems not to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for the Secure Client Re-Negotiation vulnerability, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for secure client re-negotiation vulnerability because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -1843,16 +2372,17 @@ CHECKS['mx']['mx_vuln_secure_client_renego'] = {
 CHECKS['mx']['mx_vuln_crime'] = {
     'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server may be vulnerable to the CRIME attack.'),
-        'classification': Rating('bad'),
+        'description': _('CRIME attack: The server seems to be vulnerable. However, th CRIME attack targets web servers only.'),
+        'classification': Rating('neutral'),
         'details_list': None,
-        'finding': keys["mx_vulnerabilities"].get('crime')['finding']
+        'finding': keys["mx_vulnerabilities"].get('crime')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('crime')['severity'],
     } if keys["mx_vulnerabilities"].get('crime') else {
-        'description': _('The server is secure against the CRIME attack.'),
+        'description': _('CRIME attack: The server seems not to be vulnerable (and the CRIME targets web servers only).'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for the CRIME vulnerability, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for CRIME attack because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -1861,40 +2391,65 @@ CHECKS['mx']['mx_vuln_crime'] = {
 # Check for BREACH
 # vulnerable: bad
 # Else: good
-CHECKS['mx']['mx_vuln_breach'] = {
-    'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
-    'rating': lambda **keys: {
-        'description': _('The server may be vulnerable to the BREACH attack.'),
-        'classification': Rating('bad'),
-        'details_list': None,
-        'finding': keys["mx_vulnerabilities"].get('breach')['finding']
-    } if keys["mx_vulnerabilities"].get('breach') else {
-        'description': _('The server is secure against the BREACH attack.'),
-        'classification': Rating('good'),
-        'details_list': None,
-    } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for the BREACH vulnerability, as the server does not offer HTTPS.'),
-        'classification': Rating('neutral'),
-        'details_list': None
-    },
-    'missing': None,
-}
+## disabled because not part of testssl result
+##CHECKS['mx']['mx_vuln_breach'] = {
+##    'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
+##    'rating': lambda **keys: {
+##        'description': _('BREACH attack: The server seems to be vulnerable.'),
+##        'classification': Rating('bad'),
+##        'details_list': None,
+##        'finding': keys["mx_vulnerabilities"].get('breach')['finding'],
+##        'severity': keys["mx_vulnerabilities"].get('breach')['severity'],
+##    } if keys["mx_vulnerabilities"].get('breach') else {
+##        'description': _('BREACH attack: The server does not seem to be vulnerable.'),
+##        'classification': Rating('good'),
+##        'details_list': None,
+##    } if keys['mx_has_ssl'] else {
+##        'description': _('Skipping to check for BREACH vulnerability because the server does not offer STARTTLS.'),
+##        'classification': Rating('neutral'),
+##        'details_list': None
+##    },
+##    'missing': None,
+##}
 # Check for POODLE
 # vulnerable: bad
 # Else: good
 CHECKS['mx']['mx_vuln_poodle'] = {
     'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server may be vulnerable to the POODLE attack.'),
+        'description': _('POODLE attack: The server seems to be vulnerable.'),
         'classification': Rating('bad'),
         'details_list': None,
-        'finding': keys["mx_vulnerabilities"].get('poodle_ssl')['finding']
+        'finding': keys["mx_vulnerabilities"].get('poodle_ssl')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('poodle_ssl')['severity'],
     } if keys["mx_vulnerabilities"].get('poodle_ssl') else {
-        'description': _('The server is secure against the POODLE attack.'),
+        'description': _('POODLE attack: The server does not seem to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for the POODLE vulnerability, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for POODLE vulnerability because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for TLS_FALLBACK_SCSV
+# not implemented (correctly): bad
+# Else: good
+CHECKS['mx']['mx_vuln_fallback_scsv'] = {
+    'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('TLS_FALLBACK_SCSV: The server does not implement this downgrade attack prevention mechanism.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["mx_vulnerabilities"].get('fallback_scsv')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('fallback_scsv')['severity'],
+    } if keys["mx_vulnerabilities"].get('poodle_ssl') else {
+        'description': _('TLS_FALLBACK_SCSV: The server implements this downgrade attack prevention mechanism.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for TLS_FALLBACK_SCSV downgrade attack prevention because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -1906,16 +2461,17 @@ CHECKS['mx']['mx_vuln_poodle'] = {
 CHECKS['mx']['mx_vuln_sweet32'] = {
     'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server may be vulnerable to the SWEET32 attack.'),
+        'description': _('SWEET32 attack: The server seems to be vulnerable.'),
         'classification': Rating('bad'),
         'details_list': None,
-        'finding': keys["mx_vulnerabilities"].get('sweet32')['finding']
+        'finding': keys["mx_vulnerabilities"].get('sweet32')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('sweet32')['severity'],
     } if keys["mx_vulnerabilities"].get('sweet32') else {
-        'description': _('The server is secure against the SWEET32 attack.'),
+        'description': _('SWEET32 attack: The server seems not to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for the SWEET32 vulnerability, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for SWEET32 vulnerability because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -1927,16 +2483,17 @@ CHECKS['mx']['mx_vuln_sweet32'] = {
 CHECKS['mx']['mx_vuln_freak'] = {
     'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server may be vulnerable to the FREAK attack.'),
+        'description': _('FREAK attack: The server seems to be vulnerable.'),
         'classification': Rating('bad'),
         'details_list': None,
-        'finding': keys["mx_vulnerabilities"].get('freak')['finding']
+        'finding': keys["mx_vulnerabilities"].get('freak')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('freak')['severity'],
     } if keys["mx_vulnerabilities"].get('freak') else {
-        'description': _('The server is secure against the FREAK attack.'),
+        'description': _('FREAK attack: The server does not seem to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for the FREAK vulnerability, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for FREAK vulnerability because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -1948,16 +2505,17 @@ CHECKS['mx']['mx_vuln_freak'] = {
 CHECKS['mx']['mx_vuln_drown'] = {
     'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server may be vulnerable to the DROWN attack.'),
+        'description': _('DROWN attack: The server seems to be vulnerable.'),
         'classification': Rating('bad'),
         'details_list': None,
-        'finding': keys["mx_vulnerabilities"].get('drown')['finding']
+        'finding': keys["mx_vulnerabilities"].get('drown')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('drown')['severity'],
     } if keys["mx_vulnerabilities"].get('drown') else {
-        'description': _('The server is secure against the DROWN attack.'),
+        'description': _('DROWN attack: The server does not seem to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for the DROWN vulnerability, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for DROWN vulnerability because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -1969,16 +2527,83 @@ CHECKS['mx']['mx_vuln_drown'] = {
 CHECKS['mx']['mx_vuln_logjam'] = {
     'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server may be vulnerable to the LOGJAM attack.'),
+        'description': _('LOGJAM attack: The server seems to be vulnerable.'),
         'classification': Rating('bad'),
         'details_list': None,
-        'finding': keys["mx_vulnerabilities"].get('logjam')['finding']
+        'finding': keys["mx_vulnerabilities"].get('logjam')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('logjam')['severity'],
     } if keys["mx_vulnerabilities"].get('logjam') else {
-        'description': _('The server is secure against the LOGJAM attack.'),
+        'description': _('LOGJAM attack: The server does not seem to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for the LOGJAM vulnerability, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for LOGJAM vulnerability because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for LogJam common primes
+# found one: bad
+# Else: good
+CHECKS['mx']['mx_vuln_logjam_common_primes'] = {
+    'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('LOGJAM common primes: The server uses a common prime number.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["mx_vulnerabilities"].get('LOGJAM_common primes')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('LOGJAM_common primes')['severity'],
+    } if keys["mx_vulnerabilities"].get('LOGJAM_common primes') else {
+        'description': _('LOGJAM common primes: The server does not use a common prime number.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for LOGJAM common primes because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for BEAST cbc_ssl3
+# vulnerable: bad
+# Else: good
+CHECKS['mx']['mx_vuln_beast_cbcssl3'] = {
+    'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('BEAST attack: The server supports CBC ciphers with the SSL 3.0 protocol.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["mx_vulnerabilities"].get('cbc_ssl3')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('cbc_ssl3')['severity'],
+    } if keys["mx_vulnerabilities"].get('cbc_ssl3') else {
+        'description': _('BEAST attack: The server does not support CBC ciphers with the SSL 3.0 protocol.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for CBC ciphers in the SSL 3.0 protocol (BEAST attack) because the server does not offer STARTTLS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None,
+}
+# Check for BEAST cbc_tls1
+# vulnerable: bad
+# Else: good
+CHECKS['mx']['mx_vuln_beast_cbctls1'] = {
+    'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('BEAST attack: The server supports CBC ciphers with the TLS 1.0 protocol.'),
+        'classification': Rating('bad'),
+        'details_list': None,
+        'finding': keys["mx_vulnerabilities"].get('cbc_tls1')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('cbc_tls1')['severity'],
+    } if keys["mx_vulnerabilities"].get('cbc_tls1') else {
+        'description': _('BEAST attack: The server does not support CBC ciphers with the TLS 1.0 protocol.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for CBC ciphers in the TLS 1.0 protocol (BEAST attack) because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -1990,16 +2615,17 @@ CHECKS['mx']['mx_vuln_logjam'] = {
 CHECKS['mx']['mx_vuln_beast'] = {
     'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server may be vulnerable to the BEAST attack.'),
+        'description': _('BEAST attack: The server seems to be vulnerable.'),
         'classification': Rating('bad'),
         'details_list': None,
-        'finding': keys["mx_vulnerabilities"].get('beast')['finding']
+        'finding': keys["mx_vulnerabilities"].get('beast')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('beast')['severity'],
     } if keys["mx_vulnerabilities"].get('beast') else {
-        'description': _('The server is secure against the BEAST attack.'),
+        'description': _('BEAST attack: The server does not seem to be vulnerable.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for the BEAST vulnerability, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for the BEAST vulnerability because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -2011,57 +2637,17 @@ CHECKS['mx']['mx_vuln_beast'] = {
 CHECKS['mx']['mx_vuln_lucky13'] = {
     'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server may be vulnerable to the LUCKY13 attack.'),
+        'description': _('LUCKY13 attack: The server seems to be vulnerable.'),
         'classification': Rating('bad'),
         'details_list': None,
-        'finding': keys["mx_vulnerabilities"].get('lucky13')['finding']
+        'finding': keys["mx_vulnerabilities"].get('lucky13')['finding'],
+        'severity': keys["mx_vulnerabilities"].get('lucky13')['severity'],
     } if keys["mx_vulnerabilities"].get('lucky13') else {
-        'description': _('The server is secure against the LUCKY13 attack.'),
+        'description': _('LUCKY13 attack: The server does not seem to be vulnerable'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for the LUCKY13 vulnerability, as the server does not offer HTTPS.'),
-        'classification': Rating('neutral'),
-        'details_list': None
-    },
-    'missing': None,
-}
-# Check for RC4
-# Supported: bad
-# Else: good
-CHECKS['mx']['mx_vuln_rc4'] = {
-    'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
-    'rating': lambda **keys: {
-        'description': _('The server supports the outdated and insecure RC4 cipher.'),
-        'classification': Rating('bad'),
-        'details_list': None,
-        'finding': keys["mx_vulnerabilities"].get('rc4')['finding']
-    } if keys["mx_vulnerabilities"].get('rc4') else {
-        'description': _('The server does not support the outdated and insecure RC4 cipher.'),
-        'classification': Rating('good'),
-        'details_list': None,
-    } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for RC4 cipher support, as the server does not offer HTTPS.'),
-        'classification': Rating('neutral'),
-        'details_list': None
-    },
-    'missing': None,
-}
-# Check for Fallback_SCSV support
-# not supported: bad
-# Else: good
-CHECKS['mx']['mx_vuln_fallback_scsv'] = {
-    'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
-    'rating': lambda **keys: {
-        'description': _('The server is not using TLS_FALLBACK_SCSV to prevent downgrade attacks.'),
-        'classification': Rating('bad'),
-        'details_list': None,
-    } if keys["mx_vulnerabilities"].get('fallback_scsv') else {
-        'description': _('The server uses TLS_FALLBACK_SCSV to prevent downgrade attacks.'),
-        'classification': Rating('good'),
-        'details_list': None,
-    } if keys['mx_has_ssl'] else {
-        'description': _('Not checking for TLS_FALLBACK_SCSV support, as the server does not offer HTTPS.'),
+        'description': _('Skipping check for the LUCKY13 vulnerability because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -2271,8 +2857,8 @@ CHECKS['security']['header_ref']['longdesc'] = """<p>A secure referrer policy pr
 """
 CHECKS['security']['header_ref']['labels'] = ['unreliable']
 
-CHECKS['ssl']['https_scan_failed']['title'] = "Check if the HTTPS scan completed successfully"
-CHECKS['ssl']['https_scan_failed']['longdesc'] = """<p>Due to various reasons, a detailed test of the HTTPS connections offered by the web server may have failed. This test indicates whether the scan completed successfully</p>
+CHECKS['ssl']['web_scan_failed']['title'] = "Check if the HTTPS scan completed successfully"
+CHECKS['ssl']['web_scan_failed']['longdesc'] = """<p>Due to various reasons, a detailed test of the HTTPS connections offered by the web server may have failed. This test indicates whether the scan completed successfully</p>
 <p><strong>Informational check:</strong> This is an informational check without influence on the rating.</p>
 <p><strong>Reliability: unreliable.</strong> </p>
 <p><strong>Potential scan errors:</strong> Sometimes, the check may fail even though the server offers encrypted connections. In that case, we will be unable to determine detailed information about the security of the server.</p>
@@ -2282,16 +2868,16 @@ CHECKS['ssl']['https_scan_failed']['longdesc'] = """<p>Due to various reasons, a
 <li>TODO</li>
 </ul>
 """ 
-CHECKS['ssl']['https_scan_failed']['labels'] = ['unreliable']
+CHECKS['ssl']['web_scan_failed']['labels'] = ['unreliable']
 
-CHECKS['ssl']['https_scan_finished']['title'] = "Check if the Server offers HTTPS"
-CHECKS['ssl']['https_scan_finished']['longdesc'] = """<p>HTTPS is a critical building block in website security. This check tests if the web server offers users the option to connect via HTTPS.</p>
+CHECKS['ssl']['web_scan_finished']['title'] = "Check if the Server offers HTTPS"
+CHECKS['ssl']['web_scan_finished']['longdesc'] = """<p>HTTPS is a critical building block in website security. This check tests if the web server offers users the option to connect via HTTPS.</p>
 <p><strong>Conditions for passing:</strong> Test fails if the server does not offer HTTPS.</p>
 <p><strong>Reliability: unreliable.</strong></p>
 <p><strong>Potential scan errors:</strong> If the server employs tarpitting the testssl check fails.</p>
 <p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
 """
-CHECKS['ssl']['https_scan_finished']['labels'] = ['unreliable']
+CHECKS['ssl']['web_scan_finished']['labels'] = ['unreliable']
 
 CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['title'] = 'Check whether HTTP URL is also reachable via HTTPS'
 CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['longdesc'] = """<p>If the website does not automatically forward the user to an HTTPS version of the website, we explicitly check for an HTTPS version, and also verify that the secure version matches the insecure version (to rule out cases where connecting to an HTTPS version accidentally or intentionally forwards the user to a different website).</p>
