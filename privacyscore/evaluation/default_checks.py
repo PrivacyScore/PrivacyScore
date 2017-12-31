@@ -914,7 +914,7 @@ CHECKS['ssl']['web_secure_protocols_tls1_3'] = {
         'details_list': None,
     } if keys["web_has_protocol_tls1_3"] else {
         'description': _('The server does not support the protocol TLS 1.3.'),
-        'classification': Rating('critical'),
+        'classification': Rating('neutral'),
         'details_list': None,
     }if keys['web_has_ssl'] else {
         'description': _('Skipping check for the protocol TLS 1.3 because the server does not offer HTTPS.'),
@@ -3169,7 +3169,7 @@ CHECKS['ssl']['web_certificate_transparency']['longdesc'] = """<p>Certificate Tr
 CHECKS['ssl']['web_certificate_transparency']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_insecure_protocols_sslv2']['title'] = \
-CHECKS['mx']['mx_insecure_protocols_sslv2']['title'] = "Check that insecure SSL 2.0 is not offered"
+CHECKS['mx']['mx_insecure_protocols_sslv2']['title'] = "Check that the insecure SSL 2.0 protocol is not offered"
 CHECKS['ssl']['web_insecure_protocols_sslv2']['longdesc'] = \
 CHECKS['mx']['mx_insecure_protocols_sslv2']['longdesc'] = """<p>SSL 2.0 is a deprecated encryption protocol with known vulnerabilities. For instance, it uses the MD5 hash algorithm, whose collision resistance has been broken.</p>
 <p><strong>Conditions for passing:</strong> Test passes if the server does not offer the SSL 2.0 protocol. Neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
@@ -3186,7 +3186,7 @@ CHECKS['ssl']['web_insecure_protocols_sslv2']['labels'] = \
 CHECKS['mx']['mx_insecure_protocols_sslv2']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_insecure_protocols_sslv3']['title'] = \
-CHECKS['mx']['mx_insecure_protocols_sslv3']['title'] = "Check that insecure SSL 3.0 is not offered"
+CHECKS['mx']['mx_insecure_protocols_sslv3']['title'] = "Check that the insecure SSL 3.0 protocol is not offered"
 CHECKS['ssl']['web_insecure_protocols_sslv3']['longdesc'] = \
 CHECKS['mx']['mx_insecure_protocols_sslv3']['longdesc'] = """<p>SSL 3.0 is a deprecated encryption protocol with known vulnerabilities. Encrypted connections that use SSL 3.0 are vulnerable to the so-called POODLE attack. This allows adversaries to steal sensitive pieces of information such as session cookies that are transferred over a connection.</p>
 <p><strong>Conditions for passing:</strong> Test passes if the server does not offer the SSL 3.0 protocol. Neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
@@ -3203,10 +3203,10 @@ CHECKS['ssl']['web_insecure_protocols_sslv3']['labels'] = \
 CHECKS['mx']['mx_insecure_protocols_sslv3']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_secure_protocols_tls1']['title'] = \
-CHECKS['mx']['mx_secure_protocols_tls1']['title'] = "Check if legacy TLS 1.0 is offered"
+CHECKS['mx']['mx_secure_protocols_tls1']['title'] = "Check if the legacy protocol TLS 1.0 is offered"
 CHECKS['ssl']['web_secure_protocols_tls1']['longdesc'] = \
 CHECKS['mx']['mx_secure_protocols_tls1']['longdesc'] = """<p>TLS 1.0 is a legacy encryption protocol that does not support the latest cryptographic algorithms. From a security perspective, it would be desirable to disable TLS 1.0 support. However, many sites still offer TLS 1.0 in order to support legacy clients, although, as of 2014, most contemporary web browsers support at least TLS 1.1. Furthermore, the PCI DSS 3.2 standard mandates that sites that process credit card data remove support for TLS 1.0 by June 2018.</p>
-<p><strong>Informational check:</strong> As TLS 1.0 is neither desireable nor completely deprecated, this test is informational and will always be neutral.</p>
+<p><strong>Informational check:</strong> As TLS 1.0 is neither desireable nor completely deprecated, this test is informational. Supporting TLS 1.0 will score a neutral result for now.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
@@ -3222,7 +3222,7 @@ CHECKS['mx']['mx_secure_protocols_tls1']['labels'] = ['informational']
 CHECKS['ssl']['web_secure_protocols_tls1_1']['title'] = \
 CHECKS['mx']['mx_secure_protocols_tls1_1']['title'] = "Check if TLS 1.1 is offered "
 CHECKS['ssl']['web_secure_protocols_tls1_1']['longdesc'] = \
-CHECKS['mx']['mx_secure_protocols_tls1_1']['longdesc'] = """<p>TLS 1.1 is an outdated encryption protocol that does not support the latest cryptographic algorithms. From a security perspective, it would be desirable to disable TLS 1.1 support in favor of TLS 1.2. However, there are still many clients that are not compatible with TLS 1.2</p>
+CHECKS['mx']['mx_secure_protocols_tls1_1']['longdesc'] = """<p>TLS 1.1 is an outdated encryption protocol that does not support the latest cryptographic algorithms that enable authenticated encryption. From a security perspective, it would be desirable to disable TLS 1.1 support in favor of TLS 1.2. However, there are still many clients that are not compatible with TLS 1.2</p>
 <p><strong>Informational check:</strong> At the moment, we show the result of this check for informational purposes only. The result of this check does not influence the rating and ranking.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
@@ -3239,8 +3239,8 @@ CHECKS['mx']['mx_secure_protocols_tls1_1']['labels'] = ['informational']
 CHECKS['ssl']['web_secure_protocols_tls1_2']['title'] = \
 CHECKS['mx']['mx_secure_protocols_tls1_2']['title'] = "Check that TLS 1.2 is offered"
 CHECKS['ssl']['web_secure_protocols_tls1_2']['longdesc'] = \
-CHECKS['mx']['mx_secure_protocols_tls1_2']['longdesc'] = """<p>TLS 1.2 is the a modern encryption protocol that does support the latest cryptographic algorithms.</p>
-<p><strong>Informational check:</strong> Test passes if the server does offer the SSL 3.0 protocol. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+CHECKS['mx']['mx_secure_protocols_tls1_2']['longdesc'] = """<p>TLS 1.2 is a modern encryption protocol that does support the latest cryptographic algorithms that enable authenticated encryption.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server does offer the TLS 1.2 protocol. The result is \"critical\" otherwise. It is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
@@ -3253,8 +3253,60 @@ CHECKS['mx']['mx_secure_protocols_tls1_2']['longdesc'] = """<p>TLS 1.2 is the a 
 CHECKS['ssl']['web_secure_protocols_tls1_2']['labels'] = \
 CHECKS['mx']['mx_secure_protocols_tls1_2']['labels'] = ['reliable']
 
+CHECKS['ssl']['web_secure_protocols_tls1_3']['title'] = \
+CHECKS['mx']['mx_secure_protocols_tls1_3']['title'] = "Check whether the protocol TLS 1.3 is offered"
+CHECKS['ssl']['web_secure_protocols_tls1_3']['longdesc'] = \
+CHECKS['mx']['mx_secure_protocols_tls1_3']['longdesc'] = """<p>TLS 1.3 is an upcoming encryption protocol that removes support for weak ciphers. Moreover, the protocol is expected to offer improved security because of its simplicity and academic involvement.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server does offer the TLS 1.3 protocol, otherwise the result is neutral. It is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+<p>Further reading:</p>
+<ul>
+<li><a href="https://tlswg.github.io/tls13-spec/draft-ietf-tls-tls13.html">https://tlswg.github.io/tls13-spec/draft-ietf-tls-tls13.html</a></li>
+</ul>
+""" 
+CHECKS['ssl']['web_secure_protocols_tls1_3']['labels'] = \
+CHECKS['mx']['mx_secure_protocols_tls1_3']['labels'] = ['reliable']
+
+CHECKS['ssl']['web_default_protocol']['title'] = \
+CHECKS['mx']['mx_default_protocol']['title'] = "Check whether the server prefers a strong protocol"
+CHECKS['ssl']['web_default_protocol']['longdesc'] = \
+CHECKS['mx']['mx_default_protocol']['longdesc'] = """<p>Most servers support more than one protocol. They should pick one of the strong protocols for HTTPS by default.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server does offer a strong protocol by default (at least TLS 1.1), otherwise the test fails. It is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_default_protocol']['labels'] = \
+CHECKS['mx']['mx_default_protocol']['labels'] = ['reliable']
+
+CHECKS['ssl']['web_cipher_order']['title'] = \
+CHECKS['mx']['mx_cipher_order']['title'] = "Check whether the server prefers strong ciphers"
+CHECKS['ssl']['web_cipher_order']['longdesc'] = \
+CHECKS['mx']['mx_cipher_order']['longdesc'] = """<p>Most servers support more than one cipher. The ciphers should be ordered according to strength to ensure that the best available cipher is picked.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server has been configured with a reasonable cipher order, otherwise the test fails. It is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_cipher_order']['labels'] = \
+CHECKS['mx']['mx_cipher_order']['labels'] = ['reliable']
+
+CHECKS['ssl']['web_default_cipher']['title'] = \
+CHECKS['mx']['mx_default_cipher']['title'] = "Check whether the server picks a strong cipher by default"
+CHECKS['ssl']['web_default_cipher']['longdesc'] = \
+CHECKS['mx']['mx_default_cipher']['longdesc'] = """<p>Most servers support more than one protocol. The server should pick one of the strong ciphers by default.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server picks a strong cipher by default, otherwise the test fails. It is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_default_cipher']['labels'] = \
+CHECKS['mx']['mx_default_cipher']['labels'] = ['reliable']
+
 CHECKS['ssl']['web_vuln_heartbleed']['title'] = \
-CHECKS['mx']['mx_vuln_heartbleed']['title'] = 'Check for protection against Heartbleed'
+CHECKS['mx']['mx_vuln_heartbleed']['title'] = 'Check for protection against Heartbleed attack'
 CHECKS['ssl']['web_vuln_heartbleed']['longdesc'] = \
 CHECKS['mx']['mx_vuln_heartbleed']['longdesc'] = """<p>The Heartbleed vulnerability was a critical error in a SSL-enabled server that allowed attackers to retrieve sensitive information from the server.</p>
 <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>

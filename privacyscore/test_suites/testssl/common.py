@@ -371,11 +371,11 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
             result['{}_default_cipher_severity'.format(prefix)] = r['severity']
             result['{}_default_cipher_finding'.format(prefix)] = r['finding']
     
-    # default protocol OK?
+    # default protocol OK? (testssl returns OK if protocol >= TLS 1.1)
     r = scanres(json, 'order_proto')
     if r:
         if r['severity'] != 'WARN': # WARN indicates the test was intentionally skipped
-            result['{}_default_protocol'.format(prefix)] = r['severity'] in ['INFO', 'OK']
+            result['{}_default_protocol'.format(prefix)] = r['severity'] in ['OK']
             result['{}_default_protocol_severity'.format(prefix)] = r['severity']
             result['{}_default_protocol_finding'.format(prefix)] = r['finding']
     
