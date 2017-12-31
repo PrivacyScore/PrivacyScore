@@ -22,7 +22,12 @@ from django.core.management import BaseCommand
 from privacyscore.backend.models import Site
 
 
-MAX_TRIES = 5
+# increased max_tries from in schedulerescans from 5 to 50 because
+# we had 5 blacklisted sites and the scheduler was not willing to
+# scan any more sites
+# TODO: find better solution that is independent of number of
+# blacklisted sites
+MAX_TRIES = 50
 
 
 class Command(BaseCommand):
