@@ -479,16 +479,16 @@ CHECKS['ssl']['web_certificate_not_expired'] = {
     'missing': None,
 }
 # Check whether subjectAltName is present and contains domain
-# everyhting fine: good
+# everything fine: good
 # Else: critical
 CHECKS['ssl']['web_valid_san'] = {
     'keys': {'web_valid_san', 'web_valid_san_severity', 'web_valid_san_finding', 'web_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The certificate contains a valid subjectAltName field, which is required by browsers.'),
+        'description': _('The certificate contains a valid subjectAltName field.'),
         'classification': Rating('good'),
         'details_list': (keys['web_valid_san'],),
     } if keys["web_certificate_not_expired"] else {
-        'description': _('The certificate does not contain a valid subjectAltName field, which is required by browsers.'),
+        'description': _('The certificate does not contain a valid subjectAltName field.'),
         'classification': Rating('critical'),
         'details_list': (keys['web_valid_san_finding'],),
         'severity': keys['web_valid_san_severity']
@@ -509,7 +509,7 @@ CHECKS['ssl']['web_strong_keysize'] = {
         'classification': Rating('good'),
         'details_list': (keys['web_keysize'],),
     } if keys["web_strong_keysize"] else { 
-        'description': _('The certificate does not use a sufficiently strong key size.'),
+        'description': _('The certificate does not use a sufficiently large key size.'),
         'classification': Rating('bad'),
         'details_list': (keys['web_keysize'],),
         'severity': keys['web_strong_keysize_severity']
@@ -638,11 +638,11 @@ CHECKS['ssl']['web_pfs'] = {
 CHECKS['ssl']['web_session_ticket'] = {
     'keys': {'web_session_ticket','web_session_ticket_severity', 'web_session_ticket_finding'},
     'rating': lambda **keys: {
-        'description': _('The web server uses short-living session tickets, which are required for perfect forward secrecy.'),
+        'description': _('The web server uses short-lived session tickets.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['web_session_ticket'] else {
-        'description': _('The web server does not use short-living session tickets, which are required for perfect forward secrecy.'),
+        'description': _('The web server does not use short-lived session tickets.'),
         'classification': Rating('bad'),
         'severity': keys['web_session_ticket_severity'],
         'details_list': (keys['web_session_ticket_finding'],),
@@ -2982,20 +2982,89 @@ CHECKS['ssl']['web_certificate_not_expired']['longdesc'] = """<p>A certificate i
 """ 
 CHECKS['ssl']['web_certificate_not_expired']['labels'] = ['reliable']
 
+CHECKS['ssl']['web_valid_san']['title'] = "Check whether certificate contains a valid subjectAltName field, which is required by clients."
+CHECKS['ssl']['web_valid_san']['longdesc'] = """<p>Certificates must contain the hostname (domain name) of the server for which they are issued. In former times it was sufficient to put the hostname into the common name (CN) field of a certificate. Today, the hostname must be stated in the subjectAltName field. Some browser like Chrome are ignoring the CN field altogether and will fail to establish a secure connection to a website that does not implement this requirement. This check tests whether the subjectAltName field is present and matches the domain name of the website.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the domain name is present in the subjectAltName field, otherwise it fails.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_valid_san']['labels'] = ['reliable']
 
-CHECKS['ssl']['web_pfs']['title'] = "Check if the server offers Perfect Forward Secrecy"
-CHECKS['ssl']['web_pfs']['longdesc'] = """<p>Perfect forward secrecy protects the security of connections even if the long-term cryptographic keys of the server are disclosed at a later time.</p>
-<p><strong>Conditions for passing:</strong> Test passes if the server offers HTTPS with perfect forward secrecy. Neutral if the server does not support HTTPS.</p>
+
+CHECKS['ssl']['web_strong_keysize']['title'] = "Check whether certificate was created with a sufficiently large key size"
+CHECKS['ssl']['web_strong_keysize']['longdesc'] = """<p>An important aspect for the effective security of an encrypted connection is the size of the key that was used to create the certificate. This checks tests whether the size is of acceptable length.</p>
+<p><strong>Conditions for passing:</strong>Test passes if the key size is acceptable, otherwise it fails. Acceptable key sizes for RSA: &gt;1024 bit.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_strong_keysize']['labels'] = ['reliable']
+
+CHECKS['ssl']['web_strong_sig_algorithm']['title'] = "Check whether certificate was signed with a strong algorithm"
+CHECKS['ssl']['web_strong_sig_algorithm']['longdesc'] = """<p>Another important aspect for the effective security of an encrypted connection is that the certificate has been created with a strong signature algorithm.This checks tests whether this is the case.</p>
+<p><strong>Conditions for passing:</strong>Test passes if a strong algorithm is used, otherwise it fails. Algorithms that are not considered strong are: MD2, MD4, MD5, and SHA-1.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_strong_sig_algorithm'] = ['reliable']
+
+CHECKS['ssl']['web_either_crl_or_ocsp']['title'] = "Check whether certificate contains fields required for revocation checking"
+CHECKS['ssl']['web_either_crl_or_ocsp']['longdesc'] = """<p>If an already issued certificate becomes compromised, the issuer will revoke it. There are two techniques with which clients can check whether a certificate has been revoked. This check tests whether at least one of these techniques can be used with the certificate that the server has presented to the client.</p>
+<p><strong>Conditions for passing:</strong>Test passes if either the URI of a certificate revocation list or the URI of an OCSP server is contained in the certificate, otherwise it fails.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_either_crl_or_ocsp'] = ['reliable']
+
+CHECKS['ssl']['web_ocsp_stapling']['title'] = "Check whether server performs OCSP stapling"
+CHECKS['ssl']['web_ocsp_stapling']['longdesc'] = """<p>With regular OCSP the client has to contact the certification authority on its own in order to check whether the certificate of the server has been revoked. As a result certification authorities learn which websites clients visits. This privacy problem can be avoided by using OCSP stapling.</p>
+<p><strong>Conditions for passing:</strong>Test passes if the server performs OCSP stapling, otherwise it fails.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_ocsp_stapling'] = ['reliable']
+
+CHECKS['ssl']['web_ocsp_must_staple']['title'] = "Check whether certificate contains \"must staple\" extensioN"
+CHECKS['ssl']['web_ocsp_must_staple']['longdesc'] = """<p>OCSP stapling on its own does not protect against active man-in-the-middle attackers that block the OCSP request. Browsers cannot distinguish these attacks from legitimate behavior. The OCSP must staple extension mitigates this problem by extending the server certificate with a signed statement that indicates that the server will perform OCSP stapling. This check tests whether the certificate contains this statement.</p>
+<p><strong>Conditions for passing:</strong>Test passes if the certificate contains the OCSP must staple extension, otherwise it fails. The check result will be \"critical\" if the certificate contains the must staple extension, but the server does not perform OCSP stapling.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_ocsp_must_staple'] = ['reliable']
+
+CHECKS['ssl']['web_pfs']['title'] = "Check if the server supports ciphers with forward secrecy"
+CHECKS['ssl']['web_pfs']['longdesc'] = """<p>Ciphers with (perfect) forward secrecy protect the security of connections even if the long-term cryptographic keys of the server are disclosed at a later time. This check tests whether the server offers ciphers with this property.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server offers ciphers with forward secrecy.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.<br>
+<p>Further reading:</p>
+<ul>
+<li><a href="https://casecurity.org/2014/06/18/ocsp-must-staple/">https://casecurity.org/2014/06/18/ocsp-must-staple/</a></li>
+<li><a href="https://scotthelme.co.uk/ocsp-must-staple/">https://scotthelme.co.uk/ocsp-must-staple/</a></li>
+<li><a href="https://blog.hboeck.de/archives/886-The-Problem-with-OCSP-Stapling-and-Must-Staple-and-why-Certificate-Revocation-is-still-broken.html">https://blog.hboeck.de/archives/886-The-Problem-with-OCSP-Stapling-and-Must-Staple-and-why-Certificate-Revocation-is-still-broken.html</a></li>
+</ul>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 """ 
 CHECKS['ssl']['web_pfs']['labels'] = ['reliable']
 
+CHECKS['ssl']['web_session_ticket']['title'] = "Check if the server uses short-lived session tickets for forward secrecy"
+CHECKS['ssl']['web_session_ticket']['longdesc'] = """<p>In order to guarantee forward secrecy the server must not issue long-lived session tickets. This check tests whether the server offers short-lived session tickets.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server issues short-lived session tickets.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.<br>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_session_ticket']['labels'] = ['reliable']
+
 CHECKS['ssl']['web_hsts_header']['title'] = "Check for valid Strict-Transport-Security (HSTS)"
-CHECKS['ssl']['web_hsts_header']['longdesc'] = """<p>This HTTP header prevents adversaries from eavesdropping on encrypted connections. HSTS allows a site to tell the browser that it should only be retrieved encryptedly via HTTPS. This decreases the risk of a so-called SSL Stripping attack.</p>
-<p><strong>Conditions for passing:</strong> The header is set on the HTTPS URL that is reached after following potential redirects.</p>
-<p><strong>Reliability: unreliable.</strong> We only evaluate this header for the HTTPS URL to which a site redirects upon visit. We rely on the result of <a href="http://testssl.sh">testssl.sh</a> to evaluate the validity of the header. Under certain circumstances, a website may be protected without setting its own HSTS header, e.g. subdomains whose parent domain has a HSTS preloading directive covering subdomains - this will not be detected by this test, but will show up in the HSTS Preloading test.</p>
+CHECKS['ssl']['web_hsts_header']['longdesc'] = """<p>This HTTP header prevents man-in-the-middle attackers from eavesdropping. With HSTS a server can tell the browser that the site should only be retrieved encryptedly via HTTPS. This helps to prevent so-called SSL stripping attacks.</p>
+<p><strong>Conditions for passing:</strong> The header is set on the final HTTPS URL (that is reached after following any redirects).</p>
+<p><strong>Reliability: unreliable.</strong> We only evaluate this header for the HTTPS URL to which a site redirects upon a visit. We rely on the result of <a href="http://testssl.sh">testssl.sh</a> to evaluate the validity of the header. Under certain circumstances, a website may be protected without setting its own HSTS header, e.g. subdomains whose parent domain has a HSTS preloading directive covering subdomains - this will not be detected by this test, but will show up in the HSTS Preloading test.</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to different servers in order to render the resulting page but forget to set the header in all responses. We may miss the presence of HSTS if redirection is not performed with the HTTP Location header but with JavaScript.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
@@ -3021,9 +3090,9 @@ CHECKS['ssl']['web_hsts_header_duration']['longdesc'] = """<p>The HSTS header al
 CHECKS['ssl']['web_hsts_header_duration']['labels'] = ['unreliable']
 
 CHECKS['ssl']['web_hsts_preload_prepared']['title'] = "Check if server is ready for HSTS preloading"
-CHECKS['ssl']['web_hsts_preload_prepared']['longdesc'] = """<p>HSTS Preloading further decreases the risk of SSL Stripping attacks. To this end the information that a site should only be retrieved via HTTPS is stored in a list that is preloaded with the browser. This prevents SSL Stripping attacks during the very first visit of a site. To allow inclusion in the HSTS preloading lists, the servers need to indicate that this inclusion is acceptable.</p>
-<p><strong>Conditions for passing:</strong> The Server indicates it is ready for HSTS preloading, or is already part of the HSTS preloading list.</p>
-<p><strong>Reliability: unreliable.</strong> We only evaluate this header for the HTTPS URL to which a site redirects upon visit. We will miss preloading indicators on higher-level domains (e.g. example.com if the provided domain was www2.example.com).</p>
+CHECKS['ssl']['web_hsts_preload_prepared']['longdesc'] = """<p>HSTS preloading further decreases the risk of SSL stripping attacks. To this end the information that a site should only be retrieved via HTTPS is stored in a list that is preloaded with the browser. This prevents SSL stripping attacks during the very first visit of a site. To allow inclusion in the HSTS preloading lists, a server needs to indicate that this inclusion is acceptable.</p>
+<p><strong>Conditions for passing:</strong> The server indicates that it is ready for HSTS preloading (or it is already part of the HSTS preloading list).</p>
+<p><strong>Reliability: unreliable.</strong> We only evaluate this header for the HTTPS URL to which a site redirects upon visit. We will miss preloading indicators on higher-level domains (e.g., on example.com if the domain to be scanned was www2.example.com).</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to different servers in order to render the resulting page but forget to set the header in all responses. We may miss the presence of HSTS if redirection is not performed with the HTTP Location header but with JavaScript.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a>, HSTS preloading database</p>
 <p>Further reading:</p>
@@ -3033,8 +3102,8 @@ CHECKS['ssl']['web_hsts_preload_prepared']['longdesc'] = """<p>HSTS Preloading f
 """
 CHECKS['ssl']['web_hsts_preload_prepared']['labels'] = ['unreliable']
 
-CHECKS['ssl']['web_hsts_preload_listed']['title'] = "Check for HSTS Preloading"
-CHECKS['ssl']['web_hsts_preload_listed']['longdesc'] = """<p>HSTS Preloading further decreases the risk of SSL Stripping attacks. To this end the information that a site should only be retrieved via HTTPS is stored in a list that is preloaded with the browser. This prevents SSL Stripping attacks during the very first visit of a site.</p>
+CHECKS['ssl']['web_hsts_preload_listed']['title'] = "Check for HSTS preloading"
+CHECKS['ssl']['web_hsts_preload_listed']['longdesc'] = """<p>HSTS preloading further decreases the risk of SSL stripping attacks. To this end the information that a site should only be retrieved via HTTPS is stored in a list that is preloaded with the browser. This prevents SSL stripping attacks during the very first visit of a site.</p>
 <p><strong>Conditions for passing:</strong> The final URL is part of the current Chromium HSTS preload list, or one of its parent domains is and has “include-subdomains” set to true.</p>
 <p><strong>Reliability: unreliable.</strong> We only evaluate this header for the HTTPS URL to which a site redirects upon visit. We also do not evaluate if the HSTS policy actually has force-https set to true.</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may also miss security problems on sites that issue multiple requests to different servers in order to render the resulting page but forget to set the header in all responses. We may miss the presence of HSTS if redirection is not performed with the HTTP Location header but with JavaScript.</p>
@@ -3047,7 +3116,7 @@ CHECKS['ssl']['web_hsts_preload_listed']['longdesc'] = """<p>HSTS Preloading fur
 CHECKS['ssl']['web_hsts_preload_listed']['labels'] = ['unreliable']
 
 CHECKS['ssl']['web_has_hpkp_header']['title'] = 'Check for valid Public Key Pins'
-CHECKS['ssl']['web_has_hpkp_header']['longdesc'] = """<p>This HTTP header ensures that outsiders cannot tamper with encrypted transmissions. With HPKP sites can announce that the cryptographic keys used by their servers are tied to certain certificates. This decreases the risk of man-in-the-middle attacks of adversaries who use a forged certificates. However, opinions about the usefulness and risks of this functionality differ widely among experts. This check is informational only and does not influence the ranking of the website.</p>
+CHECKS['ssl']['web_has_hpkp_header']['longdesc'] = """<p>This HTTP header ensures that outsiders cannot tamper with encrypted transmissions. With HPKP sites can announce that the cryptographic keys used by their servers are tied to certain certificates. This decreases the risk of man-in-the-middle attacks of adversaries who have obtained a forged certificate. However, opinions about the usefulness and risks of this functionality differ widely among experts. This check is informational only and does not influence the ranking of the website.</p>
 <p><strong>Conditions for passing:</strong> The Public-Key-Pins header is present and the certificate hashes in the header can be matched against the certificate presented during the TLS handshake.</p>
 <p><strong>Reliability: unreliable.</strong> We only evaluate this header for the HTTPS URL to which a site redirects upon visit. We rely on the result of <a href="http://testssl.sh">testssl.sh</a> to evaluate the validity of the pins.</p>
 <p><strong>Potential scan errors:</strong> We may miss security problems on sites that redirect multiple times. We may miss the presence of HPKP if redirection is not performed with the HTTP Location header but with JavaScript.</p>
@@ -3060,8 +3129,8 @@ CHECKS['ssl']['web_has_hpkp_header']['longdesc'] = """<p>This HTTP header ensure
 """ 
 CHECKS['ssl']['web_has_hpkp_header']['labels'] = ['informational']
 
-CHECKS['ssl']['mixed_content']['title'] = "Check for Mixed Content on HTTPS sites"
-CHECKS['ssl']['mixed_content']['longdesc'] = """<p>If HTTPS websites include content from HTTP sites, this opens the website to additional attacks. This 'mixed content' will also be blocked by modern browsers, which may lead to problems in how the website is displayed.</p>
+CHECKS['ssl']['mixed_content']['title'] = "Check for mixed content on HTTPS sites"
+CHECKS['ssl']['mixed_content']['longdesc'] = """<p>If HTTPS sites include content from HTTP sites, this may enable attackers to degrade integrity and confidentiality. This so-called \"mixed content\" is therefore blocked by modern browsers, which may lead to usability problems when the website is displayed.</p>
 <p><strong>Conditions for passing:</strong> Test passes if the website does not use mixed content. If the server does not offer HTTPS, the test is neutral.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
@@ -3072,6 +3141,32 @@ CHECKS['ssl']['mixed_content']['longdesc'] = """<p>If HTTPS websites include con
 </ul>
 """
 CHECKS['ssl']['mixed_content']['labels'] = ['unreliable']
+
+CHECKS['ssl']['web_caa_record']['title'] = "Check if domain contains a valid CAA record"
+CHECKS['ssl']['web_caa_record']['longdesc'] = """<p>The Certification Authority Authorization DNS record allows site operators to indicate to certification authorities (CAs) which CAs are allowed to issue certificates for a given domain. This helps to prevent attackers from obtaining a forged certificate. This check tests whether the site has set a CAA record for its domain.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the domain of the server contains a CAA record, otherwise the test fails.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
+<p>Further reading:</p>
+<ul>
+<li><a href="https://tools.ietf.org/html/rfc6844">https://tools.ietf.org/html/rfc6844</a></li>
+</ul>
+"""
+CHECKS['ssl']['web_caa_record']['labels'] = ['reliable']
+
+CHECKS['ssl']['web_certificate_transparency']['title'] = "Check if server implements certificate transparency (as specified in RFC 6962)"
+CHECKS['ssl']['web_certificate_transparency']['longdesc'] = """<p>Certificate Transparency is a technique that allows clients to detect forged certificates. RFC 6962 specifies how servers should announce that their certificate can be verified in a publicly accessible certificate transparency log. This check tests whether the server implements the mechanisms mentioned in the RFC.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server implements one of the mechanisms specified in RFC 6962, otherwise it fails.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
+<p>Further reading:</p>
+<ul>
+<li><a href="https://tools.ietf.org/html/rfc6962">https://tools.ietf.org/html/rfc6962</a></li>
+</ul>
+"""
+CHECKS['ssl']['web_certificate_transparency']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_insecure_protocols_sslv2']['title'] = \
 CHECKS['mx']['mx_insecure_protocols_sslv2']['title'] = "Check that insecure SSL 2.0 is not offered"
