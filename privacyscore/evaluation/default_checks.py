@@ -3305,11 +3305,47 @@ CHECKS['mx']['mx_default_cipher']['longdesc'] = """<p>Most servers support more 
 CHECKS['ssl']['web_default_cipher']['labels'] = \
 CHECKS['mx']['mx_default_cipher']['labels'] = ['reliable']
 
+CHECKS['ssl']['web_ciphers_null']['title'] = \
+CHECKS['mx']['mx_ciphers_null']['title'] = 'Check if insecure NULL cipher is supported'
+CHECKS['ssl']['web_ciphers_null']['longdesc'] = \
+CHECKS['mx']['mx_ciphers_null']['longdesc'] = """<p>The NULL cipher does not perform any encryption. Therefore, it does not protect the confidentiality of the exchanged messages.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server does not offer this cipher, otherwise the test fails. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_ciphers_anull']['labels'] = \
+CHECKS['mx']['mx_ciphers_anull']['labels'] = ['reliable']
+
+CHECKS['ssl']['web_ciphers_anull']['title'] = \
+CHECKS['mx']['mx_ciphers_anull']['title'] = 'Check if insecure Anonymous NULL cipher is supported'
+CHECKS['ssl']['web_ciphers_anull']['longdesc'] = \
+CHECKS['mx']['mx_ciphers_anull']['longdesc'] = """<p>The Anonymous NULL cipher does not perform any encryption and authentication. Therefore, it does not protect the confidentiality of the exchanged messages.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server does not offer this cipher, otherwise the test fails. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_ciphers_anull']['labels'] = \
+CHECKS['mx']['mx_ciphers_anull']['labels'] = ['reliable']
+
+CHECKS['ssl']['web_ciphers_export']['title'] = \
+CHECKS['mx']['mx_ciphers_export']['title'] = 'Check if insecure export ciphers are supported'
+CHECKS['ssl']['web_ciphers_export']['longdesc'] = \
+CHECKS['mx']['mx_ciphers_export']['longdesc'] = """<p>Export ciphers use outdated encryption algorithms. They should not be used any more.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server does not offer these ciphers, otherwise the test fails. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_ciphers_export']['labels'] = \
+CHECKS['mx']['mx_ciphers_export']['labels'] = ['reliable']
+
 CHECKS['ssl']['web_vuln_heartbleed']['title'] = \
 CHECKS['mx']['mx_vuln_heartbleed']['title'] = 'Check for protection against Heartbleed attack'
 CHECKS['ssl']['web_vuln_heartbleed']['longdesc'] = \
 CHECKS['mx']['mx_vuln_heartbleed']['longdesc'] = """<p>The Heartbleed vulnerability was a critical error in a SSL-enabled server that allowed attackers to retrieve sensitive information from the server.</p>
-<p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
