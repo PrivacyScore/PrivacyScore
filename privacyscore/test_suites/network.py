@@ -24,6 +24,13 @@ test_dependencies = []
 # TODO put the path somewhere else, maybe in settings
 HSTS_FILE = "/opt/privacyscore/.wget-hsts"
 
+# The minimum Jaccard coefficient required for the
+# comparison of http and https version of a site
+# so that we accept both sites to show the same
+# content (if threshold not reached we will report
+# that the scanned site is not available via https)
+MINIMUM_SIMILARITY = 0.90
+
 def retrieve_url_with_wget(url):
     """calls wget and extracts the final url and the http body from the response
        IndexError or subprocess.CalledProcessError will be thrown if site is unreachable
@@ -191,7 +198,7 @@ def process_test_data(raw_data: list, previous_results: dict, country_database_p
         similarity = _jaccard_index(
             raw_data['final_url_content']['data'],
             raw_data['final_https_url_content']['data'])
-        result['same_content_via_https'] = similarity > 0.95
+        result['same_content_via_https'] = similarity > MINIMUM_SIMILARITY
 
     return result
 
