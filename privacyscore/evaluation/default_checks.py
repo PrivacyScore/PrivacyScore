@@ -1523,10 +1523,10 @@ CHECKS['ssl']['web_vuln_logjam_common_primes'] = {
     },
     'missing': None,
 }
-# Check for BEAST cbc_ssl3
+# Check for BEAST cbc_ssl3 and tls1
 # vulnerable: bad
 # Else: good
-CHECKS['ssl']['web_vuln_beast_cbcssl3'] = {
+CHECKS['ssl']['web_vuln_beast_proto'] = {
     'keys': {'web_vulnerabilities', 'web_has_ssl'},
     'rating': lambda **keys: {
         'description': _('BEAST attack: The server supports CBC ciphers with the SSL 3.0 protocol.'),
@@ -1535,33 +1535,17 @@ CHECKS['ssl']['web_vuln_beast_cbcssl3'] = {
         'finding': keys["web_vulnerabilities"].get('cbc_ssl3')['finding'],
         'severity': keys["web_vulnerabilities"].get('cbc_ssl3')['severity'],
     } if keys["web_vulnerabilities"].get('cbc_ssl3') else {
-        'description': _('BEAST attack: The server does not support CBC ciphers with the SSL 3.0 protocol.'),
-        'classification': Rating('good'),
-        'details_list': None,
-    } if keys['web_has_ssl'] else {
-        'description': _('Skipping check for CBC ciphers in the SSL 3.0 protocol (BEAST attack) because the server does not offer HTTPS.'),
-        'classification': Rating('neutral'),
-        'details_list': None
-    },
-    'missing': None,
-}
-# Check for BEAST cbc_tls1
-# vulnerable: bad
-# Else: good
-CHECKS['ssl']['web_vuln_beast_cbctls1'] = {
-    'keys': {'web_vulnerabilities', 'web_has_ssl'},
-    'rating': lambda **keys: {
         'description': _('BEAST attack: The server supports CBC ciphers with the TLS 1.0 protocol.'),
         'classification': Rating('bad'),
         'details_list': None,
         'finding': keys["web_vulnerabilities"].get('cbc_tls1')['finding'],
         'severity': keys["web_vulnerabilities"].get('cbc_tls1')['severity'],
     } if keys["web_vulnerabilities"].get('cbc_tls1') else {
-        'description': _('BEAST attack: The server does not support CBC ciphers with the TLS 1.0 protocol.'),
+        'description': _('BEAST attack: The server does not support CBC ciphers with the SSL 3.0 and TLS 1.0 protocols.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['web_has_ssl'] else {
-        'description': _('Skipping check for CBC ciphers in the TLS 1.0 protocol (BEAST attack) because the server does not offer HTTPS.'),
+        'description': _('Skipping check for CBC ciphers in the SSL 3.0 and TLS 1.0  protocols (BEAST attack) because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -2616,10 +2600,10 @@ CHECKS['mx']['mx_vuln_logjam_common_primes'] = {
     },
     'missing': None,
 }
-# Check for BEAST cbc_ssl3
+# Check for BEAST cbc_ssl3 and tls1
 # vulnerable: bad
 # Else: good
-CHECKS['mx']['mx_vuln_beast_cbcssl3'] = {
+CHECKS['mx']['mx_vuln_beast_proto'] = {
     'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
     'rating': lambda **keys: {
         'description': _('BEAST attack: The server supports CBC ciphers with the SSL 3.0 protocol.'),
@@ -2628,33 +2612,17 @@ CHECKS['mx']['mx_vuln_beast_cbcssl3'] = {
         'finding': keys["mx_vulnerabilities"].get('cbc_ssl3')['finding'],
         'severity': keys["mx_vulnerabilities"].get('cbc_ssl3')['severity'],
     } if keys["mx_vulnerabilities"].get('cbc_ssl3') else {
-        'description': _('BEAST attack: The server does not support CBC ciphers with the SSL 3.0 protocol.'),
-        'classification': Rating('good'),
-        'details_list': None,
-    } if keys['mx_has_ssl'] else {
-        'description': _('Skipping check for CBC ciphers in the SSL 3.0 protocol (BEAST attack) because the server does not offer STARTTLS.'),
-        'classification': Rating('neutral'),
-        'details_list': None
-    },
-    'missing': None,
-}
-# Check for BEAST cbc_tls1
-# vulnerable: bad
-# Else: good
-CHECKS['mx']['mx_vuln_beast_cbctls1'] = {
-    'keys': {'mx_vulnerabilities', 'mx_has_ssl'},
-    'rating': lambda **keys: {
         'description': _('BEAST attack: The server supports CBC ciphers with the TLS 1.0 protocol.'),
         'classification': Rating('bad'),
         'details_list': None,
         'finding': keys["mx_vulnerabilities"].get('cbc_tls1')['finding'],
         'severity': keys["mx_vulnerabilities"].get('cbc_tls1')['severity'],
     } if keys["mx_vulnerabilities"].get('cbc_tls1') else {
-        'description': _('BEAST attack: The server does not support CBC ciphers with the TLS 1.0 protocol.'),
+        'description': _('BEAST attack: The server does not support CBC ciphers with the SSL 3.0 and TLS 1.0 protocols.'),
         'classification': Rating('good'),
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Skipping check for CBC ciphers in the TLS 1.0 protocol (BEAST attack) because the server does not offer STARTTLS.'),
+        'description': _('Skipping check for CBC ciphers in the SSL 3.0 and TLS 1.0 protocols (BEAST attack) because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -2918,7 +2886,9 @@ CHECKS['ssl']['web_scan_failed']['longdesc'] = """<p>Due to various reasons, a d
 """ 
 CHECKS['ssl']['web_scan_failed']['labels'] = ['unreliable']
 
-CHECKS['ssl']['web_testssl_incomplete']['title'] = "Check if all results from the HTTPS scan are available"
+CHECKS['mx']['mx_testssl_incomplete']['title'] = \
+CHECKS['ssl']['web_testssl_incomplete']['title'] = "Check if all results from the scan are available"
+CHECKS['mx']['mx_testssl_incomplete']['longdesc'] = \
 CHECKS['ssl']['web_testssl_incomplete']['longdesc'] = """<p>Due to various reasons, a some of the tests we perform may have failed. This test indicates whether all results have been retrieved or some are missing.</p>
 <p><strong>Informational check:</strong> This is an informational check without influence on the rating.</p>
 <p><strong>Reliability: unreliable.</strong> </p>
@@ -2926,6 +2896,7 @@ CHECKS['ssl']['web_testssl_incomplete']['longdesc'] = """<p>Due to various reaso
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 </ul>
 """ 
+CHECKS['mx']['mx_testssl_incomplete']['labels'] = \
 CHECKS['ssl']['web_testssl_incomplete']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_scan_finished']['title'] = "Check if the server offers HTTPS"
@@ -2964,80 +2935,106 @@ Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a>
 """ 
 CHECKS['ssl']['redirects_from_https_to_http']['labels'] = ['reliable']
 
-CHECKS['ssl']['web_cert']['title'] = "Check whether browsers trust the certificate of the server"
+CHECKS['mx']['mx_cert']['title'] = \
+CHECKS['ssl']['web_cert']['title'] = "Check whether common clients trust the certificate of the server"
+CHECKS['mx']['mx_cert']['longdesc'] = \
 CHECKS['ssl']['web_cert']['longdesc'] = """<p>A secure HTTPS connection requires a trusted certificate on the server. This check tests whether common browsers trust the certificate that is offered by the server.</p>
-<p><strong>Conditions for passing:</strong> Test passes if the server provides a certificate that is trusted by common web browsers. First, the domain name of the website must correspond to the domain name for which the certificate has been issued. Second, the server has to provide the full chain of intermediate certificates up to a root certificate. Third, the certificate chain has to end at a certification authority whose root certificate is trusted by common browsers. The check will also fail if the server uses a self-signed certificate.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server provides a certificate that is trusted by common web browsers and clients. First, the domain name of the website must correspond to the domain name for which the certificate has been issued. Second, the server has to provide the full chain of intermediate certificates up to a root certificate. Third, the certificate chain has to end at a certification authority whose root certificate is trusted by common browsers and clients. The check will also fail if the server uses a self-signed certificate.</p>
 <p><strong>Reliability: reliable.</strong></p>
-<p><strong>Potential scan errors:</strong> Not all browsers use the same set of trusted root certificates, i.e., some browsers may trust the certificate although the check fails.</p>
+<p><strong>Potential scan errors:</strong> Not all clients use the same set of trusted root certificates, i.e., some browsers may trust the certificate although the check fails.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 """ 
+CHECKS['mx']['mx_cert']['labels'] = \
 CHECKS['ssl']['web_cert']['labels'] = ['reliable']
 
+CHECKS['mx']['mx_certificate_not_expired']['title'] = \
 CHECKS['ssl']['web_certificate_not_expired']['title'] = "Check whether the certificate is currently valid"
+CHECKS['mx']['mx_certificate_not_expired']['longdesc'] = \
 CHECKS['ssl']['web_certificate_not_expired']['longdesc'] = """<p>A certificate is valid within a certain timeframe. This check tests whether the current time is within the validy period.</p>
 <p><strong>Conditions for passing:</strong> Test passes if the current time is within the validy period, otherwise it fails.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 """ 
+CHECKS['mx']['mx_certificate_not_expired']['labels'] = \
 CHECKS['ssl']['web_certificate_not_expired']['labels'] = ['reliable']
 
+CHECKS['mx']['mx_valid_san']['title'] = \
 CHECKS['ssl']['web_valid_san']['title'] = "Check whether certificate contains a valid subjectAltName field, which is required by clients."
+CHECKS['mx']['mx_valid_san']['longdesc'] = \
 CHECKS['ssl']['web_valid_san']['longdesc'] = """<p>Certificates must contain the hostname (domain name) of the server for which they are issued. In former times it was sufficient to put the hostname into the common name (CN) field of a certificate. Today, the hostname must be stated in the subjectAltName field. Some browser like Chrome are ignoring the CN field altogether and will fail to establish a secure connection to a website that does not implement this requirement. This check tests whether the subjectAltName field is present and matches the domain name of the website.</p>
 <p><strong>Conditions for passing:</strong> Test passes if the domain name is present in the subjectAltName field, otherwise it fails.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 """ 
+CHECKS['mx']['mx_valid_san']['labels'] = \
 CHECKS['ssl']['web_valid_san']['labels'] = ['reliable']
 
 
+CHECKS['mx']['mx_strong_keysize']['title'] = \
 CHECKS['ssl']['web_strong_keysize']['title'] = "Check whether certificate was created with a sufficiently large key size"
+CHECKS['mx']['mx_strong_keysize']['longdesc'] = \
 CHECKS['ssl']['web_strong_keysize']['longdesc'] = """<p>An important aspect for the effective security of an encrypted connection is the size of the key that was used to create the certificate. This checks tests whether the size is of acceptable length.</p>
 <p><strong>Conditions for passing:</strong>Test passes if the key size is acceptable, otherwise it fails. Acceptable key sizes for RSA: &gt;1024 bit.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 """ 
+CHECKS['mx']['mx_strong_keysize']['labels'] = \
 CHECKS['ssl']['web_strong_keysize']['labels'] = ['reliable']
 
+CHECKS['mx']['mx_strong_sig_algorithm']['title'] = \
 CHECKS['ssl']['web_strong_sig_algorithm']['title'] = "Check whether certificate was signed with a strong algorithm"
+CHECKS['mx']['mx_strong_sig_algorithm']['longdesc'] = \
 CHECKS['ssl']['web_strong_sig_algorithm']['longdesc'] = """<p>Another important aspect for the effective security of an encrypted connection is that the certificate has been created with a strong signature algorithm.This checks tests whether this is the case.</p>
 <p><strong>Conditions for passing:</strong>Test passes if a strong algorithm is used, otherwise it fails. Algorithms that are not considered strong are: MD2, MD4, MD5, and SHA-1.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 """ 
+CHECKS['mx']['mx_strong_sig_algorithm'] = \
 CHECKS['ssl']['web_strong_sig_algorithm'] = ['reliable']
 
+CHECKS['mx']['mx_either_crl_or_ocsp']['title'] = \
 CHECKS['ssl']['web_either_crl_or_ocsp']['title'] = "Check whether certificate contains fields required for revocation checking"
+CHECKS['mx']['mx_either_crl_or_ocsp']['longdesc'] = \
 CHECKS['ssl']['web_either_crl_or_ocsp']['longdesc'] = """<p>If an already issued certificate becomes compromised, the issuer will revoke it. There are two techniques with which clients can check whether a certificate has been revoked. This check tests whether at least one of these techniques can be used with the certificate that the server has presented to the client.</p>
 <p><strong>Conditions for passing:</strong>Test passes if either the URI of a certificate revocation list or the URI of an OCSP server is contained in the certificate, otherwise it fails.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 """ 
+CHECKS['mx']['mx_either_crl_or_ocsp'] = \
 CHECKS['ssl']['web_either_crl_or_ocsp'] = ['reliable']
 
+CHECKS['mx']['mx_ocsp_stapling']['title'] = \
 CHECKS['ssl']['web_ocsp_stapling']['title'] = "Check whether server performs OCSP stapling"
+CHECKS['mx']['mx_ocsp_stapling']['longdesc'] = \
 CHECKS['ssl']['web_ocsp_stapling']['longdesc'] = """<p>With regular OCSP the client has to contact the certification authority on its own in order to check whether the certificate of the server has been revoked. As a result certification authorities learn which websites clients visits. This privacy problem can be avoided by using OCSP stapling.</p>
 <p><strong>Conditions for passing:</strong>Test passes if the server performs OCSP stapling, otherwise it fails.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 """ 
+CHECKS['mx']['mx_ocsp_stapling'] = \
 CHECKS['ssl']['web_ocsp_stapling'] = ['reliable']
 
+CHECKS['mx']['mx_ocsp_must_staple']['title'] = \
 CHECKS['ssl']['web_ocsp_must_staple']['title'] = "Check whether certificate contains \"must staple\" extensioN"
+CHECKS['mx']['mx_ocsp_must_staple']['longdesc'] = \
 CHECKS['ssl']['web_ocsp_must_staple']['longdesc'] = """<p>OCSP stapling on its own does not protect against active man-in-the-middle attackers that block the OCSP request. Browsers cannot distinguish these attacks from legitimate behavior. The OCSP must staple extension mitigates this problem by extending the server certificate with a signed statement that indicates that the server will perform OCSP stapling. This check tests whether the certificate contains this statement.</p>
 <p><strong>Conditions for passing:</strong>Test passes if the certificate contains the OCSP must staple extension, otherwise it fails. The check result will be \"critical\" if the certificate contains the must staple extension, but the server does not perform OCSP stapling.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 """ 
+CHECKS['mx']['mx_ocsp_must_staple'] = \
 CHECKS['ssl']['web_ocsp_must_staple'] = ['reliable']
 
+CHECKS['mx']['mx_pfs']['title'] = \
 CHECKS['ssl']['web_pfs']['title'] = "Check if the server supports ciphers with forward secrecy"
+CHECKS['mx']['mx_pfs']['longdesc'] = \
 CHECKS['ssl']['web_pfs']['longdesc'] = """<p>Ciphers with (perfect) forward secrecy protect the security of connections even if the long-term cryptographic keys of the server are disclosed at a later time. This check tests whether the server offers ciphers with this property.</p>
 <p><strong>Conditions for passing:</strong> Test passes if the server offers ciphers with forward secrecy.</p>
 <p><strong>Reliability: reliable.</strong></p>
@@ -3050,15 +3047,19 @@ CHECKS['ssl']['web_pfs']['longdesc'] = """<p>Ciphers with (perfect) forward secr
 </ul>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 """ 
+CHECKS['mx']['mx_pfs']['labels'] = \
 CHECKS['ssl']['web_pfs']['labels'] = ['reliable']
 
+CHECKS['mx']['mx_session_ticket']['title'] = \
 CHECKS['ssl']['web_session_ticket']['title'] = "Check if the server uses short-lived session tickets for forward secrecy"
+CHECKS['mx']['mx_session_ticket']['longdesc'] = \
 CHECKS['ssl']['web_session_ticket']['longdesc'] = """<p>In order to guarantee forward secrecy the server must not issue long-lived session tickets. This check tests whether the server offers short-lived session tickets.</p>
 <p><strong>Conditions for passing:</strong> Test passes if the server issues short-lived session tickets.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.<br>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 """ 
+CHECKS['mx']['mx_session_ticket']['labels'] = \
 CHECKS['ssl']['web_session_ticket']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_hsts_header']['title'] = "Check for valid Strict-Transport-Security (HSTS)"
@@ -3142,7 +3143,9 @@ CHECKS['ssl']['mixed_content']['longdesc'] = """<p>If HTTPS sites include conten
 """
 CHECKS['ssl']['mixed_content']['labels'] = ['unreliable']
 
+CHECKS['mx']['mx_caa_record']['title'] = \
 CHECKS['ssl']['web_caa_record']['title'] = "Check if domain contains a valid CAA record"
+CHECKS['mx']['mx_caa_record']['longdesc'] = \
 CHECKS['ssl']['web_caa_record']['longdesc'] = """<p>The Certification Authority Authorization DNS record allows site operators to indicate to certification authorities (CAs) which CAs are allowed to issue certificates for a given domain. This helps to prevent attackers from obtaining a forged certificate. This check tests whether the site has set a CAA record for its domain.</p>
 <p><strong>Conditions for passing:</strong> Test passes if the domain of the server contains a CAA record, otherwise the test fails.</p>
 <p><strong>Reliability: reliable.</strong></p>
@@ -3153,6 +3156,7 @@ CHECKS['ssl']['web_caa_record']['longdesc'] = """<p>The Certification Authority 
 <li><a href="https://tools.ietf.org/html/rfc6844">https://tools.ietf.org/html/rfc6844</a></li>
 </ul>
 """
+CHECKS['mx']['mx_caa_record']['labels'] = \
 CHECKS['ssl']['web_caa_record']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_certificate_transparency']['title'] = "Check if server implements certificate transparency (as specified in RFC 6962)"
@@ -3341,10 +3345,87 @@ CHECKS['mx']['mx_ciphers_export']['longdesc'] = """<p>Export ciphers use outdate
 CHECKS['ssl']['web_ciphers_export']['labels'] = \
 CHECKS['mx']['mx_ciphers_export']['labels'] = ['reliable']
 
+CHECKS['ssl']['web_ciphers_des_64bit']['title'] = \
+CHECKS['mx']['mx_ciphers_des_64bit']['title'] = 'Check if insecure 64 bit and DES ciphers are supported'
+CHECKS['ssl']['web_ciphers_des_64bit']['longdesc'] = \
+CHECKS['mx']['mx_ciphers_des_64bit']['longdesc'] = """<p>These ciphers use outdated encryption algorithms. They should not be used any more.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server does not offer these ciphers, otherwise the test fails. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_ciphers_des_64bit']['labels'] = \
+CHECKS['mx']['mx_ciphers_des_64bit']['labels'] = ['reliable']
+
+CHECKS['ssl']['web_ciphers_128bit']['title'] = \
+CHECKS['mx']['mx_ciphers_128bit']['title'] = 'Check if insecure 128 bit ciphers are supported'
+CHECKS['ssl']['web_ciphers_128bit']['longdesc'] = \
+CHECKS['mx']['mx_ciphers_128bit']['longdesc'] = """<p>These ciphers (e.g. SEED, IDEA, RC2, and RC4) use outdated encryption algorithms. They should not be used any more.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server does not offer these ciphers, otherwise the test fails. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_ciphers_128bit']['labels'] = \
+CHECKS['mx']['mx_ciphers_128bit']['labels'] = ['reliable']
+
+CHECKS['ssl']['web_ciphers_3des']['title'] = \
+CHECKS['mx']['mx_ciphers_3des']['title'] = 'Check if outdated 3DES ciphers are supported'
+CHECKS['ssl']['web_ciphers_3des']['longdesc'] = \
+CHECKS['mx']['mx_ciphers_3des']['longdesc'] = """<p>These ciphers use the outdated 3DES encryption algorithm. They should not be used any more.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server does not offer these ciphers, otherwise the test fails. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_ciphers_3des']['labels'] = \
+CHECKS['mx']['mx_ciphers_3des']['labels'] = ['reliable']
+
+CHECKS['ssl']['web_ciphers_high']['title'] = \
+CHECKS['mx']['mx_ciphers_high']['title'] = 'Check if modern ciphers such as AES and Camellia are supported'
+CHECKS['ssl']['web_ciphers_high']['longdesc'] = \
+CHECKS['mx']['mx_ciphers_high']['longdesc'] = """<p>Servers should support these modern ciphers. In contrast to the \"strong\" ciphers these ciphers do not offer authenticated encryption, which means that attackers may be able to degrade integrity and confidentiality.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server offers these ciphers, otherwise the test fails. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_ciphers_high']['labels'] = \
+CHECKS['mx']['mx_ciphers_high']['labels'] = ['reliable']
+
+CHECKS['ssl']['web_ciphers_strong']['title'] = \
+CHECKS['mx']['mx_ciphers_strong']['title'] = 'Check if strong ciphers with authenticated encryption are supported'
+CHECKS['ssl']['web_ciphers_strong']['longdesc'] = \
+CHECKS['mx']['mx_ciphers_strong']['longdesc'] = """<p>Servers should support these ciphers as they offer the highest level of protection.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server offers these ciphers, otherwise the test fails. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+""" 
+CHECKS['ssl']['web_ciphers_strong']['labels'] = \
+CHECKS['mx']['mx_ciphers_strong']['labels'] = ['reliable']
+
+CHECKS['ssl']['web_vuln_rc4']['title'] = \
+CHECKS['mx']['mx_vuln_rc4']['title'] = "Check if RC4 ciphers are supported"
+CHECKS['ssl']['web_vuln_rc4']['longdesc'] = \
+CHECKS['mx']['mx_vuln_rc4']['longdesc'] = """<p>Servers should not support the RC4 cipher because of known vulnerabilities.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server does not offer RC4 ciphers, otherwise the test fails. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+<p>Further reading:</p>
+<ul>
+<li>CVE-2013-2566</li>
+<li>CVE-2015-2808</li>
+</ul>
+""" 
+CHECKS['ssl']['web_vuln_rc4']['labels'] = \
+CHECKS['mx']['mx_vuln_rc4']['labels'] = ['reliable']
+
 CHECKS['ssl']['web_vuln_heartbleed']['title'] = \
 CHECKS['mx']['mx_vuln_heartbleed']['title'] = 'Check for protection against Heartbleed attack'
 CHECKS['ssl']['web_vuln_heartbleed']['longdesc'] = \
-CHECKS['mx']['mx_vuln_heartbleed']['longdesc'] = """<p>The Heartbleed vulnerability was a critical error in a SSL-enabled server that allowed attackers to retrieve sensitive information from the server.</p>
+CHECKS['mx']['mx_vuln_heartbleed']['longdesc'] = """<p>The Heartbleed vulnerability is a critical error that allows attackers to retrieve sensitive information from the server.</p>
 <p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
@@ -3360,8 +3441,8 @@ CHECKS['mx']['mx_vuln_heartbleed']['labels'] = ['reliable']
 CHECKS['ssl']['web_vuln_ccs']['title'] = \
 CHECKS['mx']['mx_vuln_ccs']['title'] = "Check for protection against CCS attack"
 CHECKS['ssl']['web_vuln_ccs']['longdesc'] = \
-CHECKS['mx']['mx_vuln_ccs']['longdesc'] = """<p>The ChangeCipherSpec-Bug was a critical programming error in OpenSSL.</p>
-<p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+CHECKS['mx']['mx_vuln_ccs']['longdesc'] = """<p>The ChangeCipherSpec vulnerability was a critical programming error in OpenSSL.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
@@ -3374,28 +3455,40 @@ CHECKS['mx']['mx_vuln_ccs']['longdesc'] = """<p>The ChangeCipherSpec-Bug was a c
 CHECKS['ssl']['web_vuln_ccs']['labels'] = \
 CHECKS['mx']['mx_vuln_ccs']['labels'] = ['unreliable']
 
-## disabled because not part of testssl result
-## CHECKS['ssl']['web_vuln_ticketbleed']['title'] = \
-## CHECKS['mx']['mx_vuln_ticketbleed']['title'] = "Check for protection against Ticketbleed"
-## CHECKS['ssl']['web_vuln_ticketbleed']['longdesc'] = \
-## CHECKS['mx']['mx_vuln_ticketbleed']['longdesc'] = """<p>The Ticketbleed-Bug was a programming error in enterprise-level hardware.</p>
-## <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
-## <p><strong>Reliability: reliable.</strong></p>
-## <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-## <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
-## <p>Further reading:</p>
-## <ul>
-## <li>CVE-2016-9244</li>
-## </ul>
-## """ 
-## CHECKS['ssl']['web_vuln_ticketbleed']['labels'] = \
-## CHECKS['mx']['mx_vuln_ticketbleed']['labels'] = ['experimental']
+CHECKS['ssl']['web_vuln_ticketbleed']['title'] = "Check for protection against Ticketbleed attack"
+CHECKS['ssl']['web_vuln_ticketbleed']['longdesc'] = """<p>The Ticketbleed vulnerability was a programming error in enterprise-level hardware.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+<p>Further reading:</p>
+<ul>
+<li>CVE-2016-9244</li>
+</ul>
+""" 
+CHECKS['ssl']['web_vuln_ticketbleed']['labels'] = ['experimental']
+
+CHECKS['ssl']['web_vuln_robot']['title'] = \
+CHECKS['mx']['mx_vuln_robot']['title'] = "Check for protection against ROBOT attack"
+CHECKS['ssl']['web_vuln_robot']['longdesc'] = \
+CHECKS['mx']['mx_vuln_robot']['longdesc'] = """<p>The ROBOT vulnerability was a critical programming error in implementations of the TLS protocol.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+<p>Further reading:</p>
+<ul>
+<li><a href="https://robotattack.org/">https://robotattack.org/</a></li>
+</ul>
+""" 
+CHECKS['ssl']['web_vuln_robot']['labels'] = \
+CHECKS['mx']['mx_vuln_robot']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_vuln_secure_renego']['title'] = \
-CHECKS['mx']['mx_vuln_secure_renego']['title'] = "Check for Secure Renegotiation"
+CHECKS['mx']['mx_vuln_secure_renego']['title'] = "Check for secure renegotiation"
 CHECKS['ssl']['web_vuln_secure_renego']['longdesc'] = \
 CHECKS['mx']['mx_vuln_secure_renego']['longdesc'] = """<p>Description will be added soon.</p>
-<p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
@@ -3408,26 +3501,26 @@ CHECKS['ssl']['web_vuln_secure_renego']['labels'] = \
 CHECKS['mx']['mx_vuln_secure_renego']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_vuln_secure_client_renego']['title'] = \
-CHECKS['mx']['mx_vuln_secure_client_renego']['title'] = "Check for Secure Client-Initiated Renegotiation"
+CHECKS['mx']['mx_vuln_secure_client_renego']['title'] = "Check for secure client initiated renegotiation"
 CHECKS['ssl']['web_vuln_secure_client_renego']['longdesc'] = \
 CHECKS['mx']['mx_vuln_secure_client_renego']['longdesc'] = """<p>Description will be added soon.</p>
-<p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
-<li>CVE-2009-3555</li>
-</ul>
+<li>TODO</li>
+</ul
 """
 CHECKS['ssl']['web_vuln_secure_client_renego']['labels'] = \
 CHECKS['mx']['mx_vuln_secure_client_renego']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_vuln_crime']['title'] = \
-CHECKS['mx']['mx_vuln_crime']['title'] = "Check for protection against CRIME"
+CHECKS['mx']['mx_vuln_crime']['title'] = "Check for protection against CRIME attack"
 CHECKS['ssl']['web_vuln_crime']['longdesc'] = \
 CHECKS['mx']['mx_vuln_crime']['longdesc'] = """<p>Description will be added soon.</p>
-<p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
@@ -3439,28 +3532,24 @@ CHECKS['mx']['mx_vuln_crime']['longdesc'] = """<p>Description will be added soon
 CHECKS['ssl']['web_vuln_crime']['labels'] = \
 CHECKS['mx']['mx_vuln_crime']['labels'] = ['reliable']
 
-## disabled because not part of testssl result
-## CHECKS['ssl']['web_vuln_breach']['title'] = \
-## CHECKS['mx']['mx_vuln_breach']['title'] = "Check for protection against BREACH"
-## CHECKS['ssl']['web_vuln_breach']['longdesc'] = \
-## CHECKS['mx']['mx_vuln_breach']['longdesc'] = """<p>Description will be added soon.</p>
-## <p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
-## <p><strong>Reliability: reliable.</strong></p>
-## <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-## <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
-## <p>Further reading:</p>
-## <ul>
-## <li>CVE-2013-3587</li>
-## </ul>
-## """ 
-## CHECKS['ssl']['web_vuln_breach']['labels'] = \
-## CHECKS['mx']['mx_vuln_breach']['labels'] = ['reliable']
+CHECKS['ssl']['web_vuln_breach']['title'] = "Check for protection against BREACH attack"
+CHECKS['ssl']['web_vuln_breach']['longdesc'] = """<p>Description will be added soon.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+<p>Further reading:</p>
+<ul>
+<li>CVE-2013-3587</li>
+</ul>
+""" 
+CHECKS['ssl']['web_vuln_breach']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_vuln_poodle']['title'] = \
-CHECKS['mx']['mx_vuln_poodle']['title'] = "Check for protection against POODLE"
+CHECKS['mx']['mx_vuln_poodle']['title'] = "Check for protection against POODLE attack"
 CHECKS['ssl']['web_vuln_poodle']['longdesc'] = \
-CHECKS['mx']['mx_vuln_poodle']['longdesc'] = """<p>Description will be added soon.</p>
-<p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+CHECKS['mx']['mx_vuln_poodle']['longdesc'] = """<p>The Padding Oracle On Downgraded Legacy Encryption (POODLE) attack targets SSL 3.0 servers that support CBC ciphers.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
@@ -3472,11 +3561,27 @@ CHECKS['mx']['mx_vuln_poodle']['longdesc'] = """<p>Description will be added soo
 CHECKS['ssl']['web_vuln_poodle']['labels'] = \
 CHECKS['mx']['mx_vuln_poodle']['labels'] = ['reliable']
 
+CHECKS['ssl']['web_vuln_fallback_scsv']['title'] = \
+CHECKS['mx']['mx_vuln_fallback_scsv']['title'] = "Check for TLS_FALLBACK_SCSV downgrade protection mechanism"
+CHECKS['ssl']['web_vuln_fallback_scsv']['longdesc'] = \
+CHECKS['mx']['mx_vuln_fallback_scsv']['longdesc'] = """<p>The POODLE attack may require an attacker to downgrade a connection from a higher TLS version to SSL 3.0 during the handshake. Such downgrade attacks can be prevented with the TLS_FALLBACK_SCSV mechanism.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server implements TLS_FALLBACK_SCSV. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+<p>Further reading:</p>
+<ul>
+<li><a href="https://www.exploresecurity.com/poodle-and-the-tls_fallback_scsv-remedy/">https://www.exploresecurity.com/poodle-and-the-tls_fallback_scsv-remedy/</a></li>
+</ul>
+""" 
+CHECKS['ssl']['web_vuln_fallback_scsv']['labels'] = \
+CHECKS['mx']['mx_vuln_fallback_scsv']['labels'] = ['reliable']
+
 CHECKS['ssl']['web_vuln_sweet32']['title'] = \
-CHECKS['mx']['mx_vuln_sweet32']['title'] = "Check for protection against SWEET32"
+CHECKS['mx']['mx_vuln_sweet32']['title'] = "Check for protection against SWEET32 attack"
 CHECKS['ssl']['web_vuln_sweet32']['longdesc'] = \
 CHECKS['mx']['mx_vuln_sweet32']['longdesc'] = """<p>Description will be added soon.</p>
-<p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
@@ -3490,10 +3595,10 @@ CHECKS['ssl']['web_vuln_sweet32']['labels'] = \
 CHECKS['mx']['mx_vuln_sweet32']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_vuln_freak']['title'] = \
-CHECKS['mx']['mx_vuln_freak']['title'] = "Check for protection against FREAK"
+CHECKS['mx']['mx_vuln_freak']['title'] = "Check for protection against FREAK attack"
 CHECKS['ssl']['web_vuln_freak']['longdesc'] = \
 CHECKS['mx']['mx_vuln_freak']['longdesc'] = """<p>Description will be added soon.</p>
-<p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
@@ -3506,10 +3611,10 @@ CHECKS['ssl']['web_vuln_freak']['labels'] = \
 CHECKS['mx']['mx_vuln_freak']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_vuln_drown']['title'] = \
-CHECKS['mx']['mx_vuln_drown']['title'] = "Check for protection against DROWN"
+CHECKS['mx']['mx_vuln_drown']['title'] = "Check for protection against DROWN attack"
 CHECKS['ssl']['web_vuln_drown']['longdesc'] = \
 CHECKS['mx']['mx_vuln_drown']['longdesc'] = """<p>Description will be added soon.</p>
-<p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
@@ -3523,26 +3628,60 @@ CHECKS['ssl']['web_vuln_drown']['labels'] = \
 CHECKS['mx']['mx_vuln_drown']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_vuln_logjam']['title'] = \
-CHECKS['mx']['mx_vuln_logjam']['title'] = "Check for protection against LOGJAM"
+CHECKS['mx']['mx_vuln_logjam']['title'] = "Check for protection against LOGJAM attack"
 CHECKS['ssl']['web_vuln_logjam']['longdesc'] = \
 CHECKS['mx']['mx_vuln_logjam']['longdesc'] = """<p>Description will be added soon.</p>
-<p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: unreliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>CVE-2015-4000</li>
+<li><a href="https://weakdh.org/">https://weakdh.org</a></li>
 </ul>
 """
 CHECKS['ssl']['web_vuln_logjam']['labels'] = \
 CHECKS['mx']['mx_vuln_logjam']['labels'] = ['unreliable']
 
+CHECKS['ssl']['web_vuln_logjam_common_primes']['title'] = \
+CHECKS['mx']['mx_vuln_logjam_common_primes']['title'] = "Check for common primes related to LOGJAM attack"
+CHECKS['ssl']['web_vuln_logjam_common_primes']['longdesc'] = \
+CHECKS['mx']['mx_vuln_logjam_common_primes']['longdesc'] = """<p>Description will be added soon.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: unreliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+<p>Further reading:</p>
+<ul>
+<li>CVE-2015-4000</li>
+<li><a href="https://weakdh.org/">https://weakdh.org</a></li>
+</ul>
+"""
+CHECKS['ssl']['web_vuln_logjam_common_primes']['labels'] = \
+CHECKS['mx']['mx_vuln_logjam_common_primes']['labels'] = ['unreliable']
+
+CHECKS['ssl']['web_vuln_beast_proto']['title'] = \
+CHECKS['mx']['mx_vuln_beast_proto']['title'] = "Check if server supports CBC ciphers with SSL 3.0 or TLS 1.0 protocols (see also BEAST attack)"
+CHECKS['ssl']['web_vuln_beast_proto']['longdesc'] = \
+CHECKS['mx']['mx_vuln_beast_proto']['longdesc'] = """<p>Description will be added soon.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server does not implement these ciphers with these protocols. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Reliability: reliable.</strong></p>
+<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
+<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
+<p>Further reading:</p>
+<ul>
+<li>CVE-2011-3389</li>
+</ul>
+""" 
+CHECKS['ssl']['web_vuln_beast_proto']['labels'] = \
+CHECKS['mx']['mx_vuln_beast_proto']['labels'] = ['reliable']
+
 CHECKS['ssl']['web_vuln_beast']['title'] = \
-CHECKS['mx']['mx_vuln_beast']['title'] = "Check for protection against BEAST"
+CHECKS['mx']['mx_vuln_beast']['title'] = "Check for protection against BEAST attack"
 CHECKS['ssl']['web_vuln_beast']['longdesc'] = \
 CHECKS['mx']['mx_vuln_beast']['longdesc'] = """<p>Description will be added soon.</p>
-<p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
@@ -3555,10 +3694,10 @@ CHECKS['ssl']['web_vuln_beast']['labels'] = \
 CHECKS['mx']['mx_vuln_beast']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_vuln_lucky13']['title'] = \
-CHECKS['mx']['mx_vuln_lucky13']['title'] = "Check for protection against LUCKY13"
+CHECKS['mx']['mx_vuln_lucky13']['title'] = "Check for protection against LUCKY13 attack"
 CHECKS['ssl']['web_vuln_lucky13']['longdesc'] = \
 CHECKS['mx']['mx_vuln_lucky13']['longdesc'] = """<p>Description will be added soon.</p>
-<p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
+<p><strong>Conditions for passing:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
@@ -3570,40 +3709,8 @@ CHECKS['mx']['mx_vuln_lucky13']['longdesc'] = """<p>Description will be added so
 CHECKS['ssl']['web_vuln_lucky13']['labels'] = \
 CHECKS['mx']['mx_vuln_lucky13']['labels'] = ['reliable']
 
-CHECKS['ssl']['web_vuln_rc4']['title'] = \
-CHECKS['mx']['mx_vuln_rc4']['title'] = "Check that no RC4 ciphers are used"
-CHECKS['ssl']['web_vuln_rc4']['longdesc'] = \
-CHECKS['mx']['mx_vuln_rc4']['longdesc'] = """<p><strong>Informational check:</strong> Test passes if the server is not using RC4. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
-<p><strong>Reliability: reliable.</strong></p>
-<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
-<p>Further reading:</p>
-<ul>
-<li>CVE-2013-2566</li>
-<li>CVE-2015-2808</li>
-</ul>
-""" 
-CHECKS['ssl']['web_vuln_rc4']['labels'] = \
-CHECKS['mx']['mx_vuln_rc4']['labels'] = ['reliable']
-
-CHECKS['ssl']['web_vuln_fallback_scsv']['title'] = \
-CHECKS['mx']['mx_vuln_fallback_scsv']['title'] = "Check that TLS_FALLBACK_SCSV is implemented"
-CHECKS['ssl']['web_vuln_fallback_scsv']['longdesc'] = \
-CHECKS['mx']['mx_vuln_fallback_scsv']['longdesc'] = """<p>Description will be added soon.</p>
-<p><strong>Informational check:</strong> Test passes if the server is not vulnerable to this bug. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
-<p><strong>Reliability: reliable.</strong></p>
-<p><strong>Potential scan errors:</strong> None that we are aware of.</p>
-<p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
-<p>Further reading:</p>
-<ul>
-<li>RFC 7507</li>
-</ul>
-""" 
-CHECKS['ssl']['web_vuln_fallback_scsv']['labels'] = \
-CHECKS['mx']['mx_vuln_fallback_scsv']['labels'] = ['reliable']
-
-CHECKS['mx']['has_mx']['title'] = "Check if the Domain has an eMail server"
-CHECKS['mx']['has_mx']['longdesc'] = """<p>Some websites may not have eMail servers associated with them. This test checks if the website advertises an eMail server.</p>
+CHECKS['mx']['has_mx']['title'] = "Check if domain of website lists an e-mail server"
+CHECKS['mx']['has_mx']['longdesc'] = """<p>In many cases online services can be reached via e-mail at the same domain as the website. This test checks if the domain entry of the website lists an e-mail server (MX record).</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan Module: DNS</p>
@@ -3614,15 +3721,11 @@ CHECKS['mx']['has_mx']['longdesc'] = """<p>Some websites may not have eMail serv
 """
 CHECKS['mx']['has_mx']['labels'] = ['reliable']
 
-CHECKS['mx']['mx_scan_finished']['title'] = "Check if the Mail server supports encryption"
-CHECKS['mx']['mx_scan_finished']['longdesc'] = """<p>Many eMail servers do not allow encrypted connections. This test checks if the mail server associated with the domain supports encrypted connections.</p>
-<p><strong>Informational check:</strong> Test fails if the server does not offer encryption. The result is neutral if the encryption test did not complete with any results.</p>
+CHECKS['mx']['mx_scan_finished']['title'] = "Check if e-mail server supports encryption"
+CHECKS['mx']['mx_scan_finished']['longdesc'] = """<p>Some e-,ail servers do not allow encrypted connections at all. This test checks if the mail server associated with the domain supports encrypted connections.</p>
+<p><strong>Conditions for passing:</strong> Test fails if the server does not offer encryption. The result is neutral if the encryption test did not complete with any results.</p>
 <p><strong>Reliability: unreliable.</strong> </p>
-<p><strong>Potential scan errors:</strong> Many eMail servers will slow down our test significantly, which may lead to it failing even though the server offers encrypted connections. In that case, we will be unable to determine any information about the security of the server, and will exempt the category from the rating.</p>
+<p><strong>Potential scan errors:</strong> Some mail servers slow down our test significantly (so-called tarpitting). This may cause the test to fail even though the server offers encrypted connections. In this case we are unable to collect any data about the privacy and security features of the mail server and we exempt the category from the rating.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
-<p>Further reading:</p>
-<ul>
-<li>TODO</li>
-</ul>
 """  
 CHECKS['mx']['mx_scan_finished']['labels'] = ['unreliable']
