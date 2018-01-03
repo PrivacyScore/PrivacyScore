@@ -436,30 +436,29 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
                        'secure_renego', 'sec_client_renego', 'crime',
                        'breach', 'poodle_ssl', 'fallback_scsv', 'sweet32',
                        'freak', 'drown', 'drown', 'logjam',
-                       'LOGJAM_common primes', 'cbc_tls1', 'beast',
+                       'LOGJAM_common primes', 'cbc_ssl3', 'cbc_tls1', 'beast',
                        'lucky13', 'rc4'
     )
     result['{}_vulnerabilities'.format(prefix)] = {}
     for test_id in vulnerabilities:
         test_result = json.get(test_id)
         if not test_result:
+            missing_ids.append("{}_vulnerabilities_{}".format(prefix, test_id))
             continue
-
-        # TODO: this is bad because we will not be able to tell the difference between
-        # "check result missing" and "OK" later on        
-        if test_result['severity'] != u"OK" and test_result['severity'] != u'INFO':
-            result['{}_vulnerabilities'.format(prefix)][test_id] = {
-                'severity': test_result['severity'],
-                'cve': test_result['cve'] if 'cve' in test_result.keys() else "",
-                'finding': test_result['finding'],
-            }
+        result['{}_vulnerabilities'.format(prefix)][test_id] = {
+            'severity': test_result['severity'],
+            'cve': test_result['cve'] if 'cve' in test_result.keys() else "",
+            'finding': test_result['finding'],
+        }
     
     # If none of the vulnerabilities has been present, remove the entry from
-    # the dict to avoid that there are this is evaluated into false "everything is good"
+    # the dict to avoid that this is evaluated into false "everything is good"
     # This can happen with the multi-stage testssl, if the stage that evaluates
     # vulnerabilities is never executed because the server goes dark using fail2ban etc.
     # after a previous stage was run.
-    result.pop('{}_vulnerabilities'.format(prefix))
+    if len(result['{}_vulnerabilities'.format(prefix)]) == 0:
+        result.pop('{}_vulnerabilities'.format(prefix))
+    
     
     # TODO: Think about moving from web_vulnerabilities['heartbleed']['severity'] to
     # a flat dict: web_vuln_heartbleed['severity]. This would be in line with all
@@ -475,17 +474,16 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
     for test_id in ciphers:
         test_result = json.get(test_id)
         if not test_result:
+            missing_ids.append("{}_ciphers_{}".format(prefix, test_id))
             continue
+        result['{}_ciphers'.format(prefix)][test_id] = {
+            'severity': test_result['severity'],
+            'finding': test_result['finding'],
+        }
+    
+    if len(result['{}_ciphers'.format(prefix)]) == 0: # see comment for vulnerabilities
+        result.pop('{}_ciphers'.format(prefix))
         
-        # TODO: this is bad because we will not be able to tell the difference between
-        # "check result missing" and "OK" later on
-        if test_result['severity'] != u"OK" and test_result['severity'] != u'INFO':
-            result['{}_ciphers'.format(prefix)][test_id] = {
-                'severity': test_result['severity'],
-                'finding': test_result['finding'],
-            }
-    result.pop('{}_ciphers'.format(prefix))
-
     result['{}_testssl_missing_ids'.format(prefix)] = missing_ids
     return result
 

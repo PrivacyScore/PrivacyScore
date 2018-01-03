@@ -260,7 +260,7 @@ table.dataTable thead .sorting_desc_disabled
                     role="tablist" aria-multiselectable="true">
                     <!-- panel group end -->
                 
-                    {% for description, title, longdesc, labels, details_list, rating in descriptions %}
+                    {% for description, title, longdesc, labels, details_list, rating, severity, finding in descriptions %}
                     {% with forloop.counter as innerCounter %}
                     <!--<p class="description-{{ classification }}">{{ description }}</p>-->
                     
@@ -309,6 +309,10 @@ table.dataTable thead .sorting_desc_disabled
                                             </span>
                                             <span class="pull-right">&nbsp;</span>
                                             {% endfor %}
+                                            <span class="label pull-right label-info">
+                                                {{ severity }}
+                                            </span>
+                                            
                                             
                                             {% if title %}
                                             <p><strong>{{ title }}</strong>
@@ -355,6 +359,7 @@ table.dataTable thead .sorting_desc_disabled
                                 </div>
                                 <div class="col col-sm-10">
                                     <div style="margin:0; margin-bottom: 0.5em; font-size: 80%;">
+                                    {{ finding }}
                                     {% for elem in details_list %}
                                         <div class="details-list-label">
                                             {{ elem.0 }}
