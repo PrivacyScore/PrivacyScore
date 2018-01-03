@@ -180,7 +180,7 @@
       git:
         repo: https://github.com/citp/OpenWPM
         dest: /opt/privacyscore/tests/vendor/OpenWPM
-        version: 99da2d91897c2ddcb128a0e133cccc09c4f14996
+        version: "{{ privacyscore__openwpm_version | mandatory }}"
         depth: 1
     - name: Create vendor/EasyList if it does not exist
       file:
