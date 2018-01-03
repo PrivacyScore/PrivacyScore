@@ -220,7 +220,7 @@ RAW_DATA_DELETE_AFTER = timedelta(days=10)
 
 SCAN_SCHEDULE_DAEMON_SLEEP = 60
 
-{% if privacyscore__raven_dsn_url %}
+{% if privacyscore__raven_dsn_url | bool %}
 INSTALLED_APPS.append('raven.contrib.django.raven_compat')
 
 import raven
