@@ -11,12 +11,14 @@ wget --quiet -O- http://geolite.maxmind.com/download/geoip/database/GeoLite2-Cou
 # openwpm
 git clone https://github.com/citp/OpenWPM tests/vendor/OpenWPM
 pushd tests/vendor/OpenWPM > /dev/null
+git checkout 99da2d91897c2ddcb128a0e133cccc09c4f14996
 
 # create openwpm-specific virtualenv
 deactivate || true
 virtualenv --python $(which python2) .pyenv
 . .pyenv/bin/activate
 
+pip install -U pip
 pip install six tldextract packaging appdirs
 pip install -U -r requirements.txt
 

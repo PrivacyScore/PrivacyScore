@@ -5,6 +5,7 @@ addresses and the final URL after following any HTTP forwards.
 
 import json
 import re
+import traceback
 from typing import Dict, List, Union
 from urllib.parse import urlparse
 
@@ -63,6 +64,8 @@ def test_site(url: str, previous_results: dict, country_database_path: str) -> D
             'data': response.content,
         }
     except Exception:
+        # TODO: extend api to support registration of partial errors
+        general_result['unreachable_exception'] = traceback.format_exc()
         general_result['reachable'] = False
         result['general'] = {
             'mime_type': 'application/json',
