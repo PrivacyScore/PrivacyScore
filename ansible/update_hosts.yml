@@ -171,7 +171,7 @@
       git:
         repo: https://github.com/drwetter/testssl.sh.git
         dest: /opt/privacyscore/tests/vendor/testssl.sh
-        version: 47409a32d687355739543890c1ddc70a8539d071
+        version: "{{ privacyscore__testssl_version | mandatory }}"
         depth: 1
     - name: Refresh vendor/OpenWPM
       when: privacyscore__is_slave
