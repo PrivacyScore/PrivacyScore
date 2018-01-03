@@ -125,7 +125,7 @@ def scan_site(site):
         # Close browser
         manager.close()
     except Exception as ex:
-        print ex
+        print(ex)
         e = sys.exc_info()[0]
         return 'error: ' + str(e)
 

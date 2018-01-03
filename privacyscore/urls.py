@@ -21,7 +21,7 @@ from django.views.static import serve
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^api/', include('privacyscore.api.urls')),
+    #url(r'^api/', include('privacyscore.api.urls')),
     url(r'^', include('privacyscore.frontend.urls')),
 ]
 
