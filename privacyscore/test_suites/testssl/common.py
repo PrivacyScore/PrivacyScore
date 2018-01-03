@@ -104,15 +104,17 @@ def run_and_check_local_testssl(hostname: str, check_mx: bool) -> List[bytes]:
                 if not server_ready:
                     progress.append("server_ready is still False. It makes no sense to continue.")
                     keep_running = False
-                    if return_code == 0:
-                        results.append(out)
-                        results.append(json.dumps({'incomplete_scan':"stage%i" % stage}).encode())
+                    #if return_code == 0:
+                    # even if return_code != 0, we append what we have, maybe some parts of it are still usable
+                    results.append(out)
+                    results.append(json.dumps({'incomplete_scan':"stage%i" % stage}).encode())
                     break
                 else:
                     progress.append("server_ready is now True. We can continue.")
-                if return_code == 0:
-                    results.append(out)
-                    results.append(json.dumps({'incomplete_scan':"stage%i" % stage}).encode())
+                #if return_code == 0:
+                # even if return_code != 0, we append what we have, maybe some parts of it are still usable
+                results.append(out)
+                results.append(json.dumps({'incomplete_scan':"stage%i" % stage}).encode())
 
             else:
                 progress.append("server_ready = True => next stage.")
@@ -120,7 +122,7 @@ def run_and_check_local_testssl(hostname: str, check_mx: bool) -> List[bytes]:
                 # testssl succeeded and we still have connectivity
                 # => this stage is finished
                 if (failures + impossible_handshakes) > 0 and stage < num_stages: # do not sleep in the last stage
-                    progress.append("We have experienced connectivity problems => sleeping %i before next stage." % SLEEP_TIME)
+                    progress.append("Connectivity problems! Sleeping %i before next stage." % SLEEP_TIME)
                     time.sleep(SLEEP_TIME)
                 break
 
@@ -424,12 +426,14 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
             match = pat.search(test_result['finding'])
             result['{}_has_protocol_{}'.format(prefix, test_id)] = match is None
             result['{}_has_protocol_{}_severity'.format(prefix, test_id)] = test_result['severity']
+            result['{}_has_protocol_{}_finding'.format(prefix, test_id)] = test_result['finding']
             continue
         match = pattern.search(test_result['finding'])
         if not match:
             continue
         result['{}_has_protocol_{}'.format(prefix, test_id)] = match.group(1) is None
         result['{}_has_protocol_{}_severity'.format(prefix, test_id)] = test_result['severity']
+        result['{}_has_protocol_{}_finding'.format(prefix, test_id)] = test_result['finding']
 
     # Detect vulnerabilities
     vulnerabilities = ('heartbleed', 'ccs', 'ticketbleed', 'ROBOT',
@@ -456,8 +460,9 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
     # This can happen with the multi-stage testssl, if the stage that evaluates
     # vulnerabilities is never executed because the server goes dark using fail2ban etc.
     # after a previous stage was run.
-    if len(result['{}_vulnerabilities'.format(prefix)]) == 0:
-        result.pop('{}_vulnerabilities'.format(prefix))
+    ## not needed any more!
+    #if len(result['{}_vulnerabilities'.format(prefix)]) == 0:
+    #    result.pop('{}_vulnerabilities'.format(prefix))
     
     
     # TODO: Think about moving from web_vulnerabilities['heartbleed']['severity'] to
@@ -481,8 +486,8 @@ def parse_common_testssl(json: Dict[str, str], prefix: str):
             'finding': test_result['finding'],
         }
     
-    if len(result['{}_ciphers'.format(prefix)]) == 0: # see comment for vulnerabilities
-        result.pop('{}_ciphers'.format(prefix))
+    #if len(result['{}_ciphers'.format(prefix)]) == 0: # see comment for vulnerabilities
+    #    result.pop('{}_ciphers'.format(prefix))
         
     result['{}_testssl_missing_ids'.format(prefix)] = missing_ids
     return result

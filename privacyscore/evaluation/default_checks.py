@@ -575,7 +575,7 @@ CHECKS['ssl']['web_ocsp_stapling'] = {
         'details_list': None,
         'severity': keys['web_ocsp_stapling_severity']
     } if keys["web_offers_ocsp"] and keys["web_ocsp_stapling"] else {
-        'description': _('The certificate does not perform OCSP stapling.'),
+        'description': _('The server does not perform OCSP stapling.'),
         'classification': Rating('bad'),
         'details_list': None,
         'severity': keys['web_ocsp_stapling_severity']
@@ -804,16 +804,17 @@ CHECKS['ssl']['web_certificate_transparency'] = {
 # No SSLv2: Good
 # No HTTPS at all: neutral
 # Else: bad
-CHECKS['ssl']['web_insecure_protocols_sslv2'] = {
-    'keys': {'web_has_protocol_sslv2', 'web_has_protocol_sslv2_severity', 'web_has_ssl'},
+CHECKS['ssl']['web_protocols_sslv2'] = {
+    'keys': {'web_has_protocol_sslv2', 'web_has_protocol_sslv2_severity', 'web_has_protocol_sslv2_finding', 'web_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server does not support the SSLv2 protocol.'),
+        'description': _('The server does not support SSLv2.'),
         'classification': Rating('good'),
         'details_list': None,
     } if not keys["web_has_protocol_sslv2"] else {
-        'description': _('The server supports the SSLv2 protocol.'),
+        'description': _('The server supports SSLv2.'),
         'classification': Rating('bad'),
         'severity': keys['web_has_protocol_sslv2_severity'],
+        'finding': keys['web_has_protocol_sslv2_finding'],
         'details_list': None,
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for the insecure SSLv2 protocol because the server does not offer HTTPS.'),
@@ -826,18 +827,20 @@ CHECKS['ssl']['web_insecure_protocols_sslv2'] = {
 # No SSLv3: Good
 # Not HTTPS at all: neutral
 # Else: bad
-CHECKS['ssl']['web_insecure_protocols_sslv3'] = {
-    'keys': {'web_has_protocol_sslv3', 'web_has_ssl'},
+CHECKS['ssl']['web_protocols_sslv3'] = {
+    'keys': {'web_has_protocol_sslv3', 'web_has_protocol_sslv3_severity', 'web_has_protocol_sslv3_finding', 'web_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server does not support the SSLv3 protocol.'),
+        'description': _('The server does not support SSLv3.'),
         'classification': Rating('good'),
         'details_list': None,
     } if not keys["web_has_protocol_sslv3"] else {
-        'description': _('The server supports the SSLv3 protocol.'),
+        'description': _('The server supports SSLv3.'),
         'classification': Rating('bad'),
+        'severity': keys['web_has_protocol_sslv3_severity'],
+        'finding': keys['web_has_protocol_sslv3_finding'],
         'details_list': None,
     } if keys['web_has_ssl'] else {
-        'description': _('Skipping check for the SSLv3 protocol because the server does not offer HTTPS.'),
+        'description': _('Skipping check for the insecure SSLv3 protocol because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -846,15 +849,21 @@ CHECKS['ssl']['web_insecure_protocols_sslv3'] = {
 # Check for TLS 1.0
 # supported: neutral
 # Else: good
-CHECKS['ssl']['web_secure_protocols_tls1'] = {
-    'keys': {'web_has_protocol_tls1', 'web_has_ssl'},
+CHECKS['ssl']['web_protocols_tls1'] = {
+    'keys': {'web_has_protocol_tls1', 'web_has_protocol_tls1_severity', 'web_has_protocol_tls1_finding', 'web_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server supports the protocol TLS 1.0.'),
+        'description': _('The server supports TLS 1.0.'),
         'classification': Rating('neutral'),
         'details_list': None,
-    } if keys["web_has_protocol_tls1"] else {
-        'description': _('The server does not support the protocol TLS 1.0.'),
+    } if keys["web_has_protocol_tls1"] and keys["web_has_protocol_tls1_severity"] in ("OK", "INFO") else { # cf. note @ rc4
+        'description': _('The server does not support TLS 1.0.'),
         'classification': Rating('good'),
+        'details_list': None,
+    } if not keys["web_has_protocol_tls1"] and keys["web_has_protocol_tls1_severity"] in ("OK", "INFO") else { # cf. note @ rc4
+        'description': _('There is a problem with the configuration of TLS 1.0.'),
+        'classification': Rating('bad'),
+        'severity': keys['web_has_protocol_tls1_severity'],
+        'finding': keys['web_has_protocol_tls1_finding'],
         'details_list': None,
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for the protocol TLS 1.0 because the server does not offer HTTPS.'),
@@ -866,15 +875,21 @@ CHECKS['ssl']['web_secure_protocols_tls1'] = {
 # Check for TLS 1.1
 # supported: neutral
 # Else: neutral
-CHECKS['ssl']['web_secure_protocols_tls1_1'] = {
-    'keys': {'web_has_protocol_tls1_1', 'web_has_ssl'},
+CHECKS['ssl']['web_protocols_tls1_1'] = {
+    'keys': {'web_has_protocol_tls1_1', 'web_has_protocol_tls1_1_severity', 'web_has_protocol_tls1_1_finding', 'web_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server supports the protocol TLS 1.1.'),
+        'description': _('The server supports TLS 1.1.'),
         'classification': Rating('neutral'),
         'details_list': None,
-    } if keys["web_has_protocol_tls1_1"] else {
-        'description': _('The server does not support the protocol TLS 1.1.'),
+    } if keys["web_has_protocol_tls1_1"] and keys["web_has_protocol_tls1_1_severity"] in ("OK", "INFO") else { # cf. note @ rc4
+        'description': _('The server does not support TLS 1.1.'),
         'classification': Rating('neutral'),
+        'details_list': None,
+    } if not keys["web_has_protocol_tls1_1"] and keys["web_has_protocol_tls1_1_severity"] in ("OK", "INFO") else { # cf. note @ rc4
+        'description': _('There is a problem with the configuration of TLS 1.1.'),
+        'classification': Rating('bad'),
+        'severity': keys['web_has_protocol_tls1_1_severity'],
+        'finding': keys['web_has_protocol_tls1_1_finding'],
         'details_list': None,
     } if keys['web_has_ssl'] else {
         'description': _('Skipping check for the protocol TLS 1.1 because the server does not offer HTTPS.'),
@@ -886,17 +901,22 @@ CHECKS['ssl']['web_secure_protocols_tls1_1'] = {
 # Check for TLS 1.2
 # supported: good
 # Else: critical
-CHECKS['ssl']['web_secure_protocols_tls1_2'] = {
-    'keys': {'web_has_protocol_tls1_2', 'web_has_ssl'},
+CHECKS['ssl']['web_protocols_tls1_2'] = {
+    'keys': {'web_has_protocol_tls1_2', 'web_has_protocol_tls1_2_severity', 'web_has_protocol_tls1_2_finding', 'web_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server supports the protocol TLS 1.2.'),
+        'description': _('The server supports TLS 1.2.'),
         'classification': Rating('good'),
         'details_list': None,
-    } if keys["web_has_protocol_tls1_2"] else {
-        'description': _('The server does not support the protocol TLS 1.2.'),
+    } if keys["web_has_protocol_tls1_2"] and keys["web_has_protocol_tls1_2_severity"] in ("OK", "INFO") else { # cf. note @ rc4
+        'description': _('The server does not support TLS 1.2.'),
         'classification': Rating('critical'),
         'details_list': None,
-    }if keys['web_has_ssl'] else {
+    } if not keys["web_has_protocol_tls1_2"] and keys["web_has_protocol_tls1_2_severity"] in ("OK", "INFO") else { # cf. note @ rc4
+        'description': _('There is a problem with the configuration of TLS 1.2.'),
+        'classification': Rating('bad'),
+        'severity': keys['web_has_protocol_tls1_2_severity'],
+        'finding': keys['web_has_protocol_tls1_2_finding'],
+    } if keys['web_has_ssl'] else {
         'description': _('Skipping check for the protocol TLS 1.2 because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
@@ -906,17 +926,22 @@ CHECKS['ssl']['web_secure_protocols_tls1_2'] = {
 # Check for TLS 1.3
 # supported: good
 # Else: critical
-CHECKS['ssl']['web_secure_protocols_tls1_3'] = {
-    'keys': {'web_has_protocol_tls1_3', 'web_has_ssl'},
+CHECKS['ssl']['web_protocols_tls1_3'] = {
+    'keys': {'web_has_protocol_tls1_3', 'web_has_protocol_tls1_3_severity', 'web_has_protocol_tls1_3_finding', 'web_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server supports the protocol TLS 1.3.'),
+        'description': _('The server supports TLS 1.3.'),
         'classification': Rating('good'),
         'details_list': None,
-    } if keys["web_has_protocol_tls1_3"] else {
-        'description': _('The server does not support the protocol TLS 1.3.'),
+    } if keys["web_has_protocol_tls1_3"] and keys["web_has_protocol_tls1_3_severity"] in ("OK", "INFO") else { # cf. note @ rc4
+        'description': _('The server does not support TLS 1.3.'),
         'classification': Rating('neutral'),
         'details_list': None,
-    }if keys['web_has_ssl'] else {
+    } if not keys["web_has_protocol_tls1_3"] and keys["web_has_protocol_tls1_3_severity"] in ("OK", "INFO") else { # cf. note @ rc4
+        'description': _('There is a problem with the configuration of TLS 1.3.'),
+        'classification': Rating('bad'),
+        'severity': keys['web_has_protocol_tls1_3_severity'],
+        'finding': keys['web_has_protocol_tls1_3_finding'],
+    } if keys['web_has_ssl'] else {
         'description': _('Skipping check for the protocol TLS 1.3 because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
@@ -1883,7 +1908,7 @@ CHECKS['mx']['mx_ocsp_stapling'] = {
         'details_list': None,
         'severity': keys['mx_ocsp_stapling_severity']
     } if keys["mx_offers_ocsp"] and keys["mx_ocsp_stapling"] else {
-        'description': _('The certificate does not perform OCSP stapling.'),
+        'description': _('The server does not perform OCSP stapling.'),
         'classification': Rating('bad'),
         'details_list': None,
         'severity': keys['mx_ocsp_stapling_severity']
@@ -1978,7 +2003,7 @@ CHECKS['mx']['mx_caa_record'] = {
 # No SSLv2: Good
 # No STARTTLS at all: neutral
 # Else: bad
-CHECKS['mx']['mx_insecure_protocols_sslv2'] = {
+CHECKS['mx']['mx_protocols_sslv2'] = {
     'keys': {'mx_has_protocol_sslv2', 'mx_has_protocol_sslv2_severity', 'mx_has_ssl'},
     'rating': lambda **keys: {
         'description': _('The server does not support the SSLv2 protocol.'),
@@ -1996,22 +2021,47 @@ CHECKS['mx']['mx_insecure_protocols_sslv2'] = {
     },
     'missing': None
 }
+# Check for insecure SSLv2 protocol
+# No SSLv2: Good
+# No HTTPS at all: neutral
+# Else: bad
+CHECKS['mx']['mx_protocols_sslv2'] = {
+    'keys': {'mx_has_protocol_sslv2', 'mx_has_protocol_sslv2_severity', 'mx_has_protocol_sslv2_finding', 'mx_has_ssl'},
+    'rating': lambda **keys: {
+        'description': _('The server does not support SSLv2.'),
+        'classification': Rating('good'),
+        'details_list': None,
+    } if not keys["mx_has_protocol_sslv2"] else {
+        'description': _('The server supports SSLv2.'),
+        'classification': Rating('bad'),
+        'severity': keys['mx_has_protocol_sslv2_severity'],
+        'finding': keys['mx_has_protocol_sslv2_finding'],
+        'details_list': None,
+    } if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for the insecure SSLv2 protocol because the server does not offer HTTPS.'),
+        'classification': Rating('neutral'),
+        'details_list': None
+    },
+    'missing': None
+}
 # Check for insecure SSLv3 protocol
 # No SSLv3: Good
-# No STARTTLS at all: neutral
+# Not HTTPS at all: neutral
 # Else: bad
-CHECKS['mx']['mx_insecure_protocols_sslv3'] = {
-    'keys': {'mx_has_protocol_sslv3', 'mx_has_ssl'},
+CHECKS['mx']['mx_protocols_sslv3'] = {
+    'keys': {'mx_has_protocol_sslv3', 'mx_has_protocol_sslv3_severity', 'mx_has_protocol_sslv3_finding', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server does not support the SSLv3 protocol.'),
+        'description': _('The server does not support SSLv3.'),
         'classification': Rating('good'),
         'details_list': None,
     } if not keys["mx_has_protocol_sslv3"] else {
-        'description': _('The server supports the SSLv3 protocol.'),
+        'description': _('The server supports SSLv3.'),
         'classification': Rating('bad'),
+        'severity': keys['mx_has_protocol_sslv3_severity'],
+        'finding': keys['mx_has_protocol_sslv3_finding'],
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Skipping check for the SSLv3 protocol because the server does not offer STARTTLS.'),
+        'description': _('Skipping check for the insecure SSLv3 protocol because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -2020,18 +2070,24 @@ CHECKS['mx']['mx_insecure_protocols_sslv3'] = {
 # Check for TLS 1.0
 # supported: neutral
 # Else: good
-CHECKS['mx']['mx_secure_protocols_tls1'] = {
-    'keys': {'mx_has_protocol_tls1', 'mx_has_ssl'},
+CHECKS['mx']['mx_protocols_tls1'] = {
+    'keys': {'mx_has_protocol_tls1', 'mx_has_protocol_tls1_severity', 'mx_has_protocol_tls1_finding', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server supports the protocol TLS 1.0.'),
+        'description': _('The server supports TLS 1.0.'),
         'classification': Rating('neutral'),
         'details_list': None,
-    } if keys["mx_has_protocol_tls1"] else {
-        'description': _('The server does not support the protocol TLS 1.0.'),
+    } if keys["mx_has_protocol_tls1"] and keys["mx_has_protocol_tls1_severity"] in ("OK", "INFO") else { # cf. note @ rc4
+        'description': _('The server does not support TLS 1.0.'),
         'classification': Rating('good'),
         'details_list': None,
+    } if not keys["mx_has_protocol_tls1"] and keys["mx_has_protocol_tls1_severity"] in ("OK", "INFO") else { # cf. note @ rc4
+        'description': _('There is a problem with the configuration of TLS 1.0.'),
+        'classification': Rating('bad'),
+        'severity': keys['mx_has_protocol_tls1_severity'],
+        'finding': keys['mx_has_protocol_tls1_finding'],
+        'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Skipping check for the protocol TLS 1.0 because the server does not offer STARTTLS.'),
+        'description': _('Skipping check for the protocol TLS 1.0 because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -2040,18 +2096,24 @@ CHECKS['mx']['mx_secure_protocols_tls1'] = {
 # Check for TLS 1.1
 # supported: neutral
 # Else: neutral
-CHECKS['mx']['mx_secure_protocols_tls1_1'] = {
-    'keys': {'mx_has_protocol_tls1_1', 'mx_has_ssl'},
+CHECKS['mx']['mx_protocols_tls1_1'] = {
+    'keys': {'mx_has_protocol_tls1_1', 'mx_has_protocol_tls1_1_severity', 'mx_has_protocol_tls1_1_finding', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server supports the protocol TLS 1.1.'),
+        'description': _('The server supports TLS 1.1.'),
         'classification': Rating('neutral'),
         'details_list': None,
-    } if keys["mx_has_protocol_tls1_1"] else {
-        'description': _('The server does not support the protocol TLS 1.1.'),
+    } if keys["mx_has_protocol_tls1_1"] and keys["mx_has_protocol_tls1_1_severity"] in ("OK", "INFO") else { # cf. note @ rc4
+        'description': _('The server does not support TLS 1.1.'),
         'classification': Rating('neutral'),
+        'details_list': None,
+    } if not keys["mx_has_protocol_tls1_1"] and keys["mx_has_protocol_tls1_1_severity"] in ("OK", "INFO") else { # cf. note @ rc4
+        'description': _('There is a problem with the configuration of TLS 1.1.'),
+        'classification': Rating('bad'),
+        'severity': keys['mx_has_protocol_tls1_1_severity'],
+        'finding': keys['mx_has_protocol_tls1_1_finding'],
         'details_list': None,
     } if keys['mx_has_ssl'] else {
-        'description': _('Skipping check for the protocol TLS 1.1 because the server does not offer STARTTLS.'),
+        'description': _('Skipping check for the protocol TLS 1.1 because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -2060,18 +2122,23 @@ CHECKS['mx']['mx_secure_protocols_tls1_1'] = {
 # Check for TLS 1.2
 # supported: good
 # Else: critical
-CHECKS['mx']['mx_secure_protocols_tls1_2'] = {
-    'keys': {'mx_has_protocol_tls1_2', 'mx_has_ssl'},
+CHECKS['mx']['mx_protocols_tls1_2'] = {
+    'keys': {'mx_has_protocol_tls1_2', 'mx_has_protocol_tls1_2_severity', 'mx_has_protocol_tls1_2_finding', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server supports the protocol TLS 1.2.'),
+        'description': _('The server supports TLS 1.2.'),
         'classification': Rating('good'),
         'details_list': None,
-    } if keys["mx_has_protocol_tls1_2"] else {
-        'description': _('The server does not support the protocol TLS 1.2.'),
+    } if keys["mx_has_protocol_tls1_2"] and keys["mx_has_protocol_tls1_2_severity"] in ("OK", "INFO") else { # cf. note @ rc4
+        'description': _('The server does not support TLS 1.2.'),
         'classification': Rating('critical'),
         'details_list': None,
-    }if keys['mx_has_ssl'] else {
-        'description': _('Skipping check for the protocol TLS 1.2 because the server does not offer STARTTLS.'),
+    } if not keys["mx_has_protocol_tls1_2"] and keys["mx_has_protocol_tls1_2_severity"] in ("OK", "INFO") else { # cf. note @ rc4
+        'description': _('There is a problem with the configuration of  TLS 1.2.'),
+        'classification': Rating('bad'),
+        'severity': keys['mx_has_protocol_tls1_2_severity'],
+        'finding': keys['mx_has_protocol_tls1_2_finding'],
+    } if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for the protocol TLS 1.2 because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -2080,18 +2147,23 @@ CHECKS['mx']['mx_secure_protocols_tls1_2'] = {
 # Check for TLS 1.3
 # supported: good
 # Else: critical
-CHECKS['mx']['mx_secure_protocols_tls1_3'] = {
-    'keys': {'mx_has_protocol_tls1_3', 'mx_has_ssl'},
+CHECKS['mx']['mx_protocols_tls1_3'] = {
+    'keys': {'mx_has_protocol_tls1_3', 'mx_has_protocol_tls1_3_severity', 'mx_has_protocol_tls1_3_finding', 'mx_has_ssl'},
     'rating': lambda **keys: {
-        'description': _('The server supports the protocol TLS 1.3.'),
+        'description': _('The server supports TLS 1.3.'),
         'classification': Rating('good'),
         'details_list': None,
-    } if keys["mx_has_protocol_tls1_3"] else {
-        'description': _('The server does not support the protocol TLS 1.3.'),
-        'classification': Rating('critical'),
+    } if keys["mx_has_protocol_tls1_3"] and keys["mx_has_protocol_tls1_3_severity"] in ("OK", "INFO") else { # cf. note @ rc4
+        'description': _('The server does not support TLS 1.3.'),
+        'classification': Rating('neutral'),
         'details_list': None,
-    }if keys['mx_has_ssl'] else {
-        'description': _('Skipping check for the protocol TLS 1.3 because the server does not offer STARTTLS.'),
+    } if not keys["mx_has_protocol_tls1_3"] and keys["mx_has_protocol_tls1_3_severity"] in ("OK", "INFO") else { # cf. note @ rc4
+        'description': _('There is a problem with the configuration of TLS 1.3.'),
+        'classification': Rating('bad'),
+        'severity': keys['mx_has_protocol_tls1_3_severity'],
+        'finding': keys['mx_has_protocol_tls1_3_finding'],
+    } if keys['mx_has_ssl'] else {
+        'description': _('Skipping check for the protocol TLS 1.3 because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None
     },
@@ -3089,9 +3161,9 @@ CHECKS['ssl']['web_scan_failed']['labels'] = ['unreliable']
 CHECKS['mx']['mx_testssl_incomplete']['title'] = \
 CHECKS['ssl']['web_testssl_incomplete']['title'] = "Check if all results from the scan are available"
 CHECKS['mx']['mx_testssl_incomplete']['longdesc'] = \
-CHECKS['ssl']['web_testssl_incomplete']['longdesc'] = """<p>Due to various reasons, a some of the tests we perform may have failed. This test indicates whether all results have been retrieved or some are missing.</p>
+CHECKS['ssl']['web_testssl_incomplete']['longdesc'] = """<p>There are various reasons why some of the testssl tests may fail. The most likely one is that the server blocked our handshake requests because it is configured to defend against excessive connection attempts. While this behavior may make sense from a security point of view, it prevents us from performing all tests.</p>
 <p><strong>Informational check:</strong> This is an informational check without influence on the rating.</p>
-<p><strong>Reliability: unreliable.</strong> </p>
+<p><strong>Reliability: reliable.</strong> </p>
 <p><strong>Potential scan errors:</strong> None that we aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 </ul>
@@ -3372,10 +3444,10 @@ CHECKS['ssl']['web_certificate_transparency']['longdesc'] = """<p>Certificate Tr
 """
 CHECKS['ssl']['web_certificate_transparency']['labels'] = ['reliable']
 
-CHECKS['ssl']['web_insecure_protocols_sslv2']['title'] = \
-CHECKS['mx']['mx_insecure_protocols_sslv2']['title'] = "Check that the insecure SSL 2.0 protocol is not offered"
-CHECKS['ssl']['web_insecure_protocols_sslv2']['longdesc'] = \
-CHECKS['mx']['mx_insecure_protocols_sslv2']['longdesc'] = """<p>SSL 2.0 is a deprecated encryption protocol with known vulnerabilities. For instance, it uses the MD5 hash algorithm, whose collision resistance has been broken.</p>
+CHECKS['ssl']['web_protocols_sslv2']['title'] = \
+CHECKS['mx']['mx_protocols_sslv2']['title'] = "Check that the insecure SSL 2.0 protocol is not offered"
+CHECKS['ssl']['web_protocols_sslv2']['longdesc'] = \
+CHECKS['mx']['mx_protocols_sslv2']['longdesc'] = """<p>SSL 2.0 is a deprecated encryption protocol with known vulnerabilities. For instance, it uses the MD5 hash algorithm, whose collision resistance has been broken.</p>
 <p><strong>Conditions for passing:</strong> Test passes if the server does not offer the SSL 2.0 protocol. Neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
@@ -3386,13 +3458,13 @@ CHECKS['mx']['mx_insecure_protocols_sslv2']['longdesc'] = """<p>SSL 2.0 is a dep
 <li><a href="https://tools.ietf.org/html/rfc6151">https://tools.ietf.org/html/rfc6151</a></li>
 </ul>
 """ 
-CHECKS['ssl']['web_insecure_protocols_sslv2']['labels'] = \
-CHECKS['mx']['mx_insecure_protocols_sslv2']['labels'] = ['reliable']
+CHECKS['ssl']['web_protocols_sslv2']['labels'] = \
+CHECKS['mx']['mx_protocols_sslv2']['labels'] = ['reliable']
 
-CHECKS['ssl']['web_insecure_protocols_sslv3']['title'] = \
-CHECKS['mx']['mx_insecure_protocols_sslv3']['title'] = "Check that the insecure SSL 3.0 protocol is not offered"
-CHECKS['ssl']['web_insecure_protocols_sslv3']['longdesc'] = \
-CHECKS['mx']['mx_insecure_protocols_sslv3']['longdesc'] = """<p>SSL 3.0 is a deprecated encryption protocol with known vulnerabilities. Encrypted connections that use SSL 3.0 are vulnerable to the so-called POODLE attack. This allows adversaries to steal sensitive pieces of information such as session cookies that are transferred over a connection.</p>
+CHECKS['ssl']['web_protocols_sslv3']['title'] = \
+CHECKS['mx']['mx_protocols_sslv3']['title'] = "Check that the insecure SSL 3.0 protocol is not offered"
+CHECKS['ssl']['web_protocols_sslv3']['longdesc'] = \
+CHECKS['mx']['mx_protocols_sslv3']['longdesc'] = """<p>SSL 3.0 is a deprecated encryption protocol with known vulnerabilities. Encrypted connections that use SSL 3.0 are vulnerable to the so-called POODLE attack. This allows adversaries to steal sensitive pieces of information such as session cookies that are transferred over a connection.</p>
 <p><strong>Conditions for passing:</strong> Test passes if the server does not offer the SSL 3.0 protocol. Neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
@@ -3403,13 +3475,13 @@ CHECKS['mx']['mx_insecure_protocols_sslv3']['longdesc'] = """<p>SSL 3.0 is a dep
 <li><a href="https://www.openssl.org/~bodo/ssl-poodle.pdf">https://www.openssl.org/~bodo/ssl-poodle.pdf</a></li>
 </ul>
 """ 
-CHECKS['ssl']['web_insecure_protocols_sslv3']['labels'] = \
-CHECKS['mx']['mx_insecure_protocols_sslv3']['labels'] = ['reliable']
+CHECKS['ssl']['web_protocols_sslv3']['labels'] = \
+CHECKS['mx']['mx_protocols_sslv3']['labels'] = ['reliable']
 
-CHECKS['ssl']['web_secure_protocols_tls1']['title'] = \
-CHECKS['mx']['mx_secure_protocols_tls1']['title'] = "Check if the legacy protocol TLS 1.0 is offered"
-CHECKS['ssl']['web_secure_protocols_tls1']['longdesc'] = \
-CHECKS['mx']['mx_secure_protocols_tls1']['longdesc'] = """<p>TLS 1.0 is a legacy encryption protocol that does not support the latest cryptographic algorithms. From a security perspective, it would be desirable to disable TLS 1.0 support. However, many sites still offer TLS 1.0 in order to support legacy clients, although, as of 2014, most contemporary web browsers support at least TLS 1.1. Furthermore, the PCI DSS 3.2 standard mandates that sites that process credit card data remove support for TLS 1.0 by June 2018.</p>
+CHECKS['ssl']['web_protocols_tls1']['title'] = \
+CHECKS['mx']['mx_protocols_tls1']['title'] = "Check if the legacy protocol TLS 1.0 is offered"
+CHECKS['ssl']['web_protocols_tls1']['longdesc'] = \
+CHECKS['mx']['mx_protocols_tls1']['longdesc'] = """<p>TLS 1.0 is a legacy encryption protocol that does not support the latest cryptographic algorithms. From a security perspective, it would be desirable to disable TLS 1.0 support. However, many sites still offer TLS 1.0 in order to support legacy clients, although, as of 2014, most contemporary web browsers support at least TLS 1.1. Furthermore, the PCI DSS 3.2 standard mandates that sites that process credit card data remove support for TLS 1.0 by June 2018.</p>
 <p><strong>Informational check:</strong> As TLS 1.0 is neither desireable nor completely deprecated, this test is informational. Supporting TLS 1.0 will score a neutral result for now.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
@@ -3420,13 +3492,13 @@ CHECKS['mx']['mx_secure_protocols_tls1']['longdesc'] = """<p>TLS 1.0 is a legacy
 <li><a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices">https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices</a></li>
 </ul>
 """
-CHECKS['ssl']['web_secure_protocols_tls1']['labels'] = \
-CHECKS['mx']['mx_secure_protocols_tls1']['labels'] = ['informational']
+CHECKS['ssl']['web_protocols_tls1']['labels'] = \
+CHECKS['mx']['mx_protocols_tls1']['labels'] = ['informational']
 
-CHECKS['ssl']['web_secure_protocols_tls1_1']['title'] = \
-CHECKS['mx']['mx_secure_protocols_tls1_1']['title'] = "Check if TLS 1.1 is offered "
-CHECKS['ssl']['web_secure_protocols_tls1_1']['longdesc'] = \
-CHECKS['mx']['mx_secure_protocols_tls1_1']['longdesc'] = """<p>TLS 1.1 is an outdated encryption protocol that does not support the latest cryptographic algorithms that enable authenticated encryption. From a security perspective, it would be desirable to disable TLS 1.1 support in favor of TLS 1.2. However, there are still many clients that are not compatible with TLS 1.2</p>
+CHECKS['ssl']['web_protocols_tls1_1']['title'] = \
+CHECKS['mx']['mx_protocols_tls1_1']['title'] = "Check if TLS 1.1 is offered "
+CHECKS['ssl']['web_protocols_tls1_1']['longdesc'] = \
+CHECKS['mx']['mx_protocols_tls1_1']['longdesc'] = """<p>TLS 1.1 is an outdated encryption protocol that does not support the latest cryptographic algorithms that enable authenticated encryption. From a security perspective, it would be desirable to disable TLS 1.1 support in favor of TLS 1.2. However, there are still many clients that are not compatible with TLS 1.2</p>
 <p><strong>Informational check:</strong> At the moment, we show the result of this check for informational purposes only. The result of this check does not influence the rating and ranking.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
@@ -3437,13 +3509,13 @@ CHECKS['mx']['mx_secure_protocols_tls1_1']['longdesc'] = """<p>TLS 1.1 is an out
 <li><a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices">https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices</a></li>
 </ul>
 """ 
-CHECKS['ssl']['web_secure_protocols_tls1_1']['labels'] = \
-CHECKS['mx']['mx_secure_protocols_tls1_1']['labels'] = ['informational']
+CHECKS['ssl']['web_protocols_tls1_1']['labels'] = \
+CHECKS['mx']['mx_protocols_tls1_1']['labels'] = ['informational']
 
-CHECKS['ssl']['web_secure_protocols_tls1_2']['title'] = \
-CHECKS['mx']['mx_secure_protocols_tls1_2']['title'] = "Check that TLS 1.2 is offered"
-CHECKS['ssl']['web_secure_protocols_tls1_2']['longdesc'] = \
-CHECKS['mx']['mx_secure_protocols_tls1_2']['longdesc'] = """<p>TLS 1.2 is a modern encryption protocol that does support the latest cryptographic algorithms that enable authenticated encryption.</p>
+CHECKS['ssl']['web_protocols_tls1_2']['title'] = \
+CHECKS['mx']['mx_protocols_tls1_2']['title'] = "Check if TLS 1.2 is offered"
+CHECKS['ssl']['web_protocols_tls1_2']['longdesc'] = \
+CHECKS['mx']['mx_protocols_tls1_2']['longdesc'] = """<p>TLS 1.2 is a modern encryption protocol that does support the latest cryptographic algorithms that enable authenticated encryption.</p>
 <p><strong>Conditions for passing:</strong> Test passes if the server does offer the TLS 1.2 protocol. The result is \"critical\" otherwise. It is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
@@ -3454,13 +3526,13 @@ CHECKS['mx']['mx_secure_protocols_tls1_2']['longdesc'] = """<p>TLS 1.2 is a mode
 <li><a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices">https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices</a></li>
 </ul>
 """ 
-CHECKS['ssl']['web_secure_protocols_tls1_2']['labels'] = \
-CHECKS['mx']['mx_secure_protocols_tls1_2']['labels'] = ['reliable']
+CHECKS['ssl']['web_protocols_tls1_2']['labels'] = \
+CHECKS['mx']['mx_protocols_tls1_2']['labels'] = ['reliable']
 
-CHECKS['ssl']['web_secure_protocols_tls1_3']['title'] = \
-CHECKS['mx']['mx_secure_protocols_tls1_3']['title'] = "Check whether the protocol TLS 1.3 is offered"
-CHECKS['ssl']['web_secure_protocols_tls1_3']['longdesc'] = \
-CHECKS['mx']['mx_secure_protocols_tls1_3']['longdesc'] = """<p>TLS 1.3 is an upcoming encryption protocol that removes support for weak ciphers. Moreover, the protocol is expected to offer improved security because of its simplicity and academic involvement.</p>
+CHECKS['ssl']['web_protocols_tls1_3']['title'] = \
+CHECKS['mx']['mx_protocols_tls1_3']['title'] = "Check if TLS 1.3 is offered"
+CHECKS['ssl']['web_protocols_tls1_3']['longdesc'] = \
+CHECKS['mx']['mx_protocols_tls1_3']['longdesc'] = """<p>TLS 1.3 is an upcoming encryption protocol that removes support for weak ciphers. Moreover, the protocol is expected to offer improved security because of its simplicity and academic involvement.</p>
 <p><strong>Conditions for passing:</strong> Test passes if the server does offer the TLS 1.3 protocol, otherwise the result is neutral. It is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
@@ -3470,8 +3542,8 @@ CHECKS['mx']['mx_secure_protocols_tls1_3']['longdesc'] = """<p>TLS 1.3 is an upc
 <li><a href="https://tlswg.github.io/tls13-spec/draft-ietf-tls-tls13.html">https://tlswg.github.io/tls13-spec/draft-ietf-tls-tls13.html</a></li>
 </ul>
 """ 
-CHECKS['ssl']['web_secure_protocols_tls1_3']['labels'] = \
-CHECKS['mx']['mx_secure_protocols_tls1_3']['labels'] = ['reliable']
+CHECKS['ssl']['web_protocols_tls1_3']['labels'] = \
+CHECKS['mx']['mx_protocols_tls1_3']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_default_protocol']['title'] = \
 CHECKS['mx']['mx_default_protocol']['title'] = "Check whether the server prefers a strong protocol"
