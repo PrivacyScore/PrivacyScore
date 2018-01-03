@@ -121,7 +121,11 @@ table.dataTable thead .sorting_desc_disabled
                 </div>
             {% empty %}
                 <div class="col text-center" style="font-size: 1em; line-height: 1.2em; font-weight: 700;">
-                {% trans 'The ratings are not available yet. Please be patient.' %}
+                    {% if scan_running == False %}
+                        {% trans 'Our scanners failed to reach the website, either due to connectivity problems or because our requests are blocked.' %}
+                    {% else %}
+                        {% trans 'The ratings are not available yet. Please be patient.' %}
+                    {% endif %}
                 </div>
             {% endfor %}
             </div>
@@ -344,6 +348,8 @@ table.dataTable thead .sorting_desc_disabled
         <div class="group-box" style="padding:5px; margin-bottom: 20px; width:70%; margin-left:auto;margin-right:auto;">
         {% if site.has_screenshot %}
         <img src="{% url 'frontend:site_screenshot' site.pk %}" class="screenshot" style="width:100%; " />
+        {% else %}
+        <div style="padding: 4em; color: gray"><em>no screenshot available at the moment</em></div>
         {% endif %}
         </div>
         
