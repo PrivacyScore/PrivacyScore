@@ -68,5 +68,8 @@ privacyscore__raven_dsn_url: None
 #                                       Defaults to True.
 privacyscore__test_for_message_queue: True
 
+# privacyscore__git_url: The URL of the git repository to clone
+privacyscore__git_url: "https://github.com/PrivacyScore/PrivacyScore.git"
+
 # privacyscore__version: The version to deploy from the git repository
 privacyscore__version: master

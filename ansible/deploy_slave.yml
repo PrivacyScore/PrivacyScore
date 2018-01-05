@@ -72,7 +72,7 @@
         enabled: yes
     - name: Clone git repository
       git:
-        repo: https://github.com/PrivacyScore/PrivacyScore.git
+        repo: "{{ privacyscore__git_url }}"
         depth: 1
         dest: /opt/privacyscore
         version: "{{ privacyscore__version }}"
