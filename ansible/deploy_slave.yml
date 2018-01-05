@@ -75,7 +75,7 @@
         repo: https://github.com/PrivacyScore/PrivacyScore.git
         depth: 1
         dest: /opt/privacyscore
-        version: master
+        version: "{{ privacyscore__version }}"
         accept_hostkey: yes
     - name: Create privacyscore user
       user:

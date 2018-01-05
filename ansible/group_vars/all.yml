@@ -67,3 +67,6 @@ privacyscore__raven_dsn_url: None
 #                                       for PrivacyScore to operate properly.
 #                                       Defaults to True.
 privacyscore__test_for_message_queue: True
+
+# privacyscore__version: The version to deploy from the git repository
+privacyscore__version: master
