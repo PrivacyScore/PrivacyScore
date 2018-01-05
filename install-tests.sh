@@ -27,7 +27,14 @@ virtualenv --python $(which python2) .pyenv
 
 pip install -U pip
 pip install six tldextract packaging appdirs
-pip install -U -r requirements.txt
+# This is a hack for making openwpm work with this ancient Debian.
+# OpenWPM pulls any version of plyvel. With the 1.0.0 release,
+# it requires libleveldb as of 1.20. Debian stale does not ship that.
+# Previous plyvel releases did not require that new version.
+pip install "plyvel < 1.0.0"
+# Hence we cannot run the --upgrade, because it would pull the newer version
+# pip install -U -r requirements.txt
+pip install -r requirements.txt
 
 # Install specific version of Firefox known to work well with the selenium version above
 if [ $(uname -m) == 'x86_64' ]; then
