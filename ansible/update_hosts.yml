@@ -8,9 +8,9 @@
       become: yes
       become_user: privacyscore
       git:
-        repo: https://github.com/PrivacyScore/PrivacyScore.git
+        repo: "{{ privacyscore__git_url }}"
         dest: /opt/privacyscore
-        version: master
+        version: "{{ privacyscore__version }}"
 
     - name: Install pip requirements
       become: yes
