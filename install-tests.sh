@@ -16,6 +16,8 @@ wget --quiet -O- http://geolite.maxmind.com/download/geoip/database/GeoLite2-Cou
 # repository all the time.
 git clone https://github.com/citp/OpenWPM tests/vendor/OpenWPM
 pushd tests/vendor/OpenWPM > /dev/null
+# Hrm, why exactly do we have the versions here again?
+# We also have versions in the Ansible files.
 git checkout 99da2d91897c2ddcb128a0e133cccc09c4f14996
 
 # create openwpm-specific virtualenv
