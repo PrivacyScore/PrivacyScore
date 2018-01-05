@@ -8,6 +8,8 @@ import re
 import traceback
 from typing import Dict, List, Union
 from urllib.parse import urlparse
+import subprocess
+import os
 
 import requests
 from dns import resolver, reversename
@@ -19,6 +21,66 @@ from geoip2.errors import AddressNotFoundError
 test_name = 'network'
 test_dependencies = []
 
+# TODO put the path somewhere else, maybe in settings
+HSTS_FILE = "/opt/privacyscore/.wget-hsts"
+
+# The minimum Jaccard coefficient required for the
+# comparison of http and https version of a site
+# so that we accept both sites to show the same
+# content (if threshold not reached we will report
+# that the scanned site is not available via https)
+MINIMUM_SIMILARITY = 0.90
+
+def retrieve_url_with_wget(url):
+    """calls wget and extracts the final url and the http body from the response
+       IndexError or subprocess.CalledProcessError will be thrown if site is unreachable
+    """
+    
+    # TODO this is hacky, but necessary, because (only) on some of our scan hosts
+    # we have a wget version that implements hsts. Once all VMs are upgraded, we can
+    # use the --no-hsts parameter of wget
+    if os.path.isfile(HSTS_FILE):
+        os.remove(HSTS_FILE)
+    
+    # this needs python 3.5, but some of our VMs still have Python 3.4
+    #proc = subprocess.run(['wget', '--no-verbose', url, '-O-', '--no-check-certificate',
+    #                      '--user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0"'],
+    #                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    cmd = ['env', 'LC_ALL=C', 'wget', '--no-verbose', url, '-O-', \
+           '--no-check-certificate',
+           '--user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0"']
+    proc = subprocess.Popen(cmd,
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        (stdout, stderr) = proc.communicate(timeout=15)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        raise
+    
+    # if wget returns 8, this indicates HTTP status != 200
+    http_error = None
+    final_url = None
+    content = None
+
+    if proc.returncode == 8:
+        if re.search('(ERROR .*)', stderr.decode(errors='replace')):
+            http_error = re.search('(ERROR .*)', stderr.decode(errors='replace')).group(1)
+        else:
+            http_error = "Unspecified error."
+
+    # we do error handling this way so that error handling in the caller is already compatible with subprocess.run
+    elif not proc.returncode == 0:
+        raise subprocess.CalledProcessError(proc.returncode, " ".join(cmd))
+    
+    else:
+        # wget output looks like this:
+        # '2017-12-21 10:34:51 URL:https://www.example.com/foo/bar [64407] -> "-" [1]\n'
+        if re.search('URL:([^ ]+)', stderr.decode(errors='replace')):
+            final_url = re.search('URL:([^ ]+)', stderr.decode(errors='replace')).group(1)
+        content = stdout
+    
+    return final_url, content, http_error
+    
 
 def test_site(url: str, previous_results: dict, country_database_path: str) -> Dict[str, Dict[str, Union[str, bytes]]]:
     """Test the specified url with geoip."""
@@ -52,42 +114,58 @@ def test_site(url: str, previous_results: dict, country_database_path: str) -> D
          [_reverse_lookup(a) for a in mx_a])
         for pref, mx_a in general_result['mx_a_records']]
 
-    # determine final url
     general_result['reachable'] = True
-    try:
-        response = requests.get(url, headers={
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0',
-        }, verify=False, timeout=8)
-        general_result['final_url'] = response.url
-        result['final_url_content'] = {
-            'mime_type': response.headers['content-type'],
-            'data': response.content,
-        }
-    except Exception:
-        # TODO: extend api to support registration of partial errors
-        general_result['unreachable_exception'] = traceback.format_exc()
+    
+    if len(general_result['a_records']) == 0:
+        general_result['dns_error'] = True
         general_result['reachable'] = False
-        result['general'] = {
-            'mime_type': 'application/json',
-            'data': json.dumps(general_result).encode(),
-        }
-        return result
 
-    if not general_result['final_url'].startswith('https'):
-        https_url = 'https:/' + general_result['final_url'].split('/', maxsplit=1)[1]
-        try:
-            response = requests.get(https_url, headers={
-                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0',
-            }, verify=False, timeout=8)
-            general_result['final_https_url'] = response.url
-            result['final_https_url_content'] = {
-                'mime_type': response.headers['content-type'],
-                'data': response.content,
-            }
-        except Exception:
-            general_result['final_https_url'] = False
     else:
-        general_result['final_https_url'] = general_result['final_url']
+        # determine final url
+        try:
+            wget_final_url, wget_content, http_error = retrieve_url_with_wget(url)
+            if http_error:
+                general_result['http_error'] = http_error
+                general_result['final_url'] = url # so that we can check the https version below
+            else:
+                general_result['final_url'] = wget_final_url
+                result['final_url_content'] = {
+                    'mime_type': 'text/html', # probably not always correct, leaving that for later ...
+                    'data': wget_content,
+                }
+        
+        # if subprocess.run failed OR re.search did not find anything suitable: raise an exception!
+        except (IndexError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+            # TODO: extend api to support registration of partial errors
+            general_result['unreachable_exception'] = traceback.format_exc()
+            general_result['final_url'] = url
+            general_result['reachable'] = False
+            result['general'] = {
+                'mime_type': 'application/json',
+                'data': json.dumps(general_result).encode(),
+            }
+            return result
+
+        # now let's check the https version again (unless we already have been redirected there)
+        if not general_result['final_url'].startswith('https'):
+            https_url = 'https:/' + url.split('/', maxsplit=1)[1]
+            try:
+                
+                wget_final_url, wget_content, https_error = retrieve_url_with_wget(https_url)
+                
+                if https_error:
+                    general_result['https_error'] = https_error
+                    general_result['final_https_url'] = https_url 
+                else:
+                    general_result['final_https_url'] = wget_final_url
+                    result['final_https_url_content'] = {
+                        'mime_type': 'text/html', # probably not always correct, leaving that for later ...
+                        'data': wget_content,
+                    }
+            except (IndexError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+                general_result['final_https_url'] = False
+        else:
+            general_result['final_https_url'] = general_result['final_url']
 
 
     result['general'] = {
@@ -120,7 +198,7 @@ def process_test_data(raw_data: list, previous_results: dict, country_database_p
         similarity = _jaccard_index(
             raw_data['final_url_content']['data'],
             raw_data['final_https_url_content']['data'])
-        result['same_content_via_https'] = similarity > 0.95
+        result['same_content_via_https'] = similarity > MINIMUM_SIMILARITY
 
     return result
 

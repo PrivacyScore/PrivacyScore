@@ -43,7 +43,7 @@
             <div class="spacer"></div>
             
             <h3 id="results">{% trans "Results Overview" %}</h3>
-            {% include 'frontend/ranking_summary.html' with sites_count=sites_count sites_failures_count=sites_failures_count ratings_count=ratings_count %}
+            {% include 'frontend/ranking_summary.html' with sites_count=sites_count blacklisted_sites_count=blacklisted_sites_count sites_failures_count=sites_failures_count ratings_count=ratings_count %}
             
             <p><strong>Take this with a grain of salt!</strong> Some of our checks may report wrong results. <span class="label label-warning">BETA</span></p>
             
@@ -151,4 +151,22 @@
     {% else %}
         {% include "frontend/ranking_list.html" with site_list=site_list sites=sites %}
     {% endif %}
+
+    <h3 id="blacklisted-sites-anchor">Blacklisted sites</h3>
+
+
+    {% if blacklisted_sites_count %}
+	<div class="col-md-8" style="padding-left:0">
+        <p>The following sites have been blacklisted. The owners of these sites have asked us to not perform further scans. For reasons of transparency we display the results of the last scan before the sites were blacklisted. The owners may have implemented changes in the meantime, which are not visible in the results below.</p>
+        </div>
+        {% include "frontend/ranking_list.html" with site_list=site_list sites=blacklisted_sites %}
+
+    {% else %}
+
+	<div class="col-md-8" style="padding-left:0">
+        <p>Site owners can ask us to not perform further scans. For reasons of transparency we display the results of the last scan before the blacklisting here.</p>
+        <p><em>No sites of this list have been blacklisted so far.</em></p>
+        </div>
+    {% endif %}
+
 {% endblock content %}

@@ -34,7 +34,7 @@
 
           from datetime import timedelta
           SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN = timedelta(minutes=28)
-          SCAN_SUITE_TIMEOUT_SECONDS = 300
+          SCAN_SUITE_TIMEOUT_SECONDS = 420
           SCAN_TOTAL_TIMEOUT = timedelta(hours=2)
           SCAN_TEST_BASEPATH = os.path.join(BASE_DIR, 'tests')
           SCAN_LISTS_PER_PAGE = 30
@@ -150,7 +150,7 @@
       git:
         repo: https://github.com/drwetter/testssl.sh.git
         dest: /opt/privacyscore/tests/vendor/testssl.sh
-        version: HEAD
+        version: 47409a32d687355739543890c1ddc70a8539d071
     - name: Refresh vendor/OpenWPM
       when: is_slave
       become: yes

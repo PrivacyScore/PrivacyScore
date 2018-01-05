@@ -10,6 +10,7 @@ import sqlite3
 import sys
 import tempfile
 import timeit
+import traceback
 
 from io import BytesIO
 from subprocess import call, DEVNULL
@@ -36,6 +37,19 @@ OPENWPM_WRAPPER_PATH = os.path.join(
 
 def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_path: str) -> Dict[str, Dict[str, Union[str, bytes]]]:
     """Test a site using openwpm and related tests."""
+
+    result = {
+        'raw_url': {
+            'mime_type': 'text/plain',
+            'data': url.encode(),
+        }
+    }
+
+    if previous_results.get('dns_error') or not previous_results.get('reachable'):
+        #print("Skipping OpenWPM due to previous error")
+        return result
+
+
     # ensure basedir exists
     if not os.path.isdir(scan_basedir):
         os.mkdir(scan_basedir)
@@ -54,13 +68,6 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
              'PATH': '{}:{}'.format(
                  os.path.join(virtualenv_path, 'bin'), os.environ.get('PATH')),
     })
-
-    result = {
-        'raw_url': {
-            'mime_type': 'text/plain',
-            'data': url.encode(),
-        }
-    }
 
     # collect raw output
     # log file
@@ -110,6 +117,27 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
 
 def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str, virtualenv_path: str) -> Dict[str, Dict[str, object]]:
     """Process the raw data of the test."""
+
+    # TODO: Clean up collection
+    scantosave = {
+        'https': False,
+        'success': False,
+        'redirected_to_https': False,
+        'requests': [],
+        'responses': [],
+        'profilecookies': [],
+        'flashcookies': [],
+        'headerchecks': {}
+    }
+
+    if previous_results.get('dns_error'):
+        scantosave['openwpm_skipped_due_to_dns_error'] = True
+        return scantosave
+
+    if not previous_results.get('reachable'):
+        scantosave['openwpm_skipped_due_to_not_reachable'] = True
+        return scantosave
+
     # store sqlite database in a temporary file
     url = raw_data['raw_url']['data'].decode()
 
@@ -119,17 +147,6 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
 
     conn = sqlite3.connect(temp_db_file)
     outercur = conn.cursor()
-
-    # TODO: Clean up collection
-    scantosave = {
-        'https': False,
-        'redirected_to_https': False,
-        'requests': [],
-        'responses': [],
-        'profilecookies': [],
-        'flashcookies': [],
-        'headerchecks': {}
-    }
 
     # requests
     for start_time, site_url in outercur.execute(
@@ -222,8 +239,15 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
                 scantosave["https"] = True
 
 
+            # OpenWPM times out after 60 seconds if it cannot reach a site (e.g. due to fail2ban on port 443)
+            # Note that this is not "our" timeout that kills the scan worker, but OpenWPM terminates on its own..
+            # As a result, the final_urls table will not have been created.
+            # In this case redirected_to_https cannot be determined accurately here.
+            # This issue must be handled in the evaluation by looking at 'success', which will be
+            # false if final_urls table is missing.
             try:
-                # retrieve final URL (after potential redirects)
+                # retrieve final URL (after potential redirects) - will throw an exception if final_urls table
+                # does not exist (i.e. OpenWPM timed out due to connectivity problems)
                 cur.execute("SELECT final_url FROM final_urls WHERE original_url = ?;", [site_url]);
                 res = cur.fetchone()
                 openwpm_final_url = ""
@@ -245,7 +269,7 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
                     scantosave["redirected_to_https"] = True
 
             except Exception:
-                print("Unexpected error:", sys.exc_info()[0])
+                scantosave["exception"] = traceback.format_exc()
                 scantosave["redirected_to_https"] = False
                 scantosave["https"] = False
                 scantosave["success"] = False
@@ -262,7 +286,6 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
                 for resp in scantosave["responses"]:
                     if resp["response_status"] < 300 or resp["response_status"] > 399:
                         response = resp
-                        print(response["url"])
                         break
             # Now we should finally have a response. Verify.
             assert response

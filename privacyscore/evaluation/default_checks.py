@@ -23,10 +23,14 @@ CHECKS = {
 ####################
 # Check if OpenWPM died.
 CHECKS['privacy']['openwpm_scan_failed'] = {
-    'keys': {'third_parties_count'},
-    'rating': lambda **keys: None,
+    'keys': {'success'},
+    'rating': lambda **keys: {
+        'description': _('The website scan has encountered an error: OpenWPM timed out. The results shown in this category are invalid.'),
+        'classification': Rating('neutral', devaluates_group=True),
+        'details_list': None
+    } if not keys['success'] else None,
     'missing': {
-        'description': _('The website scan has encountered an error. Please re-scan this site using the button above.'),
+        'description': _('The website scan has encountered an error: OpenWPM has not returned a result. The results shown in this category are invalid.'),
         'classification': Rating('neutral', devaluates_group=True),
         'details_list': None,
     }
@@ -192,17 +196,21 @@ CHECKS['privacy']['server_locations'] = {
 # No leaks: good
 # Else: bad
 CHECKS['security']['leaks'] = {
-    'keys': {'leaks',},
+    'keys': {'leaks','reachable','success'},
     'rating': lambda **keys: {
+        'description': _('The serverleaks check was skipped because the site is not reachable or the OpenWPM scan failed.'),
+        'classification': Rating("neutral"),
+        'details_list': None
+    } if not keys['reachable'] or not keys['success'] else {
         'description': _('The site does not disclose internal system information at usual paths.'),
         'classification': Rating('good'),
-        'details_list': None
+        'details_list': None        
     } if len(keys['leaks']) == 0 else {
         'description': _('The site discloses internal system information that should not be available.'),
         'classification':  Rating('bad'),
         'details_list': [(leak,) for leak in keys['leaks']]},
     'missing': {
-        'description': _('The serverleaks check failed or timed out. Try a rescan.'),
+        'description': _('The scan failed or timed out.'),
         'classification': Rating("neutral"),
         'details_list': None,
     },
@@ -373,8 +381,12 @@ CHECKS['ssl']['web_cert'] = {
 # no: neutral (as it may still happen, we're not yet explicitly checking the HTTP version)
 # TODO Explicitly check http://-version and see if we are being forwarded, even if user provided https://-version
 CHECKS['ssl']['site_redirects_to_https'] = {
-    'keys': {'redirected_to_https', 'https', 'final_https_url', 'web_has_ssl', 'web_cert_trusted', 'initial_url'},
+    'keys': {'redirected_to_https', 'https', 'final_https_url', 'web_has_ssl', 'web_cert_trusted', 'initial_url', 'success'},
     'rating': lambda **keys: {
+        'description': _('Not checking if website automatically redirects visitors to the HTTPS version, as OpenWPM scan failed (e.g., because the site blocked our request).'),
+        'classification': Rating('neutral'),
+        'details_list': None,
+    } if not keys['success'] else {
         'description': _('The website redirects visitors to the secure (HTTPS) version.'),
         'classification': Rating('good'),
         'details_list': None,

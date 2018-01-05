@@ -380,3 +380,15 @@ panel-group .panel {
 .label-color-experimental {
     background-color: #a0f;
 }
+
+ul.errorlist {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+ul.errorlist li {
+    padding: 0;
+    margin: 0;
+    padding-bottom: 0.5em;
+}

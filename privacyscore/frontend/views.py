@@ -282,6 +282,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html'
 
     sites = sorted(sites, key=lambda v: v.evaluated, reverse=True)
 
+
     # Sorting and grouping by attributes
     sort_by = None
     sort_dir = request.GET.get('sort_dir', 'asc')
@@ -294,6 +295,14 @@ def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html'
     if sort_by is not None:
         sites = list(sites)
         sites.sort(key=_get_sorting_fn(sites, sort_by), reverse=sort_dir == 'desc')
+
+    blacklisted_sites = [site for site in sites if site.scannable() == Site.SCAN_BLACKLISTED]
+    sites = [site for site in sites if site.scannable() != Site.SCAN_BLACKLISTED]
+
+    print("BLACKLIST:")
+    print(blacklisted_sites)
+    print("REST:")
+    print(sites)
 
     groups = None
     group_attr = None
@@ -316,8 +325,15 @@ def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html'
     ratings_count = _calculate_ratings_count(sites)
 
     if format == 'json':
-        output = {'sites': []}
+        output = {'sites': [], 'blacklisted_sites': []}
         for site_no, site in _enumerate_sites(sites, start=1):
+            output['sites'].append({
+                'position': site_no,
+                'url': site.url,
+                'columns': [x.value for x in site.ordered_column_values],
+                'ratings': {group: rating.group_rating.rating for group, rating in site.evaluated}
+            })
+        for site_no, site in _enumerate_sites(blacklisted_sites, start=1):
             output['sites'].append({
                 'position': site_no,
                 'url': site.url,
@@ -344,10 +360,12 @@ def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html'
     elif format == 'html':
         return render(request, 'frontend/view_scan_list.html', {
             'scan_list': scan_list,
-            'sites_count': len(sites),
+            'sites_count': len(sites) + len(blacklisted_sites),
+            'blacklisted_sites_count': len(blacklisted_sites),
             'ratings_count': ratings_count,
             'sites_failures_count': _calculate_failures_count(sites),
             'sites': _enumerate_sites(sites, start=1),
+            'blacklisted_sites': _enumerate_sites(blacklisted_sites, start=1),
             'result_groups': [group['name'] for group in RESULT_GROUPS.values()],
             'groups': groups,
             'group_attr': group_attr,
@@ -487,6 +505,7 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
     res = {}
     
     res['final_url'] = results.get('final_url', '–')
+    res['final_https_url'] = results.get('final_https_url')
 
     if results.get('mx_records') and results.get('mx_records')[0] and results.get('mx_records')[0][1]:
         mxrec = results.get('mx_records')[0][1]
@@ -495,6 +514,10 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
      
     res['mx_record'] = mxrec
     
+    res['reachable'] = results.get('reachable')
+    res['dns_error'] = results.get('dns_error')
+    res['http_error'] = results.get('http_error')
+    res['https_error'] = results.get('https_error')
     
     return render(request, 'frontend/view_site.html', {
         'site': site,
@@ -532,7 +555,8 @@ def scan_site(request: HttpRequest, site_id: Union[int, None] = None) -> HttpRes
             return render(request, 'frontend/create_site.html', {
                 'form': form,
             })
-    if site.scan():
+    status_code = site.scan()
+    if status_code == Site.SCAN_OK:
         if not site_id: # if the site is new we want to show the dog
             return redirect(reverse('frontend:scan_site_created', args=(site.pk,)))
         else:
@@ -542,9 +566,12 @@ def scan_site(request: HttpRequest, site_id: Union[int, None] = None) -> HttpRes
                   "The total number of sites in the scanning queue "+ \
                   "is %i (including yours)." % num_scanning_sites))
             return redirect(reverse('frontend:view_site', args=(site.pk,)))
-    else:
+    elif status_code == Site.SCAN_COOLDOWN:
         messages.warning(request,
             _('The site is already scheduled for scanning or it has been scanned recently. No scan was scheduled.'))
+    elif status_code == Site.SCAN_BLACKLISTED:
+        messages.warning(request,
+            _('The operator of this website requested to be blacklisted, scanning this website is not possible, sorry.'))
     return redirect(reverse('frontend:view_site', args=(site.pk,)))
 
 

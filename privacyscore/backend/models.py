@@ -4,6 +4,7 @@ import random
 import string
 from collections import OrderedDict
 from datetime import datetime
+from tldextract import extract
 from typing import Iterable, Tuple, Union
 from uuid import uuid4
 
@@ -158,7 +159,7 @@ class ScanList(models.Model):
 
         res = False
         for site in self.sites.all():
-            if site.scan():
+            if site.scan() == Site.SCAN_OK:
                 res = True
         
         if self.editable:
@@ -230,6 +231,55 @@ class SiteQuerySet(models.QuerySet):
         )
 
 
+class BlacklistEntry(models.Model):
+    TYPE_DOMAIN = "DOM"
+    TYPE_SUBDOMAIN = "SUB"
+
+    TYPE_CHOICES = [
+        (TYPE_DOMAIN, "Entire Domain"),
+        (TYPE_SUBDOMAIN, "Subdomain only"),
+    ]
+
+    """A site that has requested not to be scanned anymore."""
+    url = models.CharField(max_length=500, unique=True)
+    # When was this entry created?
+    created = models.DateTimeField(default=timezone.now)
+    # What was the reason given?
+    reason = models.CharField(max_length=500, blank=True, null=True)
+    # Type of blacklist entry
+    match_type = models.CharField(max_length=3, choices=TYPE_CHOICES,
+                                  default=TYPE_DOMAIN)
+    # Who is the responsible contact at the website?
+    contact = models.CharField(max_length=500, blank=True, null=True)
+
+    def __str__(self) -> str:
+        return self.url
+
+    def as_dict(self) -> dict:
+        return {
+            'id': self.pk,
+            'url': self.url,
+            'match_type': self.match_type,
+            'reason': self.reason,
+            'contact': self.contact,
+        }
+
+    def match(self, target_url) -> bool:
+        # Split into URL parts
+        extract_target = extract(target_url)
+        extract_self = extract(self.url)
+
+        if self.match_type == BlacklistEntry.TYPE_DOMAIN:
+            return (extract_target.domain == extract_self.domain and
+                    extract_target.suffix == extract_self.suffix)
+        elif self.match_type == BlacklistEntry.TYPE_SUBDOMAIN:
+            return (extract_target.domain == extract_self.domain and
+                    extract_target.suffix == extract_self.suffix and
+                    extract_target.subdomain == extract_self.subdomain)
+        else:
+            assert False, "Unknown BlacklistEntry match_type"
+
+
 class Site(models.Model):
     """A site."""
     url = models.CharField(max_length=500, unique=True)
@@ -244,6 +294,13 @@ class Site(models.Model):
     created = models.DateTimeField(default=timezone.now)
 
     objects = models.Manager.from_queryset(SiteQuerySet)()
+
+    # Site is scannable
+    SCAN_OK = 0
+    # Cooldown period has not expired, no scan scheduled
+    SCAN_COOLDOWN = 1
+    # Website is blacklisted, not scanned
+    SCAN_BLACKLISTED = 2
 
     def __str__(self) -> str:
         return self.url
@@ -270,26 +327,27 @@ class Site(models.Model):
         """Check whether a screenshot for this site exists."""
         return self.get_screenshot() is not None
 
-    def scan(self) -> bool:
+    def scan(self) -> int:
         """
         Schedule a scan of this site if requirements are fulfilled.
 
-        Returns whether the scan has been scheduled or the last scan is not
-        long enough ago.
+        Returns a status code from the list SCAN_OK, SCAN_COOLDOWN,
+        SCAN_BLACKLISTED.
         """
-        
-        if not self.scannable():
-            return False
-        
+
+        scan_status = self.scannable()
+        if scan_status != Site.SCAN_OK:
+            return scan_status
+
         # create Scan
         scan = Scan.objects.create(site=self)
 
         from privacyscore.scanner.tasks import schedule_scan
         schedule_scan.delay(scan.pk)
 
-        return True
+        return Site.SCAN_OK
 
-    def scannable(self) -> bool:
+    def scannable(self) -> int:
         now = timezone.now()
 
         # fetch missing attributes
@@ -302,10 +360,14 @@ class Site(models.Model):
         if ((self.last_scan and 
                 now - self.last_scan.end < settings.SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN) or
                 (not self.last_scan__end_or_null and self.last_scan__start)):
-            return False
-        
-        return True
-    
+            return Site.SCAN_COOLDOWN
+
+        for entry in BlacklistEntry.objects.all():
+            if entry.match(self.url):
+                return Site.SCAN_BLACKLISTED
+
+        return Site.SCAN_OK
+
     def evaluate(self, group_order: list) -> SiteEvaluation:
         """Evaluate the result of the last scan."""
         if not self.last_scan__result:
@@ -404,6 +466,9 @@ class RawScanResult(models.Model):
     mime_type = models.CharField(max_length=80)
     file_name = models.CharField(max_length=80, null=True, blank=True)
     data = models.BinaryField(null=True, blank=True)
+
+    def get_data_as_string(self):
+        return bytes(self.retrieve()).decode()
 
     def __str__(self) -> str:
         return '{}: {}'.format(str(self.scan), self.test)

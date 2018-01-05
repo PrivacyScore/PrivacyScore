@@ -121,7 +121,13 @@ table.dataTable thead .sorting_desc_disabled
                 </div>
             {% empty %}
                 <div class="col text-center" style="font-size: 1em; line-height: 1.2em; font-weight: 700;">
-                {% trans 'The ratings are not available yet. Please be patient.' %}
+                    {% if res.dns_error %}
+                        {% trans 'Invalid URL! The domain name could not be resolved.' %}
+                    {% elif scan_running == False %}
+                        {% trans 'Our scanners failed to reach the website.<br>Either due to connectivity problems or because our requests are blocked.' %}
+                    {% else %}
+                        {% trans 'The ratings are not available yet. Please be patient.' %}
+                    {% endif %}
                 </div>
             {% endfor %}
             </div>
@@ -131,17 +137,17 @@ table.dataTable thead .sorting_desc_disabled
     </div>
     <div class="col-sm-4">
         
-        {% if site.scannable %}
+        {% if site.scannable == site.SCAN_OK %}
         <form method="POST" action="{% url 'frontend:scan_site' site.pk %}">
             {% csrf_token %}
         {% endif %}
             <button type="submit" class="btn btn-default btn-primary btn-lg" role="button" id="scan_again" style="width:100%; margin-top:5px; margin-bottom:10px"
-            {% if not site.scannable %}
+            {% if not site.scannable == site.SCAN_OK %}
                 disabled
             {% endif %}>
                 {% trans 'Re-scan site now' %}
             </button>
-        {% if site.scannable %}
+        {% if site.scannable == site.SCAN_OK %}
         </form>
         {% endif %}
     
@@ -154,8 +160,10 @@ table.dataTable thead .sorting_desc_disabled
                 </a>
             </div>
         {% else %}
-            {% if site.scannable %}
+            {% if site.scannable == site.SCAN_OK %}
                 <h3 class="text-center color-primary"><smalL>AVAILABLE FOR RE-SCAN</small></h3>
+            {% elif site.scannable == site.SCAN_BLACKLISTED %}
+                <h3 class="text-center color-red"><smalL>WEBSITE IS BLACKLISTED</small></h3>
             {% else %}
                 <h3 class="text-center color-neutral"><smalL>RE-SCAN NOT AVAILABLE YET</small></h3>
             {% endif %}
@@ -180,6 +188,16 @@ table.dataTable thead .sorting_desc_disabled
 <div class="row">
     <div class="col-sm-8">
         <div class="row">
+            {% if site.scannable == site.SCAN_BLACKLISTED %}
+	    <div class="alert alert-danger"><b>This site has been blacklisted.</b>
+		The owner of this website has asked us to not perform further scans.
+		For reasons of transparency we display
+	       	the results of the last scan before the site was blacklisted. The owner may have
+		implemented changes in the meantime, which are not visible in the results below.
+		</div>
+            {% endif %}
+            
+            {% if not scan_running %}
             <div class="col-sm-6">
                 <p><small>ANALYZED URL AFTER LOADING:</small><br>
                     <span style="word-wrap: break-word;">
@@ -192,6 +210,42 @@ table.dataTable thead .sorting_desc_disabled
                         {{ res.mx_record }}
                 </p>
             </div>
+            {% endif %}
+
+            <div class="col-sm-12">
+                {% if not scan_running %}
+                {% if res.dns_error or res.http_error or res.https_error or res.reachable is False or res.reachable is None %}
+                <p style="margin-bottom: 0; color: red"><small><b>SCAN ERROR:</b></small>
+                    <ul class="errorlist">
+                    {% if res.dns_error %}
+                        <li>Invalid domain name:
+                            No IP addresses could be found for the domain name.</li>
+                    {% elif res.reachable is False %}
+                        <li>No response from network: The website could not be reached.</li>
+                    {% endif %}
+
+                    {% if res.http_error %}
+                        <li>Retrieving <b>{{ res.final_url }}</b> resulted in an HTTP error.
+                            Either the URL is invalid or the
+                            server is misconfigured. Status code: <b>{{ res.http_error }}</b></li>
+                    {% endif %}
+
+                    {% if res.https_error %}
+                        <li>Retrieving <b>{{ res.final_https_url }}</b> resulted in an HTTP error.
+                            The URL may be invalid, the server may
+                           be  misconfigured, or the server does not expect HTTPS
+                           connections via this URL. Status code: <b>{{ res.https_error }}</b></li>
+                    {% endif %}
+
+                    {% if res.reachable is None %}
+                        <li>Internal error: The scanner returned no results.</li>
+                    {% endif %}
+                    </ul>
+                </p>
+                {% endif %}
+                {% endif %}
+            </div>
+
             <div class="col-sm-12">
                 
                 
@@ -334,6 +388,8 @@ table.dataTable thead .sorting_desc_disabled
         <div class="group-box" style="padding:5px; margin-bottom: 20px; width:70%; margin-left:auto;margin-right:auto;">
         {% if site.has_screenshot %}
         <img src="{% url 'frontend:site_screenshot' site.pk %}" class="screenshot" style="width:100%; " />
+        {% else %}
+        <div style="padding: 4em; color: gray"><em>no screenshot available at the moment</em></div>
         {% endif %}
         </div>
         

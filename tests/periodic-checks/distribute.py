@@ -14,19 +14,24 @@ REMOTES = [
     'privacyscore@svs-ps10.informatik.uni-hamburg.de',
     'privacyscore@svs-ps11.informatik.uni-hamburg.de',
 ]
-# no parameters needed, authorized_keys command pinning used
-REMOTE_PARAMETERS = []
-# [
-#     '/opt/privacyscore/tests/periodic-checks/periodic-check.sh',
-#     300  # sleep 300 seconds
-# ]
-SSHKEY = 'id_rsa'
+REMOTE_PARAMETERS = [
+     'LC_ALL=C.UTF-8',
+    '/opt/privacyscore/tests/periodic-checks/periodic-check.sh',
+    '1',
+    'nostarttls',
+]
+SSHKEY = '/opt/privacyscore/tests/periodic-checks/id_rsa'
 
 
 for remote in REMOTES:
-    print(check_output([
-        'ssh',
-        '-i',
-        SSHKEY,
-        remote] +
-        REMOTE_PARAMETERS))
+    try:
+        out = check_output([
+            'ssh',
+            '-i',
+            SSHKEY,
+            remote] +
+            REMOTE_PARAMETERS)
+        if out:
+            print(remote, out)
+    except:
+        print(remote, 'failure')

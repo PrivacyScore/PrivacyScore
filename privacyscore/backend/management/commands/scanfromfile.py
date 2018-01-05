@@ -46,9 +46,14 @@ class Command(BaseCommand):
             }
         scan_count = 0
         for site in sites:
-            if not site.scan():
+            status_code = site.scan()
+            if status_code == Site.SCAN_COOLDOWN:
                 self.stdout.write(
                     'Rate limiting -- Not scanning site {}'.format(site))
+                continue
+            if status_code == Site.SCAN_BLACKLISTED:
+                self.stdout.write(
+                    'Blacklisted -- Not scanning site {}'.format(site))
                 continue
             scan_count += 1
             self.stdout.write('Scanning site {}'.format(
