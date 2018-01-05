@@ -129,12 +129,3 @@
         name: privacyscore-celery-slave
         state: started
         enabled: yes
-    - name: Pull git repository as privacyscore user to accept hostkey initially
-      become: yes
-      become_user: privacyscore
-      git:
-        repo: https://github.com/PrivacyScore/PrivacyScore.git
-        depth: 1
-        dest: /opt/privacyscore
-        version: master
-        accept_hostkey: yes
