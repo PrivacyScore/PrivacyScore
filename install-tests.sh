@@ -9,6 +9,11 @@ mkdir -p tests/vendor/geoip
 wget --quiet -O- http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz | gunzip > tests/vendor/geoip/GeoLite2-Country.mmdb
 
 # openwpm
+# We cannot use --depth 1 very nicely, because we cannot simply
+# clone a specific commit only :( We cannot even fetch a commit unless
+# there is a ref on the remote. Git is not as clever as, say,
+# mercurial in this regard.  So we have to download the whole
+# repository all the time.
 git clone https://github.com/citp/OpenWPM tests/vendor/OpenWPM
 pushd tests/vendor/OpenWPM > /dev/null
 git checkout 99da2d91897c2ddcb128a0e133cccc09c4f14996
