@@ -38,7 +38,12 @@
         ## Which is great, because there is no firefox-esr
         ## in Ubuntu.
         # - firefox-esr
-        - flashplugin-nonfree
+        # 
+        # Debian has the flashplugin package in contrib.
+        # Let's see whether OpenWPM installs it itself.
+        # Otherwise we need to add an ansible directive to
+        # add contrib.
+        # - flashplugin-nonfree
         - xvfb
         ## We seem to require postgresql for the Django app
         - postgresql
