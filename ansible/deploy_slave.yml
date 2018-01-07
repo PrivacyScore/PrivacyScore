@@ -33,22 +33,33 @@
         - python3-six
         - python-dev
         - virtualenv
-        ## This is needed by OpenWPM. Not Firefox directly,
-        ## but its dependencies.  Instead of manually picking out
-        ## the required libs, we simply pull firefox here.
-        - firefoxdriver
-        # 
-        # Debian has the flashplugin package in contrib.
-        # Let's see whether OpenWPM installs it itself.
-        # Otherwise we need to add an ansible directive to
-        # add contrib.
-        # - flashplugin-nonfree
         - xvfb
         ## We seem to require postgresql for the Django app
         - postgresql
         ## And we need psycopg2 for ansible to interact with postgres
         - python-psycopg2
 
+    - name: Install firefox on Debian
+      apt: name={{ item }}
+      with_items:
+        ## This is needed by OpenWPM. Not Firefox directly,
+        ## but its dependencies.  Instead of manually picking out
+        ## the required libs, we simply pull firefox here.
+        - firefox-esr
+        # 
+        # Debian has the flashplugin package in contrib.
+        # Let's see whether OpenWPM installs it itself.
+        # Otherwise we need to add an ansible directive to
+        # add contrib.
+        # - flashplugin-nonfree
+      when: ansible_lsb["id"] == "Debian"
+
+    - name: Install firefox on Ubuntu
+      apt: name={{ item }}
+      with_items:
+        - firefox
+        # - adobe-flashplugin
+      when: ansible_lsb["id"] == "Ubuntu"
 
     - name: Add PrivacyScore Database 
       become: yes
