@@ -466,11 +466,11 @@ CHECKS['ssl']['web_certificate_not_expired'] = {
     'rating': lambda **keys: {
         'description': _('The certificate has not expired yet.'),
         'classification': Rating('good'),
-        'details_list': (keys['web_certificate_not_expired_finding'],),
+        'details_list': [(keys['web_certificate_not_expired_finding'],)],
     } if keys["web_certificate_not_expired"] else {
         'description': _('The certificate has expired.'),
         'classification': Rating('critical'),
-        'details_list': (keys['web_certificate_not_expired_finding'],),
+        'details_list': [(keys['web_certificate_not_expired_finding'],)],
     }if keys['web_has_ssl'] else {
         'description': _('Skipping check for certificate expiration because the server does not offer HTTPS.'),
         'classification': Rating('neutral'),
@@ -486,11 +486,11 @@ CHECKS['ssl']['web_valid_san'] = {
     'rating': lambda **keys: {
         'description': _('The certificate contains a valid subjectAltName field.'),
         'classification': Rating('good'),
-        'details_list': (keys['web_valid_san'],),
+        'details_list': [(keys['web_valid_san'],)],
     } if keys["web_certificate_not_expired"] else {
         'description': _('The certificate does not contain a valid subjectAltName field.'),
         'classification': Rating('critical'),
-        'details_list': (keys['web_valid_san_finding'],),
+        'details_list': [(keys['web_valid_san_finding'],)],
         'severity': keys['web_valid_san_severity']
     }if keys['web_has_ssl'] else {
         'description': _('Skipping check for the subjectAltName field because the server does not offer HTTPS.'),
@@ -507,11 +507,11 @@ CHECKS['ssl']['web_strong_keysize'] = {
     'rating': lambda **keys: {
         'description': _('The certificate uses a sufficiently large key size.'),
         'classification': Rating('good'),
-        'details_list': (keys['web_keysize'],),
+        'details_list': [(keys['web_keysize'],)],
     } if keys["web_strong_keysize"] else { 
         'description': _('The certificate does not use a sufficiently large key size.'),
         'classification': Rating('bad'),
-        'details_list': (keys['web_keysize'],),
+        'details_list': [(keys['web_keysize'],)],
         'severity': keys['web_strong_keysize_severity']
     }if keys['web_has_ssl'] else {
         'description': _('Skipping check for certificate key size because the server does not offer HTTPS.'),
@@ -528,12 +528,12 @@ CHECKS['ssl']['web_strong_sig_algorithm'] = {
     'rating': lambda **keys: {
         'description': _('The certificate uses a strong signature algorithm.'),
         'classification': Rating('good'),
-        'details_list': (keys['web_sig_algorithm'],),
+        'details_list': [(keys['web_sig_algorithm'],)],
         'severity': keys['web_strong_sig_algorithm_severity']
     } if keys["web_strong_sig_algorithm"] else {
         'description': _('The certificate does not use a strong signature algorithm.'),
         'classification': Rating('bad'),
-        'details_list': (keys['web_sig_algorithm'],),
+        'details_list': [(keys['web_sig_algorithm'],)],
         'severity': keys['web_strong_sig_algorithm_severity']
     }if keys['web_has_ssl'] else {
         'description': _('Skipping check for certificate signature algorithm because the server does not offer HTTPS.'),
@@ -645,7 +645,7 @@ CHECKS['ssl']['web_session_ticket'] = {
         'description': _('The web server does not use short-lived session tickets.'),
         'classification': Rating('bad'),
         'severity': keys['web_session_ticket_severity'],
-        'details_list': (keys['web_session_ticket_finding'],),
+        'finding': keys['web_session_ticket_finding'],
     },
     'missing': None,
 }
@@ -956,12 +956,12 @@ CHECKS['ssl']['web_default_protocol'] = {
     'rating': lambda **keys: {
         'description': _('The server prefers a strong protocol.'),
         'classification': Rating('good'),
-        'details_list': (keys['web_default_protocol_finding'],),
+        'details_list': [(keys['web_default_protocol_finding'],)],
         'severity': keys['web_default_protocol_severity'],
     } if keys["web_default_protocol"] else {
         'description': _('The server does not prefer a strong protocol.'),
         'classification': Rating('bad'),
-        'details_list': (keys['web_default_protocol_finding'],),
+        'details_list': [(keys['web_default_protocol_finding'],)],
         'severity': keys['web_default_protocol_severity'],
     }if keys['web_has_ssl'] else {
         'description': _('Skipping check for the default protocol because the server does not offer HTTPS.'),
@@ -1000,12 +1000,12 @@ CHECKS['ssl']['web_default_cipher'] = {
     'rating': lambda **keys: {
         'description': _('The server prefers a strong cipher.'),
         'classification': Rating('good'),
-        'details_list': (keys['web_default_cipher_finding'],),
+        'details_list': [(keys['web_default_cipher_finding'],)],
         'severity': keys['web_default_cipher_severity'],
     } if keys["web_default_cipher"] else {
         'description': _('The server does not prefer a strong cipher.'),
         'classification': Rating('bad'),
-        'details_list': (keys['web_default_cipher_finding'],),
+        'details_list': [(keys['web_default_cipher_finding'],)],
         'severity': keys['web_default_cipher_severity'],
     }if keys['web_has_ssl'] else {
         'description': _('Skipping check for the default cipher because the server does not offer HTTPS.'),
@@ -1799,11 +1799,11 @@ CHECKS['mx']['mx_certificate_not_expired'] = {
     'rating': lambda **keys: {
         'description': _('The certificate has not expired yet.'),
         'classification': Rating('good'),
-        'details_list': (keys['mx_certificate_not_expired_finding'],),
+        'details_list': [(keys['mx_certificate_not_expired_finding'],)],
     } if keys["mx_certificate_not_expired"] else {
         'description': _('The certificate has expired.'),
         'classification': Rating('critical'),
-        'details_list': (keys['mx_certificate_not_expired_finding'],),
+        'details_list': [(keys['mx_certificate_not_expired_finding'],)],
     }if keys['mx_has_ssl'] else {
         'description': _('Skipping check for certificate expiration because the server does not offer STARTTLS.'),
         'classification': Rating('neutral'),
@@ -1819,11 +1819,11 @@ CHECKS['mx']['mx_valid_san'] = {
     'rating': lambda **keys: {
         'description': _('The certificate contains a valid subjectAltName field.'),
         'classification': Rating('good'),
-        'details_list': (keys['mx_valid_san'],),
+        'details_list': [(keys['mx_valid_san'],)],
     } if keys["mx_certificate_not_expired"] else {
         'description': _('The certificate does not contain a valid subjectAltName field. However, storing the hostname in the subjectAltName is required by Internet standards (such as RFC 3280).'),
         'classification': Rating('bad'),
-        'details_list': (keys['mx_valid_san_finding'],),
+        'details_list': [(keys['mx_valid_san_finding'],)],
         'severity': keys['mx_valid_san_severity']
     }if keys['mx_has_ssl'] else {
         'description': _('Skipping check for the subjectAltName field because the server does not offer STARTTLS.'),
@@ -1840,11 +1840,11 @@ CHECKS['mx']['mx_strong_keysize'] = {
     'rating': lambda **keys: {
         'description': _('The certificate uses a sufficiently large key size.'),
         'classification': Rating('good'),
-        'details_list': (keys['mx_keysize'],),
+        'details_list': [(keys['mx_keysize'],)],
     } if keys["mx_strong_keysize"] else { 
         'description': _('The certificate does not use a sufficiently strong key size.'),
         'classification': Rating('bad'),
-        'details_list': (keys['mx_keysize'],),
+        'details_list': [(keys['mx_keysize'],)],
         'severity': keys['mx_strong_keysize_severity']
     }if keys['mx_has_ssl'] else {
         'description': _('Skipping check for certificate key size because the server does not offer STARTTLS.'),
@@ -1861,12 +1861,12 @@ CHECKS['mx']['mx_strong_sig_algorithm'] = {
     'rating': lambda **keys: {
         'description': _('The certificate uses a strong signature algorithm.'),
         'classification': Rating('good'),
-        'details_list': (keys['mx_sig_algorithm'],),
+        'details_list': [(keys['mx_sig_algorithm'],)],
         'severity': keys['mx_strong_sig_algorithm_severity']
     } if keys["mx_strong_sig_algorithm"] else {
         'description': _('The certificate does not use a strong signature algorithm.'),
         'classification': Rating('bad'),
-        'details_list': (keys['mx_sig_algorithm'],),
+        'details_list': [(keys['mx_sig_algorithm'],)],
         'severity': keys['mx_strong_sig_algorithm_severity']
     }if keys['mx_has_ssl'] else {
         'description': _('Skipping check for certificate signature algorithm because the server does not offer STARTTLS.'),
@@ -1978,7 +1978,7 @@ CHECKS['mx']['mx_session_ticket'] = {
         'description': _('The server does not use short-living session tickets, which are required for perfect forward secrecy.'),
         'classification': Rating('bad'),
         'severity': keys['mx_session_ticket_severity'],
-        'details_list': (keys['mx_session_ticket_finding'],),
+        'finding': keys['mx_session_ticket_finding'],
     },
     'missing': None,
 }
@@ -2177,12 +2177,12 @@ CHECKS['mx']['mx_default_protocol'] = {
     'rating': lambda **keys: {
         'description': _('The server prefers a strong protocol.'),
         'classification': Rating('good'),
-        'details_list': (keys['mx_default_protocol_finding'],),
+        'details_list': [(keys['mx_default_protocol_finding'],)],
         'severity': keys['mx_default_protocol_severity'],
     } if keys["mx_default_protocol"] else {
         'description': _('The server does not prefer a strong protocol.'),
         'classification': Rating('bad'),
-        'details_list': (keys['mx_default_protocol_finding'],),
+        'details_list': [(keys['mx_default_protocol_finding'],)],
         'severity': keys['mx_default_protocol_severity'],
     }if keys['mx_has_ssl'] else {
         'description': _('Skipping check for the default protocol because the server does not offer STARTTLS.'),
@@ -2221,12 +2221,12 @@ CHECKS['mx']['mx_default_cipher'] = {
     'rating': lambda **keys: {
         'description': _('The server prefers a strong cipher.'),
         'classification': Rating('good'),
-        'details_list': (keys['mx_default_cipher_finding'],),
+        'details_list': [(keys['mx_default_cipher_finding'],)],
         'severity': keys['mx_default_cipher_severity'],
     } if keys["mx_default_cipher"] else {
         'description': _('The server does not prefer a strong cipher.'),
         'classification': Rating('bad'),
-        'details_list': (keys['mx_default_cipher_finding'],),
+        'details_list': [(keys['mx_default_cipher_finding'],)],
         'severity': keys['mx_default_cipher_severity'],
     }if keys['mx_has_ssl'] else {
         'description': _('Skipping check for the default cipher because the server does not offer STARTTLS.'),

@@ -309,9 +309,11 @@ table.dataTable thead .sorting_desc_disabled
                                             </span>
                                             <span class="pull-right">&nbsp;</span>
                                             {% endfor %}
+					    {% if severity %}
                                             <span class="label pull-right label-info">
                                                 {{ severity }}
                                             </span>
+					    {% endif %}
                                             
                                             
                                             {% if title %}
@@ -351,6 +353,22 @@ table.dataTable thead .sorting_desc_disabled
                                 </div>
                             </div>
                         </div>
+                        {% if finding %}
+                        <div class="spacer"></div>
+                        <div>
+                            <div class="row">
+                                <div class="col col-sm-1">
+                                </div>
+                                <div class="col col-sm-10">
+                                    <div style="margin:0; margin-bottom: 0.5em; font-size: 80%;">
+                                        <div class="details-list-label">
+					    {{ finding }}
+					</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                         {% if details_list %}
                         <div class="spacer"></div>
                         <div>
@@ -359,7 +377,6 @@ table.dataTable thead .sorting_desc_disabled
                                 </div>
                                 <div class="col col-sm-10">
                                     <div style="margin:0; margin-bottom: 0.5em; font-size: 80%;">
-                                    {{ finding }}
                                     {% for elem in details_list %}
                                         <div class="details-list-label">
                                             {{ elem.0 }}
