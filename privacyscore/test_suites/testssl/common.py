@@ -8,12 +8,16 @@ import json
 import time
 from typing import List, Dict, Union
 
+import logging
+
 from subprocess import call, check_output, DEVNULL, PIPE, Popen
 
 from django.conf import settings
 
 from pprint import pprint
 
+
+log = logging.getLogger(__name__)
 
 TESTSSL_PATH = os.path.join(
     settings.SCAN_TEST_BASEPATH, 'vendor/testssl.sh', 'testssl.sh')
@@ -46,12 +50,16 @@ def starttls_handshake_possible(hostname: str, check_mx: bool) -> bool:
                 "{}:443".format(hostname)
         ]
 
-    proc = Popen(args, stdout=DEVNULL, stderr=DEVNULL, stdin=PIPE)
-    stdout = proc.communicate(input=b'\n')[0]
+    proc = Popen(args, stdout=PIPE, stderr=PIPE, stdin=PIPE)
+    (stdout, stderr) = proc.communicate(input=b'\n', timeout=15)
+    rcode = proc.returncode
     # openssl returns 0 if the handshake succeeded and 1 otherwise
     # timeouts return something > 100
 
-    return proc.returncode == 0
+    if rcode != 0:
+        log.error("ERROR in starttls_handshake_possible: %s" % stderr)
+
+    return rcode == 0
 
 
 def run_and_check_local_testssl(hostname: str, check_mx: bool) -> List[bytes]:
