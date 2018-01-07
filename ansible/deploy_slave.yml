@@ -33,11 +33,10 @@
         - python3-six
         - python-dev
         - virtualenv
-        ## This is probably needed by OpenWPM
-        ## But install.sh seems to take care of Firefox.
-        ## Which is great, because there is no firefox-esr
-        ## in Ubuntu.
-        # - firefox-esr
+        ## This is needed by OpenWPM. Not Firefox directly,
+        ## but its dependencies.  Instead of manually picking out
+        ## the required libs, we simply pull firefox here.
+        - firefoxdriver
         # 
         # Debian has the flashplugin package in contrib.
         # Let's see whether OpenWPM installs it itself.
