@@ -33,16 +33,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if not os.path.isfile(options['file_path']):
             raise ValueError('file does not exist!')
-        scan_list = None
-
-        if options['create_list_name']:
-            if ScanList.objects.filter(name=options['create_list_name']).exists():
-                raise ValueError('Scan List already exists!')
-
-            self.stdout.write('Creating ScanList {}'.format(options['create_list_name']))
-            scan_list = ScanList.objects.create(name=options['create_list_name'])
-            scan_list.private = True
-            scan_list.save()
 
         self.stdout.write('Reading from file {}'.format(options['file_path']))
         sites = []
@@ -51,9 +41,14 @@ class Command(BaseCommand):
                 if '.' in url:
                     url = normalize_url(url)
                     site = Site.objects.get_or_create(url=url)[0]
-                    if scan_list:
-                        site.scan_lists.add(scan_list)
                     sites.append(site)
+
+        if options['create_list_name']:
+            list_name = options['create_list_name']
+            self.stdout.write('Creating ScanList {}'.format(list_name))
+            scan_list = ScanList.objects.create(name=list_name, private=True)
+            scan_list.sites = sites
+            scan_list.save()
 
         scan_count = 0
         for site in sites:
