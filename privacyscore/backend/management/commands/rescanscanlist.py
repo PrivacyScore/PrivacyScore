@@ -33,7 +33,11 @@ class Command(BaseCommand):
         scan_list_id = options['scan_list_id']
         if scan_list_id is None:
             for scan_list in ScanList.objects.all():
-                print ("{l.id:>8} \t {l.name} \t {l.created:%Y-%m-%d %H:%M} \t {length}".format(
+                print ("{l.id:>8}"
+                       "\t {l.created:%Y-%m-%d %H:%M}"
+                       "\t {length}"
+                       "\t {l.name}"
+                       "".format(
                     l=scan_list,
                     length=len(scan_list.sites.all())))
                 print ()
