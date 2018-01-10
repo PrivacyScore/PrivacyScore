@@ -25,7 +25,7 @@ def test_site(url: str, previous_results: dict, remote_host: str = None) -> Dict
             },
             'testssl_hostname': {
                 'mime_type': 'text/plain',
-                'data': hostname.encode(),
+                'data': b'',
             }
         }
 
