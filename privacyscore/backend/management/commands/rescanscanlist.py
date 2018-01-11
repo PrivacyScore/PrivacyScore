@@ -1,4 +1,4 @@
-# Copyright (C) 2017 PrivacyScore Contributors
+# Copyright (C) 2018 PrivacyScore Contributors
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,32 +23,15 @@ from privacyscore.utils import normalize_url
 
 
 class Command(BaseCommand):
-    help = 'Scan sites from a newline-separated file.'
+    help = 'Rescan all sites in an exisiting ScanList.'
 
     def add_arguments(self, parser):
-        parser.add_argument('file_path')
+        parser.add_argument('scan_list_id')
         parser.add_argument('-s', '--sleep-between-scans', type=float, default=0)
-        parser.add_argument('-c', '--create-list-name')
 
     def handle(self, *args, **options):
-        if not os.path.isfile(options['file_path']):
-            raise ValueError('file does not exist!')
-
-        self.stdout.write('Reading from file {}'.format(options['file_path']))
-        sites = []
-        with open(options['file_path'], 'r') as fdes:
-            for url in fdes.readlines():
-                if '.' in url:
-                    url = normalize_url(url)
-                    site = Site.objects.get_or_create(url=url)[0]
-                    sites.append(site)
-
-        if options['create_list_name']:
-            list_name = options['create_list_name']
-            self.stdout.write('Creating ScanList {}'.format(list_name))
-            scan_list = ScanList.objects.create(name=list_name, private=True)
-            scan_list.sites = sites
-            scan_list.save()
+        scan_list = ScanList.objects.get(id=options['scan_list_id'])
+        sites = scan_list.sites.all()
 
         scan_count = 0
         for site in sites:
