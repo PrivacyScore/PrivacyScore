@@ -39,7 +39,7 @@ class Command(BaseCommand):
                        "\t {l.name}"
                        "".format(
                     l=scan_list,
-                    length=len(scan_list.sites.all())))
+                    length=scan_list.sites.all().count()))
                 print ()
                 print ("Select a ScanList from the list above")
         else:
