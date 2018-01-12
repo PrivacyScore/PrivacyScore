@@ -1,4 +1,0 @@
-pymongo>=3.4.0
-tldextract>=2.0.2
-celery>=4.0.2 
-redis>=2.10.5
