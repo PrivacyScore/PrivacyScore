@@ -25,14 +25,38 @@ from privacyscore.utils import normalize_url
 class Command(BaseCommand):
     help = 'Scan sites from a newline-separated file.'
 
+    def _read_sleep_file(self, path):
+        try:
+            with open(path, 'r') as f:
+                return float(f.readline())
+        except Exception as e:
+            self.stdout.write(e)
+            return -1
+
     def add_arguments(self, parser):
         parser.add_argument('file_path')
         parser.add_argument('-s', '--sleep-between-scans', type=float, default=0)
+        parser.add_argument('-f', '--sleep-from-file', type=str, default="")
         parser.add_argument('-c', '--create-list-name')
 
     def handle(self, *args, **options):
         if not os.path.isfile(options['file_path']):
             raise ValueError('file does not exist!')
+        if options['sleep_between_scans'] != 0 and options["sleep_from_file"] != "":
+            raise ValueError('Cannot mix -s and -f - please provide only one.')
+        if options['sleep_from_file'] != "" and not os.path.isfile(options['sleep_from_file']):
+            raise ValueError('File with sleep information does not exist!')
+
+        # Indicator to make it easier to check if sleep interval should be read
+        # from a file or from the CLI parameters
+        sleep_from_file = options['sleep_from_file'] != ""
+
+        if sleep_from_file:
+            sleep_interval = self._read_sleep_file(options['sleep_from_file'])
+            if sleep_interval < 0:
+                raise ValueError("Invalid sleep time in sleep file")
+        else:
+            sleep_interval = options['sleep_between_scans']
 
         self.stdout.write('Reading from file {}'.format(options['file_path']))
         sites = []
@@ -64,9 +88,17 @@ class Command(BaseCommand):
             scan_count += 1
             self.stdout.write('Scanning site {}'.format(
                 site))
-            if options['sleep_between_scans']:
-                self.stdout.write('Sleeping {}'.format(options['sleep_between_scans']))
-                sleep(options['sleep_between_scans'])
+
+            if sleep_from_file:
+                new_sleep = self._read_sleep_file(options['sleep_from_file'])
+                if new_sleep >= 0:
+                    sleep_interval = new_sleep
+                else:
+                    self.stdout.write("Invalid new sleep time, using old value: %s" % str(sleep_interval))
+
+            if sleep_interval > 0:
+                self.stdout.write('Sleeping {}'.format(sleep_interval))
+                sleep(sleep_interval)
 
         self.stdout.write('read {} sites, scanned {}'.format(
             len(sites), scan_count))
