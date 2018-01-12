@@ -29,7 +29,7 @@ class Command(BaseCommand):
         try:
             with open(path, 'r') as f:
                 return float(f.readline())
-        except Exception, e:
+        except Exception as e:
             self.stdout.write(e)
             return -1
 
