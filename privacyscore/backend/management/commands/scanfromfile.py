@@ -12,15 +12,34 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import logging
 import os
 from time import sleep
 
 from django.core.management import BaseCommand
 from django.utils import timezone
 
+import privacyscore
 from privacyscore.backend.models import Site, ScanList
 from privacyscore.utils import normalize_url
 
+log = logging.getLogger(__name__)
+
+def queue_is_ready_for_insertion(app, sleep=10, threshold=100):
+    i = app.control.inspect()
+    queue_is_free = True
+    while True:
+        all_tasks = [t for l in i.reserved().values() for t in l]
+        
+        open_tasks = sum((1 for _ in all_tasks))
+        log.info("We have %d open tasks", open_tasks)
+        queue_is_free = open_tasks < threshold
+        if queue_is_free:
+            cmd = yield
+            if cmd == 'stop':
+                break
+        else:
+            time.sleep(sleep)
 
 class Command(BaseCommand):
     help = 'Scan sites from a newline-separated file.'
@@ -75,7 +94,11 @@ class Command(BaseCommand):
             scan_list.save()
 
         scan_count = 0
-        for site in sites:
+
+        celery_app = privacyscore.celery_app
+        generator = queue_is_ready_for_insertion(celery_app)
+        for (site, _) in zip(sites, generator):
+            # num_scanning_sites = Scan.objects.filter(end__isnull=True).count()
             status_code = site.scan()
             if status_code == Site.SCAN_COOLDOWN:
                 self.stdout.write(
@@ -99,6 +122,8 @@ class Command(BaseCommand):
             if sleep_interval > 0:
                 self.stdout.write('Sleeping {}'.format(sleep_interval))
                 sleep(sleep_interval)
+
+            # queue_is_free = num_scanning_sites < threshold
 
         self.stdout.write('read {} sites, scanned {}'.format(
             len(sites), scan_count))
