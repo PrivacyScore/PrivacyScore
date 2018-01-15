@@ -132,8 +132,8 @@ class Command(BaseCommand):
 
             # queue_is_free = num_scanning_sites < threshold
 
-        if options['create_list_name']:
-            list_name = options['create_list_name']
+        list_name = options['create_list_name']
+        if list_name:
             self.stdout.write('Creating ScanList {}'.format(list_name))
             scan_list = ScanList.objects.create(name=list_name, private=True)
             scan_list.sites = sites
