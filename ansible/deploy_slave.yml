@@ -135,12 +135,24 @@
         owner: privacyscore
         group: privacyscore
         mode: 0500
+      register: privacyscore__settings
+
     - name: Place systemd unit file for privacyscore-celery-slave
       template:
         src: privacyscore-celery-slave.service
         dest: /etc/systemd/system/privacyscore-celery-slave.service
+
     - name: Enable and start celery slave service
-      service:
+      systemd:
         name: privacyscore-celery-slave
         state: started
         enabled: yes
+        daemon-reload: yes
+
+    - name: Restart celery slave service
+      systemd:
+        name: privacyscore-celery-slave
+        state: restarted
+        enabled: yes
+        daemon-reload: yes
+      when: privacyscore__settings | changed
