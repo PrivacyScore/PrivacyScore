@@ -88,21 +88,24 @@ class Command(BaseCommand):
             sleep_interval = options['sleep_between_scans']
 
         self.stdout.write('Reading from file {}'.format(options['file_path']))
-        sites = []
-        with open(options['file_path'], 'r') as fdes:
-            for url in fdes.readlines():
-                if '.' in url:
-                    url = normalize_url(url)
-                    site = Site.objects.get_or_create(url=url)[0]
-                    sites.append(site)
+        def read_sites_from_file(path):
+            with open(path, 'r') as fdes:
+                for url in fdes.readlines():
+                    if '.' in url:
+                        url = normalize_url(url)
+                        site = Site.objects.get_or_create(url=url)[0]
+                        yield site
 
 
         scan_count = 0
 
         celery_app = privacyscore.celery_app
         generator = queue_is_ready_for_insertion(celery_app)
-        for (site, _) in zip(sites, generator):
+        sites = []
+        sites_gen = read_sites_from_file(options['file_path'])
+        for (site, _) in zip(sites_gen, generator):
             # num_scanning_sites = Scan.objects.filter(end__isnull=True).count()
+            sites.append(site)
             status_code = site.scan()
             if status_code == Site.SCAN_COOLDOWN:
                 self.stdout.write(
