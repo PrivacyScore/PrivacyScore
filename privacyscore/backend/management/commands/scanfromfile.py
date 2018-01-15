@@ -96,12 +96,6 @@ class Command(BaseCommand):
                     site = Site.objects.get_or_create(url=url)[0]
                     sites.append(site)
 
-        if options['create_list_name']:
-            list_name = options['create_list_name']
-            self.stdout.write('Creating ScanList {}'.format(list_name))
-            scan_list = ScanList.objects.create(name=list_name, private=True)
-            scan_list.sites = sites
-            scan_list.save()
 
         scan_count = 0
 
@@ -134,6 +128,15 @@ class Command(BaseCommand):
                 sleep(sleep_interval)
 
             # queue_is_free = num_scanning_sites < threshold
+
+        if options['create_list_name']:
+            list_name = options['create_list_name']
+            self.stdout.write('Creating ScanList {}'.format(list_name))
+            scan_list = ScanList.objects.create(name=list_name, private=True)
+            scan_list.sites = sites
+            scan_list.save()
+
+
 
         self.stdout.write('read {} sites, scanned {}'.format(
             len(sites), scan_count))
