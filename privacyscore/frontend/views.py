@@ -626,24 +626,24 @@ def faq(request: HttpRequest):
     num_scans  = Site.objects.filter(scans__isnull=False).count()
     num_scanning_sites = Scan.objects.filter(end__isnull=True).count()
 
-    query = '''SELECT
-        COUNT(jsonb_array_length("result"->'leaks'))
-        FROM backend_scanresult
-        WHERE backend_scanresult.scan_id IN (
-            SELECT backend_site.last_scan_id
-            FROM backend_site
-            WHERE backend_site.last_scan_id IS NOT NULL)
-        AND jsonb_array_length("result"->'leaks') > 0'''
-    
-    with connection.cursor() as cursor:
-        cursor.execute(query)
-        num_sites_failing_serverleak = cursor.fetchone()[0]
+    # query = '''SELECT
+    #     COUNT(jsonb_array_length("result"->'leaks'))
+    #     FROM backend_scanresult
+    #     WHERE backend_scanresult.scan_id IN (
+    #         SELECT backend_site.last_scan_id
+    #         FROM backend_site
+    #         WHERE backend_site.last_scan_id IS NOT NULL)
+    #     AND jsonb_array_length("result"->'leaks') > 0'''
+    # 
+    # with connection.cursor() as cursor:
+    #     cursor.execute(query)
+    #     num_sites_failing_serverleak = cursor.fetchone()[0]
         
     return render(request, 'frontend/faq.html', {
         'num_scanning_sites': num_scanning_sites,
         'num_scans':  num_scans,
         'num_sites': Site.objects.count(),
-        'num_sites_failing_serverleak': num_sites_failing_serverleak
+        # 'num_sites_failing_serverleak': num_sites_failing_serverleak
     })
 
 
