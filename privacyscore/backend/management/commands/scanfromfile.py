@@ -20,7 +20,7 @@ from django.core.management import BaseCommand
 from django.utils import timezone
 
 import privacyscore
-from privacyscore.backend.models import Site, ScanList
+from privacyscore.backend.models import Site, ScanList, Scan
 from privacyscore.utils import normalize_url
 
 log = logging.getLogger(__name__)
@@ -50,6 +50,23 @@ def queue_is_ready_for_insertion(app, sleep=10, threshold=None):
         else:
             log.info("Sleeping for the queue: %r", sleep)
             time.sleep(sleep)
+
+
+def number_of_open_scan_tasks():
+    num_scanning_sites = Scan.objects.filter(end__isnull=True).count()
+    return num_scanning_sites
+
+def wait_for_scan_tasks(threshold, poll_interval=30):
+    while poll_interval > 0:
+        tasks = number_of_open_scan_tasks()
+        log.info("Having %r tasks, threshold: %r", tasks, threshold)
+        if tasks < threshold:
+            cmd = yield tasks
+            if cmd is not None:
+                log.debug('Received cmd: %r', cmd)
+                poll_interval = cmd
+        else:
+            sleep(poll_interval)
 
 class Command(BaseCommand):
     help = 'Scan sites from a newline-separated file.'
@@ -100,7 +117,9 @@ class Command(BaseCommand):
         scan_count = 0
 
         celery_app = privacyscore.celery_app
-        generator = queue_is_ready_for_insertion(celery_app)
+        hosts = celery_app.control.inspect().stats().keys()
+        threshold = len(hosts)
+        generator = wait_for_scan_tasks(threshold)
         sites = []
         sites_gen = read_sites_from_file(options['file_path'])
         for (site, _) in zip(sites_gen, generator):
@@ -115,6 +134,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     'Blacklisted -- Not scanning site {}'.format(site))
                 continue
+
             scan_count += 1
             self.stdout.write('Scanning site {}'.format(
                 site))
