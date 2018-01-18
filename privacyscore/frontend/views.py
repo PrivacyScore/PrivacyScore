@@ -328,6 +328,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html'
         output = {'sites': [], 'blacklisted_sites': []}
         for site_no, site in _enumerate_sites(sites, start=1):
             output['sites'].append({
+                'id': site.pk,
                 'position': site_no,
                 'url': site.url,
                 'columns': [x.value for x in site.ordered_column_values],
@@ -335,6 +336,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html'
             })
         for site_no, site in _enumerate_sites(blacklisted_sites, start=1):
             output['sites'].append({
+                'id': site.pk,
                 'position': site_no,
                 'url': site.url,
                 'columns': [x.value for x in site.ordered_column_values],
