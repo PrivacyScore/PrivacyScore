@@ -25,33 +25,6 @@ from privacyscore.utils import normalize_url
 
 log = logging.getLogger(__name__)
 
-def queue_is_ready_for_insertion(app, sleep=10, threshold=None):
-    i = app.control.inspect()
-    queue_is_free = True
-    if threshold is None:
-        hosts = i.stats().keys()
-        threshold = len(hosts) * 4
-
-    while True:
-        reserved = i.reserved()
-        tasks = reserved.values()
-        all_tasks = [t for l in tasks for t in l]
-        
-        open_tasks = sum((1 for _ in all_tasks))
-        log.info("We have %d open tasks, threshold: %r", open_tasks, threshold)
-        queue_is_free = open_tasks < threshold
-        if queue_is_free:
-            cmd = yield
-            if cmd is not None:
-                log.info("Received cmd: %r", cmd)
-                threshold = cmd
-                if threshold <= 0:
-                    break
-        else:
-            log.info("Sleeping for the queue: %r", sleep)
-            time.sleep(sleep)
-
-
 def number_of_open_scan_tasks():
     num_scanning_sites = Scan.objects.filter(end__isnull=True).count()
     return num_scanning_sites
