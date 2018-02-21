@@ -53,7 +53,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('file_path')
         parser.add_argument('-c', '--create-list-name')
-        parser.add_argument('-t', '--threshold', type=float, default=0)
+        parser.add_argument('-t', '--threshold', type=float)
 
     def handle(self, *args, **options):
         if not os.path.isfile(options['file_path']):
@@ -71,12 +71,13 @@ class Command(BaseCommand):
 
         scan_count = 0
 
-        if "threshold" in options:
-            threshold = options['threshold']
-        else:
+        threshold = options.get("treshold", None)
+        if not threshold:
             celery_app = privacyscore.celery_app
             hosts = celery_app.control.inspect().stats().keys()
             threshold = len(hosts)
+            log.info("Detected %d scan hosts", threshold)
+
         generator = wait_for_scan_tasks(threshold)
         sites = []
         sites_gen = read_sites_from_file(options['file_path'])
