@@ -12,8 +12,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import argparse
+from datetime import datetime
 from django.db import connection
 from django.core.management import BaseCommand
+
+
+def valid_date(s):
+    try:
+        return datetime.strptime(s, "%Y-%m-%d")
+    except ValueError:
+        msg = "Not a valid date: '{0}'.".format(s)
+        raise argparse.ArgumentTypeError(msg)
 
 
 class Command(BaseCommand):
@@ -23,33 +33,78 @@ class Command(BaseCommand):
         parser.add_argument(
             '--list', '-l', type=int,
             help='Show only leaks for this list')
+        parser.add_argument(
+            '--at', '-a', type=valid_date,
+            help='Use only scans which are older than this')
 
     def handle(self, *args, **options):
-        query = '''
-            SELECT DISTINCT
-                regexp_replace((s.url || jsonb_array_elements(r.result->'leaks')::text), '"', '', 'g')
-            FROM
-                backend_scanresult r,
-                backend_site s
-            WHERE
-                r.scan_id=s.last_scan_id AND
-                jsonb_array_length("result"->'leaks') > 0
-        '''
         params = []
 
-        if options['list']:
-            query += '''
-                AND
-                    s.id IN (
-                        SELECT
-                            ssl.site_id
-                        FROM
-                            backend_site_scan_lists ssl
-                        WHERE
-                            ssl.scanlist_id=%s
-                    )
+        subquery = '''
+            SELECT
+                s.last_scan_id
+            FROM
+                backend_site s'''
+
+        if options['at']:
+            # TODO: this assumes that the most recent scan has the highest id
+            subquery = '''
+                SELECT
+                    MAX(sc.id)
+                FROM
+                    backend_scan sc
+                WHERE
+                    sc.end < %s
             '''
-            params.append(options['list'])
+            params.append(options['at'])
+            if options['list']:
+                subquery += '''
+                    AND
+                        sc.site_id IN (
+                            SELECT
+                                ssl.site_id
+                            FROM
+                                backend_site_scan_lists ssl
+                            WHERE
+                                ssl.scanlist_id=%s
+                        )
+                '''
+                params.append(options['list'])
+            subquery += '''
+                GROUP BY
+                sc.site_id
+            '''
+        else:
+            if options['list']:
+                subquery += '''
+                    WHERE
+                        s.id IN (
+                            SELECT
+                                ssl.site_id
+                            FROM
+                                backend_site_scan_lists ssl
+                            WHERE
+                                ssl.scanlist_id=%s
+                        )
+                '''
+                params.append(options['list'])
+
+        query = '''
+            SELECT DISTINCT
+                regexp_replace((si.url || jsonb_array_elements(r.result->'leaks')::text), '"', '', 'g')
+            FROM
+                backend_scanresult r
+            JOIN
+                backend_scan sc
+            ON
+                r.scan_id = sc.id
+            JOIN
+                backend_site si
+            ON
+                sc.site_id = si.id
+            WHERE
+                r.scan_id IN (''' + subquery + ''') AND
+                jsonb_array_length(r."result"->'leaks') > 0'''
 
         with connection.cursor() as cursor:
             cursor.execute(query, tuple(params))
