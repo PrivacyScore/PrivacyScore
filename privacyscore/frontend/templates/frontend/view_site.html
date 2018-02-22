@@ -39,6 +39,13 @@ table.dataTable thead .sorting_desc_disabled
     .description-bad, .description-critical {
       color: red;
     }
+
+    .jump-section:before {
+      padding-top: 75px;
+      margin-top: -75px;
+      content: "";
+      display: block;
+    }
   </style>
 {% endblock additional_css %}
 
@@ -94,6 +101,7 @@ table.dataTable thead .sorting_desc_disabled
                 <div class="col-xs-6 col-sm-3 text-center" style="font-size: 1em; line-height: 1.2em; font-weight: 700;">
                 {% if rating %}
                         {% with group_rating=rating.group_rating.rating %}
+                            <a href="#jump-section-{{ forloop.counter }}">
                             {% if rating.devaluating %}
                             <i class="fa fa-3x fa-angle-left"></i>
                             {% endif %}
@@ -114,6 +122,7 @@ table.dataTable thead .sorting_desc_disabled
                             <i class="fa fa-3x fa-angle-right"></i>
                             {% endif %}
                             <br>{{ group|group_short_name }}
+                            </a>
                         {% endwith %}
                 {% else %}
                         {% trans 'No rating' %}
@@ -253,7 +262,7 @@ table.dataTable thead .sorting_desc_disabled
                 {% with forloop.counter as outerCounter %}
                 
                 <div class="spacer"></div>
-                <h3>{{ group }}</h3>
+                <h3 class="jump-section" id="jump-section-{{ outerCounter }}">{{ group }}</h3>
                 
                 <!-- panel group begin -->
                 <div class="panel-group" id="accordion{{ outerCounter }}"
