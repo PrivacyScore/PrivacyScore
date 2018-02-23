@@ -588,12 +588,30 @@ def scan_list_csv(request: HttpRequest, scan_list_id: int) -> HttpResponse:
 
 
 def site_result_json(request: HttpRequest, site_id: int) -> HttpResponse:
-    site = get_object_or_404(Site.objects.annotate_most_recent_scan_result(), pk=site_id)
-    scan_result = site.last_scan__result if site.last_scan__result else {}
+    if 'at' in request.GET:
+        # Check that the site even exists
+        site = get_object_or_404(pk=site_id)
+
+        # TODO sanity check timestamp
+        try:
+            datetime.strptime(request.GET['at'])
+        except:
+            return render(request, 'frontend/site_result_json.html', {'site': site, 'highlighted_code': 'Incorrect timestamp format'})
+        try:
+            scan = Scan.objects.filter(end__lte=request.GET['at']).order_by('-id').get()
+            scan_result = ScanResult.get(scan=scan)
+        except:
+            scan_result = None 
+    else:
+        site = get_object_or_404(Site.objects.annotate_most_recent_scan_result(), pk=site_id)
+        scan_result = site.last_scan__result if site.last_scan__result else {}
     if 'raw' in request.GET:
         return JsonResponse(scan_result)
     code = json.dumps(scan_result, indent=2)
-    highlighted_code = mark_safe(highlight(code, JsonLexer(), HtmlFormatter()))
+    if scan_result is not None:
+        highlighted_code = mark_safe(highlight(code, JsonLexer(), HtmlFormatter()))
+    else:
+        highlighted_code = 'No scan data found for these parameters'
     return render(request, 'frontend/site_result_json.html', {
         'site': site,
         'highlighted_code': highlighted_code
