@@ -599,7 +599,7 @@ def site_result_json(request: HttpRequest, site_id: int) -> HttpResponse:
         except:
             return render(request, 'frontend/site_result_json.html', {'site': site, 'highlighted_code': 'Incorrect timestamp format'})
         try:
-            scan = Scan.objects.filter(site=site).filter(end__lte=timestamp).order_by('-id')[0]
+            scan = Scan.objects.filter(site=site).filter(end__lte=timestamp).order_by('-end').first()
             scan_result = ScanResult.objects.get(scan=scan).result
         except Exception as e:
             scan_result = None
