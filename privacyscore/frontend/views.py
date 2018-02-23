@@ -594,7 +594,7 @@ def site_result_json(request: HttpRequest, site_id: int) -> HttpResponse:
 
         # TODO sanity check timestamp
         try:
-            datetime.strptime(request.GET['at'])
+            datetime.strptime(request.GET['at'], "%Y-%m-%d")
         except:
             return render(request, 'frontend/site_result_json.html', {'site': site, 'highlighted_code': 'Incorrect timestamp format'})
         try:
