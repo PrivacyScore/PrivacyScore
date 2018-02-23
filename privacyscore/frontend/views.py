@@ -601,8 +601,8 @@ def site_result_json(request: HttpRequest, site_id: int) -> HttpResponse:
         try:
             scan = Scan.objects.filter(end__lte=request.GET['at']).order_by('-id').get()
             scan_result = ScanResult.get(scan=scan)
-        except:
-            scan_result = None 
+        except Exception as e:
+            scan_result = e
     else:
         site = get_object_or_404(Site.objects.annotate_most_recent_scan_result(), pk=site_id)
         scan_result = site.last_scan__result if site.last_scan__result else {}
