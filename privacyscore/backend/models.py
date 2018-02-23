@@ -210,7 +210,7 @@ class SiteQuerySet(models.QuerySet):
                     Site=Site._meta.db_table,
                     Site_ScanLists=Site.scan_lists.through._meta.db_table), ()))
 
-    def annotate_most_recent_scan_result(self) -> 'SiteQuerSet':
+    def annotate_most_recent_scan_result(self) -> 'SiteQuerySet':
         return self.annotate(last_scan__result=RawSQL('''
         SELECT "{ScanResult}"."result"
         FROM "{ScanResult}"
