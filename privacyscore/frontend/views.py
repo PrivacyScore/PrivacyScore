@@ -595,11 +595,11 @@ def site_result_json(request: HttpRequest, site_id: int) -> HttpResponse:
 
         # TODO sanity check timestamp
         try:
-            datetime.strptime(request.GET['at'], "%Y-%m-%d")
+            timestamp = datetime.strptime(request.GET['at'], "%Y-%m-%d")
         except:
             return render(request, 'frontend/site_result_json.html', {'site': site, 'highlighted_code': 'Incorrect timestamp format'})
         try:
-            scan = Scan.objects.filter(site=site).filter(end__lte=request.GET['at']).order_by('-id').get()
+            scan = Scan.objects.filter(site=site).filter(end__lte=timestamp).order_by('-id').get()
             scan_result = ScanResult.objects.get(scan=scan).result
         except Exception as e:
             scan_result = None
