@@ -590,7 +590,7 @@ def scan_list_csv(request: HttpRequest, scan_list_id: int) -> HttpResponse:
 def site_result_json(request: HttpRequest, site_id: int) -> HttpResponse:
     if 'at' in request.GET:
         # Check that the site even exists
-        site = get_object_or_404(pk=site_id)
+        site = Site.objects.get_object_or_404(pk=site_id)
 
         # TODO sanity check timestamp
         try:
