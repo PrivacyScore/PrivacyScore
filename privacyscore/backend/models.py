@@ -221,9 +221,6 @@ class SiteQuerySet(models.QuerySet):
                 ScanResult=ScanResult._meta.db_table,
                 Site=Site._meta.db_table), ()))
 
-    def annotate_scan_result_at(self, timestamp: datetime) -> 'SiteQuerySet':
-        return self.annotate
-
     def prefetch_column_values(self, scan_list: ScanList) -> 'SiteQuerySet':
         return self.prefetch_related(Prefetch(
                 'column_values',
