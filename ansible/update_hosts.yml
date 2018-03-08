@@ -73,6 +73,30 @@
         ## Slaves dump their results via redis
         - redis-server
 
+    - name: Configure redis to listen to be supervised by systemd
+      # I wonder why we have to do that, though.
+      when: privacyscore__is_master | bool
+      lineinfile:
+          dest: /etc/redis/redis.conf
+          regexp: "^supervised .*"
+          line: "supervised systemd"
+          state: present
+      notify:
+        - restart redis
+      tags: ['redis']
+
+    - name: Configure redis listening addresses
+      when: privacyscore__is_master | bool
+      lineinfile:
+          dest: /etc/redis/redis.conf
+          regexp: "^bind .*"
+          line: "bind {{ redis_bind | default('127.0.0.2')}}"
+          state: present
+      notify:
+        - restart redis
+      tags: ['redis']
+
+
     - name: Install memcached
       when: privacyscore__install_memcache | bool
       tags: ['privacyscore::memcache,privacyscore::memcached']
@@ -240,3 +264,10 @@
       environment:
         PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
+
+
+  handlers:
+  - name: restart redis
+    systemd:
+        name: redis-server
+        state: restarted

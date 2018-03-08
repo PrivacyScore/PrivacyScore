@@ -53,7 +53,12 @@ privacyscore__celery_broker_url: 'amqp://privacyscore:privacyscore@localhost:567
 #                                      Defaults to localhost.
 privacyscore__celery_result_backend: 'redis://localhost:6379/0'
 
-
+# redis_bind: The addresses redis should listen on.
+#             By default, this is 127.1 only.
+#             But once you have external clients wanting to connect,
+#             e.g. worker slaves, then you might want to change this to
+#             0.0.0.0 ::
+redis_bind: 127.0.0.1
 
 # privacyscore__raven_dsn_url: If you want to use sentry, you can define the DSN URL.
 #                              It will be used to add raven to settings.py and configure it
