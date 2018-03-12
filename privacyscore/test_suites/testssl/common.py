@@ -39,19 +39,22 @@ def run_testssl(hostname: str, check_mx: bool, remote_host: str = None) -> List[
 def starttls_handshake_possible(hostname: str, check_mx: bool) -> bool:
     """Check whether we can perform a TLS handshake (called directly after testssl.sh)"""
     if check_mx:
-        args = ['timeout', '--preserve-status', '10s',
-                'openssl', 's_client', '-connect',
+        args = ['openssl', 's_client', '-connect',
                 "{}:25".format(hostname),
                 '-starttls', 'smtp'
         ]
     else:
-        args = ['timeout', '--preserve-status', '10s',
-                'openssl', 's_client', '-connect',
+        args = ['openssl', 's_client', '-connect',
                 "{}:443".format(hostname)
         ]
 
     proc = Popen(args, stdout=PIPE, stderr=PIPE, stdin=PIPE)
-    (stdout, stderr) = proc.communicate(input=b'\n', timeout=15)
+    try:
+        stdout, stderr = proc.communicate(input=b'\n', timeout=15)
+    except TimeoutExpired:
+        proc.kill()
+        stdout, stderr = proc.communicate()
+
     rcode = proc.returncode
     # openssl returns 0 if the handshake succeeded and 1 otherwise
     # timeouts return something > 100
