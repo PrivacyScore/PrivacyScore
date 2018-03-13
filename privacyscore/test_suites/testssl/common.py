@@ -10,7 +10,7 @@ from typing import List, Dict, Union
 
 import logging
 
-from subprocess import call, check_output, DEVNULL, PIPE, Popen
+from subprocess import call, check_output, DEVNULL, PIPE, Popen, TimeoutExpired
 
 from django.conf import settings
 
@@ -51,7 +51,7 @@ def starttls_handshake_possible(hostname: str, check_mx: bool) -> bool:
     proc = Popen(args, stdout=PIPE, stderr=PIPE, stdin=PIPE)
     try:
         stdout, stderr = proc.communicate(input=b'\n', timeout=15)
-    except subprocess.TimeoutExpired:
+    except TimeoutExpired:
         proc.kill()
         stdout, stderr = proc.communicate()
 
