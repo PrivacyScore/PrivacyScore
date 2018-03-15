@@ -11,6 +11,10 @@
         repo: "{{ privacyscore__git_url }}"
         dest: /opt/privacyscore
         version: "{{ privacyscore__version }}"
+      notify:
+        - Restart privacyscore.service
+        - Restart privacyscore-celery-master.service
+        - Restart privacyscore-celery-slave.service
 
     - name: Install pip requirements
       become: yes
@@ -155,38 +159,79 @@
       template:
         src: privacyscore-celery-master.service
         dest: /etc/systemd/system/privacyscore-celery-master.service
+      notify:
+        - Reload systemd
+
     - name: Place systemd unit file for privacyscore-celery-slave
       when: privacyscore__is_slave | bool
       template:
         src: privacyscore-celery-slave.service
         dest: /etc/systemd/system/privacyscore-celery-slave.service
+      notify:
+        - Reload systemd
+
     - name: Place systemd unit file for privacyscore
       when: privacyscore__is_master | bool
       template:
         src: privacyscore.service
         dest: /etc/systemd/system/privacyscore.service
+      notify:
+        - Reload systemd
 
-    - name: Restart privacyscore.service
+    - name: Force systemd reload
+      meta: flush_handlers
+
+    - name: Start privacyscore on boot
       when: privacyscore__is_master | bool
       systemd:
-        name: privacyscore
-        state: restarted
-        # We might be able to only restart if anything changed...
-        daemon_reload: True
+          name: privacyscore.service
+          state: started
+          enabled: yes
 
-    - name: Restart privacyscore-celery-master.service
+    - name: Do not start privacyscore on boot
+      when: not privacyscore__is_master | bool
+      systemd:
+          name: privacyscore.service
+          state: stopped
+          enabled: no
+      # We ignore here, because the host may simply not have this file 
+      # installed. We do, however, attempt to disable the service, 
+      # because we may turn an existing master into a slave.
+      ignore_errors: yes
+
+
+    - name: Start privacyscore celery master on boot
       when: privacyscore__is_master | bool
       systemd:
-        name: privacyscore-celery-master
-        state: restarted
-        # We might be able to only restart if anything changed...
-        daemon_reload: True
+          name: privacyscore-celery-master.service
+          state: started
+          enabled: yes
 
-    - name: Restart privacyscore-celery-slave.service
+    - name: Do not start privacyscore celery master on boot
+      when: not privacyscore__is_master | bool
+      systemd:
+          name: privacyscore-celery-master.service
+          state: stopped
+          enabled: no
+      ignore_errors: yes
+
+    - name: Start privacyscore celery slave on boot
       when: privacyscore__is_slave | bool
       systemd:
-        name: privacyscore-celery-slave
-        state: restarted
+          name: privacyscore-celery-slave.service
+          state: started
+          enabled: yes
+
+    - name: Do not start privacyscore celery slave on boot
+      when: not privacyscore__is_slave | bool
+      systemd:
+          name: privacyscore-celery-slave.service
+          state: stopped
+          enabled: no
+      ignore_errors: yes
+      
+
+
 
     - name: Refresh vendor/testssl
       when: privacyscore__is_slave
@@ -271,3 +316,28 @@
     systemd:
         name: redis-server
         state: restarted
+
+  - name: Reload systemd
+    systemd:
+      daemon_reload: True
+
+  - name: Restart privacyscore.service
+    when: privacyscore__is_master | bool
+    systemd:
+      name: privacyscore
+      state: restarted
+      daemon_reload: True
+
+  - name: Restart privacyscore-celery-master.service
+    when: privacyscore__is_master | bool
+    systemd:
+      name: privacyscore-celery-master
+      state: restarted
+      daemon_reload: True
+
+  - name: Restart privacyscore-celery-slave.service
+    when: privacyscore__is_slave | bool
+    systemd:
+      name: privacyscore-celery-slave
+      state: restarted
+
