@@ -11,8 +11,9 @@
         block: |
           deb http://192.168.122.1:3142/ftp.de.debian.org/debian/ stretch main contrib
           deb-src http://192.168.122.1:3142/ftp.de.debian.org/debian/ stretch main contrib
+
     - name: Install apt packages
-      apt: name={{ item }} update_cache=yes
+      apt: name={{ item }} update_cache=yes cache_valid_time=1800
       with_items:
         - build-essential
         ## We surely need git to check out PrivacyScore
