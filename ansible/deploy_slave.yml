@@ -92,6 +92,9 @@
         dest: /opt/privacyscore
         version: "{{ privacyscore__version }}"
         accept_hostkey: yes
+      notify:
+        - Restart privacyscore-celery-slave.service
+
     - name: Create privacyscore user
       user:
         name: privacyscore
@@ -136,23 +139,33 @@
         group: privacyscore
         mode: 0500
       register: privacyscore__settings
+      notify:
+        - Restart privacyscore-celery-slave.service
 
     - name: Place systemd unit file for privacyscore-celery-slave
       template:
         src: privacyscore-celery-slave.service
         dest: /etc/systemd/system/privacyscore-celery-slave.service
+      notify:
+        - Reload systemd
+
+    - name: Force systemd reload
+      meta: flush_handlers
 
     - name: Enable and start celery slave service
+      # when: privacyscore__is_slave | bool
       systemd:
         name: privacyscore-celery-slave
         state: started
         enabled: yes
-        daemon-reload: yes
 
-    - name: Restart celery slave service
+  handlers:
+    - name: Reload systemd
+      systemd:
+        daemon_reload: True
+            
+    - name: Restart privacyscore-celery-slave.service
+      when: privacyscore__is_slave | bool
       systemd:
         name: privacyscore-celery-slave
         state: restarted
-        enabled: yes
-        daemon-reload: yes
-      when: privacyscore__settings | changed
