@@ -303,7 +303,7 @@
       become: yes
       become_user: privacyscore
       when: privacyscore__test_for_message_queue | default(False)
-      shell:  /opt/privacyscore/.pyenv/bin/celery -A privacyscore status
+      shell:  timeout --preserve-status 10   /opt/privacyscore/.pyenv/bin/celery -A privacyscore status
       args:
           chdir:  /opt/privacyscore/
       environment:
