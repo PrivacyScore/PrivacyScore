@@ -110,6 +110,28 @@
         - restart redis
       tags: ['redis']
 
+    - name: Configure overcommitting memory
+      # https://redis.io/topics/faq
+      when: privacyscore__is_master | bool
+      sysctl:
+        name: vm.overcommit_memory
+        value: 1
+        state: present
+
+    - name: Disable Transparent Huge Pages in Grub 2
+      when: privacyscore__is_master | bool
+      lineinfile:
+          path: /etc/default/grub
+          state: present
+          line: 'GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX transparent_hugepage=never"'
+      notify: Run update-grub
+
+
+    - name: Disable Transparent Huge Pages until reboot
+      when: privacyscore__is_master | bool
+      shell: echo never | tee /sys/kernel/mm/transparent_hugepage/enabled && echo never | tee /sys/kernel/mm/transparent_hugepage/defrag
+      ignore_errors: true
+
 
     - name: Install memcached
       when: privacyscore__install_memcache | bool
@@ -351,3 +373,5 @@
       name: privacyscore-celery-slave
       state: restarted
 
+  - name: Run update-grub
+    shell: update-grub
