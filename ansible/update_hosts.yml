@@ -51,6 +51,16 @@
         PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
 
+    - name: Ensure static files directory is writable
+      when: privacyscore__collect_static | bool
+      become: yes
+      tags: ['privacyscore::collectstatic']
+      file:
+        state: directory
+        path: "{{ privacyscore__static_root | mandatory }}"
+        owner: privacyscore
+        mode: u=rwX,g=rX,o=rX
+
     - name: Collect static files
       when: privacyscore__collect_static | bool
       become: yes
