@@ -19,3 +19,5 @@ raw_data
 .idea
 
 ansible/files/id_rsa
+
+*.mo
