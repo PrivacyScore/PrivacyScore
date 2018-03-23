@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{% static 'frontend/css/bootstrap.min.css' %}" />
     <link rel="stylesheet" href="{% static 'frontend/css/font-awesome.min.css' %}" />
     <link rel="stylesheet" href="{% static 'frontend/css/privacyscore.css' %}" />
+    <link rel="stylesheet" href="{% static 'frontend/css/flag-icon.min.css' %}" />
     <link rel="stylesheet" href="{% static 'frontend/fonts/font.css' %}" />
     {% block additional_css %}
     {% endblock additional_css %}
@@ -40,6 +41,9 @@
                     <li><a href="{% url 'frontend:code' %}">Code</a></li>
                     <li><a href="{% url 'frontend:team' %}">Team</a></li>
                     <li><a href="{% url 'frontend:faq' %}">FAQ</a></li>
+                    <li class="switch-language">
+                        {% include 'frontend/switch_language.html' %}
+                    </li>
                 </ul>
             </div>
             <!--/.nav-collapse -->
@@ -112,24 +116,6 @@
                 </div>
                 <div class="col-xs-4 text-center">
                     <a href="https://twitter.com/privascore"><i class="fa fa-lg fa-twitter" style="color:white"></i></a> &nbsp; <a href="mailto:privacyscore@mailhost.informatik.uni-hamburg.de"><i class="fa fa-lg fa-envelope" style="color:white"></i></a><br />
-                  {% get_current_language as LANGUAGE_CODE %}
-                  {% get_available_languages as LANGUAGES %}
-                  {% get_language_info_list for LANGUAGES as languages %}
-                  {% for language in languages %}
-                    <form
-                        action="{% url 'set_language' %}"
-                        method="post"
-                        class="inline">
-                      {% csrf_token %}
-                      <input name="next" type="hidden" value="{{ redirect_to }}">
-                      <input name="language" type="hidden" value="{{ language.code }}">
-                      <button class="btn-link" type="submit"{% if language.code == LANGUAGE_CODE %} disabled{% endif %}>
-                        <img
-                            src="{% static 'frontend/img/language/' %}{{ language.code }}.png"
-                            alt="{{ language.name_local }}" />
-                      </button>
-                    </form>
-                  {% endfor %}
                 </div>
                 
                 <div class="col-xs-4 text-right">

@@ -43,6 +43,15 @@ h2 {
     font-size: 16px;
 }
 
+.navbar-default .navbar-nav > li.switch-language {
+    margin-left: 1em;
+}
+
+.navbar-default .navbar-nav > li.switch-language > form > button {
+    padding: 0;
+    height: 50px;
+}
+
 .navbar li a {
     text-transform: uppercase;
 }
