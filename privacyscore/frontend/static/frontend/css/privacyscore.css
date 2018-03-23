@@ -392,3 +392,7 @@ ul.errorlist li {
     margin: 0;
     padding-bottom: 0.5em;
 }
+
+.inline {
+  display: inline !important;
+}

@@ -14,13 +14,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 import sys
-from django.conf.urls import url, include
 from django.conf import settings
+from django.conf.urls import url, include
 from django.contrib import admin
-from django.views.static import serve
+from django.urls import path
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    path(r'i18n/', include('django.conf.urls.i18n')),
     #url(r'^api/', include('privacyscore.api.urls')),
     url(r'^', include('privacyscore.frontend.urls')),
 ]
@@ -35,6 +37,7 @@ if settings.DEBUG:
     except ImportError:
         print("Could not import Django debug toolbar", file=sys.stderr)
 
+    from django.views.static import serve
     urlpatterns = [
         url(r'^media/(?P<path>.*)$', serve, {
             'document_root': settings.MEDIA_ROOT
