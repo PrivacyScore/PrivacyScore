@@ -1,19 +1,8 @@
 {% load i18n %}
-<ul class="list-group">
-    <li class="list-group-item">
-        This list contains 
-        {% blocktrans count counter=sites_count %}
-            {{ counter }} website
-        {% plural %}
-            {{ counter }} websites
-        {% endblocktrans %}
 
-        {% blocktrans count counter=sites_failures_count %}
-            (with {{ counter }} scan error).
-        {% plural %}
-            (with {{ counter }} scan errors).
-        {% endblocktrans %}
-    </li>
+<div class="row">
+<div class="col-xs-6">
+<ul class="list-group">
     <li class="list-group-item color-good">
         <i class="fa fa-lg fa-check-circle color-good"></i>&nbsp; 
         {% blocktrans with count=ratings_count.good %}
@@ -29,25 +18,51 @@
     <li class="list-group-item color-bad">
         <i class="fa fa-lg  fa-exclamation-triangle color-bad"></i>&nbsp; 
         {% blocktrans with count=ratings_count.bad %}
-        <strong>{{ count }} failed all tests in at least one group</strong>
+        <strong>{{ count }} failed all checks within a group</strong>
         {% endblocktrans %}
     </li>
     <li class="list-group-item color-critical">
         <i class="fa fa-lg fa-times-circle color-critical"></i>&nbsp; 
         {% blocktrans with count=ratings_count.critical %}
-        <strong>{{ count }} failed at least one critical check</strong>
+        <strong>{{ count }} failed critical checks</strong>
+        {% endblocktrans %}
+    </li>
+</ul>
+</div>
+<div class="col-xs-6">
+<ul class="list-group">
+    <li class="list-group-item">
+        <i class="fa fa-lg fa-home"></i>&nbsp; 
+        {% blocktrans count counter=sites_count %}
+            <strong>{{ counter }} website</strong>
+        {% plural %}
+            <strong>{{ counter }} websites</strong>
+        {% endblocktrans %}
+    </li>
+    <li class="list-group-item color-neutral">
+        <i class="fa fa-lg fa-question-circle color-neutral"></i>&nbsp; 
+        {% blocktrans count counter=sites_failures_count %}
+            {{ counter }} scan error
+        {% plural %}
+            {{ counter }} scan errors
         {% endblocktrans %}
     </li>
     <li class="list-group-item color-neutral">
         <i class="fa fa-lg fa-question-circle color-neutral"></i>&nbsp; 
         {% blocktrans with count=ratings_count.neutral %}
-        <strong>{{ count }} could not be judged due to missing data</strong>
+        {{ count }} could not be judged (no data)
         {% endblocktrans %}
     </li>
     <li class="list-group-item">
         <i class="fa fa-lg fa-flag"></i>&nbsp; 
-        {% blocktrans with count=blacklisted_sites_count %}
-	<strong>{{ count }} have been blacklisted by site owner <a href="#blacklisted-sites-anchor">(jump to list)</a></strong>
+        {% blocktrans count counter=blacklisted_sites_count %}
+            {{ counter }} 
+            <a href="#blacklisted-sites-anchor">is excluded from scans</a>
+        {% plural %}
+            {{ counter }} 
+            <a href="#blacklisted-sites-anchor">are excluded from scans</a>
         {% endblocktrans %}
     </li>
 </ul>
+</div>
+</div>

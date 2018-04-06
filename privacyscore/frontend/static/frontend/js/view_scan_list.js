@@ -4,3 +4,10 @@ $(function() {
         $(this).hide();
     })
 });
+
+$(function() {
+    $('#disclaimer-link').on('click', function() {
+        $('#disclaimer').show();
+        $(this).hide();
+    })
+});

@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-23 08:37+0000\n"
-"PO-Revision-Date: 2018-03-23 09:38+0100\n"
+"POT-Creation-Date: 2018-04-06 15:55+0000\n"
+"PO-Revision-Date: 2018-04-06 18:02+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Last-Translator: \n"
-"Language-Team: \n"
 "X-Generator: Poedit 2.0.6\n"
 
 #: privacyscore/evaluation/default_checks.py:28
@@ -841,49 +841,49 @@ msgstr ""
 msgid "Unknown column {}"
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/base.html:82
+#: privacyscore/frontend/templates/frontend/base.html:86
 msgid "About"
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/base.html:84
+#: privacyscore/frontend/templates/frontend/base.html:88
 msgid ""
 "PrivacyScore is a website scanning tool that allows anyone to benchmark "
 "security and privacy features of websites."
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/base.html:85
+#: privacyscore/frontend/templates/frontend/base.html:89
 msgid "Rankings are public and can be configured to one's preferences."
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/base.html:86
+#: privacyscore/frontend/templates/frontend/base.html:90
 msgid "PrivacyScore helps users, activists, and data protection authorities."
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/base.html:90
+#: privacyscore/frontend/templates/frontend/base.html:94
 msgid "Feedback"
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/base.html:91
+#: privacyscore/frontend/templates/frontend/base.html:95
 msgid "We are curious to receive your feedback."
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/base.html:92
+#: privacyscore/frontend/templates/frontend/base.html:96
 msgid "Please do not hesitate to contact us if you observe any errors."
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/base.html:93
+#: privacyscore/frontend/templates/frontend/base.html:97
 msgid "Site owners can request to exclude their sites from future scans."
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/base.html:96
+#: privacyscore/frontend/templates/frontend/base.html:100
 msgid "Beta Status"
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/base.html:97
+#: privacyscore/frontend/templates/frontend/base.html:101
 msgid "PrivacyScore is currently in public beta."
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/base.html:98
+#: privacyscore/frontend/templates/frontend/base.html:102
 msgid ""
 "While we're giving our very best, we currently cannot guarantee the accuracy "
 "of the displayed results and rankings."
@@ -1131,33 +1131,7 @@ msgstr[1] ""
 msgid "n/a"
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/ranking_summary.html:5
-#, python-format
-msgid ""
-"\n"
-"            %(counter)s website\n"
-"        "
-msgid_plural ""
-"\n"
-"            %(counter)s websites\n"
-"        "
-msgstr[0] ""
-msgstr[1] ""
-
-#: privacyscore/frontend/templates/frontend/ranking_summary.html:11
-#, python-format
-msgid ""
-"\n"
-"            (with %(counter)s scan error).\n"
-"        "
-msgid_plural ""
-"\n"
-"            (with %(counter)s scan errors).\n"
-"        "
-msgstr[0] ""
-msgstr[1] ""
-
-#: privacyscore/frontend/templates/frontend/ranking_summary.html:19
+#: privacyscore/frontend/templates/frontend/ranking_summary.html:8
 #, python-format
 msgid ""
 "\n"
@@ -1165,7 +1139,7 @@ msgid ""
 "        "
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/ranking_summary.html:25
+#: privacyscore/frontend/templates/frontend/ranking_summary.html:14
 #, python-format
 msgid ""
 "\n"
@@ -1173,38 +1147,72 @@ msgid ""
 "        "
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/ranking_summary.html:31
+#: privacyscore/frontend/templates/frontend/ranking_summary.html:20
 #, python-format
 msgid ""
 "\n"
-"        <strong>%(count)s failed all tests in at least one group</strong>\n"
+"        <strong>%(count)s failed all checks within a group</strong>\n"
 "        "
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/ranking_summary.html:37
+#: privacyscore/frontend/templates/frontend/ranking_summary.html:26
 #, python-format
 msgid ""
 "\n"
-"        <strong>%(count)s failed at least one critical check</strong>\n"
+"        <strong>%(count)s failed critical checks</strong>\n"
 "        "
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/ranking_summary.html:43
+#: privacyscore/frontend/templates/frontend/ranking_summary.html:36
 #, python-format
 msgid ""
 "\n"
-"        <strong>%(count)s could not be judged due to missing data</strong>\n"
+"            <strong>%(counter)s website</strong>\n"
+"        "
+msgid_plural ""
+"\n"
+"            <strong>%(counter)s websites</strong>\n"
+"        "
+msgstr[0] ""
+msgstr[1] ""
+
+#: privacyscore/frontend/templates/frontend/ranking_summary.html:44
+#, python-format
+msgid ""
+"\n"
+"            %(counter)s scan error\n"
+"        "
+msgid_plural ""
+"\n"
+"            %(counter)s scan errors\n"
+"        "
+msgstr[0] ""
+msgstr[1] ""
+
+#: privacyscore/frontend/templates/frontend/ranking_summary.html:52
+#, python-format
+msgid ""
+"\n"
+"        %(count)s could not be judged (no data)\n"
 "        "
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/ranking_summary.html:49
+#: privacyscore/frontend/templates/frontend/ranking_summary.html:58
 #, python-format
 msgid ""
 "\n"
-"\t<strong>%(count)s have been blacklisted by site owner <a href="
-"\"#blacklisted-sites-anchor\">(jump to list)</a></strong>\n"
+"            %(counter)s \n"
+"            <a href=\"#blacklisted-sites-anchor\">is excluded from scans</"
+"a>\n"
 "        "
-msgstr ""
+msgid_plural ""
+"\n"
+"            %(counter)s \n"
+"            <a href=\"#blacklisted-sites-anchor\">are excluded from scans</"
+"a>\n"
+"        "
+msgstr[0] ""
+msgstr[1] ""
 
 #: privacyscore/frontend/templates/frontend/roadmap.html:4
 #: privacyscore/frontend/templates/frontend/roadmap.html:7
@@ -1271,19 +1279,166 @@ msgstr ""
 msgid "Results Overview"
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/view_scan_list.html:52
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:48
+msgid ""
+"<strong>Take the results shown on this page with a grain of salt!</strong> "
+"Some of our checks may report wrong results."
+msgstr ""
+
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:50
+msgid "What is this?"
+msgstr ""
+
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:50
+msgid ""
+"This page shows a summary of a machine-generated analysis of several web "
+"pages commissioned by a PrivacyScore user. During the analysis it was "
+"checked whether the privacy of the visitors is protected on a technical "
+"level as well as possible when visiting the given Internet addresses, and "
+"whether the operator uses common security mechanisms on the website. This "
+"can indicate how seriously an operator takes data protection. However, it is "
+"not possible to determine the actual security level achieved."
+msgstr ""
+"Auf dieser Seite sehen Sie eine Zusammenfassung einer maschinell erstellten "
+"Analyse von mehreren Webseiten, die ein Benutzer von PrivacyScore in Auftrag "
+"gegeben hat. Bei der Analyse wurde überprüft, ob beim Besuch der jeweils "
+"angegebenen Internetadressen die Privatsphäre der Besucher technisch "
+"möglichst gut geschützt wird und ob der Betreiber auf der Webseite gängige "
+"Sicherheitsmechanismen einsetzt. Dies kann Hinweise darauf geben, wie ernst "
+"ein Betreiber den Datenschutz nimmt. Das tatsächlich erreichte "
+"Sicherheitsniveau lässt sich dadurch allerdings nicht ermitteln."
+
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:50
+msgid "More details please!"
+msgstr "Mehr Details bitte!"
+
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:54
+msgid ""
+"\n"
+"                <p><strong>How are the results presented?</strong> Our "
+"analysis focuses on the following aspects: whether tracking services are "
+"used (\"NoTrack\" category), whether selected attacks are prevented, the "
+"quality of encryption during data transmission to the website (EncWeb), and "
+"the quality when sending e-mails to an existing e-mail server (EncMail). You "
+"can control how important these four criteria are for you with the arrows in "
+"the column headings.</p>\n"
+"\n"
+"                <p><strong>What exactly is checked and what do the results "
+"mean?</strong> We check the internet addresses with several techniques, "
+"which we have described in detail in a research paper. You can display a "
+"list of all checks and explanations of their relevance by clicking on the "
+"address of a web page to display its detailed results.</p>\n"
+"\n"
+"                <p><strong>What is the purpose of PrivacyScore?</strong> "
+"With PrivacyScore we make websites publicly comparable in terms of selected "
+"properties. As scientists, we are interested in how users and operators deal "
+"with this form of transparency. Among other things, this raises the question "
+"of whether website operators have an additional incentive to improve their "
+"websites.</p>\n"
+"\n"
+"                <p><strong>What can be concluded from the results, what not?"
+"</strong></p>\n"
+"\n"
+"                <p><strong>No statement about the importance of the "
+"categories.</strong> The table sorts the listed web pages according to the "
+"importance you specify. The further up a website is sorted, the more tests "
+"it has passed in the respective categories. In the event of a tie, the "
+"following category will decide. The default sorting is according to the "
+"category \"No Track\", followed by \"EncWeb\", \"Attacks\", and \"EncMail\". "
+"However, this default ranking should not be interpreted as an indication of "
+"the importance of the categories.</p>\n"
+"\n"
+"                <p><strong>No statement on necessity.</strong> The fact that "
+"a web page is ranked at the lower end says nothing about its absolute "
+"security level. The results shown on this page merely provide information on "
+"how the listed websites perform in a direct comparison. Some security "
+"mechanisms are only necessary to protect against strong attacks (e.g., "
+"governments).</p>\n"
+"\n"
+"                <p><strong>Limited expressiveness.</strong> The results "
+"cover only security mechanisms that can be observed from outside when "
+"visiting the specified Internet addresses. It is quite possible that an "
+"operator uses additional internal protection mechanisms and therefore has "
+"decided to leave out some externally visible mechanisms. Furthermore, it is "
+"possible that additional security mechanisms are used on individual pages (e."
+"g., for the transmission of passwords). However, such variations are not "
+"taken into account in the analysis. Therefore, one cannot conclude from the "
+"failure of individual tests that a provider does not handle personal data "
+"with sufficient care. On the other hand, however, it is also possible that a "
+"website has serious security holes, although it achieves a good result on "
+"this page.</p>\n"
+"                "
+msgstr ""
+"\n"
+"                <p><strong>Wie werden die Ergebnisse dargestellt?</strong> "
+"Im einzelnen untersuchen wir, ob Tracking-Dienste verwendet werden "
+"(Kategorie „NoTrack“), ob ausgewählte Angriffe verhindert werden (Attacks) "
+"sowie die Qualität der Verschlüsselung bei der Datenübertragung zur Webseite "
+"(EncWeb) bzw. beim Versand von Mails an einen ggf. vorhandenen E-Mail-Server "
+"(EncMail). Wie wichtig Ihnen diese vier Kriterien sind, können Sie selbst "
+"mit den Pfeilen in den Spaltenüberschriften beeinflussen.</p>\n"
+"\n"
+"                <p><strong>Was genau wird überprüft und was bedeuten die "
+"Ergebnisse?</strong> Wir überprüfen die Internetadressen mit mehreren "
+"Techniken, die wir in einem *Forschungspapier* ausführlich beschrieben "
+"haben. Eine Aufstellung der einzelnen Prüfungen und Erklärungen zu deren "
+"Relevanz erhalten Sie, wenn Sie sich das Detailergebnis einer Webseite "
+"anzeigen lassen.</p>\n"
+"\n"
+"                <p><strong>Welchen Zweck hat PrivacyScore?</strong> Mit "
+"PrivacyScore machen wir Webseiten im Hinblick auf ausgewählte Eigenschaften "
+"öffentlich vergleichbar. Als Wissenschaftler interessiert uns, wie Nutzer "
+"und Betreiber mit dieser Form von Transparenz umgehen. Unter anderem stellt "
+"sich die Frage, ob Betreiber von Webseiten dadurch einen zusätzlichen Anreiz "
+"zur Verbesserung ihrer Webseiten haben.</p>\n"
+"\n"
+"                <p><strong>Was kann man aus den Ergebnissen ablesen, was "
+"nicht?</strong></p>\n"
+"\n"
+"                <p><strong>Keine Aussage zur Wichtigkeit der Kategorien.</"
+"strong> In der Tabelle werden die aufgelisteten Webseiten gemäß der von "
+"Ihnen festgelegten Wichtigkeit sortiert. Je weiter oben eine Webseite "
+"einsortiert wird, desto mehr Prüfungen hat sie in den jeweiligen Kategorien "
+"bestanden. Bei Gleichstand entscheidet die jeweils darauffolgende Kategorie. "
+"Voreingestellt ist die Sortierung nach Kategorie „No Track“, gefolgt von "
+"„EncWeb“, „Attacks“ und „EncMail“. Diese Reihung sagt jedoch nichts über die "
+"Wichtigkeit der Kategorien aus.</p>\n"
+"\n"
+"                <p><strong>Keine Aussage zur Erforderlichkeit.</strong> Dass "
+"eine Webseite auf einem hinteren Platz einsortiert wird, sagt nichts über "
+"das absolute Sicherheitsniveau aus. Die Ergebnisse der Seite geben lediglich "
+"Auskunft darüber, wie die gelisteten Webseiten im direkten Vergleich "
+"abschneiden. Einige Sicherheitsmechanismen sind lediglich erforderlich, um "
+"vor starken Angreifen (z.B. Regierungen) zu schützen.</p>\n"
+"\n"
+"                <p><strong>Beschränkte Aussagekraft.</strong> Die Ergebnisse "
+"beziehen sich ausschließlich auf Sicherheitsmechanismen, die beim Besuch der "
+"angegebenen Internetadressen von außen beobachtbar sind. Es ist durchaus "
+"möglich, dass ein Betreiber intern zusätzliche Schutzmechanismen einsetzt "
+"und daher auf einige von außen sichtbare Mechanismen verzichtet. Weiterhin "
+"kann es sein, dass auf einzelnen Seiten (z.B. bei der Übertragung von "
+"Passwörtern) zusätzliche Sicherheitsmechanismen eingesetzt werden. Solche "
+"Abweichungen werden in der Auswertung allerdings nicht berücksichtigt. Daher "
+"kann man einerseits aus dem Fehlschlagen einzelner Prüfungen nicht folgern, "
+"dass ein Anbieter nicht ausreichend sorgfältig mit personenbezogenen Daten "
+"umgeht. Auf der anderen Seite ist es allerdings auch möglich, dass eine "
+"Webseite schwere Sicherheitslücken aufweist, obwohl sie ein gutes Ergebnis "
+"erzielt.</p>\n"
+"                "
+
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:74
 msgid "Configure sorting and grouping"
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/view_scan_list.html:55
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:77
 msgid "Sorting and grouping"
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/view_scan_list.html:71
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:93
 msgid "Configure"
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/view_scan_list.html:92
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:114
 #, python-format
 msgid ""
 "\n"
@@ -1298,22 +1453,46 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: privacyscore/frontend/templates/frontend/view_scan_list.html:101
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:123
 #: privacyscore/frontend/templates/frontend/view_site.html:168
 msgid "Refresh Page"
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/view_scan_list.html:113
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:135
 msgid "Download List as CSV"
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/view_scan_list.html:138
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:160
 #, python-format
 msgid "Ranking by attribute “%(group_attr)s”"
 msgstr ""
 
-#: privacyscore/frontend/templates/frontend/view_scan_list.html:140
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:162
 msgid "Ranking"
+msgstr ""
+
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:177
+msgid "Sites excluded from scans"
+msgstr ""
+
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:182
+msgid ""
+"The owners of these sites have asked us to not perform further scans. For "
+"reasons of transparency we archive the result of the last successful scan in "
+"the table found below. Note that it is possible that site owners have "
+"implemented changes to their site in the meantime, which are not reflected "
+"in these outdated results."
+msgstr ""
+
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:189
+msgid ""
+"Site owners can ask us to not perform further scans of their sites. For "
+"reasons of transparency we archive the result of the last successful scan "
+"here."
+msgstr ""
+
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:190
+msgid "No sites are excluded from scans at the moment."
 msgstr ""
 
 #: privacyscore/frontend/templates/frontend/view_site.html:128

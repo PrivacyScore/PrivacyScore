@@ -42,10 +42,32 @@
             
             <div class="spacer"></div>
             
-            <h3 id="results">{% trans "Results Overview" %}</h3>
+            <!-- <h3 id="results">{% trans "Results Overview" %}</h3> -->
             {% include 'frontend/ranking_summary.html' with sites_count=sites_count blacklisted_sites_count=blacklisted_sites_count sites_failures_count=sites_failures_count ratings_count=ratings_count %}
             
-            <p><strong>Take this with a grain of salt!</strong> Some of our checks may report wrong results. <span class="label label-warning">BETA</span></p>
+            <p>{% trans "<strong>Take the results shown on this page with a grain of salt!</strong> Some of our checks may report wrong results." %}</p>
+
+            <p id="disclaimer-short"><strong>{% trans "What is this?" %}</strong> {% trans "This page shows a summary of a machine-generated analysis of several web pages commissioned by a PrivacyScore user. During the analysis it was checked whether the privacy of the visitors is protected on a technical level as well as possible when visiting the given Internet addresses, and whether the operator uses common security mechanisms on the website. This can indicate how seriously an operator takes data protection. However, it is not possible to determine the actual security level achieved." %} &nbsp;<a class="label label-primary" id="disclaimer-link">{% trans "More details please!" %}</a></p>
+
+
+            <div style="display:none" id="disclaimer">
+                {% blocktrans %}
+                <p><strong>How are the results presented?</strong> Our analysis focuses on the following aspects: whether tracking services are used ("NoTrack" category), whether selected attacks are prevented, the quality of encryption during data transmission to the website (EncWeb), and the quality when sending e-mails to an existing e-mail server (EncMail). You can control how important these four criteria are for you with the arrows in the column headings.</p>
+
+                <p><strong>What exactly is checked and what do the results mean?</strong> We check the internet addresses with several techniques, which we have described in detail in a research paper. You can display a list of all checks and explanations of their relevance by clicking on the address of a web page to display its detailed results.</p>
+
+                <p><strong>What is the purpose of PrivacyScore?</strong> With PrivacyScore we make websites publicly comparable in terms of selected properties. As scientists, we are interested in how users and operators deal with this form of transparency. Among other things, this raises the question of whether website operators have an additional incentive to improve their websites.</p>
+
+                <p><strong>What can be concluded from the results, what not?</strong></p>
+
+                <p><strong>No statement about the importance of the categories.</strong> The table sorts the listed web pages according to the importance you specify. The further up a website is sorted, the more tests it has passed in the respective categories. In the event of a tie, the following category will decide. The default sorting is according to the category "No Track", followed by "EncWeb", "Attacks", and "EncMail". However, this default ranking should not be interpreted as an indication of the importance of the categories.</p>
+
+                <p><strong>No statement on necessity.</strong> The fact that a web page is ranked at the lower end says nothing about its absolute security level. The results shown on this page merely provide information on how the listed websites perform in a direct comparison. Some security mechanisms are only necessary to protect against strong attacks (e.g., governments).</p>
+
+                <p><strong>Limited expressiveness.</strong> The results cover only security mechanisms that can be observed from outside when visiting the specified Internet addresses. It is quite possible that an operator uses additional internal protection mechanisms and therefore has decided to leave out some externally visible mechanisms. Furthermore, it is possible that additional security mechanisms are used on individual pages (e.g., for the transmission of passwords). However, such variations are not taken into account in the analysis. Therefore, one cannot conclude from the failure of individual tests that a provider does not handle personal data with sufficient care. On the other hand, however, it is also possible that a website has serious security holes, although it achieves a good result on this page.</p>
+                {% endblocktrans %}
+            </div>
+
             
             <div class="spacer"></div>
             
@@ -152,20 +174,20 @@
         {% include "frontend/ranking_list.html" with site_list=site_list sites=sites %}
     {% endif %}
 
-    <h3 id="blacklisted-sites-anchor">Blacklisted sites</h3>
+    <h3 id="blacklisted-sites-anchor">{% trans "Sites excluded from scans" %}</h3>
 
 
     {% if blacklisted_sites_count %}
 	<div class="col-md-8" style="padding-left:0">
-        <p>The following sites have been blacklisted. The owners of these sites have asked us to not perform further scans. For reasons of transparency we display the results of the last scan before the sites were blacklisted. The owners may have implemented changes in the meantime, which are not visible in the results below.</p>
+            <p>{% trans "The owners of these sites have asked us to not perform further scans. For reasons of transparency we archive the result of the last successful scan in the table found below. Note that it is possible that site owners have implemented changes to their site in the meantime, which are not reflected in these outdated results." %}</p>
         </div>
         {% include "frontend/ranking_list.html" with site_list=site_list sites=blacklisted_sites %}
 
     {% else %}
 
 	<div class="col-md-8" style="padding-left:0">
-        <p>Site owners can ask us to not perform further scans. For reasons of transparency we display the results of the last scan before the blacklisting here.</p>
-        <p><em>No sites of this list have been blacklisted so far.</em></p>
+            <p>{% trans "Site owners can ask us to not perform further scans of their sites. For reasons of transparency we archive the result of the last successful scan here." %}</p>
+            <p><em>{% trans "No sites are excluded from scans at the moment." %}</em></p>
         </div>
     {% endif %}
 
