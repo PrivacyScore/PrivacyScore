@@ -8,6 +8,7 @@
 
 <div class="row">
     <div class="col-lg-8">
+        {% blocktrans %}
         <h3>For Internet Users</h3>
         <div class="hline"></div>
         <br>
@@ -21,6 +22,8 @@
         <b>A:</b> We can only assess things that can be determined automatically. PrivacyScore does not analyze privacy policies or make any statements about the general trustworthiness of the website.
         <br>
         <br>
+        {% endblocktrans %}
+        {% blocktrans %}
         <h3>For Website Operators</h3>
         <div class="hline"></div>
         <br>
@@ -36,9 +39,11 @@
         <br>
         <b>Q:</b> I want to blacklist your scanning machines. What are their IP addresses?
         <br>
+        {% endblocktrans %}
         <b>A:</b> Our scanning machines use the following IP addresses: 134.100.14.111, 134.100.14.112, 134.100.14.113, 134.100.14.115, 134.100.14.116, 134.100.14.117, 134.100.14.118, 134.100.14.119, 134.100.14.120, 134.100.14.121, 134.100.14.122, 134.100.48.194, 193.174.89.26
         <br>
         <br>
+        {% blocktrans %}
         <h3>For Data Protection Officers, Privacy Activists and Researchers</h3>
         <div class="hline"></div>
         <br>
@@ -52,17 +57,18 @@
         <b>A:</b> We are currently very busy improving the stability of our code. However, we are happy to include additional tests if they can be performed automatically with sufficient accuracy.
         <br>
         <br>
+        {% endblocktrans %}
         <h3>Trivia</h3>
         <div class="hline"></div>
         <p>
-          <b>Q:</b> How many sites are in your database?<br />
+        <b>Q:</b>{% trans "How many sites are in your database?" %}<br />
           <b>A:</b> {{ num_sites }}
         </p>
         <p>
-          <b>Q:</b> How many sites are currently in the scanning queue?<br />
+        <b>Q:</b> i{% trans "How many sites are currently in the scanning queue?" %}<br />
           <b>A:</b> {{ num_scanning_sites }}
         </p>
-        <b>Q:</b> How many scans have you performed so far?
+        <b>Q:</b> {% trans "How many scans have you performed so far?" %}
         <p>
           <b>A:</b> {{ num_scans }}<br />
         </p>

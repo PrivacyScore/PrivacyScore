@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-06 15:55+0000\n"
-"PO-Revision-Date: 2018-04-06 18:02+0200\n"
+"POT-Creation-Date: 2018-04-06 21:30+0000\n"
+"PO-Revision-Date: 2018-04-06 23:43+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -841,69 +841,92 @@ msgstr ""
 msgid "Unknown column {}"
 msgstr ""
 
+#: privacyscore/frontend/templates/frontend/base.html:78
+#: privacyscore/frontend/templates/frontend/base.html:80
+msgid "All times are shown in UTC (GMT+0)."
+msgstr "Alle angezeigten Zeiten sind in UTC (GMT+0)."
+
 #: privacyscore/frontend/templates/frontend/base.html:86
 msgid "About"
-msgstr ""
+msgstr "Über das Projekt"
 
 #: privacyscore/frontend/templates/frontend/base.html:88
 msgid ""
 "PrivacyScore is a website scanning tool that allows anyone to benchmark "
 "security and privacy features of websites."
 msgstr ""
+"PrivacyScore ist ein Website-Scanner, mit dem jeder die Sicherheits- und "
+"Datenschutzfunktionen von Websites bewerten kann."
 
 #: privacyscore/frontend/templates/frontend/base.html:89
 msgid "Rankings are public and can be configured to one's preferences."
 msgstr ""
+"Rankings sind öffentlich und können nach eigenen Wünschen konfiguriert "
+"werden."
 
 #: privacyscore/frontend/templates/frontend/base.html:90
 msgid "PrivacyScore helps users, activists, and data protection authorities."
-msgstr ""
+msgstr "PrivacyScore hilft Benutzern, Aktivisten und Datenschutzbehörden."
 
 #: privacyscore/frontend/templates/frontend/base.html:94
 msgid "Feedback"
-msgstr ""
+msgstr "Feedback"
 
 #: privacyscore/frontend/templates/frontend/base.html:95
 msgid "We are curious to receive your feedback."
-msgstr ""
+msgstr "Wir freuen uns über Ihr Feedback."
 
 #: privacyscore/frontend/templates/frontend/base.html:96
 msgid "Please do not hesitate to contact us if you observe any errors."
 msgstr ""
+"Bitte zögern Sie nicht, uns zu kontaktieren, wenn Sie Fehler feststellen."
 
 #: privacyscore/frontend/templates/frontend/base.html:97
 msgid "Site owners can request to exclude their sites from future scans."
 msgstr ""
+"Seitenbetreiber können uns bitten, keine weiteren Scans ihrer Seiten "
+"durchzuführen."
 
 #: privacyscore/frontend/templates/frontend/base.html:100
 msgid "Beta Status"
-msgstr ""
+msgstr "Beta-Status"
 
 #: privacyscore/frontend/templates/frontend/base.html:101
 msgid "PrivacyScore is currently in public beta."
-msgstr ""
+msgstr "PrivacyScore befindet sich derzeit in der öffentlichen Beta-Phase."
 
 #: privacyscore/frontend/templates/frontend/base.html:102
 msgid ""
 "While we're giving our very best, we currently cannot guarantee the accuracy "
 "of the displayed results and rankings."
 msgstr ""
+"Obwohl wir unser Bestes geben, können wir derzeit nicht für die Richtigkeit "
+"der angezeigten Ergebnisse und Rankings garantieren."
+
+#: privacyscore/frontend/templates/frontend/base.html:111
+msgid "All texts published on this site are licensed under"
+msgstr "Alle hier veröffentlichten Texte sind lizenziert unter"
+
+#: privacyscore/frontend/templates/frontend/base.html:124
+#: privacyscore/frontend/templates/frontend/imprint.html:7
+msgid "Imprint / Impressum"
+msgstr "Impressum"
 
 #: privacyscore/frontend/templates/frontend/browse.html:34
 msgid "Browse Lists"
-msgstr ""
+msgstr "Verfügbare Listen"
 
 #: privacyscore/frontend/templates/frontend/browse.html:45
 msgid "Search in list descriptions and tags"
-msgstr ""
+msgstr "Listenbeschreibungen und Tags durchsuchen"
 
 #: privacyscore/frontend/templates/frontend/browse.html:47
 msgid "Search"
-msgstr ""
+msgstr "Suchen"
 
 #: privacyscore/frontend/templates/frontend/browse.html:147
 msgid "previous"
-msgstr ""
+msgstr "zurück"
 
 #: privacyscore/frontend/templates/frontend/browse.html:151
 #, python-format
@@ -912,86 +935,467 @@ msgid ""
 "                    Page %(page)s of %(pages)s.\n"
 "                    "
 msgstr ""
+"\n"
+"                    Seite %(page)s von %(pages)s.\n"
+"                    "
 
 #: privacyscore/frontend/templates/frontend/browse.html:157
 msgid "next"
-msgstr ""
+msgstr "weiter"
 
 #: privacyscore/frontend/templates/frontend/checks.html:4
 #: privacyscore/frontend/templates/frontend/checks.html:7
 msgid "Checks"
-msgstr ""
+msgstr "Checks"
 
 #: privacyscore/frontend/templates/frontend/code.html:4
 msgid "Code"
-msgstr ""
+msgstr "Code"
 
 #: privacyscore/frontend/templates/frontend/code.html:11
 msgid "Open Source Policy"
-msgstr ""
+msgstr "Open-Source-Policy"
 
 #: privacyscore/frontend/templates/frontend/create_site.html:18
 msgid "Scan site"
-msgstr ""
+msgstr "Seite scannen"
 
 #: privacyscore/frontend/templates/frontend/faq.html:4
 msgid "FAQ"
-msgstr ""
+msgstr "FAQ"
 
 #: privacyscore/frontend/templates/frontend/faq.html:7
 msgid "Frequently Asked Questions"
+msgstr "Häufig gestellte Fragen"
+
+#: privacyscore/frontend/templates/frontend/faq.html:11
+msgid ""
+"\n"
+"        <h3>For Internet Users</h3>\n"
+"        <div class=\"hline\"></div>\n"
+"        <br>\n"
+"        <b>Q:</b> Your scoring and ranking does not fit my preferences. Can "
+"I change the composition of test groups?\n"
+"        <br>\n"
+"        <b>A:</b> Unfortunately, this is not possible at the moment. This "
+"will be possible after the beta phase.\n"
+"        <br>\n"
+"        <br>\n"
+"        <b>Q:</b> Do you also check what the websites will do with my "
+"personal information?\n"
+"        <br>\n"
+"        <b>A:</b> We can only assess things that can be determined "
+"automatically. PrivacyScore does not analyze privacy policies or make any "
+"statements about the general trustworthiness of the website.\n"
+"        <br>\n"
+"        <br>\n"
+"        "
 msgstr ""
+"\n"
+"        <h3>Für Internetbenutzer</h3>\n"
+"        <div class=\"hline\"></div>\n"
+"        <br>\n"
+"        <b>Q:</b> Das Standard-Scoring und -Ranking-Schema entspricht nicht "
+"meinen Vorstellungen. Kann ich die Zusammensetzung der Check-Gruppen "
+"ändern?\n"
+"        <br>\n"
+"        <b>A:</b> Leider ist dies derzeit nicht möglich. Dies wird nach der "
+"Beta-Phase möglich sein.\n"
+"        <br>\n"
+"        <br>\n"
+"        <b>Q:</b> Überprüft PrivacyScore was die Webseiten mit meinen "
+"persönlichen Daten machen werden?\n"
+"        <br>\n"
+"        <b>A:</b> Wir können nur Dinge beurteilen, die automatisch ermittelt "
+"werden können. PrivacyScore analysiert keine Datenschutzrichtlinien und kann "
+"auch keine Aussagen über die grundsätzliche Vertrauenswürdigkeit von "
+"Webseiten machen.\n"
+"        <br>\n"
+"        <br>\n"
+"        "
+
+#: privacyscore/frontend/templates/frontend/faq.html:26
+msgid ""
+"\n"
+"        <h3>For Website Operators</h3>\n"
+"        <div class=\"hline\"></div>\n"
+"        <br>\n"
+"        <b>Q:</b> My site has been scanned by PrivacyScore. I do not want to "
+"be scanned in the future.\n"
+"        <br>\n"
+"        <b>A:</b> Please <a href=\"mailto:privacyscore@mailhost.informatik."
+"uni-hamburg.de\">contact us via e-mail</a> and we will add you to our "
+"blacklist.\n"
+"        <br>\n"
+"        <br>\n"
+"        <b>Q:</b> My site has been scanned by PrivacyScore. The results are "
+"wrong.\n"
+"        <br>\n"
+"        <b>A:</b> We are sorry for this mistake. Please <a href=\"mailto:"
+"privacyscore@mailhost.informatik.uni-hamburg.de\">contact us via e-mail</a>. "
+"We will amend the erroneous result and use your feedback to improve the "
+"corresponding test.\n"
+"        <br>\n"
+"        <br>\n"
+"        <b>Q:</b> I want to blacklist your scanning machines. What are their "
+"IP addresses?\n"
+"        <br>\n"
+"        "
+msgstr ""
+"\n"
+"        <h3>Für Website-Betreiber </h3>\n"
+"        <div class=\"hline\"></div>\n"
+"        <br>\n"
+"        <b>Q:</b> Meine Seite wurde von PrivacyScore gescannt. Ich möchte in "
+"Zukunft nicht mehr gescannt werden.\n"
+"        <br>\n"
+"        <b>A:</b> Bitte <a href=\"mailto:privacyscore@mailhost.informatik."
+"uni-hamburg.de\">kontaktieren Sie uns per E-Mail</a>. Wir werden Ihre Seite "
+"dann nicht mehr scannen.\n"
+"        <br>\n"
+"        <br>\n"
+"        <b>Q:</b> Meine Seite wurde von PrivacyScore gescannt. Die "
+"Ergebnisse sind falsch.\n"
+"        <br>\n"
+"        <b>A:</b> Dieser Fehler tut uns leid. Bitte <a href=\"mailto:"
+"privacyscore@mailhost.informatik.uni-hamburg.de\">kontaktieren Sie uns per E-"
+"Mail </a>. Wir werden das fehlerhafte Ergebnis korrigieren und Ihr Feedback "
+"nutzen, um den entsprechenden Test zu verbessern.\n"
+"        <br>\n"
+"        <br>\n"
+"        <b>Q:</b> Ich möchte Ihre Scanner auf meine IP-Blocklist setzen. Wie "
+"lauten ihre IP-Adressen?\n"
+"        <br>\n"
+"        "
+
+#: privacyscore/frontend/templates/frontend/faq.html:46
+msgid ""
+"\n"
+"        <h3>For Data Protection Officers, Privacy Activists and Researchers</"
+"h3>\n"
+"        <div class=\"hline\"></div>\n"
+"        <br>\n"
+"        <b>Q:</b> Can we host a separate instance of PrivacyScore on our own "
+"servers?\n"
+"        <br>\n"
+"        <b>A:</b> Yes. We have published our source code including scripts "
+"for simplified  deployment. See the <a href=\"/code/\">Code</a> section on "
+"our website for more details.\n"
+"        <br>\n"
+"        <br>\n"
+"        <b>Q:</b> We have ideas for additional tests. Can you include those "
+"in PrivacyScore?\n"
+"        <br>\n"
+"        <b>A:</b> We are currently very busy improving the stability of our "
+"code. However, we are happy to include additional tests if they can be "
+"performed automatically with sufficient accuracy.\n"
+"        <br>\n"
+"        <br>\n"
+"        "
+msgstr ""
+"\n"
+"        <h3>Für Datenschutzbeauftragte, Datenschutzbeauftragte und Forscher "
+"</h3>\n"
+"        <div class=\"hline\"></div>\n"
+"        <br>\n"
+"        <b>Q:</b> Können wir eine separate Instanz von PrivacyScore auf "
+"unseren eigenen Servern hosten?\n"
+"        <br>\n"
+"        <b>A:</b> Ja. Wir haben unseren Quellcode mit Skripten zur relativ "
+"einfachen Bereitstellung veröffentlicht. Siehe den Abschnitt <a href=\"/code/"
+"\">Code</a> auf unserer Website für weitere Details.\n"
+"        <br>\n"
+"        <br>\n"
+"        <b>Q:</b> Wir haben Ideen für zusätzliche Tests. Können Sie diese in "
+"PrivacyScore aufnehmen?\n"
+"        <br>\n"
+"        <b>A:</b> Wir sind derzeit sehr damit beschäftigt, die Stabilität "
+"unseres Codes zu verbessern. Gerne nehmen wir jedoch zusätzliche Tests auf, "
+"wenn diese automatisch und mit ausreichender Genauigkeit durchgeführt werden "
+"können.\n"
+"        <br>\n"
+"        <br>\n"
+"        "
+
+#: privacyscore/frontend/templates/frontend/faq.html:64
+msgid "How many sites are in your database?"
+msgstr "Wie viele Seiten befinden sich in der Datenbank?"
+
+#: privacyscore/frontend/templates/frontend/faq.html:68
+msgid "How many sites are currently in the scanning queue?"
+msgstr "Wie viele Seiten sind derzeit in der Warteschlange?"
+
+#: privacyscore/frontend/templates/frontend/faq.html:71
+msgid "How many scans have you performed so far?"
+msgstr "Wie viele Scans wurden bisher durchgeführt?"
 
 #: privacyscore/frontend/templates/frontend/imprint.html:4
 msgid "Imprint"
-msgstr ""
-
-#: privacyscore/frontend/templates/frontend/imprint.html:7
-msgid "Imprint / Impressum"
-msgstr ""
+msgstr "Impressum"
 
 #: privacyscore/frontend/templates/frontend/index.html:6
 msgid "Welcome"
-msgstr ""
+msgstr "Willkommen"
 
 #: privacyscore/frontend/templates/frontend/index.html:11
 msgid "Compare Websites with PrivacyScore"
-msgstr ""
+msgstr "Webseiten vergleichen mit PrivacyScore"
 
 #: privacyscore/frontend/templates/frontend/index.html:12
 msgid ""
 "PrivacyScore allows you to test websites and rank them according to their "
 "security and privacy features."
 msgstr ""
+"PrivacyScore erlaubt Ihnen, Websites hinsichtlich einer Reihe von "
+"Sicherheits- und Datenschutzfunktionen zu bewerten."
+
+#: privacyscore/frontend/templates/frontend/index.html:16
+msgid "Create new site list"
+msgstr "Eigene Liste erstellen"
 
 #: privacyscore/frontend/templates/frontend/index.html:17
 msgid "or scan a single site immediately"
-msgstr ""
+msgstr "oder eine bestimmte Seite direkt scannen"
 
 #: privacyscore/frontend/templates/frontend/index.html:21
 msgid "URL, e.g. privacyscore.org"
-msgstr ""
+msgstr "URL, z.B. privacyscore.org"
 
 #: privacyscore/frontend/templates/frontend/index.html:25
 msgid "SCAN"
-msgstr ""
+msgstr "LOS"
 
-#: privacyscore/frontend/templates/frontend/index.html:70
-#: privacyscore/frontend/templates/frontend/index.html:73
+#: privacyscore/frontend/templates/frontend/index.html:37
+msgid ""
+"<strong>PrivacyScore is in public beta since 8 June 2017.</strong><br>We "
+"post updates on <a href=\"https://twitter.com/privascore\">Twitter</a>."
+msgstr ""
+"<strong>PrivacyScore ist seit dem 8. Juni 2017 in einer öffentlichen Beta-"
+"Phase. </strong><br>Wir veröffentlichen Updates auf <a href=\"https://"
+"twitter.com/privascore\">Twitter</a>."
+
+#: privacyscore/frontend/templates/frontend/index.html:38
+msgid ""
+"Some parts of the site are also available in German. Please contact us if "
+"you want to contribute by translating the site."
+msgstr ""
+"Einige Teile der Seite sind auch in deutscher Sprache verfügbar. Bitte "
+"melden Sie sich, wenn Sie uns bei der Übersetzung der Seite helfen möchten."
+
+#: privacyscore/frontend/templates/frontend/index.html:39
+msgid ""
+"Note that it is not possible to edit lists at the moment. Feel free to "
+"create a new list and inform us so that we can delete the previous version."
+msgstr ""
+"Beachten Sie, dass es derzeit nicht möglich ist, Listen zu bearbeiten. "
+"Erstellen Sie stattdessen einfach eine neue Liste auf Basis der alten und "
+"informieren Sie uns darüber, damit wir die alte Liste löschen können."
+
+#: privacyscore/frontend/templates/frontend/index.html:46
+msgid "Lists in the Spotlight"
+msgstr "Listen im Fokus"
+
+#: privacyscore/frontend/templates/frontend/index.html:47
+msgid ""
+"We present selected lists of websites that have been added to PrivacyScore."
+"<br>Long lists load quite slowly. Please be patient."
+msgstr ""
+"Wir präsentieren ausgewählte Listen von Websites, die bereits verfügbar sind."
+"<br>Lange Listen laden ziemlich langsam. Bitte haben Sie Geduld."
+
+#: privacyscore/frontend/templates/frontend/index.html:47
+msgid "IMPROVEMENTS UNDERWAY"
+msgstr "VERBESSERUNGEN IN ARBEIT"
+
+#: privacyscore/frontend/templates/frontend/index.html:71
+#: privacyscore/frontend/templates/frontend/index.html:74
 msgid "Create your own list"
-msgstr ""
-
-#: privacyscore/frontend/templates/frontend/index.html:77
-msgid "Do you want to submit your own list of websites?"
-msgstr ""
+msgstr "Eigene Liste erstellen"
 
 #: privacyscore/frontend/templates/frontend/index.html:78
+msgid "Do you want to submit your own list of websites?"
+msgstr "Möchten Sie Ihre eigene Liste von Websites hochladen?"
+
+#: privacyscore/frontend/templates/frontend/index.html:79
 msgid "You are just one click away!"
+msgstr "Sie sind nur einen Klick entfernt!"
+
+#: privacyscore/frontend/templates/frontend/index.html:89
+#, python-format
+msgid ""
+"\n"
+"            <div class=\"col-md-5 col-md-push-1\">\n"
+"                <h2>What is PrivacyScore?</h2>\n"
+"\n"
+"                <p>PrivacyScore is an automated website scanner that allows "
+"you to investigate Websites for privacy and security issues. You can scan "
+"individual websites, or enter a list of related websites to see how they "
+"compare against each other.\n"
+"                </p>\n"
+"                \n"
+"                <h2>What PrivacyScore is not</h2>\n"
+"                <p>The tests carried out by PrivacyScore have been tested "
+"extensively. However we consider most them to be <strong>unreliable</strong> "
+"at the moment.</p>\n"
+"                <p>At the moment, PrivacyScore can only report on technical "
+"security and privacy measures that can be analyzed automatically. In "
+"particular, we do not analyze privacy policies, whether informed consent was "
+"obtained, etc. This may change in the future.\n"
+"                </p>\n"
+"            </div>\n"
+"            \n"
+"            \n"
+"            <div class=\"col-md-5 col-md-push-1\">\n"
+"                <h2>Our Current Checks</h2>\n"
+"                \n"
+"                <p>Our <em>beta release</em> of PrivacyScore reports on four "
+"types of issues. Your feedback is very much appreciated!\n"
+"                </p>\n"
+"                \n"
+"                <ul class=\"list-group\" style=\"width: 90%%\">\n"
+"                    <li class=\"list-group-item\">\n"
+"                        <strong>Tracking and Privacy Checks</strong> test if "
+"the website is tracking you, or allowing others to do so.\n"
+"                    </li>\n"
+"                    <li class=\"list-group-item\">\n"
+"                        <strong>Website Encryption</strong> tests check if "
+"the webserver offers HTTPS connections, and how securely they are "
+"configured.\n"
+"                    </li>\n"
+"                    <li class=\"list-group-item\">\n"
+"                        <strong>Web Security Checks</strong> test if the "
+"website has any obvious security flaws.\n"
+"                    </li>\n"
+"                    <li class=\"list-group-item\">\n"
+"                        <strong>Mail Encryption</strong> is often "
+"overlooked. PrivacyScore checks whether the mail servers of a website "
+"support state-of-the-art transport encryption.\n"
+"                    </li>\n"
+"                </ul>\n"
+"            </div>\n"
+"            "
 msgstr ""
+"\n"
+"            <div class=\"col-md-5 col-md-push-1\">\n"
+"                <h2>Was ist PrivacyScore?</h2>\n"
+"\n"
+"                <p>PrivacyScore ist ein automatischer Webseiten-Scanner, der "
+"es Ihnen ermöglicht, Webseiten auf Datenschutz- und Sicherheitsaspekte hin "
+"zu untersuchen. Sie können einzelne Websites scannen oder eine Liste von "
+"verwandten Websites hochladen, um zu sehen, wie sie im Vergleich mit anderen "
+"Websites abschneiden.\n"
+"                </p>\n"
+"                \n"
+"                <h2>Was ist PrivacyScore nicht?</h2>\n"
+"                Die von PrivacyScore durchgeführten Tests wurden ausgiebig "
+"getestet. Allerdings sind die meisten Tests nach unserer Erfahrung im Moment "
+"<strong>unzuverlässig</strong>.</p>\n"
+"                Im Moment kann PrivacyScore nur über technische Sicherheits- "
+"und Datenschutzmaßnahmen berichten, die automatisch analysiert werden "
+"können. Insbesondere analysieren wir nicht die Datenschutzbestimmungen, ob "
+"eine informierte Einwilligung eingeholt wurde, etc. Das könnte sich in "
+"Zukunft ändern.\n"
+"                </p>\n"
+"            </div>\n"
+"            \n"
+"            \n"
+"            <div class=\"col-md-5 col-md-push-1\">\n"
+"                <h2>Unsere aktuellen Checks</h2>\n"
+"                \n"
+"                <p>Unsere <em>Betaversion</em> von PrivacyScore informiert "
+"über vier Arten von Problemen. Ihr Feedback ist sehr willkommen!\n"
+"                </p>\n"
+"                \n"
+"                <ul class=\"list-group\" style=\"width: 90%%\">\n"
+"                    <li class=\"list-group-item\">\n"
+"                        <strong>NoTrack: Tracking und Privatsphäre-Checks</"
+"strong> testen, ob die Website Ihre Aktivitäten verfolgt oder anderen "
+"Anbietern ermöglicht, dies zu tun.\n"
+"                    </li>\n"
+"                    <li class=\"list-group-item\">\n"
+"                        <strong>EncWeb: Verschlüsselung durch den Webserver "
+"</strong> prüft, ob der Webserver HTTPS-Verbindungen anbietet und wie sicher "
+"diese konfiguriert sind.\n"
+"                    </li>\n"
+"                    <li class=\"list-group-item\">\n"
+"                        <strong>Attacks: Web-Security-Checks</strong> "
+"testen, ob die Website offensichtliche Sicherheitslücken aufweist und ob "
+"grundlegende Sicherheitsemachanismen verwendet werden.\n"
+"                    </li>\n"
+"                    <li class=\"list-group-item\">\n"
+"                        <strong>EncMail: E-Verschlüsseliung durch den "
+"Mailserver</strong> wird oft übersehen. PrivacyScore prüft, ob die "
+"Mailserver einer Website eine angemessene Transportverschlüsselung "
+"ermöglichen.\n"
+"                    </li>\n"
+"                </ul>\n"
+"            </div>\n"
+"            "
+
+#: privacyscore/frontend/templates/frontend/index.html:133
+msgid ""
+"\n"
+"                <h2>The PrivacyScore Vision</h2>\n"
+"                <p>We want to offer users, activists, data protection "
+"authorities, and data protection officers <strong>an easily accessible and "
+"flexible tool</strong> to assess the security and privacy measures of "
+"websites. PrivacyScore allows its users to</p>\n"
+"                \n"
+"                <ul class=\"list-group\">\n"
+"                    <li class=\"list-group-item\">\n"
+"                        determine whether best practices in security and "
+"privacy protection techniques are implemented\n"
+"                    </li>\n"
+"\n"
+"                    <li class=\"list-group-item\">\n"
+"                        assess how a website ranks within its peer group\n"
+"                    </li>\n"
+"                    <li class=\"list-group-item\">\n"
+"                        aggregate results according to site attributes (such "
+"as: <em>country</em> or <em>funding source</em>)\n"
+"                    </li>\n"
+"                    <li class=\"list-group-item\">\n"
+"                        influence the ranking according to their own "
+"preferences\n"
+"                    </li>\n"
+"                </ul>\n"
+"                "
+msgstr ""
+"\n"
+"                <h2>Die PrivacyScore-Vision</h2>\n"
+"                <p>Wir wollen Nutzern, Aktivisten, Datenschutzbehörden und "
+"Datenschutzbeauftragten <stark>ein leicht zugängliches und flexibles "
+"Werkzeug anbieten, um die Sicherheits- und Datenschutzmaßnahmen von Websites "
+"zu bewerten. PrivacyScore erlaubt es seinen Nutzern\n"
+"                \n"
+"                <ul class=\"list-group\">\n"
+"                    <li class=\"list-group-item\">\n"
+"                        festzustellen, ob bewährte Verfahren im Bereich der "
+"Sicherheit und des Schutzes der Privatsphäre angewandt werden\n"
+"                    </li>\n"
+"\n"
+"                    <li class=\"list-group-item\">\n"
+"                        zu beurteilen, wie eine Website innerhalb ihrer "
+"Vergleichsgruppe rangiert\n"
+"                    </li>\n"
+"                    <li class=\"list-group-item\">\n"
+"                        die Ergebnisse nach Attributen zu aggregieren (z.B.: "
+"<em>Land</em> oder <em>Finanzierungsquelle</em>)\n"
+"                    </li>\n"
+"                    <li class=\"list-group-item\">\n"
+"                        das Ranking nach eigenen Präferenzen zu "
+"beeinflussen\n"
+"                    </li>\n"
+"                </ul>\n"
+"                "
+
+#: privacyscore/frontend/templates/frontend/index.html:155
+msgid "Talks and Publications"
+msgstr "Vorträge und Veröffentlichungen"
 
 #: privacyscore/frontend/templates/frontend/list.html:15
 msgid "Submit a New List of Websites"
-msgstr ""
+msgstr "Eine neue Liste von Webseiten hochladen"
 
 #: privacyscore/frontend/templates/frontend/list.html:23
 msgid "Basic Information"
@@ -1124,7 +1528,13 @@ msgid_plural ""
 "                                (%(counter)s failures)\n"
 "                            "
 msgstr[0] ""
+"\n"
+"                                (%(counter)s Fehler)\n"
+"                            "
 msgstr[1] ""
+"\n"
+"                                (%(counter)s Fehler)\n"
+"                            "
 
 #: privacyscore/frontend/templates/frontend/ranking_list.html:109
 #: privacyscore/frontend/templates/frontend/ranking_list.html:113
@@ -1138,6 +1548,9 @@ msgid ""
 "        <strong>%(count)s passed all checks</strong>\n"
 "        "
 msgstr ""
+"\n"
+"        <strong>%(count)s haben alle Checks bestanden</strong>\n"
+"        "
 
 #: privacyscore/frontend/templates/frontend/ranking_summary.html:14
 #, python-format
@@ -1146,6 +1559,9 @@ msgid ""
 "        <strong>%(count)s failed one or more checks</strong>\n"
 "        "
 msgstr ""
+"\n"
+"        <strong>%(count)s scheiterten bei einigen Checks</strong>\n"
+"        "
 
 #: privacyscore/frontend/templates/frontend/ranking_summary.html:20
 #, python-format
@@ -1154,6 +1570,10 @@ msgid ""
 "        <strong>%(count)s failed all checks within a group</strong>\n"
 "        "
 msgstr ""
+"\n"
+"        <strong>%(count)s scheiterten bei allen Checks einer Gruppe</"
+"strong>\n"
+"        "
 
 #: privacyscore/frontend/templates/frontend/ranking_summary.html:26
 #, python-format
@@ -1162,6 +1582,9 @@ msgid ""
 "        <strong>%(count)s failed critical checks</strong>\n"
 "        "
 msgstr ""
+"\n"
+"        <strong>%(count)s scheiterten bei kritischen Checks</strong>\n"
+"        "
 
 #: privacyscore/frontend/templates/frontend/ranking_summary.html:36
 #, python-format
@@ -1174,7 +1597,13 @@ msgid_plural ""
 "            <strong>%(counter)s websites</strong>\n"
 "        "
 msgstr[0] ""
+"\n"
+"            <strong>%(counter)s Webseite</strong>\n"
+"        "
 msgstr[1] ""
+"\n"
+"            <strong>%(counter)s Webseiten</strong>\n"
+"        "
 
 #: privacyscore/frontend/templates/frontend/ranking_summary.html:44
 #, python-format
@@ -1187,7 +1616,13 @@ msgid_plural ""
 "            %(counter)s scan errors\n"
 "        "
 msgstr[0] ""
+"\n"
+"            %(counter)s Scan-Fehler\n"
+"        "
 msgstr[1] ""
+"\n"
+"            %(counter)s Scan-Fehler\n"
+"        "
 
 #: privacyscore/frontend/templates/frontend/ranking_summary.html:52
 #, python-format
@@ -1196,6 +1631,9 @@ msgid ""
 "        %(count)s could not be judged (no data)\n"
 "        "
 msgstr ""
+"\n"
+"        %(count)s ohne Bewertung (mangels Daten)\n"
+"        "
 
 #: privacyscore/frontend/templates/frontend/ranking_summary.html:58
 #, python-format
@@ -1212,7 +1650,17 @@ msgid_plural ""
 "a>\n"
 "        "
 msgstr[0] ""
+"\n"
+"            %(counter)s \n"
+"            <a href=\"#blacklisted-sites-anchor\">wird von Scans "
+"ausgenommen</a>\n"
+"        "
 msgstr[1] ""
+"\n"
+"            %(counter)s \n"
+"            <a href=\"#blacklisted-sites-anchor\">werden von Scans "
+"ausgenommen</a>\n"
+"        "
 
 #: privacyscore/frontend/templates/frontend/roadmap.html:4
 #: privacyscore/frontend/templates/frontend/roadmap.html:7
@@ -1261,19 +1709,19 @@ msgstr ""
 #: privacyscore/frontend/templates/frontend/team.html:4
 #: privacyscore/frontend/templates/frontend/team.html:12
 msgid "Team and Contributors"
-msgstr ""
+msgstr "Team und Unterstützer"
 
 #: privacyscore/frontend/templates/frontend/team.html:91
 msgid "Acknowledgements"
-msgstr ""
+msgstr "Danksagung"
 
 #: privacyscore/frontend/templates/frontend/team.html:120
 msgid "How can I contribute?"
-msgstr ""
+msgstr "Wie kann ich mitmachen?"
 
 #: privacyscore/frontend/templates/frontend/view_scan_list.html:35
 msgid "Author"
-msgstr ""
+msgstr "Autor"
 
 #: privacyscore/frontend/templates/frontend/view_scan_list.html:45
 msgid "Results Overview"
@@ -1284,10 +1732,12 @@ msgid ""
 "<strong>Take the results shown on this page with a grain of salt!</strong> "
 "Some of our checks may report wrong results."
 msgstr ""
+"<strong>Die Ergebnisse auf dieser Seite sind mit Vorsicht zu genießen!</"
+"strong> Einige unserer Tests können falsche Ergebnisse liefern."
 
 #: privacyscore/frontend/templates/frontend/view_scan_list.html:50
 msgid "What is this?"
-msgstr ""
+msgstr "Was ist das?"
 
 #: privacyscore/frontend/templates/frontend/view_scan_list.html:50
 msgid ""
@@ -1325,9 +1775,10 @@ msgid ""
 "\n"
 "                <p><strong>What exactly is checked and what do the results "
 "mean?</strong> We check the internet addresses with several techniques, "
-"which we have described in detail in a research paper. You can display a "
-"list of all checks and explanations of their relevance by clicking on the "
-"address of a web page to display its detailed results.</p>\n"
+"which we have described in detail in a <a href=\"https://arxiv.org/"
+"abs/1705.05139\">research paper</a>. You can display a list of all checks "
+"and explanations of their relevance by clicking on the address of a web page "
+"to display its detailed results.</p>\n"
 "\n"
 "                <p><strong>What is the purpose of PrivacyScore?</strong> "
 "With PrivacyScore we make websites publicly comparable in terms of selected "
@@ -1380,10 +1831,11 @@ msgstr ""
 "\n"
 "                <p><strong>Was genau wird überprüft und was bedeuten die "
 "Ergebnisse?</strong> Wir überprüfen die Internetadressen mit mehreren "
-"Techniken, die wir in einem *Forschungspapier* ausführlich beschrieben "
-"haben. Eine Aufstellung der einzelnen Prüfungen und Erklärungen zu deren "
-"Relevanz erhalten Sie, wenn Sie sich das Detailergebnis einer Webseite "
-"anzeigen lassen.</p>\n"
+"Techniken, die wir in einem <a href=\"https://arxiv.org/"
+"abs/1705.05139\">Forschungspapier</a> ausführlich beschrieben haben. Eine "
+"Aufstellung der einzelnen Prüfungen und Erklärungen zu deren Relevanz "
+"erhalten Sie, wenn Sie sich das Detailergebnis einer Webseite anzeigen "
+"lassen.</p>\n"
 "\n"
 "                <p><strong>Welchen Zweck hat PrivacyScore?</strong> Mit "
 "PrivacyScore machen wir Webseiten im Hinblick auf ausgewählte Eigenschaften "
@@ -1428,14 +1880,22 @@ msgstr ""
 
 #: privacyscore/frontend/templates/frontend/view_scan_list.html:74
 msgid "Configure sorting and grouping"
-msgstr ""
+msgstr "Konfiguration von Sortierung und Gruppierung"
 
 #: privacyscore/frontend/templates/frontend/view_scan_list.html:77
 msgid "Sorting and grouping"
-msgstr ""
+msgstr "Sortierung und Gruppierung"
 
 #: privacyscore/frontend/templates/frontend/view_scan_list.html:93
 msgid "Configure"
+msgstr "Konfigurieren"
+
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:106
+msgid "Re-scan all sites now"
+msgstr "Seite erneut scannen"
+
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:112
+msgid "SCAN IN PROGRESS"
 msgstr ""
 
 #: privacyscore/frontend/templates/frontend/view_scan_list.html:114
@@ -1451,21 +1911,71 @@ msgid_plural ""
 "moment\n"
 "            "
 msgstr[0] ""
+"\n"
+"                %(counter)s Seite dieser Liste wird derzeit gescannt\n"
+"            "
 msgstr[1] ""
+"\n"
+"                %(counter)s Seiten dieser Liste werden derzeit gescannt\n"
+"            "
 
 #: privacyscore/frontend/templates/frontend/view_scan_list.html:123
 #: privacyscore/frontend/templates/frontend/view_site.html:168
 msgid "Refresh Page"
-msgstr ""
+msgstr "Seite neu laden"
+
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:127
+msgid "NO SCANS RUNNING"
+msgstr "DERZEIT LAUFEN KEINE SCANS"
 
 #: privacyscore/frontend/templates/frontend/view_scan_list.html:135
 msgid "Download List as CSV"
+msgstr "Download der Liste als CSV"
+
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:142
+msgid "INFLUENCING THE RANKING"
+msgstr "DAS RANKING BEEINFLUSSEN"
+
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:144
+msgid ""
+"You can influence the ranking by your preferences. Use the <i class=\"fa  fa-"
+"angle-double-left\"></i> and <i class=\"fa  fa-angle-double-right\"></i> "
+"arrows to change the importance (left means more important)."
 msgstr ""
+"Sie können das Ranking gemäß Ihre Präferenzen beeinflussen. Benutzen Sie die "
+"Pfeile <i class=\"fa fa-angle-double-left\"></i> und <i class=\"fa fa-angle-"
+"double-right\"></i>, um die Bedeutung zu ändern (links bedeutet wichtiger)."
+
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:146
+msgid ""
+"At the moment we only provide one ranking scheme that consists of the "
+"following categories: <em>NoTrack</em>, <em>EncWeb</em>, <em>Attacks</em>, "
+"and <em>EncMail</em>. We perform a priorized sort to obtain the ranking: We "
+"<em>start with the first category</em>, sorting the sites according to their "
+"rating:"
+msgstr ""
+"Im Moment bieten wir nur ein einziges Ranking-Schema an, das aus den "
+"folgenden Kategorien besteht: <em>NoTrack</em>, <em>EncWeb</em>, "
+"<em>Attacks</em> und <em>EncMail</em>. Wir führen eine priorisierte "
+"Sortierung durch, um das dargestellte Ranking zu erstellen: Wir <em>starten "
+"mit der ersten Kategorie von links</em> und sortieren die Seiten dann gemäß "
+"ihrer Bewertung:"
+
+#: privacyscore/frontend/templates/frontend/view_scan_list.html:152
+msgid ""
+"Sites with an identical rating in a category are <em>further sorted "
+"considering the next category to  the right</em>. This procedure is repeated "
+"until all categories have been considered."
+msgstr ""
+"Sites mit identischer Bewertung in einer Kategorie werden <em>weiter "
+"sortiert unter Berücksichtigung der nächsten Kategorie nach rechts</em>. "
+"Dieser Vorgang wird solange wiederholt, bis alle Kategorien berücksichtigt "
+"sind."
 
 #: privacyscore/frontend/templates/frontend/view_scan_list.html:160
 #, python-format
 msgid "Ranking by attribute “%(group_attr)s”"
-msgstr ""
+msgstr "Ranking gemäß Attribut „%(group_attr)s“"
 
 #: privacyscore/frontend/templates/frontend/view_scan_list.html:162
 msgid "Ranking"
@@ -1473,7 +1983,7 @@ msgstr ""
 
 #: privacyscore/frontend/templates/frontend/view_scan_list.html:177
 msgid "Sites excluded from scans"
-msgstr ""
+msgstr "Von weiteren Scans ausgenommen"
 
 #: privacyscore/frontend/templates/frontend/view_scan_list.html:182
 msgid ""
@@ -1483,6 +1993,12 @@ msgid ""
 "implemented changes to their site in the meantime, which are not reflected "
 "in these outdated results."
 msgstr ""
+"Die Betreiber der hier aufgeführten Seiten haben uns gebeten, keine weiteren "
+"Scans durchzuführen. Aus Gründen der Transparenz archivieren wir das "
+"Ergebnis des letzten erfolgreichen Scans in der folgenden Tabelle. Beachten "
+"Sie, dass es möglich ist, dass Seitenbetreiber in der Zwischenzeit "
+"Änderungen an ihrer Website vorgenommen haben, die sich nicht in diesen "
+"veralteten Ergebnissen widerspiegeln."
 
 #: privacyscore/frontend/templates/frontend/view_scan_list.html:189
 msgid ""
@@ -1490,14 +2006,17 @@ msgid ""
 "reasons of transparency we archive the result of the last successful scan "
 "here."
 msgstr ""
+"Seitenbetreiber können uns bitten, keine weiteren Scans ihrer Websites "
+"durchzuführen. Aus Gründen der Transparenz archivieren wir hier das Ergebnis "
+"des letzten erfolgreichen Scans."
 
 #: privacyscore/frontend/templates/frontend/view_scan_list.html:190
 msgid "No sites are excluded from scans at the moment."
-msgstr ""
+msgstr "Derzeit sind keine Seiten von Scans ausgenommen."
 
 #: privacyscore/frontend/templates/frontend/view_site.html:128
 msgid "No rating"
-msgstr ""
+msgstr "Keine Ergebnisse"
 
 #: privacyscore/frontend/templates/frontend/view_site.html:134
 msgid "Invalid URL! The domain name could not be resolved."
@@ -1511,7 +2030,7 @@ msgstr ""
 
 #: privacyscore/frontend/templates/frontend/view_site.html:138
 msgid "The ratings are not available yet. Please be patient."
-msgstr ""
+msgstr "Es sind noch keine Ergebnisse verfügbar. Bitte haben Sie Geduld."
 
 #: privacyscore/frontend/templates/frontend/view_site.html:157
 msgid "Re-scan site now"
@@ -1519,7 +2038,7 @@ msgstr "Seite erneut scannen"
 
 #: privacyscore/frontend/templates/frontend/view_site.html:187
 msgid "Download Results as JSON"
-msgstr ""
+msgstr "Ergebnisse als JSON-Datei laden"
 
 #: privacyscore/frontend/templates/frontend/view_site.html:407
 #, python-format
@@ -1544,11 +2063,15 @@ msgid ""
 "Scans for this list have been scheduled. The total number of sites in the "
 "scanning queue is %i (including yours)."
 msgstr ""
+"Die Seite wurde zum Scannen vorgemerkt. Die Gesamtzahl der Sites in der "
+"Warteschlange ist %i (einschließlich dieses Scans)."
 
 #: privacyscore/frontend/views.py:195
 msgid ""
 "All sites have been scanned recently. Please wait 30 minutes and try again."
 msgstr ""
+"Alle Seiten wurden kürzlich gescannt. Bitte warten Sie 30 Minuten und "
+"versuchen Sie es erneut."
 
 #: privacyscore/frontend/views.py:218
 msgid "- None -"
@@ -1556,23 +2079,23 @@ msgstr ""
 
 #: privacyscore/frontend/views.py:223
 msgid "Sorting direction"
-msgstr ""
+msgstr "Sortierrichtung"
 
 #: privacyscore/frontend/views.py:224
 msgid "Ascending"
-msgstr ""
+msgstr "Aufsteigend"
 
 #: privacyscore/frontend/views.py:224
 msgid "Descending"
-msgstr ""
+msgstr "Absteigend"
 
 #: privacyscore/frontend/views.py:483
 msgid "screenshot does not exist"
-msgstr ""
+msgstr "es existiert kein Screenshot"
 
 #: privacyscore/frontend/views.py:516
 msgid "(no mx records found or scan not finished)"
-msgstr ""
+msgstr "(keine MX-Records oder Scan läuft noch)"
 
 #: privacyscore/frontend/views.py:568
 #, python-format
@@ -1580,15 +2103,21 @@ msgid ""
 "A scan of the site has been scheduled. The total number of sites in the "
 "scanning queue is %i (including yours)."
 msgstr ""
+"Die Seite wurde zum Scannen vorgemerkt. Die Gesamtzahl der Sites in der "
+"Warteschlange ist %i (einschließlich dieses Scans)."
 
 #: privacyscore/frontend/views.py:574
 msgid ""
 "The site is already scheduled for scanning or it has been scanned recently. "
 "No scan was scheduled."
 msgstr ""
+"Die Seite ist bereits zum Scannen eingeplant oder wurde kürzlich gescannt. "
+"Es wurde daher kein neuer Scan zur Warteschlange hinzugefügt."
 
 #: privacyscore/frontend/views.py:577
 msgid ""
 "The operator of this website requested to be blacklisted, scanning this "
 "website is not possible, sorry."
 msgstr ""
+"Der Betreiber dieser Website hat darum gebeten, keine weiteren Scans "
+"durchzuführen. Das Scannen dieser Website ist daher nicht möglich."

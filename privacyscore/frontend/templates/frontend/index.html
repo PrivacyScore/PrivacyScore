@@ -13,7 +13,7 @@
 
             <div class="row">
                 <div class="col-xs-10 col-xs-push-1 col-sm-6 col-sm-push-3 col-md-6 col-md-push-3">
-                    <a class="btn btn-lg btn-primary btn-well" href="{% url 'frontend:scan_list' %}">Create new site list</a>
+                    <a class="btn btn-lg btn-primary btn-well" href="{% url 'frontend:scan_list' %}">{% trans "Create new site list" %}</a>
                     <p class="scan-separator">— {% trans 'or scan a single site immediately' %} —</p>
                     <form method="post" action="{% url 'frontend:scan_site' %}">
                         {% csrf_token %}
@@ -34,16 +34,17 @@
     <div class="container text-muted text-center">
         <div class="row">
             <div class="col">
-                <strong>PrivacyScore is in Public Beta since June 8.</strong><br>We will post updates on <a href="https://twitter.com/privascore">Twitter</a>. Note that it is not possible to edit lists at the moment. Feel free to create a new list and inform us so that we can delete the previous version.
+                {% trans '<strong>PrivacyScore is in public beta since 8 June 2017.</strong><br>We post updates on <a href="https://twitter.com/privascore">Twitter</a>.' %}<br>
+                {% trans "Some parts of the site are also available in German. Please contact us if you want to contribute by translating the site." %}<br>
+                {% trans "Note that it is not possible to edit lists at the moment. Feel free to create a new list and inform us so that we can delete the previous version." %}
             </div>
         </div>
     </div>
 
     <div class="container spotlight-container">
 
-        <h2>Lists in the Spotlight</h2>
-        <p>We present selected lists of websites that have been added to PrivacyScore.<br>
-        Long lists load quite slowly. Please be patient.<br><span class="label label-warning">IMPROVEMENTS UNDERWAY</span></p>
+        <h2>{% trans "Lists in the Spotlight" %}</h2>
+        <p>{% trans "We present selected lists of websites that have been added to PrivacyScore.<br>Long lists load quite slowly. Please be patient." %}<br><span class="label label-warning">{% trans "IMPROVEMENTS UNDERWAY" %}</span></p>
         <div class="spacer"></div>
         <div class="spotlight-container-outer">
             <div class="spotlight-container-inner">
@@ -85,6 +86,7 @@
     
     <div class="container" style="border-top: 2px solid silver">
         <div class="row">
+            {% blocktrans %}
             <div class="col-md-5 col-md-push-1">
                 <h2>What is PrivacyScore?</h2>
 
@@ -119,6 +121,7 @@
                     </li>
                 </ul>
             </div>
+            {% endblocktrans %}
         </div>
     </div>
     <div class="spacer"></div>
@@ -127,6 +130,7 @@
     <div class="container" style="border-top: 2px solid silver">
         <div class="row">
             <div class="col-md-5 col-md-push-1">
+                {% blocktrans %}
                 <h2>The PrivacyScore Vision</h2>
                 <p>We want to offer users, activists, data protection authorities, and data protection officers <strong>an easily accessible and flexible tool</strong> to assess the security and privacy measures of websites. PrivacyScore allows its users to</p>
                 
@@ -145,12 +149,22 @@
                         influence the ranking according to their own preferences
                     </li>
                 </ul>
-                
+                {% endblocktrans %}
             </div>
             <div class="col-md-5 col-md-push-1">
-                <h2>Publications</h2>
+                <h2>{% trans "Talks and Publications" %}</h2>
 
                 <ul class="list-unstyled">
+                    <li class="" style="margin-top:1em">
+                        <a href="https://svs.informatik.uni-hamburg.de/publications/2017/20171027-Herrmann-PrivacyScore-PW17.pdf">
+                            <b>PrivacyScore: Test websites and rank them according to their security and privacy features.</b> PrivacyWeek.at, Vienna, 27 Oct 2017 <em>(by D. Herrmann)</em>.
+                        </a>
+                    </li>
+                    <li class="" style="margin-top:1em">
+                        <a href="https://svs.informatik.uni-hamburg.de/publications/2017/20171027-Herrmann-PrivacyScore-PW17.pdf">
+                            <b>PrivacyScore: Ein Benchmarking-Portal zur Analyse von Webseiten auf Sicherheits- und Privatheitsprobleme.</b> German OWASP Day, Essen, 14 Nov 2017 <em>(by P. Wichmann and D. Herrmann)</em>.
+                        </a>
+                    </li>
                     <li class="" style="margin-top:1em">
                         <a href="https://arxiv.org/abs/1705.05139">
                             <b>PrivacyScore: Improving Privacy and Security via Crowd-Sourced Benchmarks of Websites (2017).</b> In: Schweighofer E., Leitold H., Mitrakas A., Rannenberg K. (eds) Privacy Technologies and Policy. APF 2017. Lecture Notes in Computer Science, vol 10518. Springer, Cham, pp. 178–191

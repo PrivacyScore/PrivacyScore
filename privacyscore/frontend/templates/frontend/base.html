@@ -75,9 +75,9 @@
     <div class="footer">
 
     {% if "/site/" in request.path %}
-    <div class="text-center">All times are shown in UTC (GMT+0).</div>
+    <div class="text-center">{% trans "All times are shown in UTC (GMT+0)." %}</div>
     {% elif "/list/" in request.path %}
-    <div class="text-center">All times are shown in UTC (GMT+0).</div>
+    <div class="text-center">{% trans "All times are shown in UTC (GMT+0)." %}</div>
     {% endif %}
     
         <div class="container">
@@ -108,7 +108,7 @@
             <div class="row">
                 <div class="col-xs-4">
                     <p style="font-size:90%;">
-                        Text published on this site are licensed under
+                    {% trans "All texts published on this site are licensed under" %}
                         <a style="color: #ddd" href="https://creativecommons.org/licenses/by/4.0/">
                         CC BY 4.0
                         </a>.
@@ -121,7 +121,7 @@
                 <div class="col-xs-4 text-right">
                     <p style="font-size:90%;">
                         <a style="color: #ddd" href="{% url 'frontend:imprint' %}">
-                            Imprint / Impressum
+                            {% trans "Imprint / Impressum" %}
                         </a>
                     </p>
                 </div>

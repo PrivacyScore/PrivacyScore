@@ -54,7 +54,7 @@
                 {% blocktrans %}
                 <p><strong>How are the results presented?</strong> Our analysis focuses on the following aspects: whether tracking services are used ("NoTrack" category), whether selected attacks are prevented, the quality of encryption during data transmission to the website (EncWeb), and the quality when sending e-mails to an existing e-mail server (EncMail). You can control how important these four criteria are for you with the arrows in the column headings.</p>
 
-                <p><strong>What exactly is checked and what do the results mean?</strong> We check the internet addresses with several techniques, which we have described in detail in a research paper. You can display a list of all checks and explanations of their relevance by clicking on the address of a web page to display its detailed results.</p>
+                <p><strong>What exactly is checked and what do the results mean?</strong> We check the internet addresses with several techniques, which we have described in detail in a <a href="https://arxiv.org/abs/1705.05139">research paper</a>. You can display a list of all checks and explanations of their relevance by clicking on the address of a web page to display its detailed results.</p>
 
                 <p><strong>What is the purpose of PrivacyScore?</strong> With PrivacyScore we make websites publicly comparable in terms of selected properties. As scientists, we are interested in how users and operators deal with this form of transparency. Among other things, this raises the question of whether website operators have an additional incentive to improve their websites.</p>
 
@@ -103,13 +103,13 @@
                     <button type="submit"
                         class="btn btn-default btn-primary btn-lg" role="button"
                         id="scan_again" style="width:100%; margin-top:40px">
-                        Re-scan all sites now
+                        {% trans "Re-scan all sites now" %}
                     </button>
                 </p>
             </form>
             
             {% if scan_list.running_scans__count > 0 %}
-            <h3 class="text-center"><small>SCAN IN PROGRESS</small></h3>
+            <h3 class="text-center"><small>{% trans "SCAN IN PROGRESS" %}</small></h3>
             <p class="text-center">
             {% blocktrans count counter=scan_list.running_scans__count %}
                 {{ counter }} site of this list is being scanned at the moment
@@ -124,7 +124,7 @@
                 </a>
             </div>
             {% else %}
-            <h3 class="text-center color-neutral"><smalL>NO SCANS RUNNING</small></h3>
+            <h3 class="text-center color-neutral"><smalL>{% trans "NO SCANS RUNNING" %}</small></h3>
             {% endif %}
             
             <div class="spacer"></div>
@@ -139,17 +139,17 @@
             <div class="spacer"></div>
             
             <div class="improvements">
-                <h5>&mdash; INFLUENCING THE RANKING &mdash; </h5>
+                <h5>&mdash; {% trans "INFLUENCING THE RANKING" %} &mdash; </h5>
                 <hr>
-                <p>You can influence the ranking by your preferences. Use the <i class="fa  fa-angle-double-left"></i> and <i class="fa  fa-angle-double-right"></i> arrows to change the importance (left means more important).</p>
+                <p>{% trans 'You can influence the ranking by your preferences. Use the <i class="fa  fa-angle-double-left"></i> and <i class="fa  fa-angle-double-right"></i> arrows to change the importance (left means more important).' %}</p>
                 
-                <p>At the moment we only provide one ranking scheme that consists of the following categories: <em>NoTrack</em>, <em>EncWeb</em>, <em>Attacks</em>, and <em>EncMail</em>. We perform a priorized sort to obtain the ranking: We <em>start with the first category</em>, sorting the sites according to their rating:
+                <p>{% trans "At the moment we only provide one ranking scheme that consists of the following categories: <em>NoTrack</em>, <em>EncWeb</em>, <em>Attacks</em>, and <em>EncMail</em>. We perform a priorized sort to obtain the ranking: We <em>start with the first category</em>, sorting the sites according to their rating:" %}
                 <i class="fa fa-lg fa-check-circle color-good"></i>&nbsp; 
                 <i class="fa fa-lg fa-question-circle color-neutral"></i>&nbsp;
                 <i class="fa fa-lg  fa-exclamation-circle color-warning"></i>&nbsp; 
                 <i class="fa fa-lg  fa-exclamation-triangle color-bad"></i>&nbsp; 
                 <i class="fa fa-lg fa-times-circle color-critical"></i>.
-                Sites with an identical rating in a category are <em>further sorted considering the next category to  the right</em>. This procedure is repeated until all categories have been considered.
+                {% trans "Sites with an identical rating in a category are <em>further sorted considering the next category to  the right</em>. This procedure is repeated until all categories have been considered." %}
                 </p>
             </div>
         </div>
