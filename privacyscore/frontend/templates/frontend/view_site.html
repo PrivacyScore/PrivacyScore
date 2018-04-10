@@ -198,11 +198,8 @@ table.dataTable thead .sorting_desc_disabled
     <div class="col-sm-8">
         <div class="row">
             {% if site.scannable == site.SCAN_BLACKLISTED %}
-	    <div class="alert alert-danger"><b>This site has been blacklisted.</b>
-		The owner of this website has asked us to not perform further scans.
-		For reasons of transparency we display
-	       	the results of the last scan before the site was blacklisted. The owner may have
-		implemented changes in the meantime, which are not visible in the results below.
+	    <div class="alert alert-danger">{% trans "<b>This site is excluded from further scans.</b>
+		The owner of this website has asked us to not perform further scans. For reasons of transparency we display the results of the last scan before we received the request of the owner. The owner may have implemented changes in the meantime, which are not reflected in the results below." %}
 		</div>
             {% endif %}
             
@@ -255,7 +252,28 @@ table.dataTable thead .sorting_desc_disabled
                 {% endif %}
             </div>
 
-            <div class="col-sm-12">
+			<div class="col-sm-12">
+	            <p id="disclaimer-short"><strong>{% trans "What is this?" %}</strong> {% trans "This page shows the result of a machine-generated analysis of a specific website, which was commissioned by a PrivacyScore user. During the analysis it was checked whether the privacy of the visitors is protected on a technical level as well as possible when visiting the given internet addresses, and whether the operator uses common security mechanisms on the website. This can indicate how seriously an operator takes data protection. However, it is not possible to determine the actual security level achieved." %} &nbsp;<a class="label label-primary" id="disclaimer-link">{% trans "More details please!" %}</a></p>
+
+
+	            <div style="display:none" id="disclaimer">
+	                {% blocktrans %}
+	                <p><strong>How are the results presented?</strong> Our analysis focuses on the following aspects: whether tracking services are used ("NoTrack" category), whether selected attacks are prevented, the quality of encryption during data transmission to the website (EncWeb), and the quality when sending e-mails to an existing e-mail server (EncMail). You can control how important these four criteria are for you with the arrows in the column headings.</p>
+
+	                <p><strong>What exactly is checked and what do the results mean?</strong> We check the internet addresses with several techniques, which we have described in detail in a <a href="https://arxiv.org/abs/1705.05139">research paper</a>.</p>
+
+	                <p><strong>What is the purpose of PrivacyScore?</strong> With PrivacyScore we make websites publicly comparable in terms of selected properties. As scientists, we are interested in how users and operators deal with this form of transparency. Among other things, this raises the question of whether website operators have an additional incentive to improve their websites.</p>
+
+	                <p><strong>What can be concluded from the results, what not?</strong></p>
+
+	                <p><strong>No statement on necessity.</strong> The fact that a web page fails at a specific does not automatically mean that sensitive pieces data are at risk. Some security mechanisms are only necessary to protect against strong attacks (e.g., by governments).</p>
+
+	                <p><strong>Limited expressiveness.</strong> The results cover only security mechanisms that can be observed from outside when visiting the specified internet addresses. It is quite possible that an operator uses additional internal protection mechanisms and therefore has decided to leave out some externally visible mechanisms. Furthermore, it is possible that additional security mechanisms are used on individual pages (e.g., for the transmission of passwords). However, such variations are not taken into account in the analysis. Therefore, one cannot conclude from the failure of individual checks that a provider does not handle personal data with sufficient care. On the other hand, however, it is also possible that a website has serious security holes, although it achieves a good result on this page.</p>
+	                {% endblocktrans %}
+	            </div>
+			</div>
+
+			<div class="col-sm-12">
                 
                 
                 {% for group, descriptions in groups_descriptions %}
