@@ -198,8 +198,7 @@ table.dataTable thead .sorting_desc_disabled
     <div class="col-sm-8">
         <div class="row">
             {% if site.scannable == site.SCAN_BLACKLISTED %}
-	    <div class="alert alert-danger">{% trans "<b>This site is excluded from further scans.</b>
-		The owner of this website has asked us to not perform further scans. For reasons of transparency we display the results of the last scan before we received the request of the owner. The owner may have implemented changes in the meantime, which are not reflected in the results below." %}
+	    <div class="alert alert-danger">{% trans "<b>This site is excluded from further scans.</b> The owner of this website has asked us to not perform further scans. For reasons of transparency we display the results of the last scan before we received the request of the owner. The owner may have implemented changes in the meantime, which are not reflected in the results below." %}
 		</div>
             {% endif %}
             
@@ -258,7 +257,7 @@ table.dataTable thead .sorting_desc_disabled
 
 	            <div style="display:none" id="disclaimer">
 	                {% blocktrans %}
-	                <p><strong>How are the results presented?</strong> Our analysis focuses on the following aspects: whether tracking services are used ("NoTrack" category), whether selected attacks are prevented, the quality of encryption during data transmission to the website (EncWeb), and the quality when sending e-mails to an existing e-mail server (EncMail). You can control how important these four criteria are for you with the arrows in the column headings.</p>
+                        <p><strong>How are the results presented?</strong> Our analysis focuses on the following aspects: whether tracking services are used ("NoTrack" category), whether selected attacks are prevented, the quality of encryption during data transmission to the website (EncWeb), and the quality when sending e-mails to an existing e-mail server (EncMail).</p>
 
 	                <p><strong>What exactly is checked and what do the results mean?</strong> We check the internet addresses with several techniques, which we have described in detail in a <a href="https://arxiv.org/abs/1705.05139">research paper</a>.</p>
 

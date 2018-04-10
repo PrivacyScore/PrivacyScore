@@ -6,3 +6,10 @@ function toggleIcon(e) {
 }
 $('.panel-group').on('hidden.bs.collapse', toggleIcon);
 $('.panel-group').on('shown.bs.collapse', toggleIcon);
+
+$(function() {
+    $('#disclaimer-link').on('click', function() {
+        $('#disclaimer').show();
+        $(this).hide();
+    })
+});
