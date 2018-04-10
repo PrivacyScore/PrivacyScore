@@ -300,11 +300,6 @@ def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html'
     blacklisted_sites = [site for site in sites if site.scannable() == Site.SCAN_BLACKLISTED]
     sites = [site for site in sites if site.scannable() != Site.SCAN_BLACKLISTED]
 
-    print("BLACKLIST:")
-    print(blacklisted_sites)
-    print("REST:")
-    print(sites)
-
     groups = None
     group_attr = None
     if group_by is not None:
