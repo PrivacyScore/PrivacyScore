@@ -9,9 +9,9 @@ from typing import Dict, Union
 from urllib.parse import urlparse
 
 from django.conf import settings
-from privacyscore.utils import get_list_item_by_dict_entry
+# from privacyscore.utils import get_list_item_by_dict_entry
 
-from .testssl.common import run_testssl, parse_common_testssl
+from .testssl.common import run_testssl, parse_common_testssl, save_result, load_result
 
 test_name = 'testssl_https'
 test_dependencies = [
@@ -32,19 +32,17 @@ def test_site(url: str, previous_results: dict) -> Dict[str, Dict[str, Union[str
                 'mime_type': 'application/json',
                 'data': b'',
             },
+            'testssl_hostname': {
+                'mime_type': 'text/plain',
+                'data': b'',
+            }
         }
-    #
-    #hostname = urlparse(scan_url).hostname
+    
+    jsonresults = run_testssl(hostname, False)
 
-    # hostname = urlparse(url).hostname
-    jsonresult = run_testssl(hostname, False)
-
-    return {
-        'jsonresult': {
-            'mime_type': 'application/json',
-            'data': jsonresult,
-        },
-    }
+    result = save_result(jsonresults, hostname)
+    
+    return result
 
 
 def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[str, object]]:
@@ -54,31 +52,40 @@ def process_test_data(raw_data: list, previous_results: dict) -> Dict[str, Dict[
         rv['web_has_ssl'] = False
         return rv
 
-    data = json.loads(
-        raw_data['jsonresult']['data'].decode('unicode_escape'))
+    loaded_data = load_result(raw_data)
 
-    if not 'scanResult' in data:
-        # something went wrong with this test.
-        # raise Exception('no scan result in raw data')
+    if loaded_data.get('parse_error'):
         rv['web_scan_failed'] = True
         return rv
-    if len(data['scanResult']) == 0:
+
+    if loaded_data.get('scan_result_empty'):
         # The test terminated, but did not give any results => probably no HTTPS
         rv['web_has_ssl'] = False
         return rv
+    
+    result = {}
+    if loaded_data.get('testssl_incomplete'):
+        result['web_testssl_incomplete'] = True
 
+    if loaded_data.get('incomplete_scans'):
+        result['web_testssl_incomplete_scans'] = loaded_data.get('incomplete_scans')
+
+    if loaded_data.get('missing_scans'):
+        result['web_testssl_missing_scans'] = loaded_data.get('missing_scans')
+    
     # Grab common information
-    result = parse_common_testssl(data, "web")
+    result.update(parse_common_testssl(loaded_data, "web"))
     result["web_ssl_finished"] = True
-
+    
     # detect headers
-    result.update(_detect_hsts(data))
-    result.update(_detect_hpkp(data))
+    hostname = raw_data['testssl_hostname']['data'].decode()
+    result.update(_detect_hsts(loaded_data, hostname))
+    result.update(_detect_hpkp(loaded_data))
 
     return result
 
 
-def _detect_hsts(data: dict) -> dict:
+def _detect_hsts(data: dict, host: str) -> dict:
     def _check_contained(preloads, domain, subdomains=False):
         for entry in preloads["entries"]:
             if entry["name"] == domain:
@@ -94,15 +101,9 @@ def _detect_hsts(data: dict) -> dict:
 
     result = {}
 
-    hsts_item = get_list_item_by_dict_entry(
-        data['scanResult'][0]['headerResponse'],
-        'id', 'hsts')
-    hsts_time_item = get_list_item_by_dict_entry(
-        data['scanResult'][0]['headerResponse'],
-        'id', 'hsts_time')
-    hsts_preload_item = get_list_item_by_dict_entry(
-        data['scanResult'][0]['headerResponse'],
-        'id', 'hsts_preload')
+    hsts_item = data.get('hsts')
+    hsts_time_item = data.get('hsts_time')
+    hsts_preload_item = data.get('hsts_preload')
 
     # Look for HSTS Preload header
     result['web_has_hsts_preload_header'] = False
@@ -124,7 +125,7 @@ def _detect_hsts(data: dict) -> dict:
     result["web_has_hsts_preload"] = False
     with open(os.path.join(settings.SCAN_TEST_BASEPATH, "vendor/HSTSPreload", "transport_security_state_static")) as fo:
         preloads = json.loads(fo.read())
-    host = data["target host"]
+    
     # Check if exact hostname is included
     if not _check_contained(preloads, host):
         # If not included, construct ever shorter hostnames and look for policies
@@ -141,21 +142,15 @@ def _detect_hsts(data: dict) -> dict:
 
 
 def _detect_hpkp(data: dict) -> dict:
-    hpkp_item = get_list_item_by_dict_entry(
-        data['scanResult'][0]['headerResponse'],
-        'id', 'hpkp')
-    hpkp_spkis = get_list_item_by_dict_entry(
-        data['scanResult'][0]['headerResponse'],
-        'id', 'hpkp_spkis')
+    hpkp_item = data.get('hpkp')
+    hpkp_spkis = data.get('hpkp_spkis')
 
     if hpkp_item is not None:
         return {'web_has_hpkp_header': not hpkp_item['finding'].startswith('No')}
     elif hpkp_spkis is not None:
         return {'web_has_hpkp_header': hpkp_spkis['severity'] == "OK"}
 
-    hpkp_item = get_list_item_by_dict_entry(
-        data['scanResult'][0]['headerResponse'],
-        'id', 'hpkp_multiple')
+    hpkp_item = data.get('hpkp_multiple')
     if hpkp_item is not None:
         return {'web_has_hpkp_header': True}
 
