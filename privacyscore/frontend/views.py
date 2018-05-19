@@ -219,10 +219,10 @@ def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html'
 
     last_scan_pk = scan_list.last_scan.pk if scan_list.last_scan else 0
     cache_prefix = 'view_scan_list:{}:{}'.format(scan_list.pk, last_scan_pk)
-    return flexcache_view(view_scan_list_cachable, cache_prefix)(request, scan_list, format)
+    return flexcache_view(render_scan_list_cachable, cache_prefix)(request, scan_list, format)
 
 
-def view_scan_list_cachable(request: HttpRequest, scan_list, format: str = 'html'):
+def render_scan_list_cachable(request: HttpRequest, scan_list, format: str = 'html'):
     column_choices = [(None, _('- None -'))] + list(enumerate(x.name for x in scan_list.ordered_columns))
 
     class ConfigurationForm(forms.Form):
@@ -488,6 +488,7 @@ def site_screenshot(request: HttpRequest, site_id: int) -> HttpResponse:
 
 
 def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
+    """View a site and its most recent scan result (if any)."""
     site = get_object_or_404(
         Site.objects.annotate_most_recent_scan_start() \
             .annotate_most_recent_scan_end_or_null() \
@@ -497,11 +498,11 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
 
     last_scan_pk = site.last_scan.pk if site.last_scan else 0
     cache_key = 'view_site:{}:{}'.format(site.pk, last_scan_pk)
-    return flexcache_view(view_site_cachable, cache_key)(request, site)
+    return flexcache_view(render_site_cachable, cache_key)(request, site)
 
-def view_site_cachable(request: HttpRequest, site) -> TemplateResponse:
-    """View a site and its most recent scan result (if any)."""
 
+def render_site_cachable(request: HttpRequest, site) -> TemplateResponse:
+    """Render a site and its most recent scan result (if any), used by view_site"""
     num_scans = Scan.objects.filter(site_id=site.pk).count()
     scan_lists = ScanList.objects.filter(private=False, sites=site.pk)
 
