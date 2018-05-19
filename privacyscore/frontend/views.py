@@ -15,6 +15,7 @@ from django.db import transaction
 from django.db.models import Count, F, Prefetch, Q
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
@@ -26,6 +27,7 @@ from pygments.formatters import HtmlFormatter
 from privacyscore.backend.models import ListColumn, ListColumnValue, ListTag,  Scan, ScanList, Site, ScanResult
 from privacyscore.evaluation.result_groups import DEFAULT_GROUP_ORDER, RESULT_GROUPS
 from privacyscore.evaluation.site_evaluation import UnrateableSiteEvaluation
+from privacyscore.flexcache import flexcache_view
 from privacyscore.frontend.forms import SingleSiteForm, CreateListForm
 from privacyscore.frontend.models import Spotlight
 from privacyscore.utils import normalize_url
@@ -209,12 +211,18 @@ def scan(request: HttpRequest) -> HttpResponse:
     return render(request, 'frontend/scan.html')
 
 
-def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html') -> HttpResponse:
+def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html'):
     scan_list = get_object_or_404(
         ScanList.objects.annotate_running_scans_count().prefetch_columns(), pk=scan_list_id)
     scan_list.views = F('views') + 1
     scan_list.save(update_fields=('views',))
 
+    last_scan_pk = scan_list.last_scan.pk if scan_list.last_scan else 0
+    cache_prefix = 'view_scan_list:{}:{}'.format(scan_list.pk, last_scan_pk)
+    return flexcache_view(view_scan_list_cachable, cache_prefix)(request, scan_list, format)
+
+
+def view_scan_list_cachable(request: HttpRequest, scan_list, format: str = 'html'):
     column_choices = [(None, _('- None -'))] + list(enumerate(x.name for x in scan_list.ordered_columns))
 
     class ConfigurationForm(forms.Form):
@@ -249,7 +257,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html'
             'categories': ','.join(category_order),
         })
         return redirect('{}?{}'.format(
-            reverse('frontend:view_scan_list', args=(scan_list_id,)),
+            reverse('frontend:view_scan_list', args=(scan_list.pk,)),
             urlencode(url_params)))
     category_names = [{
         'short_name': RESULT_GROUPS[category]['short_name'],
@@ -356,7 +364,7 @@ def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html'
             writer.writerow(columns)
         return resp
     elif format == 'html':
-        return render(request, 'frontend/view_scan_list.html', {
+        return TemplateResponse(request, 'frontend/view_scan_list.html', {
             'scan_list': scan_list,
             'sites_count': len(sites) + len(blacklisted_sites),
             'blacklisted_sites_count': len(blacklisted_sites),
@@ -480,14 +488,20 @@ def site_screenshot(request: HttpRequest, site_id: int) -> HttpResponse:
 
 
 def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
-    """View a site and its most recent scan result (if any)."""
     site = get_object_or_404(
         Site.objects.annotate_most_recent_scan_start() \
             .annotate_most_recent_scan_end_or_null() \
             .annotate_most_recent_scan_result(), pk=site_id)
     site.views = F('views') + 1
     site.save(update_fields=('views',))
-    
+
+    last_scan_pk = site.last_scan.pk if site.last_scan else 0
+    cache_key = 'view_site:{}:{}'.format(site.pk, last_scan_pk)
+    return flexcache_view(view_site_cachable, cache_key)(request, site)
+
+def view_site_cachable(request: HttpRequest, site) -> TemplateResponse:
+    """View a site and its most recent scan result (if any)."""
+
     num_scans = Scan.objects.filter(site_id=site.pk).count()
     scan_lists = ScanList.objects.filter(private=False, sites=site.pk)
 
