@@ -219,7 +219,9 @@ def view_scan_list(request: HttpRequest, scan_list_id: int, format: str = 'html'
 
     last_scan_pk = scan_list.last_scan.pk if scan_list.last_scan else 0
     cache_prefix = 'view_scan_list:{}:{}'.format(scan_list.pk, last_scan_pk)
-    return flexcache_view(render_scan_list_cachable, cache_prefix)(request, scan_list, format)
+    cached_view = flexcache_view(render_scan_list_cachable, cache_prefix,
+                                 timeout=settings.SITE_LIST_CACHE_TIMEOUT)
+    return cached_view(request, scan_list, format)
 
 
 def render_scan_list_cachable(request: HttpRequest, scan_list, format: str = 'html'):

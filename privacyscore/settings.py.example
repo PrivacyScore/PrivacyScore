@@ -104,7 +104,7 @@ CACHES = {
         }
     }
 }
-CACHE_DEFAULT_TIMEOUT_SECONDS = 1800
+SITE_LIST_CACHE_TIMEOUT = 3600 * 24 * 14
 
 
 # Password validation
