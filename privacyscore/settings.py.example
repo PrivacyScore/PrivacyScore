@@ -105,6 +105,7 @@ CACHES = {
     }
 }
 SITE_LIST_CACHE_TIMEOUT = 3600 * 24 * 14
+SITE_CACHE_TIMEOUT = 3600 * 24
 
 
 # Password validation
