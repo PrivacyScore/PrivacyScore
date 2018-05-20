@@ -266,8 +266,6 @@ def render_scan_list_cachable(request: HttpRequest, scan_list, format: str = 'ht
         'right': ','.join(_move_element(category_order, category, 1))
     } for category in category_order]
 
-    #sites = cache.get('scan_list_{}:evaluated_sites'.format(scan_list.pk))
-    #if sites is None:
     sites = scan_list.sites.annotate_most_recent_scan_error_count() \
         .annotate_most_recent_scan_start().annotate_most_recent_scan_end_or_null() \
         .annotate_most_recent_scan_result().prefetch_column_values(scan_list) \
@@ -284,13 +282,7 @@ def render_scan_list_cachable(request: HttpRequest, scan_list, format: str = 'ht
         else:
             site.evaluated = UnrateableSiteEvaluation()
 
-    #cache.set(
-    #    'scan_list_{}:evaluated_sites'.format(scan_list.pk),
-    #    sites,
-    #    settings.CACHE_DEFAULT_TIMEOUT_SECONDS)
-
     sites = sorted(sites, key=lambda v: v.evaluated, reverse=True)
-
 
     # Sorting and grouping by attributes
     sort_by = None
