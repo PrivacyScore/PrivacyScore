@@ -21,7 +21,7 @@ MIDDLEWARE_TOKEN_REGEXP = re.compile(b"name='csrfmiddlewaretoken' value='([a-zA-
 
 
 def flexcache_view(view_fn, cache_prefix, placeholders=None, include_path=True,
-                   include_querystring=True):
+                   include_querystring=True, **cache_options):
     if placeholders is None:
         placeholders = {}
 
@@ -44,7 +44,7 @@ def flexcache_view(view_fn, cache_prefix, placeholders=None, include_path=True,
             content = response.content
             content_type = response.get('Content-Type', 'text/html')
             fragments = build_content_fragments(content, request, template_context)
-            cache.set(cache_key, (content_type, fragments))
+            cache.set(cache_key, (content_type, fragments), **cache_options)
             return response
         else:
             content_type, fragments = cache_data
