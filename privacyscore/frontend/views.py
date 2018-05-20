@@ -492,7 +492,8 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
 
     last_scan_pk = site.last_scan.pk if site.last_scan else 0
     cache_key = 'view_site:{}:{}'.format(site.pk, last_scan_pk)
-    return flexcache_view(render_site_cachable, cache_key)(request, site)
+    cached_view = flexcache_view(render_site_cachable, cache_key, timeout=settings.SITE_CACHE_TIMEOUT)
+    return cached_view(request, site)
 
 
 def render_site_cachable(request: HttpRequest, site) -> TemplateResponse:
