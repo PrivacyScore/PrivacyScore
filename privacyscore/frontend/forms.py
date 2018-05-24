@@ -1,4 +1,3 @@
-import io
 import csv
 
 from django import forms
@@ -38,9 +37,9 @@ class CreateListForm(forms.ModelForm):
         elif self.cleaned_data['csv_data']:
             csv_data = self.cleaned_data['csv_data']
 
-        csv_file = io.StringIO(csv_data)
+        csv_lines = csv_data.splitlines()
 
-        reader = csv.reader(csv_file, delimiter=';')
+        reader = csv.reader(csv_lines, delimiter=';')
         try:
             table_header = next(reader)
         except StopIteration:
