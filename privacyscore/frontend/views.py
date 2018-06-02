@@ -647,6 +647,8 @@ def code(request: HttpRequest):
 def team(request: HttpRequest):
     return render(request, 'frontend/team.html')
 
+def privacypolicy(request: HttpRequest):
+    return render(request, 'frontend/privacypolicy.html')
 
 def faq(request: HttpRequest):
     num_scans  = Site.objects.filter(scans__isnull=False).count()

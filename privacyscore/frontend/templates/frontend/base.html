@@ -120,9 +120,14 @@
                 
                 <div class="col-xs-4 text-right">
                     <p style="font-size:90%;">
+                        <a style="color: #ddd" href="{% url 'frontend:privacypolicy' %}">
+                            {% trans "Privacy Policy" %}
+                        </a>
+                        <span style="color: #ddd"> &middot; </span>
                         <a style="color: #ddd" href="{% url 'frontend:imprint' %}">
                             {% trans "Imprint / Impressum" %}
                         </a>
+
                     </p>
                 </div>
             </div>
