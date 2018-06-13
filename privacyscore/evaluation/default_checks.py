@@ -1574,7 +1574,7 @@ CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['longdesc'] = """<p>Go
 """ 
 CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['labels'] = ['reliable']
 
-CHECKS['privacy']['webserver_locations']['title'] = 'Check whether web server is located in EU'
+CHECKS['privacy']['webserver_locations']['title'] = 'Check whether web server is located in a country which implements the GDPR'
 CHECKS['privacy']['webserver_locations']['longdesc'] = '''<p>We obtain the IP addresses of the domain and look up their country in a GeoIP database. Given present and upcoming data protection regulations EU citizens may consider to be protected better if their data is hosted in the European Union. We will offer more flexible geo-location tests in the future.</p>
 <p><strong>Conditions for passing:</strong> The test passes if all IP addresses (A records) are found to be in countries that belong to the EU.</p>
 <p><strong>Reliability: unreliable.</strong> We perform a single DNS lookup for the A records of the domain name of the respective site. Due to DNS round robin configurations, we may not see all IP addresses that are actually used by a site. Furthermore, if the site uses content delivery networks or anycasting the set of addresses we observe may differ from the set for other users. We look up the IP addresses within a local copy of a GeoIP database. We use the GeoLite2 data created by MaxMind, available from <a href="http://www.maxmind.com/">http://www.maxmind.com</a>.</p>
@@ -1587,7 +1587,7 @@ CHECKS['privacy']['webserver_locations']['longdesc'] = '''<p>We obtain the IP ad
 ''' 
 CHECKS['privacy']['webserver_locations']['labels'] = ['unreliable']
 
-CHECKS['privacy']['mailserver_locations']['title'] = "Check whether mail server is located in EU"
+CHECKS['privacy']['mailserver_locations']['title'] = "Check whether mail server is located in a country which implements the GDPR"
 CHECKS['privacy']['mailserver_locations']['longdesc'] = '''<p>We obtain the IP addresses of the mail server record(s) associated with the domain and look up their country in a GeoIP database. Given present and upcoming data protection regulations EU citizens may consider to be protected better if their data is hosted in the European Union. We will offer more flexible geo-location tests in the future.</p>
 <p><strong>Conditions for passing:</strong> The test passes if all IP addresses associated with the MX records are found to be in countries that belong to the EU. This test is neutral if there are no MX records.</p>
 <p><strong>Reliability: unreliable.</strong> We perform a single DNS lookup for the MX records of the domain name of the respective site. Then we obtain all A records of each MX record. Due to DNS round robin configurations, we may not see all IP addresses that are actually used by a site. Furthermore, if the site uses content delivery networks or anycasting the set of addresses we observe may differ from the set for other users. We look up the IP addresses within a local copy of a GeoIP database. We use the GeoLite2 data created by MaxMind, available from <a href="http://www.maxmind.com/">http://www.maxmind.com</a>. Finally, we only check mail servers found in MX records. Therefore, we miss sites where the domain does not have MX records, but mail is directly handled by a mail server running on the IP address given by its A record.</p>
