@@ -15,6 +15,8 @@ from concurrent.futures import ThreadPoolExecutor
 test_name = 'serverleak'
 test_dependencies = []
 
+USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0 (Research project: Visit PrivacyScore.org for details)'
+
 
 def _match_db_dump(content):
     targets = ["SQLite", "CREATE TABLE", "INSERT INTO", "DROP TABLE"]
@@ -120,7 +122,9 @@ TRIALS = [
 
 def _get(url, timeout):
     try:
-        response = requests.get(url, timeout=timeout)
+        response = requests.get(url, headers={
+            'User-Agent': USER_AGENT
+        }, timeout=timeout)
         return response
     except ConnectionError:
         return None

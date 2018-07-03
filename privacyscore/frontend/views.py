@@ -489,15 +489,6 @@ def view_site(request: HttpRequest, site_id: int) -> HttpResponse:
             .annotate_most_recent_scan_result(), pk=site_id)
     site.views = F('views') + 1
     site.save(update_fields=('views',))
-
-    last_scan_pk = site.last_scan.pk if site.last_scan else 0
-    cache_key = 'view_site:{}:{}'.format(site.pk, last_scan_pk)
-    cached_view = flexcache_view(render_site_cachable, cache_key, timeout=settings.SITE_CACHE_TIMEOUT)
-    return cached_view(request, site)
-
-
-def render_site_cachable(request: HttpRequest, site) -> TemplateResponse:
-    """Render a site and its most recent scan result (if any), used by view_site"""
     num_scans = Scan.objects.filter(site_id=site.pk).count()
     scan_lists = ScanList.objects.filter(private=False, sites=site.pk)
 

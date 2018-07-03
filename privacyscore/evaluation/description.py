@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from privacyscore.evaluation.rating import Rating
 
 
-EU_STATES = [
+GDPR_STATES = [
     'Austria',
     'Belgium',
     'Bulgaria',
@@ -33,6 +33,10 @@ EU_STATES = [
     'Spain',
     'Sweden',
     'United Kingdom',
+    # Non-EU, but EEA which implement GDPR
+    'Iceland',
+    'Liechtenstein',
+    'Norway',
 ]
 
 
@@ -48,7 +52,7 @@ def describe_locations(server_type: str, locations: list) -> dict:
         }
     rating = Rating('good')
     for country in locations:
-        if country not in EU_STATES:
+        if country not in GDPR_STATES:
             rating = Rating('bad')
     if len(locations) == 1:
         return {
