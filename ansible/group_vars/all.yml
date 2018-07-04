@@ -1,0 +1,80 @@
+# privacyscore__is_master: Determines whether a host is to be deployed as a master.
+#            The master is showing the Web interface and running the job queue.
+#            It also runs a redis for the clients to put their results in.
+#            Defaults to None to indicate that it hasn't been set yet.
+#            The value should be set for the master group.
+privacyscore__is_master: None
+
+# privacyscore__is_slave: Determines whether a host is to be deployed as a slave.
+#           Slaves connect to the job queue, run the actual scans, and
+#           return their results to the master's redis database.
+#           Defaults to None. You should probably not set this value yourself,
+#           but rather have it set by putting your host into the slave group.
+privacyscore__is_slave: None
+
+# testssl_mx_remote_host:  FIXME: setting for testssl. But I don't currently know what exactly.
+testssl_mx_remote_host:
+
+# privacyscore__allowed_hosts: This will configure Django's ALLOWED_HOSTS setting.
+#                              Defaults to the empty list
+privacyscore__allowed_hosts: []
+
+# privacyscore__debug: This will configure Django's DEBUG setting and probably
+#                      cause relevant debug packages to be installed.
+#                      Defaults to True
+privacyscore__debug: True
+
+# privacyscore__secret_key: Django's SECRET_KEY setting. Make sure you double check
+#                           this value in production settings.
+#                           Defaults to a fixed string.
+privacyscore__secret_key: 'MAKE SURE YOU UPDATE THIS FOR PRODUCTION USE'
+
+# privacyscore__deploy_mode: To be set in the groups, e.g. testing or production
+privacyscore__deploy_mode: None
+
+
+# privacyscore__install_memcache: Determines whether we want to run memcached
+privacyscore__install_memcache: "{{ privacyscore__is_master | bool  and  privacyscore__deploy_mode != 'testing' }}"
+
+# privacyscore__collect_static: Determines whether to run django's collect static command
+privacyscore__collect_static: "{{ privacyscore__is_master | bool  and  privacyscore__deploy_mode != 'testing' }}"
+
+# privacyscore__static_root: Django's STATIC_ROOT configuration
+privacyscore__static_root: '/var/www/privacyscore.org'
+
+# privacyscore__celery_broker_url: Django's CELERY_BROKER_URL setting.
+#                                  You will want to change in your production settings.
+#                                  Defaults to localhost to just make it work™.
+privacyscore__celery_broker_url: 'amqp://privacyscore:privacyscore@localhost:5672/privacyscore/'
+
+# privacyscore__celery_result_backend: Django's CELERY_RESULT_BACKEND setting.
+#                                      You want to update this in your production settings.
+#                                      Maybe we can infer that from ansible somehow in the future.
+#                                      Defaults to localhost.
+privacyscore__celery_result_backend: 'redis://localhost:6379/0'
+
+# redis_bind: The addresses redis should listen on.
+#             By default, this is 127.1 only.
+#             But once you have external clients wanting to connect,
+#             e.g. worker slaves, then you might want to change this to
+#             0.0.0.0 ::
+redis_bind: 127.0.0.1
+
+# privacyscore__raven_dsn_url: If you want to use sentry, you can define the DSN URL.
+#                              It will be used to add raven to settings.py and configure it
+#                              accordingly.
+#                              Defaults to None.
+privacyscore__raven_dsn_url: None
+
+
+# privacyscore__test_for_message_queue: Whether the playbook should conduct a basic for
+#                                       the message queue.  This should really work in order
+#                                       for PrivacyScore to operate properly.
+#                                       Defaults to True.
+privacyscore__test_for_message_queue: True
+
+# privacyscore__git_url: The URL of the git repository to clone
+privacyscore__git_url: "https://github.com/PrivacyScore/PrivacyScore.git"
+
+# privacyscore__version: The version to deploy from the git repository
+privacyscore__version: master

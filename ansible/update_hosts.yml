@@ -8,90 +8,29 @@
       become: yes
       become_user: privacyscore
       git:
-        repo: gogs@svs.informatik.uni-hamburg.de:svs/privacyscore.git
+        repo: "{{ privacyscore__git_url }}"
         dest: /opt/privacyscore
-        version: master
-    - name: Update settings
-      blockinfile:
-        path: /opt/privacyscore/privacyscore/settings.py
-        block: |
-          LOGIN_REDIRECT_URL = '/'
-          LOGOUT_REDIRECT_URL = '/'
+        version: "{{ privacyscore__version }}"
+      notify:
+        - Restart privacyscore.service
+        - Restart privacyscore-celery-master.service
+        - Restart privacyscore-celery-slave.service
 
-          from kombu import Exchange, Queue
-          CELERY_TIMEZONE = TIME_ZONE
-          CELERY_TASK_SERIALIZER = 'msgpack'
-          CELERY_RESULT_SERIALIZER = 'msgpack'
-          CELERY_ACCEPT_CONTENT = ['msgpack']
-          CELERY_BROKER_URL = 'amqp://privacyscore:{{ lookup('passwordstore', 'svs/svs-ps01/rabbitmq/privacyscore') }}@134.100.14.111:5672//'
-          CELERY_RESULT_BACKEND = 'redis://134.100.14.111:6379/0'
-          CELERY_DEFAULT_QUEUE = 'master'
-          CELERY_QUEUES = (
-              Queue('master', Exchange('master'), routing_key='master'),
-              Queue('slave', Exchange('slave'), routing_key='slave'),
-          )
-
-
-          from datetime import timedelta
-          SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN = timedelta(minutes=28)
-          SCAN_SUITE_TIMEOUT_SECONDS = 420
-          SCAN_TOTAL_TIMEOUT = timedelta(hours=2)
-          SCAN_TEST_BASEPATH = os.path.join(BASE_DIR, 'tests')
-          SCAN_LISTS_PER_PAGE = 30
-
-          # The base modules containing the test suites. You usually do not want to
-          # change this.
-          TEST_SUITES_BASEMODULES = [
-              'privacyscore.test_suites',
-          ]
-
-          # The list of the test names to use. Test names may not be used multiple times.
-          # See the example test suite for documentation of the test module interface.
-          SCAN_TEST_SUITES = [
-              ('network', {
-                  'country_database_path': os.path.join(
-                      SCAN_TEST_BASEPATH, 'vendor/geoip/GeoLite2-Country.mmdb'),
-              }),
-              ('openwpm', {
-                  'scan_basedir': '/tmp/openwpm-scans',
-                  'virtualenv_path': os.path.join(BASE_DIR, 'tests/vendor/OpenWPM/.pyenv'),
-              }),
-              ('serverleak', {}),
-              ('testssl_https', {}),
-              ('testssl_mx', {
-                {% if testssl_mx_remote_host %}
-                'remote_host': '{{ testssl_mx_remote_host }}',
-                {% endif %}
-              }),
-          ]
-
-          RAW_DATA_UNCOMPRESSED_TYPES = [
-              'image/png',
-              'image/jpeg',
-          ]
-          RAW_DATA_DB_MAX_SIZE = 4000
-          RAW_DATA_DIR = os.path.join(BASE_DIR, 'raw_data')
-          RAW_DATA_DELETE_AFTER = timedelta(days=30)
-
-          SCAN_SCHEDULE_DAEMON_SLEEP = 60
-
-          SCAN_LISTS_PER_PAGE = 30
-
-          INSTALLED_APPS.append('raven.contrib.django.raven_compat')
-
-          import raven
-
-          RAVEN_CONFIG = {
-              'dsn': 'https://{{ lookup('passwordstore', 'privacyscore.org/sentry') }}@sentry.mafiasi.de/16',
-              # If you are using git, you can also automatically configure the
-              # release based on the git info.
-              'release': raven.fetch_git_sha('/opt/privacyscore'),
-          }
     - name: Install pip requirements
       become: yes
       become_user: privacyscore
       pip:
         requirements: /opt/privacyscore/requirements.txt
+      environment:
+        PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        VIRTUAL_ENV: /opt/privacyscore/.pyenv
+
+    - name: Install pip dev requirements
+      when: privacyscore__debug | default(True) | bool
+      become: yes
+      become_user: privacyscore
+      pip:
+        requirements: /opt/privacyscore/requirements-dev.txt
       environment:
         PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
@@ -104,61 +43,246 @@
         PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
     - name: Migrate database
-      when: is_master
+      when: privacyscore__is_master | bool
       become: yes
       become_user: privacyscore
       command: /opt/privacyscore/manage.py migrate
       environment:
         PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
+
+    - name: Ensure static files directory is writable
+      when: privacyscore__collect_static | bool
+      become: yes
+      tags: ['privacyscore::collectstatic']
+      file:
+        state: directory
+        path: "{{ privacyscore__static_root | mandatory }}"
+        owner: privacyscore
+        mode: u=rwX,g=rX,o=rX
+
     - name: Collect static files
-      when: is_master
+      when: privacyscore__collect_static | bool
       become: yes
       become_user: privacyscore
+      tags: ['privacyscore::collectstatic']
       command: /opt/privacyscore/manage.py collectstatic --no-input
       environment:
         PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
+
+
+    - name: Install master packages
+      become: yes
+      when: privacyscore__is_master | bool
+      apt:
+        name: "{{item}}"
+        update_cache: yes
+        cache_valid_time: 3600
+      with_items:
+        ## The master uses celery to communicate with the slaves.
+        ## Celery in turn uses rabbitmq.
+        - rabbitmq-server
+        - celeryd
+        ## Slaves dump their results via redis
+        - redis-server
+
+    - name: Configure redis to listen to be supervised by systemd
+      # I wonder why we have to do that, though.
+      when: privacyscore__is_master | bool
+      lineinfile:
+          dest: /etc/redis/redis.conf
+          regexp: "^supervised .*"
+          line: "supervised systemd"
+          state: present
+      notify:
+        - restart redis
+      tags: ['redis']
+
+    - name: Configure redis listening addresses
+      when: privacyscore__is_master | bool
+      lineinfile:
+          dest: /etc/redis/redis.conf
+          regexp: "^bind .*"
+          line: "bind {{ redis_bind | default('127.0.0.2')}}"
+          state: present
+      notify:
+        - restart redis
+      tags: ['redis']
+
+    - name: Configure overcommitting memory
+      # https://redis.io/topics/faq
+      when: privacyscore__is_master | bool
+      sysctl:
+        name: vm.overcommit_memory
+        value: 1
+        state: present
+
+    - name: Disable Transparent Huge Pages in Grub 2
+      when: privacyscore__is_master | bool
+      lineinfile:
+          path: /etc/default/grub
+          state: present
+          line: 'GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX transparent_hugepage=never"'
+      notify: Run update-grub
+
+
+    - name: Disable Transparent Huge Pages until reboot
+      when: privacyscore__is_master | bool
+      shell: echo never | tee /sys/kernel/mm/transparent_hugepage/enabled && echo never | tee /sys/kernel/mm/transparent_hugepage/defrag
+      ignore_errors: true
+
+
+    - name: Install memcached
+      when: privacyscore__install_memcache | bool
+      tags: ['privacyscore::memcache,privacyscore::memcached']
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - memcached
+        - python-memcache
+
+        
+    # FIXME: Softcode vhost name
+    - name: Configure RabbitMQ vhost
+      become: yes
+      # We assume Debian to have created this rabbitmq user...
+      become_user: rabbitmq
+      when: privacyscore__is_master | bool
+      rabbitmq_vhost:
+        # FIXME: Softcode queue name
+        name: privacyscore/
+        state: present
+
+    # FIXME: Softcode credentials
+    - name: Configure RabbitMQ user
+      become: yes
+      # We assume Debian to have created this rabbitmq user...
+      become_user: rabbitmq
+      when: privacyscore__is_master | bool
+      rabbitmq_user:
+        user: privacyscore
+        state: present
+        password: privacyscore
+        vhost: privacyscore/
+        configure_priv: .*
+        read_priv: .*
+        write_priv: .*
+
+    # You probably want to have nginx and everything in your production environment.
+    # For your test environment, you can try something like
+    # ssh testhost   sudo -u privacyscore -i env PATH="/opt/privacyscore/.pyenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"  VIRTUAL_ENV="/opt/privacyscore/.pyenv"  /opt/privacyscore/manage.py runserver 0:8000
+    - name: Install uWSGI
+      become: yes
+      become_user: privacyscore
+      when: privacyscore__is_master
+      pip:
+        name: uWSGI
+      environment:
+        PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        VIRTUAL_ENV: /opt/privacyscore/.pyenv
+
+
+#FIXME: We might as well want to check whether the rabbitmq service is running
+
     - name: Place systemd unit file for privacyscore-celery-master
-      when: is_master
+      when: privacyscore__is_master | bool
       template:
         src: privacyscore-celery-master.service
         dest: /etc/systemd/system/privacyscore-celery-master.service
+      notify:
+        - Reload systemd
+
     - name: Place systemd unit file for privacyscore-celery-slave
-      when: is_slave
+      when: privacyscore__is_slave | bool
       template:
         src: privacyscore-celery-slave.service
         dest: /etc/systemd/system/privacyscore-celery-slave.service
+      notify:
+        - Reload systemd
+
     - name: Place systemd unit file for privacyscore
-      when: is_master
+      when: privacyscore__is_master | bool
       template:
         src: privacyscore.service
         dest: /etc/systemd/system/privacyscore.service
-    - name: Restart privacyscore.service
-      when: is_master
-      service: name=privacyscore state=restarted
-    - name: Restart privacyscore-celery-master.service
-      when: is_master
-      service: name=privacyscore-celery-master state=restarted
-    - name: Restart privacyscore-celery-slave.service
-      when: is_slave
-      service: name=privacyscore-celery-slave state=restarted
+      notify:
+        - Reload systemd
+
+    - name: Force systemd reload
+      meta: flush_handlers
+
+    - name: Start privacyscore on boot
+      when: privacyscore__is_master | bool
+      systemd:
+          name: privacyscore.service
+          state: started
+          enabled: yes
+
+    - name: Do not start privacyscore on boot
+      when: not privacyscore__is_master | bool
+      systemd:
+          name: privacyscore.service
+          state: stopped
+          enabled: no
+      # We ignore here, because the host may simply not have this file 
+      # installed. We do, however, attempt to disable the service, 
+      # because we may turn an existing master into a slave.
+      ignore_errors: yes
+
+
+    - name: Start privacyscore celery master on boot
+      when: privacyscore__is_master | bool
+      systemd:
+          name: privacyscore-celery-master.service
+          state: started
+          enabled: yes
+
+    - name: Do not start privacyscore celery master on boot
+      when: not privacyscore__is_master | bool
+      systemd:
+          name: privacyscore-celery-master.service
+          state: stopped
+          enabled: no
+      ignore_errors: yes
+
+    - name: Start privacyscore celery slave on boot
+      when: privacyscore__is_slave | bool
+      systemd:
+          name: privacyscore-celery-slave.service
+          state: started
+          enabled: yes
+
+    - name: Do not start privacyscore celery slave on boot
+      when: not privacyscore__is_slave | bool
+      systemd:
+          name: privacyscore-celery-slave.service
+          state: stopped
+          enabled: no
+      ignore_errors: yes
+      
+
+
+
     - name: Refresh vendor/testssl
-      when: is_slave
+      when: privacyscore__is_slave
       become: yes
       become_user: privacyscore
       git:
         repo: https://github.com/drwetter/testssl.sh.git
         dest: /opt/privacyscore/tests/vendor/testssl.sh
-        version: 47409a32d687355739543890c1ddc70a8539d071
+        version: "{{ privacyscore__testssl_version | mandatory }}"
+        depth: 1
     - name: Refresh vendor/OpenWPM
-      when: is_slave
+      when: privacyscore__is_slave
       become: yes
       become_user: privacyscore
       git:
         repo: https://github.com/citp/OpenWPM
         dest: /opt/privacyscore/tests/vendor/OpenWPM
-        version: 99da2d91897c2ddcb128a0e133cccc09c4f14996
+        version: "{{ privacyscore__openwpm_version | mandatory }}"
+        depth: 1
     - name: Create vendor/EasyList if it does not exist
       file:
         path: /opt/privacyscore/tests/vendor/EasyList/
@@ -198,3 +322,56 @@
       shell: wget https://chromium.googlesource.com/chromium/src/net/+/master/http/transport_security_state_static.json?format=TEXT -O - | base64 -d | egrep -v "^([ ]*\/\/|$)" > "/opt/privacyscore/tests/vendor/HSTSPreload/transport_security_state_static"
       args:
         executable: /bin/bash
+
+    - name: Ensure that the raw_data directory exists
+      file:
+        path: /opt/privacyscore/raw_data
+        owner: privacyscore
+        group: privacyscore
+        mode: 0700
+        state: directory
+
+    - name: Checking whether we can access the message queue
+      become: yes
+      become_user: privacyscore
+      when: privacyscore__test_for_message_queue | default(False)
+      shell:  timeout --preserve-status 10   /opt/privacyscore/.pyenv/bin/celery -A privacyscore status
+      args:
+          chdir:  /opt/privacyscore/
+      environment:
+        PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        VIRTUAL_ENV: /opt/privacyscore/.pyenv
+
+
+  handlers:
+  - name: restart redis
+    systemd:
+        name: redis-server
+        state: restarted
+
+  - name: Reload systemd
+    systemd:
+      daemon_reload: True
+
+  - name: Restart privacyscore.service
+    when: privacyscore__is_master | bool
+    systemd:
+      name: privacyscore
+      state: restarted
+      daemon_reload: True
+
+  - name: Restart privacyscore-celery-master.service
+    when: privacyscore__is_master | bool
+    systemd:
+      name: privacyscore-celery-master
+      state: restarted
+      daemon_reload: True
+
+  - name: Restart privacyscore-celery-slave.service
+    when: privacyscore__is_slave | bool
+    systemd:
+      name: privacyscore-celery-slave
+      state: restarted
+
+  - name: Run update-grub
+    shell: update-grub

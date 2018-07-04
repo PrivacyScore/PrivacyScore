@@ -1,0 +1,15 @@
+privacyscore__allowed_hosts:
+    - privacyscore.org
+
+privacyscore__debug: False
+
+privacyscore__secret_key: "{{ lookup('passwordstore', 'privacyscore.org/settings/SECRET_KEY') }}"
+
+privacyscore__deploy_mode: 'production'
+
+privacyscore__celery_broker_url: "amqp://privacyscore:{{ lookup('passwordstore', 'svs/svs-ps01/rabbitmq/privacyscore') }}@134.100.14.111:5672//"
+
+privacyscore__celery_result_backend: 'redis://134.100.14.111:6379/0'
+
+privacyscore__raven_dsn_url: "https://{{ lookup('passwordstore', 'privacyscore.org/sentry') }}@sentry.mafiasi.de/16"
+

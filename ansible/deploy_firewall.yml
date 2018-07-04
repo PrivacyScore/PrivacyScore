@@ -5,7 +5,7 @@
     ansible_ssh_pipelining: yes
   tasks:
     - name: Create if-pre-up script
-      when: is_slave
+      when: privacyscore__is_slave
       copy:
         src: if-pre-up
         dest: /etc/network/if-pre-up.d/iptables
@@ -13,7 +13,7 @@
         group: root
         mode: 0755
     - name: Copy rules
-      when: is_slave
+      when: privacyscore__is_slave
       copy:
         src: iptables_slave
         dest: /etc/iptables.rules
@@ -21,5 +21,5 @@
         group: root
         mode: 0644
     - name: Activate iptables rules
-      when: is_slave
+      when: privacyscore__is_slave
       command: /etc/network/if-pre-up.d/iptables

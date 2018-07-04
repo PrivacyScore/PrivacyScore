@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,14 +21,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '{{ lookup('passwordstore', 'privacyscore.org/settings/SECRET_KEY') }}'
+SECRET_KEY = "{{ privacyscore__secret_key | mandatory }}"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = {{ privacyscore__debug | default(True) }}
 
-ALLOWED_HOSTS = [
-    'privacyscore.org',
-]
+ALLOWED_HOSTS = {{ privacyscore__allowed_hosts | default([]) }}
 
 
 # Application definition
@@ -35,6 +34,7 @@ ALLOWED_HOSTS = [
 INSTALLED_APPS = [
     'privacyscore.api',
     'privacyscore.backend',
+    'privacyscore.evaluation',
     'privacyscore.frontend',
     'privacyscore.scanner',
     'django.contrib.admin',
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -80,7 +81,38 @@ WSGI_APPLICATION = 'privacyscore.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'HOST': 'localhost',
+        'USER': 'privacyscore',
+        'PASSWORD': 'privacyscore',
+        'NAME': 'privacyscore',
+    }
+}
+if os.environ.get('NO_DB'):
+    # do not enable database on this worker
+    DATABASES = {}
+
+{% if privacyscore__install_memcache %}
+# We want to run memcache: {{ privacyscore__install_memcache }}
+CACHES = {
+    # If we defined CACHES, we need to have a "default".
+    # Otherwise Django complains.
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+        'OPTIONS': {
+            'server_max_value_length': 1024 * 1024 * 5,
+        }
+    }
+}
+
+{% else %}
+# No memcache for us: {{ privacyscore__install_memcache }}
+{% endif %}
+
+CACHE_DEFAULT_TIMEOUT_SECONDS = 1800
 
 
 # Password validation
@@ -120,4 +152,95 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/var/www/privacyscore.org'
+{% if privacyscore__collect_static %}
+STATIC_ROOT = '{{ privacyscore__static_root }}'
+{% endif %}
+
+MEDIA_URL = '/media/'
+
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+from kombu import Exchange, Queue
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_SERIALIZER = 'msgpack'
+CELERY_RESULT_SERIALIZER = 'msgpack'
+CELERY_ACCEPT_CONTENT = ['msgpack']
+CELERY_BROKER_URL = '{{ privacyscore__celery_broker_url }}'
+CELERY_RESULT_BACKEND = '{{ privacyscore__celery_result_backend }}'
+CELERY_DEFAULT_QUEUE = 'master'
+CELERY_QUEUES = (
+    Queue('master', Exchange('master'), routing_key='master'),
+    Queue('slave', Exchange('slave'), routing_key='slave'),
+)
+
+
+# FIXME: Soft-code these time related settings
+SCAN_REQUIRED_TIME_BEFORE_NEXT_SCAN = timedelta(minutes=28)
+SCAN_SUITE_TIMEOUT_SECONDS = 420
+SCAN_TOTAL_TIMEOUT = timedelta(hours=8)
+SCAN_TEST_BASEPATH = os.path.join(BASE_DIR, 'tests')
+SCAN_LISTS_PER_PAGE = 30
+
+# The base modules containing the test suites. You usually do not want to
+# change this.
+TEST_SUITES_BASEMODULES = [
+    'privacyscore.test_suites',
+]
+
+# The list of the test names to use. Test names may not be used multiple times.
+# See the example test suite for documentation of the test module interface.
+SCAN_TEST_SUITES = [
+    ('network', {
+        'country_database_path': os.path.join(
+            SCAN_TEST_BASEPATH, 'vendor/geoip/GeoLite2-Country.mmdb'),
+    }),
+    ('openwpm', {
+        'scan_basedir': '/tmp/openwpm-scans',
+        'virtualenv_path': os.path.join(BASE_DIR, 'tests/vendor/OpenWPM/.pyenv'),
+    }),
+    ('serverleak', {}),
+    ('testssl_https', {}),
+    ('testssl_mx', {
+         {% if testssl_mx_remote_host %}
+              'remote_host': '{{ testssl_mx_remote_host }}',
+         {% endif %}
+      },
+    ),
+]
+
+RAW_DATA_UNCOMPRESSED_TYPES = [
+    'image/png',
+    'image/jpeg',
+]
+RAW_DATA_DB_MAX_SIZE = 4000
+RAW_DATA_DIR = os.path.join(BASE_DIR, 'raw_data')
+RAW_DATA_DELETE_AFTER = timedelta(days=10)
+
+SCAN_SCHEDULE_DAEMON_SLEEP = 60
+
+{% if privacyscore__raven_dsn_url | bool %}
+INSTALLED_APPS.append('raven.contrib.django.raven_compat')
+
+import raven
+
+RAVEN_CONFIG = {
+    'dsn': '{{ privacyscore__raven_dsn_url }}',
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    # FIXME: Soft-code the git repository path
+    'release': raven.fetch_git_sha('/opt/privacyscore'),
+}
+{% else %}
+# no privacyscore__raven_dsn_url:  {{ privacyscore__raven_dsn_url }}
+{% endif %}
+
+
+
+# debug toolbar
+if DEBUG:
+    INSTALLED_APPS += ['debug_toolbar']
+    MIDDLEWARE = [
+        'debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
+    INTERNAL_IPS = ['127.0.0.1']

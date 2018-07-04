@@ -7,16 +7,18 @@
     - name: Add contrib to sources.list
       blockinfile:
         path: /etc/apt/sources.list
+        state: absent
         block: |
           deb http://192.168.122.1:3142/ftp.de.debian.org/debian/ stretch main contrib
           deb-src http://192.168.122.1:3142/ftp.de.debian.org/debian/ stretch main contrib
+
     - name: Install apt packages
-      apt: name={{ item }} update_cache=yes
+      apt: name={{ item }} update_cache=yes cache_valid_time=1800
       with_items:
         - build-essential
-        - firefox-esr
-        - flashplugin-nonfree
+        ## We surely need git to check out PrivacyScore
         - git
+        ## FIXME: What do we need all the headers for?
         - libboost-python-dev
         - libffi-dev
         - libjpeg-dev
@@ -33,35 +35,72 @@
         - python-dev
         - virtualenv
         - xvfb
+        ## We seem to require postgresql for the Django app
+        - postgresql
+        ## And we need psycopg2 for ansible to interact with postgres
+        - python-psycopg2
+
+    - name: Install firefox on Debian
+      apt: name={{ item }}
+      with_items:
+        ## This is needed by OpenWPM. Not Firefox directly,
+        ## but its dependencies.  Instead of manually picking out
+        ## the required libs, we simply pull firefox here.
+        - firefox-esr
+        # 
+        # Debian has the flashplugin package in contrib.
+        # Let's see whether OpenWPM installs it itself.
+        # Otherwise we need to add an ansible directive to
+        # add contrib.
+        # - flashplugin-nonfree
+      when: ansible_lsb["id"] == "Debian"
+
+    - name: Install firefox on Ubuntu
+      apt: name={{ item }}
+      with_items:
+        - firefox
+        # - adobe-flashplugin
+      when: ansible_lsb["id"] == "Ubuntu"
+
+    - name: Add PrivacyScore Database 
+      become: yes
+      # FIXME: We assume the "postgres" user exists. It's probably better to soft-code that
+      become_user: postgres
+      # FIXME: Soft code database name
+      postgresql_db:
+        name: privacyscore
+        state: present
+        # Dunno what that does: owner: privacyscore
+
+    - name: Add PrivacyScore Database user
+      become: yes
+      become_user: postgres
+      # FIXME: Soft code credentials
+      postgresql_user:
+        name: privacyscore
+        state: present
+        password: privacyscore
+        
     - name: Enable NTP service
       service:
         name: ntp
         state: started
         enabled: yes
-    - name: Create root .ssh directory
-      file:
-        path: /root/.ssh
-        owner: root
-        group: root
-        mode: 0700
-        state: directory
-    - name: Store ssh key for root
-      copy:
-        src: id_rsa
-        dest: /root/.ssh/id_rsa
-        owner: root
-        group: root
-        mode: 0400
     - name: Clone git repository
       git:
-        repo: gogs@svs.informatik.uni-hamburg.de:svs/privacyscore.git
+        repo: "{{ privacyscore__git_url }}"
+        depth: 1
         dest: /opt/privacyscore
-        version: master
+        version: "{{ privacyscore__version }}"
         accept_hostkey: yes
+      notify:
+        - Restart privacyscore-celery-slave.service
+
     - name: Create privacyscore user
       user:
         name: privacyscore
         home: /opt/privacyscore
+        shell: /bin/bash
         system: yes
     - name: Set owner of privacyscore directory
       file:
@@ -93,40 +132,41 @@
 
         ./install-tests.sh
     - name: Place settings
+      tags: ['privacyscore::settings']
       template:
         src: settings.py
         dest: /opt/privacyscore/privacyscore/settings.py
         owner: privacyscore
         group: privacyscore
         mode: 0500
+      register: privacyscore__settings
+      notify:
+        - Restart privacyscore-celery-slave.service
+
     - name: Place systemd unit file for privacyscore-celery-slave
       template:
         src: privacyscore-celery-slave.service
         dest: /etc/systemd/system/privacyscore-celery-slave.service
+      notify:
+        - Reload systemd
+
+    - name: Force systemd reload
+      meta: flush_handlers
+
     - name: Enable and start celery slave service
-      service:
+      # when: privacyscore__is_slave | bool
+      systemd:
         name: privacyscore-celery-slave
         state: started
         enabled: yes
-    - name: Create privacyscore .ssh directory
-      file:
-        path: /opt/privacyscore/.ssh
-        owner: privacyscore
-        group: privacyscore
-        mode: 0700
-        state: directory
-    - name: Store ssh key for privacyscore
-      copy:
-        src: id_rsa
-        dest: /opt/privacyscore/.ssh/id_rsa
-        owner: privacyscore
-        group: privacyscore
-        mode: 0400
-    - name: Pull git repository as privacyscore user to accept hostkey initially
-      become: yes
-      become_user: privacyscore
-      git:
-        repo: gogs@svs.informatik.uni-hamburg.de:svs/privacyscore.git
-        dest: /opt/privacyscore
-        version: master
-        accept_hostkey: yes
+
+  handlers:
+    - name: Reload systemd
+      systemd:
+        daemon_reload: True
+            
+    - name: Restart privacyscore-celery-slave.service
+      when: privacyscore__is_slave | bool
+      systemd:
+        name: privacyscore-celery-slave
+        state: restarted

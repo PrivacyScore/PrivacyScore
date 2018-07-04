@@ -1,0 +1,4 @@
+privacyscore__deploy_mode: 'staging'
+
+# FIXME: Can we use some ansible trickery to get the IP of the host running the redis?
+privacyscore__celery_result_backend: 'redis://134.100.14.111:6379/0'

@@ -15,3 +15,5 @@ tldextract
 toposort
 url_normalize
 pygments
+# Sometimes we need memcache.
+# python-memcached
