@@ -31,7 +31,7 @@ urlpatterns = [
     url(r'^scan/$', views.scan, name='scan'),
     url(r'^third_parties/$', views.third_parties, name='third_parties'),
     url(r'^login/$', auth_views.LoginView.as_view(template_name='frontend/login.html'), name='login'),
-    url(r'^logout/$', auth_views.logout, name='logout'),
+    url(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),
     url(r'^user/$', views.user, name='user'),
     url(r'^checks/$', views.checks, name='checks'),
     url(r'^roadmap/$', views.roadmap, name='roadmap'),

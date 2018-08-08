@@ -1,14 +1,14 @@
 adblockparser
 arrow
 celery
-Django<1.12
+Django<2.2
 djangorestframework
 django-widget-tweaks
 dnspython
 geoip2
 msgpack-python
 Pillow
-psycopg2 # required on slaves without db access as well due to django.contrib.postgres imports in models
+psycopg2-binary # required on slaves without db access as well due to django.contrib.postgres imports in models
 redis
 requests
 tldextract
