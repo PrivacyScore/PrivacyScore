@@ -460,7 +460,7 @@ def detect_trackers(third_parties):
 
     blacklist = [re.compile('^[\|]*http[s]*[:/]*$'),  # match http[s]:// in all variations
                  re.compile('^[\|]*ws[:/]*$'),  # match ws:// in all variations
-                 re.compile('^\.'),  # match rules like .com
+                 # re.compile('^\.'),  # match rules like .com -> commented out because it was causing problems
                  re.compile('^\/'),  # match rules like /stuff
                  re.compile('^\#'),  # match rules beginning with #
                  re.compile('^\:'),  # match rules beginning with :
