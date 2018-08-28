@@ -514,6 +514,11 @@ def detect_trackers(third_parties):
     i = 0
     
     for url in third_parties:
+        url = url.lower()
+        if url.startswith('https://'):
+            url = url[8:]
+        if url.startswith('http://'):
+            url = url[7:]
         if abr.should_block(url):
             ext = tldextract.extract(url)
             result.append("{}.{}".format(ext.domain, ext.suffix))
