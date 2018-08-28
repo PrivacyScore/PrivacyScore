@@ -514,6 +514,14 @@ def detect_trackers(third_parties):
     i = 0
     
     for url in third_parties:
+        # Remove protocol information, as this seems to cause false positives in AdblockParser.
+        # See PR #51 on Github for details
+        url = url.lower()
+        if url.startswith('https://'):
+            url = url[8:]
+        if url.startswith('http://'):
+            url = url[7:]
+        # Now check if we should block it
         if abr.should_block(url):
             ext = tldextract.extract(url)
             result.append("{}.{}".format(ext.domain, ext.suffix))
