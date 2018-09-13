@@ -43,7 +43,7 @@ def index(request: HttpRequest) -> HttpResponse:
 
 
 def browse(request: HttpRequest) -> HttpResponse:
-    scan_lists = ScanList.objects.annotate(sites__count=Count('sites')).filter(
+    scan_lists = ScanList.objects.annotate(sites__count=Count('sites', distinct=True)).filter(
         editable=False,
         private=False,
     ) .order_by('-views', 'name').prefetch_tags().select_related('last_scan')
