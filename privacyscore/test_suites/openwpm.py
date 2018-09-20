@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import shutil
+import time
 
 from io import BytesIO
 from typing import Dict, Union
@@ -63,6 +64,7 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
                 scan_site(scanner_result, logger, {}, meta)
         except RetryScan:
             num_tries += 1
+            time.sleep(10)
         else:
             break
 
