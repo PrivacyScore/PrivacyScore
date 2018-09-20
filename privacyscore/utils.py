@@ -1,8 +1,10 @@
 """
 Utility functions that are shared across different modules.
 """
-
+import errno
+import fcntl
 import os
+from pathlib import Path
 
 from pwd import getpwuid
 from typing import List, Tuple
@@ -48,3 +50,28 @@ def get_processes_of_user(user: str) -> List[Tuple[int, str]]:
         for pid in os.listdir('/proc')
         if (pid.isdigit() and
             getpwuid(os.stat('/proc/{}'.format(pid)).st_uid).pw_name == user)]
+
+
+class get_worker_id:
+    def __init__(self, ident='worker-ids'):
+        self.ident = ident
+        self._worker_lock_dir = Path('/dev/shm/') / ident
+        self._lock_file = None
+
+    def __enter__(self):
+        self._worker_lock_dir.mkdir(exist_ok=True)
+        worker_id = 0
+        while True:
+            self._lock_file = open(self._worker_lock_dir / str(worker_id), 'w')
+            try:
+                fcntl.lockf(self._lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                return worker_id
+            except OSError as e:
+                if e.errno not in (errno.EAGAIN, errno.EACCES):
+                    raise
+            worker_id += 1
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self._lock_file:
+            fcntl.lockf(self._lock_file.fileno(), fcntl.LOCK_UN)
+            self._lock_file.close()
