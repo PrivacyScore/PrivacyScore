@@ -19,6 +19,9 @@ from privacyscanner.scanmodules.chromedevtools import scan_site
 from privacyscanner.scanmeta import ScanMeta
 from privacyscanner.result import Result
 from privacyscanner.filehandlers import DirectoryFileHandler
+from privacyscanner.exceptions import RetryScan
+
+from privacyscore.utils import get_worker_id
 
 
 test_name = 'openwpm'
@@ -50,10 +53,18 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
     os.mkdir(scan_dir)
 
     file_handler = DirectoryFileHandler(scan_dir)
-    meta = ScanMeta(worker_id=0, num_tries=1)
-    scanner_result = Result({'site_url': url}, file_handler)
     logger = logging.getLogger()
-    scan_site(scanner_result, logger, {}, meta)
+    num_tries = 1
+    while num_tries <= 3:
+        try:
+            scanner_result = Result({'site_url': url}, file_handler)
+            with get_worker_id() as worker_id:
+                meta = ScanMeta(worker_id=worker_id, num_tries=num_tries)
+                scan_site(scanner_result, logger, {}, meta)
+        except RetryScan:
+            num_tries += 1
+        else:
+            break
 
     # screenshot
     if os.path.isfile(os.path.join(scan_dir, 'files/screenshot.png')):
@@ -348,3 +359,4 @@ def detect_cookies(domain, cookies, flashcookies, trackers):
         "third_party_track_domains": seen_trackers,
     }
     return rv
+
