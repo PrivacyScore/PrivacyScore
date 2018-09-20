@@ -43,20 +43,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """Schedules a new scan regularly."""
         while True:
-            # see if there are sites that have not been scanned yet
             sites = Site.objects.annotate_most_recent_scan_start() \
-                .filter(last_scan__start__isnull=True, last_scan__isnull=True)
-            if not sites:
-                self.stdout.write('There are no unscanned sites.')
-                self.stdout.flush()
-                # There are no unscanned sites.
-                sites = Site.objects.annotate_most_recent_scan_start() \
-                    .annotate_most_recent_scan_end_or_null().filter(
-                    last_scan__end_or_null__isnull=False).order_by(
-                    'last_scan__end')
+                .annotate_most_recent_scan_end_or_null().filter(
+                last_scan__end_or_null__isnull=False).order_by(
+                'last_scan__end')
             sites = list(sites[:MAX_TRIES])
             
-            # Try up to five times to find a scannable site
+            # Try several times to find a scannable site
             for i in range(min(MAX_TRIES, len(sites))):
                 site = sites.pop()
                 
