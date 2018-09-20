@@ -62,7 +62,7 @@ class get_worker_id:
         self._worker_lock_dir.mkdir(exist_ok=True)
         worker_id = 0
         while True:
-            self._lock_file = open(self._worker_lock_dir / str(worker_id), 'w')
+            self._lock_file = (self._worker_lock_dir / str(worker_id)).open('w')
             try:
                 fcntl.lockf(self._lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
                 return worker_id
