@@ -56,17 +56,23 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
     file_handler = DirectoryFileHandler(scan_dir)
     logger = logging.getLogger()
     num_tries = 1
-    while num_tries <= 3:
+    while True:
         try:
             scanner_result = Result({'site_url': url}, file_handler)
             with get_worker_id() as worker_id:
                 meta = ScanMeta(worker_id=worker_id, num_tries=num_tries)
                 scan_site(scanner_result, logger, {}, meta)
+            break
         except RetryScan:
+            if num_tries >= 3:
+                result['crawldata'] = {
+                    'mime_type': 'application/json',
+                    'data': json.dumps(None).encode(),
+                }
+                return result
+
             num_tries += 1
             time.sleep(10)
-        else:
-            break
 
     # screenshot
     if os.path.isfile(os.path.join(scan_dir, 'files/screenshot.png')):
@@ -75,7 +81,7 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
                 'mime_type': 'image/png',
                 'data': f.read(),
             }
-    
+
     # crawl result
     result['crawldata'] = {
         'mime_type': 'application/json',
@@ -121,6 +127,9 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
 
     crawl_data = json.loads(raw_data['crawldata']['data'].decode())
 
+    if crawl_data is None:
+        return scantosave
+
     scantosave['initial_url'] = crawl_data['site_url']
 
     request_mapping = { 'url': 'url', 'method': None, 'referrer': None, 'headers': None }
@@ -136,12 +145,12 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
     #scantosave['third_party_requests'] = []
 
     scantosave['third_party_requests_count'] = crawl_data['third_parties']['num_http_requests'] + crawl_data['third_parties']['num_https_requests']
-                                                                               
+
     scantosave['third_parties'] = crawl_data['third_parties']['fqdns']
     scantosave['third_parties_count'] = len(scantosave['third_parties'])
 
     scantosave['tracker_requests'] = crawl_data['tracking']['trackers']
-    # pychrome does not provide this        
+    # pychrome does not provide this
     #scantosave['tracker_requests_elapsed_seconds'] = 0
 
     scantosave['google_analytics_present'] = crawl_data['google_analytics']['has_requests']
@@ -269,7 +278,7 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
 
         scantosave["cookies_count"] = len(scantosave["profilecookies"])
         scantosave["cookie_stats"] = \
-            detect_cookies(crawl_data['site_url'], scantosave["profilecookies"], 
+            detect_cookies(crawl_data['site_url'], scantosave["profilecookies"],
                 scantosave["flashcookies"], scantosave["tracker_requests"])
 
         scantosave["mixed_content"] = crawl_data["insecure_content"]["has_mixed_content"]
@@ -280,7 +289,7 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
 def pixelize_screenshot(screenshot, screenshot_pixelized, target_width=390, pixelsize=3):
     """
     Thumbnail a screenshot to `target_width` and pixelize it.
-    
+
     :param screenshot: Screenshot to be thumbnailed in pixelized
     :param screenshot_pixelized: File to which the result should be written
     :param target_width: Width of the final thumbnail
@@ -321,7 +330,7 @@ def detect_cookies(domain, cookies, flashcookies, trackers):
     tp_fc         = 0  # Third party flash cookies (deprecated)
     tp_track      = 0  # Third party cookies from known trackers
     tp_track_uniq = 0  # Number of unique tracking domains that set cookies
-    
+
     dom_ext = tldextract.extract(domain)
     seen_trackers = []
 
