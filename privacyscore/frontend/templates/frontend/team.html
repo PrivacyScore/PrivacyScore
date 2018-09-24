@@ -17,13 +17,33 @@
         
         <div class="row">
             <div class="col-md-5">
+                <h3>University of Bamberg, Germany</h3>
+
+                <p><strong>Prof. Dr. Dominik Herrmann</strong> heads the
+                <a href="https://www.uni-bamberg.de/psi/">
+                   Privacy and Security in Information Systems Group</a>.
+                   <strong>Henning Pridöhl</strong> and <strong>Martin Müller</strong> are a research assistants in that group.</p>
+
+                <p>At the moment, the machines that are
+                    being used for scanning are hosted here.</p>
+
+                <h3>TU Darmstadt, Germany</h3>
+                
+                <p><strong>Max Maass</strong> contributes to PrivacyScore
+                    in various ways. He works in the <a
+                    href="https://www.seemoo.tu-darmstadt.de/home-vision/">
+                    Secure Mobile Networking Lab</a> at TU Darmstadt, as
+                    a PhD student in the Doctoral College
+                    <a href="https://www.privacy-trust.tu-darmstadt.de/de/home/">
+                        “Privacy and Trust for Mobile Users”</a>.</p>
+
                 <h3>Universität Hamburg, Germany</h3>
                 
                 <p>Multiple researchers and students of the
                     <a href="https://svs.informatik.uni-hamburg.de/">
                         Security in Distributed Systems Group</a>
                         at Universität Hamburg have been working on
-                        the design and the implementation of PrivacyScore.
+                        the web design and the implementation of PrivacyScore.
                     <ul>
                         <li><strong>Matthias Marx</strong> (research assistant)</li>
                         <li><strong>Tobias Müller</strong> (research assistant)</li>
@@ -31,29 +51,6 @@
                         <li><strong>Rick Trojahn</strong> (student)</li>
                         <li><strong>Kim-Otto Daetz</strong> (student)</li>
                     </ul>
-                    
-                <p>At the moment, most of the virtual machines that are
-                    being used for scanning are hosted in Hamburg.</p>
-                    
-								<h3>University of Bamberg, Germany</h3>
-
-                <p><strong>Prof. Dr. Dominik Herrmann</strong> heads the
-                <a href="https://www.uni-barg.de/psi/">
-                    Privacy and Security in Information Systems Group</a>.
-                   <strong>Henning Pridöhl</strong> is a research assistant
-                   in that group.</p>
-                 
-                <h3>TU Darmstadt, Germany</h3>
-                
-                <p><strong>Max Maass</strong> contributes to PrivacyScore
-                    in various ways, for instance by implementing tests.
-                    He works in the <a
-                    href="https://www.seemoo.tu-darmstadt.de/home-vision/">
-                    Secure Mobile Networking Lab</a> at TU Darmstadt, as
-                    a PhD student in the Doctoral College
-                    <a href="https://www.privacy-trust.tu-darmstadt.de/de/home/">
-                        “Privacy and Trust for Mobile Users”</a>.</p>
-                        
             </div>
             <div class="col-md-5 col-md-push-1">
                 <h3>Universität Kassel, Germany</h3>
@@ -70,7 +67,7 @@
                 <p><strong>Prof. Dr.-Ing. Sebastian Schinzel</strong> works
                     at the <a href="https://www.fh-muenster.de/fb2/personen/professoren/schinzel/">
                         Department of Electrical Engineering and Computer Science</a>
-                    and contributes to PrivacyScore by providing
+                    and contributed to PrivacyScore by providing
                     computing resources for scanning.</p>
             </div>
             <div class="col-md-5 col-md-push-1">
@@ -90,11 +87,11 @@
                 
                 <h2>{% trans 'Acknowledgements' %}</h2>
                 
-                <p>We are grateful to the authors of the following tools, which are being
-                   used in PrivacyScore or have inspired our work.</p>
+                <p>We are grateful to the authors of the following tools, which have been
+                   used to implement PrivacyScore or have inspired our work.</p>
                 
                 <ul class="list-group">
-                    <li class="list-group-item"><a href="https://github.com/citp/OpenWPM"><strong>OpenWPM</strong></a> by Steven Englehardt and Arvind Narayanan (Center for Information Technology Policy, Princeton University), which is used for most of the checks in the NoTrack group.
+                    <li class="list-group-item"><a href="https://github.com/citp/OpenWPM"><strong>OpenWPM</strong></a> by Steven Englehardt and Arvind Narayanan (Center for Information Technology Policy, Princeton University), which was used for most of the checks in the NoTrack group. In September 2018 we switched from OpenWPM to Chrome (via the DevTools protocol).
                     </li>
 
                     <li class="list-group-item"><a href="https://testssl.sh/"><strong>testssl.sh</strong></a> by Dirk Wetter, which is used to perform most of the checks in the EncWeb and EncMail groups.
@@ -104,6 +101,9 @@
                     </li>
                     
                     <li class="list-group-item"><a href="https://securityheaders.io/"><strong>securityheaders.io</strong></a> maintained by <em>Scott Helme</em>, which analyzes issues with HTTP security headers in much more detail than PrivacyScore.
+                    </li>
+                    
+                    <li class="list-group-item"><a href="https://urlscan.io/"><strong>urlscan.io</strong></a> maintained by <em>Johannes Gilger</em>, a sophisticated tool for the analysis of web site retrievals.
                     </li>
                     
                     <li class="list-group-item"><a href="https://observatory.mozilla.org/"><strong>Mozilla Observatory</strong></a>, which also reports on various issues with HTTP security headers.
@@ -121,12 +121,12 @@
                 
                 <p>Great that you want to help! There are several possibilities, for instance:</p>
                 <ul class="list-group">
-                    <li class="list-group-item">If you are working at research institution you could contribute virtual
-                        machines (minimum of 1 CPU core, 1.5 GB RAM, 10 GB HDD, Debian Stretch) to
-                        better distribute the work.</li>
-                    <li class="list-group-item">Once we have <a href="/code/">released the source code</a> you can
-                        contribute by improving the existing checks and writing new ones (see our
-                        list of checks for details).</li>
+                    <li class="list-group-item">If you are working at research institution
+                        you could contribute virtual machines (minimum of 1 CPU core, 1.5 GB RAM, 10 GB
+                        HDD, Debian Stretch) to better distribute the work.</li>
+                    <li class="list-group-item">We have <a href="/code/">released the source code</a>
+                        of PrivacyScore, i.e., you can also contribute by improving existing checks
+                        and writing new ones (see our list of checks for details).</li>
                 </ul>
             </div>
             
