@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -104,6 +105,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
+
+from django.utils.translation import gettext_lazy as _
+LANGUAGES = [
+    ('de', _('German')),
+    ('en', _('English')),
+]
 
 LANGUAGE_CODE = 'en-us'
 

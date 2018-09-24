@@ -4,18 +4,10 @@
   vars:
     ansible_ssh_pipelining: yes
   tasks:
-    - name: Add contrib to sources.list
-      blockinfile:
-        path: /etc/apt/sources.list
-        block: |
-          deb http://192.168.122.1:3142/ftp.de.debian.org/debian/ stretch main contrib
-          deb-src http://192.168.122.1:3142/ftp.de.debian.org/debian/ stretch main contrib
     - name: Install apt packages
       apt: name={{ item }} update_cache=yes
       with_items:
         - build-essential
-        - firefox-esr
-        - flashplugin-nonfree
         - git
         - libboost-python-dev
         - libffi-dev
@@ -23,6 +15,7 @@
         - libleveldb1v5  # v5 on stretch
         - libleveldb-dev
         - libpq-dev
+        - libre2-dev
         - libssl-dev
         - libxml2-dev
         - libxslt-dev
@@ -31,8 +24,12 @@
         - python3-dev
         - python3-six
         - python-dev
+        - sudo
         - virtualenv
         - xvfb
+    - name: Download and install Google Chrome for privacyscanner
+      apt:
+        deb: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
     - name: Enable NTP service
       service:
         name: ntp
@@ -52,9 +49,9 @@
         owner: root
         group: root
         mode: 0400
-    - name: Clone git repository
+    - name: Clone privacyscore git repository
       git:
-        repo: gogs@svs.informatik.uni-hamburg.de:svs/privacyscore.git
+        repo: https://github.com/PrivacyScore/PrivacyScore.git
         dest: /opt/privacyscore
         version: master
         accept_hostkey: yes
@@ -62,6 +59,7 @@
       user:
         name: privacyscore
         home: /opt/privacyscore
+        shell: /bin/bash
         system: yes
     - name: Set owner of privacyscore directory
       file:
@@ -126,7 +124,7 @@
       become: yes
       become_user: privacyscore
       git:
-        repo: gogs@svs.informatik.uni-hamburg.de:svs/privacyscore.git
+        repo: https://github.com/PrivacyScore/PrivacyScore.git
         dest: /opt/privacyscore
         version: master
         accept_hostkey: yes
