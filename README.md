@@ -14,7 +14,7 @@ At the moment, the code should be considered beta quality. To try the system out
 PrivacyScore relies on the following libraries and frameworks:
 
 - [Django](https://www.djangoproject.com/) (BSD)
-- [OpenWPM](https://github.com/citp/OpenWPM) (GPLv3)
+- [Privacyscanner](https://github.com/PrivacyScore/privacyscanner) (MIT + GPLv3)
 - [testssl.sh](https://github.com/drwetter/testssl.sh) (GPLv2)¹
 - [Celery](http://www.celeryproject.org/) (BSD)
 - [adblockparser](https://github.com/scrapinghub/adblockparser) (MIT)

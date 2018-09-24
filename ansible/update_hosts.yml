@@ -4,7 +4,7 @@
   vars:
     ansible_ssh_pipelining: yes
   tasks:
-    - name: Refresh git repository
+    - name: Refresh PrivacyScore git repository
       become: yes
       become_user: privacyscore
       git:
@@ -87,7 +87,7 @@
               # release based on the git info.
               'release': raven.fetch_git_sha('/opt/privacyscore'),
           }
-    - name: Install pip requirements
+    - name: Install PrivacyScore pip requirements
       become: yes
       become_user: privacyscore
       pip:
@@ -100,6 +100,29 @@
       become_user: privacyscore
       pip:
         name: raven
+      environment:
+        PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        VIRTUAL_ENV: /opt/privacyscore/.pyenv
+    - name: Refresh privacyscanner git repository
+      become: yes
+      become_user: privacyscore
+      git:
+        repo: https://github.com/PrivacyScore/privacyscanner.git
+        dest: /opt/privacyscore/privacyscanner
+        version: master
+    - name: Install privacyscanner pip requirements
+      become: yes
+      become_user: privacyscore
+      pip:
+        editable: yes
+        name: /opt/privacyscore/privacyscanner
+      environment:
+        PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        VIRTUAL_ENV: /opt/privacyscore/.pyenv
+    - name: Update privacyscanner dependencies
+      become: yes
+      become_user: privacyscore
+      command: privacyscanner update_dependencies
       environment:
         PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         VIRTUAL_ENV: /opt/privacyscore/.pyenv
@@ -151,42 +174,6 @@
         repo: https://github.com/drwetter/testssl.sh.git
         dest: /opt/privacyscore/tests/vendor/testssl.sh
         version: 47409a32d687355739543890c1ddc70a8539d071
-    - name: Refresh vendor/OpenWPM
-      when: is_slave
-      become: yes
-      become_user: privacyscore
-      git:
-        repo: https://github.com/citp/OpenWPM
-        dest: /opt/privacyscore/tests/vendor/OpenWPM
-        version: 99da2d91897c2ddcb128a0e133cccc09c4f14996
-    - name: Create vendor/EasyList if it does not exist
-      file:
-        path: /opt/privacyscore/tests/vendor/EasyList/
-        owner: privacyscore
-        group: privacyscore
-        mode: 0700
-        state: directory
-    - name: Download EasyList
-      get_url:
-        url: https://easylist.to/easylist/easylist.txt
-        owner: privacyscore
-        group: privacyscore
-        dest: /opt/privacyscore/tests/vendor/EasyList/easylist.txt
-        force: yes
-    - name: Download EasyPrivacy
-      get_url:
-        url: https://easylist.to/easylist/easyprivacy.txt
-        owner: privacyscore
-        group: privacyscore
-        dest: /opt/privacyscore/tests/vendor/EasyList/easyprivacy.txt
-        force: yes
-    - name: Download Fanboy Anti-Social-Media
-      get_url:
-        url: https://easylist.to/easylist/fanboy-annoyance.txt
-        owner: privacyscore
-        group: privacyscore
-        dest: /opt/privacyscore/tests/vendor/EasyList/fanboy-annoyance.txt
-        force: yes
     - name: Create vendor/HSTSPreload if it does not exist
       file:
         path: /opt/privacyscore/tests/vendor/HSTSPreload/
