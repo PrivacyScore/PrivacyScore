@@ -92,17 +92,13 @@
       become_user: privacyscore
       pip:
         requirements: /opt/privacyscore/requirements.txt
-      environment:
-        PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-        VIRTUAL_ENV: /opt/privacyscore/.pyenv
+        virtualenv: /opt/privacyscore/.pyenv
     - name: Install raven
       become: yes
       become_user: privacyscore
       pip:
         name: raven
-      environment:
-        PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-        VIRTUAL_ENV: /opt/privacyscore/.pyenv
+        virtualenv: /opt/privacyscore/.pyenv
     - name: Refresh privacyscanner git repository
       become: yes
       become_user: privacyscore
@@ -115,9 +111,7 @@
       become_user: privacyscore
       pip:
         name: /opt/privacyscore/privacyscanner
-      environment:
-        PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-        VIRTUAL_ENV: /opt/privacyscore/.pyenv
+        virtualenv: /opt/privacyscore/.pyenv
     - name: Update privacyscanner dependencies
       become: yes
       become_user: privacyscore
