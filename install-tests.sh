@@ -11,7 +11,7 @@ wget --quiet -O- http://geolite.maxmind.com/download/geoip/database/GeoLite2-Cou
 # privacyscanner
 git clone https://github.com/PrivacyScore/privacyscanner.git
 pushd privacyscanner
-pip install -e .
+pip install .
 privacyscanner update_dependencies
 popd
 
