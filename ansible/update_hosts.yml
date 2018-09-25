@@ -114,7 +114,6 @@
       become: yes
       become_user: privacyscore
       pip:
-        editable: yes
         name: /opt/privacyscore/privacyscanner
       environment:
         PATH: /opt/privacyscore/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
