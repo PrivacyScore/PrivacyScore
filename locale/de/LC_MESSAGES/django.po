@@ -20,13 +20,13 @@ msgstr ""
 
 #: privacyscore/evaluation/default_checks.py:28
 msgid ""
-"The website scan has encountered an error: OpenWPM timed out. The results "
+"The website scan has encountered an error: privacyscanner timed out. The results "
 "shown in this category are invalid."
 msgstr ""
 
 #: privacyscore/evaluation/default_checks.py:33
 msgid ""
-"The website scan has encountered an error: OpenWPM has not returned a "
+"The website scan has encountered an error: privacyscanner has not returned a "
 "result. The results shown in this category are invalid."
 msgstr ""
 
