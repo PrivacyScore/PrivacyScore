@@ -17,7 +17,7 @@ class FragmentType(enum.IntEnum):
     PLACEHOLDER = 3
 
 
-MIDDLEWARE_TOKEN_REGEXP = re.compile(b"name='csrfmiddlewaretoken' value='([a-zA-Z0-9]+)'")
+MIDDLEWARE_TOKEN_REGEXP = re.compile(rb"name=['\"]csrfmiddlewaretoken['\"] value=['\"]([a-zA-Z0-9]+)['\"]")
 
 
 def flexcache_view(view_fn, cache_prefix, placeholders=None, include_path=True,
