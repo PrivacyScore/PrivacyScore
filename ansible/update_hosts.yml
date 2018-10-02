@@ -23,8 +23,8 @@
           CELERY_TASK_SERIALIZER = 'msgpack'
           CELERY_RESULT_SERIALIZER = 'msgpack'
           CELERY_ACCEPT_CONTENT = ['msgpack']
-          CELERY_BROKER_URL = 'amqp://privacyscore:{{ lookup('passwordstore', 'svs/svs-ps01/rabbitmq/privacyscore') }}@134.100.14.111:5672//'
-          CELERY_RESULT_BACKEND = 'redis://134.100.14.111:6379/0'
+          CELERY_BROKER_URL = 'amqp://privacyscore:{{ lookup('passwordstore', 'svs/svs-ps01/rabbitmq/privacyscore') }}@10.112.116.50:5672//'
+          CELERY_RESULT_BACKEND = 'redis://10.112.116.50:6379/0'
           CELERY_DEFAULT_QUEUE = 'master'
           CELERY_QUEUES = (
               Queue('master', Exchange('master'), routing_key='master'),
