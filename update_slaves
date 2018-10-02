@@ -1,0 +1,3 @@
+#!/bin/sh -e
+cd ansible
+ansible-playbook -i inventory update_hosts.yml
