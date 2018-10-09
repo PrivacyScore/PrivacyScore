@@ -517,6 +517,8 @@ class RawScanResult(models.Model):
     def retrieve(self) -> bytes:
         """Retrieve the raw data."""
         if self.in_db:
+            if isinstance(self.data, memoryview):
+                return self.data.tobytes()
             return self.data
         path = os.path.join(settings.RAW_DATA_DIR, self.file_name)
         if path.endswith('.gz'):
