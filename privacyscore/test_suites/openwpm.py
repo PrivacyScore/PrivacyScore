@@ -177,11 +177,11 @@ def process_test_data(raw_data: list, previous_results: dict, scan_basedir: str,
             scantosave['https'] = True
 
         # retrieve final URL (after potential redirects)
-        scantosave['openwpm_final_url'] = crawl_data['final_url']
+        scantosave['openwpm_final_url'] = previous_results.get('final_url')
 
         # if we are redirected to an insecure http:// site we have to set https-flag
         # to false even if the original URL used https://
-        redirected_to_https = crawl_data['final_url'].startswith('https://')
+        redirected_to_https = previous_results.get('final_url_is_https')
         if redirected_to_https and scantosave['success']:
             scantosave['https'] = True
         else:
