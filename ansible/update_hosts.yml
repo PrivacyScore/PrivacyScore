@@ -156,6 +156,10 @@
     - name: Restart privacyscore-celery-master.service
       when: is_master
       service: name=privacyscore-celery-master state=restarted
+    - name: Download GeoLite2 database
+      shell: 'wget --quiet -O- http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz | gunzip > /opt/privacyscore/tests/vendor/geoip/GeoLite2-Country.mmdb'
+      args:
+        executable: /bin/bash
     - name: Restart privacyscore-celery-slave.service
       when: is_slave
       service: name=privacyscore-celery-slave state=restarted
