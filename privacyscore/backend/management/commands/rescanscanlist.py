@@ -26,30 +26,43 @@ class Command(BaseCommand):
     help = 'Rescan all sites in an exisiting ScanList.'
 
     def add_arguments(self, parser):
-        parser.add_argument('scan_list_id')
+        parser.add_argument('scan_list_id', type=int, default=None, nargs='?')
         parser.add_argument('-s', '--sleep-between-scans', type=float, default=0)
 
     def handle(self, *args, **options):
-        scan_list = ScanList.objects.get(id=options['scan_list_id'])
-        sites = scan_list.sites.all()
-
-        scan_count = 0
-        for site in sites:
-            status_code = site.scan()
-            if status_code == Site.SCAN_COOLDOWN:
-                self.stdout.write(
-                    'Rate limiting -- Not scanning site {}'.format(site))
-                continue
-            if status_code == Site.SCAN_BLACKLISTED:
-                self.stdout.write(
-                    'Blacklisted -- Not scanning site {}'.format(site))
-                continue
-            scan_count += 1
-            self.stdout.write('Scanning site {}'.format(
-                site))
-            if options['sleep_between_scans']:
-                self.stdout.write('Sleeping {}'.format(options['sleep_between_scans']))
-                sleep(options['sleep_between_scans'])
-
-        self.stdout.write('read {} sites, scanned {}'.format(
-            len(sites), scan_count))
+        scan_list_id = options['scan_list_id']
+        if scan_list_id is None:
+            for scan_list in ScanList.objects.all():
+                print ("{l.id:>8}"
+                       "\t {l.created:%Y-%m-%d %H:%M}"
+                       "\t {length}"
+                       "\t {l.name}"
+                       "".format(
+                    l=scan_list,
+                    length=scan_list.sites.all().count()))
+                print ()
+                print ("Select a ScanList from the list above")
+        else:
+            scan_list = ScanList.objects.get(id=options['scan_list_id'])
+            sites = scan_list.sites.all()
+    
+            scan_count = 0
+            for site in sites:
+                status_code = site.scan()
+                if status_code == Site.SCAN_COOLDOWN:
+                    self.stdout.write(
+                        'Rate limiting -- Not scanning site {}'.format(site))
+                    continue
+                if status_code == Site.SCAN_BLACKLISTED:
+                    self.stdout.write(
+                        'Blacklisted -- Not scanning site {}'.format(site))
+                    continue
+                scan_count += 1
+                self.stdout.write('Scanning site {}'.format(
+                    site))
+                if options['sleep_between_scans']:
+                    self.stdout.write('Sleeping {}'.format(options['sleep_between_scans']))
+                    sleep(options['sleep_between_scans'])
+    
+            self.stdout.write('read {} sites, scanned {}'.format(
+                len(sites), scan_count))
