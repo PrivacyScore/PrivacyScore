@@ -13,7 +13,9 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 test_name = 'serverleak'
-test_dependencies = []
+test_dependencies = [
+    'network', 'openwpm', 'testssl_https', 'testssl_mx',
+]
 
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0 (Research project: Visit PrivacyScore.org for details)'
 
