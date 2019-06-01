@@ -11,6 +11,7 @@ import time
 from io import BytesIO
 from typing import Dict, Union
 from uuid import uuid4
+from pathlib import Path
 
 import tldextract
 
@@ -62,7 +63,7 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
             with get_worker_id() as worker_id:
                 meta = ScanMeta(worker_id=worker_id, num_tries=num_tries)
                 scan_mod = ChromeDevtoolsScanModule({
-                    'storage_path': os.path.expanduser('~/.local/share/privacyscanner')
+                    'storage_path': Path('~/.local/share/privacyscanner').expanduser()
                 })
                 scan_mod.logger = logger
                 scan_mod.scan_site(scanner_result, meta)
