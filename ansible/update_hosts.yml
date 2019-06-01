@@ -82,7 +82,7 @@
           import raven
 
           RAVEN_CONFIG = {
-              'dsn': 'https://{{ lookup('passwordstore', 'privacyscore.org/sentry') }}@sentry.mafiasi.de/16',
+              'dsn': 'https://{{ lookup('passwordstore', 'privacyscore.org/sentry') }}@sentry.psi.uni-bamberg.de/12',
               # If you are using git, you can also automatically configure the
               # release based on the git info.
               'release': raven.fetch_git_sha('/opt/privacyscore'),
