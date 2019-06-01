@@ -16,7 +16,7 @@ import tldextract
 
 from PIL import Image
 
-from privacyscanner.scanmodules.chromedevtools import scan_site
+from privacyscanner.scanmodules.chromedevtools import ChromeDevtoolsScanModule
 from privacyscanner.scanmeta import ScanMeta
 from privacyscanner.result import Result
 from privacyscanner.filehandlers import DirectoryFileHandler
@@ -61,7 +61,9 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
             scanner_result = Result({'site_url': url}, file_handler)
             with get_worker_id() as worker_id:
                 meta = ScanMeta(worker_id=worker_id, num_tries=num_tries)
-                scan_site(scanner_result, logger, {}, meta)
+                scan_mod = ChromeDevtoolsScanModule({})
+                scan_mod.logger = logger
+                scan_mod.scan_site(scanner_result, meta)
             break
         except RetryScan:
             if num_tries >= 3:
