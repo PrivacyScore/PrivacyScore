@@ -61,7 +61,9 @@ def test_site(url: str, previous_results: dict, scan_basedir: str, virtualenv_pa
             scanner_result = Result({'site_url': url}, file_handler)
             with get_worker_id() as worker_id:
                 meta = ScanMeta(worker_id=worker_id, num_tries=num_tries)
-                scan_mod = ChromeDevtoolsScanModule({})
+                scan_mod = ChromeDevtoolsScanModule({
+                    'storage_path': os.path.expanduser('~/.local/share/privacyscanner')
+                })
                 scan_mod.logger = logger
                 scan_mod.scan_site(scanner_result, meta)
             break
