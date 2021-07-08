@@ -60,13 +60,13 @@ CHECKS['privacy']['third_parties'] = {
 CHECKS['privacy']['third_party-trackers'] = {
     'keys': {'tracker_requests',},
     'rating': lambda **keys: {
-        'description': _('The site does not use any known tracking- or advertising companies.'),
+        'description': _('The site does not use any known tracking or advertising companies.'),
         'classification': Rating('good'),
         'details_list': [],
     } if len(keys['tracker_requests']) == 0 else {
         'description': ungettext_lazy(
-            'The site is using one known tracking- or advertising company.',
-            'The site is using %(count)d known tracking- or advertising companies.',
+            'The site is using one known tracking or advertising company.',
+            'The site is using %(count)d known tracking or advertising companies.',
             len(keys['tracker_requests'])) % {
                 'count': len(keys['tracker_requests'])},
         'classification':  Rating('bad'),
@@ -139,7 +139,7 @@ CHECKS['privacy']['google_analytics_anonymizeIP_not_set'] = {
         'classification': Rating('neutral'),
         'details_list': None
     } if not keys["google_analytics_present"] else {
-        'description': _('The site uses Google Analytics without the AnonymizeIP Privacy extension.'),
+        'description': _('The site uses Google Analytics without the anonymizeIp privacy extension.'),
         'classification': Rating('bad'),
         'details_list': None
     } if keys['google_analytics_anonymizeIP_not_set'] else {
@@ -150,7 +150,7 @@ CHECKS['privacy']['google_analytics_anonymizeIP_not_set'] = {
     'missing': None,
 }
 
-# Check for the GeoIP of webservers
+# Check for the GeoIP of web servers
 # Purely informational, no rating associated
 CHECKS['privacy']['webserver_locations'] = {
     'keys': {'a_locations',},
@@ -204,7 +204,7 @@ CHECKS['security']['leaks'] = {
     } if not keys['reachable'] or not keys['success'] else {
         'description': _('The site does not disclose internal system information at usual paths.'),
         'classification': Rating('good'),
-        'details_list': None        
+        'details_list': None
     } if len(keys['leaks']) == 0 else {
         'description': _('The site discloses internal system information that should not be available.'),
         'classification':  Rating('bad'),
@@ -224,7 +224,7 @@ CHECKS['security']['header_csp'] = {
         'description': _('The site sets a Content-Security-Policy (CSP) header.'),
         'classification': Rating('good'),
         'details_list': None
-    } if keys['headerchecks'].get('content-security-policy') is not None and 
+    } if keys['headerchecks'].get('content-security-policy') is not None and
         keys['headerchecks']['content-security-policy']['status'] != "MISSING" else {
         'description': _('The site does not set a Content-Security-Policy (CSP) header.'),
         'classification':  Rating('bad'),
@@ -256,7 +256,7 @@ CHECKS['security']['header_xssp'] = {
         'description': _('The site sets a X-XSS-Protection  header.'),
         'classification': Rating('good'),
         'details_list': None
-    } if keys['headerchecks'].get('x-xss-protection') is not None and 
+    } if keys['headerchecks'].get('x-xss-protection') is not None and
     keys['headerchecks']['x-xss-protection']['status'] != "MISSING" else {
         'description': _('The site does not set a X-XSS-Protection header.'),
         'classification':  Rating('bad'),
@@ -272,7 +272,7 @@ CHECKS['security']['header_xcto'] = {
         'description': _('The site sets a X-Content-Type-Options header.'),
         'classification': Rating('good'),
         'details_list': None
-    } if keys['headerchecks'].get('x-content-type-options') is not None and 
+    } if keys['headerchecks'].get('x-content-type-options') is not None and
         keys['headerchecks']['x-content-type-options']['status'] != "MISSING" else {
         'description': _('The site does not set a X-Content-Type-Options header.'),
         'classification':  Rating('bad'),
@@ -289,7 +289,7 @@ CHECKS['security']['header_ref'] = {
         'description': _('The site sets a Referrer-Policy header.'),
         'classification': Rating('good'),
         'details_list': None
-    } if keys['headerchecks'].get('referrer-policy') is not None and 
+    } if keys['headerchecks'].get('referrer-policy') is not None and
         keys['headerchecks']['referrer-policy']['status'] != "MISSING" else {
         'description': _('The site does not set a referrer-policy header.'),
         'classification':  Rating('bad'),
@@ -339,7 +339,7 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https'] = {
         'description': _('The site does not use HTTPS by default but it makes available the same content via HTTPS upon request.'),
         'classification': Rating('good'),
         'details_list': None,
-    } if (not keys['final_url'].startswith('https') and 
+    } if (not keys['final_url'].startswith('https') and
           keys['final_https_url'] and
           keys['final_https_url'].startswith('https') and
           keys['same_content_via_https']) else {
@@ -399,7 +399,7 @@ CHECKS['ssl']['site_redirects_to_https'] = {
         'classification': Rating('critical'),
         'details_list': None,
     } if not keys['redirected_to_https'] and keys["web_has_ssl"] and keys['web_cert_trusted'] else {
-        'description': _('Not testing for forward to HTTPS, as the webserver does not offer a well-configured HTTPS.'),
+        'description': _('Not testing for forward to HTTPS, as the web server does not offer a well-configured HTTPS.'),
         'classification': Rating('neutral'),
         'details_list': None,
     },
@@ -1504,7 +1504,7 @@ CHECKS['privacy']['third_parties']['longdesc'] = '''<p>Many websites are using s
 <p>Further reading:</p>
 <ul>
 <li>TODO</li>
-</ul>''' 
+</ul>'''
 CHECKS['privacy']['third_parties']['labels'] = ['reliable']
 
 CHECKS['privacy']['third_party-trackers']['title'] = 'Check if embedded 3rd parties are known trackers'
@@ -1517,7 +1517,7 @@ CHECKS['privacy']['third_party-trackers']['longdesc'] = '''<p>Often, web trackin
 <ul>
 <li><a href="https://easylist.to/">https://easylist.to/</a></li>
 </ul>
-''' 
+'''
 CHECKS['privacy']['third_party-trackers']['labels'] = ['reliable']
 
 CHECKS['privacy']['cookies_1st_party']['title'] = "Determine how many cookies the website sets"
@@ -1530,7 +1530,7 @@ CHECKS['privacy']['cookies_1st_party']['longdesc'] = '''<p>Cookies can be used t
 <ul>
 <li>TODO</li>
 </ul>
-''' 
+'''
 CHECKS['privacy']['cookies_1st_party']['labels'] = ['reliable']
 
 CHECKS['privacy']['cookies_3rd_party']['title'] = "Determine how many cookies are set by third parties"
@@ -1543,7 +1543,7 @@ CHECKS['privacy']['cookies_3rd_party']['longdesc'] = """<p>Cookies can also be s
 <ul>
 <li>TODO</li>
 </ul>
-""" 
+"""
 CHECKS['privacy']['cookies_3rd_party']['labels'] = ['reliable']
 
 CHECKS['privacy']['google_analytics_present']['title'] = 'Check if Google Analytics is being used'
@@ -1556,12 +1556,12 @@ CHECKS['privacy']['google_analytics_present']['longdesc'] = """<p>Google Analyti
 <ul>
 <li>TODO</li>
 </ul>
-""" 
+"""
 CHECKS['privacy']['google_analytics_present']['labels'] = ['reliable']
 
 CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['title'] = "Check if Google Analytics has the privacy extension enabled"
 CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['longdesc'] = """<p>Google Analytics offers a special parameter to anonymize the IPs of visitors. In some countries (e.g. Germany), website operators are legally required to use this parameter. This test checks if the parameter is being used.</p>
-<p><strong>Conditions for passing:</strong> Test passes if Google Analytics is being used with the anonymizeIp extension. If Google Analytics is not being used, this test is neutral. Otherwise, the test fails, and the operation of the website may be illegal in certain juristictions.</p>
+<p><strong>Conditions for passing:</strong> Test passes if Google Analytics is being used with the anonymizeIp extension. If Google Analytics is not being used, this test is neutral. Otherwise, the test fails, and the operation of the website may be illegal in certain jurisdictions.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
@@ -1571,7 +1571,7 @@ CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['longdesc'] = """<p>Go
 <li><a href="https://support.google.com/analytics/answer/2763052?hl=en">https://support.google.com/analytics/answer/2763052?hl=en</a></li>
 <li><a href="https://support.google.com/analytics/answer/2905384?hl=en">https://support.google.com/analytics/answer/2905384?hl=en</a></li>
 </ul>
-""" 
+"""
 CHECKS['privacy']['google_analytics_anonymizeIP_not_set']['labels'] = ['reliable']
 
 CHECKS['privacy']['webserver_locations']['title'] = 'Check whether web server is located in a country which implements the GDPR'
@@ -1584,7 +1584,7 @@ CHECKS['privacy']['webserver_locations']['longdesc'] = '''<p>We obtain the IP ad
 <ul>
 <li><a href="https://dev.maxmind.com/faq/what-are-the-eu-europe-and-ap-asia-pacific-entries/">Information regarding peculiarities regarding the country <em>Europe</em></a></li>
 </ul>
-''' 
+'''
 CHECKS['privacy']['webserver_locations']['labels'] = ['unreliable']
 
 CHECKS['privacy']['mailserver_locations']['title'] = "Check whether mail server is located in a country which implements the GDPR"
@@ -1597,7 +1597,7 @@ CHECKS['privacy']['mailserver_locations']['longdesc'] = '''<p>We obtain the IP a
 <ul>
 <li><a href="https://dev.maxmind.com/faq/what-are-the-eu-europe-and-ap-asia-pacific-entries/">Information regarding peculiarities regarding the country <em>Europe</em></a></li>
 </ul>
-''' 
+'''
 CHECKS['privacy']['mailserver_locations']['labels'] = ['unreliable']
 
 CHECKS['privacy']['server_locations']['title'] = 'Check whether web and mail servers are located in the same country'
@@ -1610,7 +1610,7 @@ CHECKS['privacy']['server_locations']['longdesc'] = '''<p>Some site owners outso
 <ul>
 <li><a href="https://dev.maxmind.com/faq/what-are-the-eu-europe-and-ap-asia-pacific-entries/">Information regarding peculiarities regarding the country <em>Europe</em></a></li>
 </ul>
-''' 
+'''
 CHECKS['privacy']['server_locations']['labels'] = ['unreliable']
 
 CHECKS['security']['leaks']['title'] = "Check for unintentional information leaks"
@@ -1649,7 +1649,7 @@ CHECKS['security']['header_xfo']['longdesc'] = '''<p>This HTTP header prevents a
 <ul>
 <li>TODO</li>
 </ul>
-''' 
+'''
 CHECKS['security']['header_xfo']['labels'] = ['unreliable']
 
 CHECKS['security']['header_xssp']['title'] = "Check for secure XSS Protection"
@@ -1662,7 +1662,7 @@ CHECKS['security']['header_xssp']['longdesc'] = """<p>This HTTP header prevents 
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection</a></li>
 </ul>
-""" 
+"""
 CHECKS['security']['header_xssp']['labels'] = ['unreliable']
 
 CHECKS['security']['header_xcto']['title'] = "Check for secure X-Content-Type-Options"
@@ -1675,7 +1675,7 @@ CHECKS['security']['header_xcto']['longdesc'] = """<p>This HTTP header prevents 
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection</a></li>
 </ul>
-""" 
+"""
 CHECKS['security']['header_xcto']['labels'] = ['unreliable']
 
 CHECKS['security']['header_ref']['title'] = "Check for privacy-friendly Referrer Policy"
@@ -1701,7 +1701,7 @@ CHECKS['ssl']['https_scan_failed']['longdesc'] = """<p>Due to various reasons, a
 <ul>
 <li>TODO</li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['https_scan_failed']['labels'] = ['unreliable']
 
 CHECKS['ssl']['https_scan_finished']['title'] = "Check if the Server offers HTTPS"
@@ -1719,7 +1719,7 @@ CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['longdesc'] = ""
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> If website contents change significantly on each page load, this test may incorrectly fail.</p>
 <p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
-""" 
+"""
 CHECKS['ssl']['no_https_by_default_but_same_content_via_https']['labels'] = ['unreliable']
 
 CHECKS['ssl']['web_cert']['title'] = "Check whether the SSL certificate is valid"
@@ -1728,7 +1728,7 @@ CHECKS['ssl']['web_cert']['longdesc'] = """<p>A secure HTTPS connection requires
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> If website contents change significantly on each page load, this test may incorrectly fail.</p>
 <p>Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
-""" 
+"""
 CHECKS['ssl']['web_cert']['labels'] = ['unreliable']
 
 
@@ -1738,7 +1738,7 @@ CHECKS['ssl']['site_redirects_to_https']['longdesc'] = """<p>To protect their us
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> If users are redirected to the HTTPS version using JavaScript, this test may not detect it.<br>
 Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
-""" 
+"""
 CHECKS['ssl']['site_redirects_to_https']['labels'] = ['reliable']
 
 CHECKS['ssl']['redirects_from_https_to_http']['title'] = "Check if the server prevents users from using the HTTPS version of the website"
@@ -1747,7 +1747,7 @@ CHECKS['ssl']['redirects_from_https_to_http']['longdesc'] = """<p>Some servers o
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> If users are redirected to the HTTP version using JavaScript, this test may not detect it.<br>
 Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
-""" 
+"""
 CHECKS['ssl']['redirects_from_https_to_http']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_pfs']['title'] = "Check if the server offers Perfect Forward Secrecy"
@@ -1756,7 +1756,7 @@ CHECKS['ssl']['web_pfs']['longdesc'] = """<p>Perfect forward secrecy protects th
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.<br>
 Scan Module: <a href="https://github.com/citp/OpenWPM" target=_blank>OpenWPM</a></p>
-""" 
+"""
 CHECKS['ssl']['web_pfs']['labels'] = ['reliable']
 
 CHECKS['ssl']['web_hsts_header']['title'] = "Check for valid Strict-Transport-Security (HSTS)"
@@ -1770,7 +1770,7 @@ CHECKS['ssl']['web_hsts_header']['longdesc'] = """<p>This HTTP header prevents a
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security</a></li>
 <li><a href="https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet">https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet</a></li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_hsts_header']['labels'] = ['unreliable']
 
 CHECKS['ssl']['web_hsts_header_duration']['title'] = "Check for duration given in HSTS header"
@@ -1784,7 +1784,7 @@ CHECKS['ssl']['web_hsts_header_duration']['longdesc'] = """<p>The HSTS header al
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security</a></li>
 <li><a href="https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet">https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet</a></li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_hsts_header_duration']['labels'] = ['unreliable']
 
 CHECKS['ssl']['web_hsts_preload_prepared']['title'] = "Check if server is ready for HSTS preloading"
@@ -1824,7 +1824,7 @@ CHECKS['ssl']['web_has_hpkp_header']['longdesc'] = """<p>This HTTP header ensure
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Public_Key_Pinning">https://developer.mozilla.org/en-US/docs/Web/HTTP/Public_Key_Pinning</a></li>
 <li><a href="https://www.owasp.org/index.php/Certificate_and_Public_Key_Pinning">https://www.owasp.org/index.php/Certificate_and_Public_Key_Pinning</a></li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_has_hpkp_header']['labels'] = ['informational']
 
 CHECKS['ssl']['mixed_content']['title'] = "Check for Mixed Content on HTTPS sites"
@@ -1853,7 +1853,7 @@ CHECKS['mx']['mx_insecure_protocols_sslv2']['longdesc'] = """<p>SSL 2.0 is a dep
 <li><a href="https://tools.ietf.org/html/rfc6176">https://tools.ietf.org/html/rfc6176</a></li>
 <li><a href="https://tools.ietf.org/html/rfc6151">https://tools.ietf.org/html/rfc6151</a></li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_insecure_protocols_sslv2']['labels'] = \
 CHECKS['mx']['mx_insecure_protocols_sslv2']['labels'] = ['reliable']
 
@@ -1870,7 +1870,7 @@ CHECKS['mx']['mx_insecure_protocols_sslv3']['longdesc'] = """<p>SSL 3.0 is a dep
 <li><a href="http://disablessl3.com">http://disablessl3.com</a></li>
 <li><a href="https://www.openssl.org/~bodo/ssl-poodle.pdf">https://www.openssl.org/~bodo/ssl-poodle.pdf</a></li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_insecure_protocols_sslv3']['labels'] = \
 CHECKS['mx']['mx_insecure_protocols_sslv3']['labels'] = ['reliable']
 
@@ -1878,7 +1878,7 @@ CHECKS['ssl']['web_secure_protocols_tls1']['title'] = \
 CHECKS['mx']['mx_secure_protocols_tls1']['title'] = "Check if legacy TLS 1.0 is offered"
 CHECKS['ssl']['web_secure_protocols_tls1']['longdesc'] = \
 CHECKS['mx']['mx_secure_protocols_tls1']['longdesc'] = """<p>TLS 1.0 is a legacy encryption protocol that does not support the latest cryptographic algorithms. From a security perspective, it would be desirable to disable TLS 1.0 support. However, many sites still offer TLS 1.0 in order to support legacy clients, although, as of 2014, most contemporary web browsers support at least TLS 1.1. Furthermore, the PCI DSS 3.2 standard mandates that sites that process credit card data remove support for TLS 1.0 by June 2018.</p>
-<p><strong>Informational check:</strong> As TLS 1.0 is neither desireable nor completely deprecated, this test is informational and will always be neutral.</p>
+<p><strong>Informational check:</strong> As TLS 1.0 is neither desirable nor completely deprecated, this test is informational and will always be neutral.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
@@ -1904,14 +1904,14 @@ CHECKS['mx']['mx_secure_protocols_tls1_1']['longdesc'] = """<p>TLS 1.1 is an out
 <li><a href="https://www.owasp.org/index.php/Transport_Layer_Protection_Cheat_Sheet#Rule_-_Only_Support_Strong_Protocols">https://www.owasp.org/index.php/Transport_Layer_Protection_Cheat_Sheet#Rule_-_Only_Support_Strong_Protocols</a></li>
 <li><a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices">https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices</a></li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_secure_protocols_tls1_1']['labels'] = \
 CHECKS['mx']['mx_secure_protocols_tls1_1']['labels'] = ['informational']
 
 CHECKS['ssl']['web_secure_protocols_tls1_2']['title'] = \
 CHECKS['mx']['mx_secure_protocols_tls1_2']['title'] = "Check that TLS 1.2 is offered"
 CHECKS['ssl']['web_secure_protocols_tls1_2']['longdesc'] = \
-CHECKS['mx']['mx_secure_protocols_tls1_2']['longdesc'] = """<p>TLS 1.2 is the a modern encryption protocol that does support the latest cryptographic algorithms.</p>
+CHECKS['mx']['mx_secure_protocols_tls1_2']['longdesc'] = """<p>TLS 1.2 is a modern encryption protocol that does support established cryptographic algorithms.</p>
 <p><strong>Informational check:</strong> Test passes if the server does offer the SSL 3.0 protocol. The result is neutral if the server does not offer encryption at all or if the server cannot be reached.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
@@ -1921,7 +1921,7 @@ CHECKS['mx']['mx_secure_protocols_tls1_2']['longdesc'] = """<p>TLS 1.2 is the a 
 <li><a href="https://www.owasp.org/index.php/Transport_Layer_Protection_Cheat_Sheet#Rule_-_Only_Support_Strong_Protocols">https://www.owasp.org/index.php/Transport_Layer_Protection_Cheat_Sheet#Rule_-_Only_Support_Strong_Protocols</a></li>
 <li><a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices">https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices</a></li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_secure_protocols_tls1_2']['labels'] = \
 CHECKS['mx']['mx_secure_protocols_tls1_2']['labels'] = ['reliable']
 
@@ -1937,7 +1937,7 @@ CHECKS['mx']['mx_vuln_heartbleed']['longdesc'] = """<p>The Heartbleed vulnerabil
 <ul>
 <li>CVE-2014-0160</li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_vuln_heartbleed']['labels'] = \
 CHECKS['mx']['mx_vuln_heartbleed']['labels'] = ['reliable']
 
@@ -1954,7 +1954,7 @@ CHECKS['mx']['mx_vuln_ccs']['longdesc'] = """<p>The ChangeCipherSpec-Bug was a c
 <li>CVE-2014-0224</li>
 <li><a href="https://www.imperialviolet.org/2014/06/05/earlyccs.html">https://www.imperialviolet.org/2014/06/05/earlyccs.html</a></li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_vuln_ccs']['labels'] = \
 CHECKS['mx']['mx_vuln_ccs']['labels'] = ['unreliable']
 
@@ -1970,7 +1970,7 @@ CHECKS['mx']['mx_vuln_ticketbleed']['longdesc'] = """<p>The Ticketbleed-Bug was 
 <ul>
 <li>CVE-2016-9244</li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_vuln_ticketbleed']['labels'] = \
 CHECKS['mx']['mx_vuln_ticketbleed']['labels'] = ['experimental']
 
@@ -2018,7 +2018,7 @@ CHECKS['mx']['mx_vuln_crime']['longdesc'] = """<p>Description will be added soon
 <ul>
 <li>CVE-2012-4929</li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_vuln_crime']['labels'] = \
 CHECKS['mx']['mx_vuln_crime']['labels'] = ['reliable']
 
@@ -2034,7 +2034,7 @@ CHECKS['mx']['mx_vuln_breach']['longdesc'] = """<p>Description will be added soo
 <ul>
 <li>CVE-2013-3587</li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_vuln_breach']['labels'] = \
 CHECKS['mx']['mx_vuln_breach']['labels'] = ['informational']
 
@@ -2050,7 +2050,7 @@ CHECKS['mx']['mx_vuln_poodle']['longdesc'] = """<p>Description will be added soo
 <ul>
 <li>CVE-2014-3566</li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_vuln_poodle']['labels'] = \
 CHECKS['mx']['mx_vuln_poodle']['labels'] = ['reliable']
 
@@ -2067,7 +2067,7 @@ CHECKS['mx']['mx_vuln_sweet32']['longdesc'] = """<p>Description will be added so
 <li>CVE-2016-2183</li>
 <li>CVE-2016-6329</li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_vuln_sweet32']['labels'] = \
 CHECKS['mx']['mx_vuln_sweet32']['labels'] = ['reliable']
 
@@ -2083,7 +2083,7 @@ CHECKS['mx']['mx_vuln_freak']['longdesc'] = """<p>Description will be added soon
 <ul>
 <li>CVE-2015-0204</li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_vuln_freak']['labels'] = \
 CHECKS['mx']['mx_vuln_freak']['labels'] = ['reliable']
 
@@ -2100,7 +2100,7 @@ CHECKS['mx']['mx_vuln_drown']['longdesc'] = """<p>Description will be added soon
 <li>CVE-2016-0800</li>
 <li>CVE-2016-0703</li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_vuln_drown']['labels'] = \
 CHECKS['mx']['mx_vuln_drown']['labels'] = ['reliable']
 
@@ -2132,7 +2132,7 @@ CHECKS['mx']['mx_vuln_beast']['longdesc'] = """<p>Description will be added soon
 <ul>
 <li>CVE-2011-3389</li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_vuln_beast']['labels'] = \
 CHECKS['mx']['mx_vuln_beast']['labels'] = ['informational']
 
@@ -2148,7 +2148,7 @@ CHECKS['mx']['mx_vuln_lucky13']['longdesc'] = """<p>Description will be added so
 <ul>
 <li>CVE-2013-0169</li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_vuln_lucky13']['labels'] = \
 CHECKS['mx']['mx_vuln_lucky13']['labels'] = ['informational']
 
@@ -2164,7 +2164,7 @@ CHECKS['mx']['mx_vuln_rc4']['longdesc'] = """<p><strong>Informational check:</st
 <li>CVE-2013-2566</li>
 <li>CVE-2015-2808</li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_vuln_rc4']['labels'] = \
 CHECKS['mx']['mx_vuln_rc4']['labels'] = ['reliable']
 
@@ -2180,12 +2180,12 @@ CHECKS['mx']['mx_vuln_fallback_scsv']['longdesc'] = """<p>Description will be ad
 <ul>
 <li>RFC 7507</li>
 </ul>
-""" 
+"""
 CHECKS['ssl']['web_vuln_fallback_scsv']['labels'] = \
 CHECKS['mx']['mx_vuln_fallback_scsv']['labels'] = ['reliable']
 
-CHECKS['mx']['has_mx']['title'] = "Check if the Domain has an eMail server"
-CHECKS['mx']['has_mx']['longdesc'] = """<p>Some websites may not have eMail servers associated with them. This test checks if the website advertises an eMail server.</p>
+CHECKS['mx']['has_mx']['title'] = "Check if the Domain has an email server"
+CHECKS['mx']['has_mx']['longdesc'] = """<p>Some websites may not have email servers associated with them. This test checks if the website advertises an email server.</p>
 <p><strong>Reliability: reliable.</strong></p>
 <p><strong>Potential scan errors:</strong> None that we are aware of.</p>
 <p>Scan Module: DNS</p>
@@ -2197,14 +2197,14 @@ CHECKS['mx']['has_mx']['longdesc'] = """<p>Some websites may not have eMail serv
 CHECKS['mx']['has_mx']['labels'] = ['reliable']
 
 CHECKS['mx']['mx_scan_finished']['title'] = "Check if the Mail server supports encryption"
-CHECKS['mx']['mx_scan_finished']['longdesc'] = """<p>Many eMail servers do not allow encrypted connections. This test checks if the mail server associated with the domain supports encrypted connections.</p>
+CHECKS['mx']['mx_scan_finished']['longdesc'] = """<p>Many email servers do not allow encrypted connections. This test checks if the mail server associated with the domain supports encrypted connections.</p>
 <p><strong>Informational check:</strong> Test fails if the server does not offer encryption. The result is neutral if the encryption test did not complete with any results.</p>
 <p><strong>Reliability: unreliable.</strong> </p>
-<p><strong>Potential scan errors:</strong> Many eMail servers will slow down our test significantly, which may lead to it failing even though the server offers encrypted connections. In that case, we will be unable to determine any information about the security of the server, and will exempt the category from the rating.</p>
+<p><strong>Potential scan errors:</strong> Many email servers will slow down our test significantly, which may lead to it failing even though the server offers encrypted connections. In that case, we will be unable to determine any information about the security of the server, and will exempt the category from the rating.</p>
 <p>Scan module: <a href="https://testssl.sh" target=_blank>testssl</a></p>
 <p>Further reading:</p>
 <ul>
 <li>TODO</li>
 </ul>
-"""  
+"""
 CHECKS['mx']['mx_scan_finished']['labels'] = ['unreliable']
